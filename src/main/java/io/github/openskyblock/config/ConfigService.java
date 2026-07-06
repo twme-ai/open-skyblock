@@ -35,6 +35,7 @@ public final class ConfigService {
             "mayors.yml",
             "farming_contests.yml",
             "commissions.yml",
+            "forge.yml",
             "dark_auction.yml",
             "slayers.yml",
             "equipment.yml",
@@ -172,6 +173,10 @@ public final class ConfigService {
 
     public FileConfiguration commissions() {
         return file("commissions.yml");
+    }
+
+    public FileConfiguration forge() {
+        return file("forge.yml");
     }
 
     public FileConfiguration darkAuction() {

@@ -454,6 +454,29 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection forgeJobs = section.getConfigurationSection("forge.jobs");
+        if (forgeJobs != null) {
+            for (String slotKey : forgeJobs.getKeys(false)) {
+                ConfigurationSection job = forgeJobs.getConfigurationSection(slotKey);
+                if (job == null) {
+                    continue;
+                }
+                try {
+                    int slot = Integer.parseInt(slotKey);
+                    String id = job.getString("recipe", "");
+                    if (!id.isBlank()) {
+                        profile.forgeJobs().put(slot, new ActiveForgeJob(
+                                slot,
+                                id.toUpperCase(),
+                                job.getLong("started-at-millis", 0L),
+                                job.getLong("duration-millis", 0L)
+                        ));
+                    }
+                } catch (NumberFormatException ignored) {
+                    plugin.getLogger().warning("Skipping invalid forge slot in profiles.yml: " + slotKey);
+                }
+            }
+        }
         ConfigurationSection cookies = section.getConfigurationSection("cookies");
         if (cookies != null) {
             profile.cookieBuffExpiresAtMillis(cookies.getLong("buff-expires-at", 0L));
@@ -737,6 +760,17 @@ public final class ProfileManager {
             String commissionBase = base + ".commissions.active." + entry.getKey();
             profileData.set(commissionBase + ".id", commission.id());
             profileData.set(commissionBase + ".progress", commission.progress());
+        }
+        profileData.set(base + ".forge", null);
+        for (Map.Entry<Integer, ActiveForgeJob> entry : profile.forgeJobs().entrySet()) {
+            ActiveForgeJob job = entry.getValue();
+            if (job == null) {
+                continue;
+            }
+            String forgeBase = base + ".forge.jobs." + entry.getKey();
+            profileData.set(forgeBase + ".recipe", job.recipeId());
+            profileData.set(forgeBase + ".started-at-millis", job.startedAtMillis());
+            profileData.set(forgeBase + ".duration-millis", job.durationMillis());
         }
         profileData.set(base + ".cookies", null);
         profileData.set(base + ".cookies.buff-expires-at", profile.cookieBuffExpiresAtMillis());

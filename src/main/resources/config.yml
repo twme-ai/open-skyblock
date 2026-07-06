@@ -48,6 +48,7 @@ features:
   mayors: true
   farming-contests: true
   commissions: true
+  forge: true
   slayers: true
 
 islands:

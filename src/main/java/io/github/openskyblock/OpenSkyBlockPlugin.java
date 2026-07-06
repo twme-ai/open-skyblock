@@ -19,6 +19,7 @@ import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.equipment.EquipmentService;
 import io.github.openskyblock.farmingcontest.FarmingContestService;
+import io.github.openskyblock.forge.ForgeService;
 import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.island.IslandService;
 import io.github.openskyblock.listener.AutoPetListener;
@@ -86,6 +87,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private ArmorSetService armorSetService;
     private CalendarService calendarService;
     private CommissionService commissionService;
+    private ForgeService forgeService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -144,6 +146,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.skillService = new SkillService(configService, textService, profileManager, collectionService, economyService);
         this.commissionService = new CommissionService(configService, textService, profileManager, economyService, skillService);
         this.customItemService = new CustomItemService(this, configService, textService);
+        this.forgeService = new ForgeService(configService, textService, profileManager, economyService, customItemService);
         this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
         this.skillService.museumService(museumService);
         this.economyService.museumService(museumService);
@@ -282,6 +285,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         skillService.reload();
         commissionService.reload();
         customItemService.reload();
+        forgeService.reload();
         museumService.reload();
         cookieService.reload();
         itemAbilityService.reload();
@@ -427,6 +431,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public CommissionService commissions() {
         return commissionService;
+    }
+
+    public ForgeService forge() {
+        return forgeService;
     }
 
     public MayorService mayors() {

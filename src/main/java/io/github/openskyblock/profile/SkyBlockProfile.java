@@ -42,6 +42,7 @@ public final class SkyBlockProfile {
     private final Map<String, Map<String, Long>> farmingContestScores = new HashMap<>();
     private final Map<String, String> farmingContestRewards = new HashMap<>();
     private final Map<Integer, ActiveCommission> activeCommissions = new HashMap<>();
+    private final Map<Integer, ActiveForgeJob> forgeJobs = new HashMap<>();
     private final Map<String, Double> hotmPowder = new HashMap<>();
     private final Map<String, Double> slayerXp = new HashMap<>();
     private final Map<String, Integer> slayerLevels = new HashMap<>();
@@ -461,6 +462,10 @@ public final class SkyBlockProfile {
 
     public Map<Integer, ActiveCommission> activeCommissions() {
         return activeCommissions;
+    }
+
+    public Map<Integer, ActiveForgeJob> forgeJobs() {
+        return forgeJobs;
     }
 
     public long totalCommissions() {

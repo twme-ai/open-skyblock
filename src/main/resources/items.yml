@@ -118,6 +118,22 @@ items:
     lore:
       - "<gray>Consumed to unlock configured gemstone slots.</gray>"
     stats: {}
+  REFINED_MITHRIL:
+    material: NETHERITE_INGOT
+    display-name: "<aqua>Refined Mithril</aqua>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A refined material produced by the Forge.</gray>"
+    stats: {}
+  MITHRIL_PLATE:
+    material: HEAVY_WEIGHTED_PRESSURE_PLATE
+    display-name: "<blue>Mithril Plate</blue>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A sturdy Forge component for advanced recipes.</gray>"
+    stats: {}
   ROUGH_RUBY_GEMSTONE:
     material: REDSTONE
     display-name: "<red>Rough Ruby Gemstone</red>"

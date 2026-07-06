@@ -104,6 +104,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "commissions",
             "commission",
             "hotm",
+            "forge",
             "seacreatures",
             "seacreature",
             "trophyfish",
@@ -194,6 +195,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "jacob", "farmingcontest", "farmingcontests" -> farmingContests(sender, args);
             case "commissions", "commission" -> commissions(sender, args);
             case "hotm" -> hotm(sender);
+            case "forge" -> forge(sender, args);
             case "seacreatures", "seacreature" -> seaCreatures(sender, args);
             case "trophyfish", "trophyfishing" -> trophyFish(sender, args);
             case "mobs", "mob" -> mobs(sender, args);
@@ -460,6 +462,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isCommissionCommand(args[0]) && args[1].equalsIgnoreCase("claim")) {
             return startsWith(List.of("1", "2", "3", "4"), args[2]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("forge")) {
+            return startsWith(List.of("status", "list", "start", "collect"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("forge") && args[1].equalsIgnoreCase("start")) {
+            return startsWith(plugin.forge().recipeIds(), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("forge") && args[1].equalsIgnoreCase("collect")) {
+            return startsWith(List.of("1", "2", "3", "4", "5", "all"), args[2]);
+        }
         if (args.length == 2 && isSeaCreatureCommand(args[0])) {
             return startsWith(List.of("status", "list"), args[1]);
         }
@@ -635,6 +646,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " jacob [status|crops|rewards|medals|leaderboard]", "commands.help.farming-contest");
         helpLine(sender, label + " commissions", "commands.help.commissions");
         helpLine(sender, label + " hotm", "commands.help.hotm");
+        helpLine(sender, label + " forge status|list|start|collect", "commands.help.forge");
         helpLine(sender, label + " seacreatures [list]", "commands.help.sea-creatures");
         helpLine(sender, label + " trophyfish [list|tiers]", "commands.help.trophy-fish");
         helpLine(sender, label + " mobs", "commands.help.mobs");
@@ -1743,6 +1755,39 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         Player player = requirePlayer(sender);
         if (player != null) {
             plugin.commissions().sendHotm(player);
+        }
+    }
+
+    private void forge(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.forge().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "list", "recipes" -> plugin.forge().sendList(player);
+            case "start" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.forge-usage");
+                    return;
+                }
+                plugin.forge().start(player, args[2]);
+            }
+            case "collect" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.forge-usage");
+                    return;
+                }
+                if (args[2].equalsIgnoreCase("all")) {
+                    plugin.forge().collectReady(player);
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(slot -> plugin.forge().collect(player, slot));
+            }
+            default -> plugin.text().send(player, "commands.forge-usage");
         }
     }
 

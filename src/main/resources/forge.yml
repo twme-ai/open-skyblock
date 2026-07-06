@@ -1,0 +1,62 @@
+settings:
+  default-slots: 2
+  max-slots: 5
+
+hotm-slot-milestones:
+  1: 2
+  2: 3
+  3: 4
+  5: 5
+
+recipes:
+  REFINED_MITHRIL:
+    display-name: "<aqua>Refined Mithril</aqua>"
+    description: "Refine mining materials into a Forge crafting component."
+    required-hotm-level: 1
+    duration-seconds: 600
+    cost: 1000.0
+    ingredients:
+      - type: VANILLA
+        material: IRON_INGOT
+        amount: 32
+      - type: VANILLA
+        material: LAPIS_LAZULI
+        amount: 16
+    output:
+      type: CUSTOM_ITEM
+      item: REFINED_MITHRIL
+      amount: 1
+  MITHRIL_PLATE:
+    display-name: "<blue>Mithril Plate</blue>"
+    description: "Compress refined materials into a higher-tier Forge component."
+    required-hotm-level: 2
+    duration-seconds: 1800
+    cost: 5000.0
+    ingredients:
+      - type: CUSTOM_ITEM
+        item: REFINED_MITHRIL
+        amount: 5
+      - type: VANILLA
+        material: GOLD_INGOT
+        amount: 16
+    output:
+      type: CUSTOM_ITEM
+      item: MITHRIL_PLATE
+      amount: 1
+  GEMSTONE_CHAMBER:
+    display-name: "<light_purple>Gemstone Chamber</light_purple>"
+    description: "Forge a chamber used by the gemstone slot system."
+    required-hotm-level: 3
+    duration-seconds: 3600
+    cost: 25000.0
+    ingredients:
+      - type: CUSTOM_ITEM
+        item: MITHRIL_PLATE
+        amount: 2
+      - type: VANILLA
+        material: AMETHYST_SHARD
+        amount: 32
+    output:
+      type: CUSTOM_ITEM
+      item: GEMSTONE_CHAMBER
+      amount: 1
