@@ -1,0 +1,388 @@
+settings:
+  base-rift-time-seconds: 600
+  souls-per-exchange: 4
+  motes-per-soul-exchange: 250
+  rift-time-seconds-per-exchange: 15
+  skyblock-xp-per-soul-exchange: 2.0
+
+zones:
+  WYLD_WOODS:
+    display-name: "<green>Wyld Woods</green>"
+    required-timecharm-count: 0
+    required-timecharms: []
+    entry-cost-seconds: 0
+  LONELY_TERRACE:
+    display-name: "<yellow>Lonely Terrace</yellow>"
+    required-timecharm-count: 1
+    required-timecharms:
+      - CHICKEN_N_EGG
+    entry-cost-seconds: 120
+  WEST_VILLAGE:
+    display-name: "<gold>West Village</gold>"
+    required-timecharm-count: 2
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+    entry-cost-seconds: 180
+  DREADFARM:
+    display-name: "<dark_green>Dreadfarm</dark_green>"
+    required-timecharm-count: 3
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+    entry-cost-seconds: 240
+  LAGOON_HUT:
+    display-name: "<aqua>Lagoon Hut</aqua>"
+    required-timecharm-count: 4
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+    entry-cost-seconds: 300
+  STILLGORE_CHATEAU:
+    display-name: "<dark_red>Stillgore Chateau</dark_red>"
+    required-timecharm-count: 5
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+    entry-cost-seconds: 360
+  MOUNTAINTOP:
+    display-name: "<light_purple>Mountaintop</light_purple>"
+    required-timecharm-count: 6
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+      - SUPREME
+    entry-cost-seconds: 420
+
+timecharms:
+  CHICKEN_N_EGG:
+    display-name: "<yellow>Chicken N Egg Timecharm</yellow>"
+    zone: WYLD_WOODS
+    mote-cost: 250
+    required-soul-exchanges: 0
+    required-timecharms: []
+    rift-time-bonus-seconds: 60
+    skyblock-xp: 10.0
+    custom-item: CHICKEN_N_EGG_TIMECHARM
+  MIRRORVERSE:
+    display-name: "<light_purple>mrahcemiT esrevrorriM</light_purple>"
+    zone: LONELY_TERRACE
+    mote-cost: 750
+    required-soul-exchanges: 1
+    required-timecharms:
+      - CHICKEN_N_EGG
+    rift-time-bonus-seconds: 75
+    skyblock-xp: 10.0
+    custom-item: MIRRORVERSE_TIMECHARM
+  LIVING:
+    display-name: "<green>Living Timecharm</green>"
+    zone: WEST_VILLAGE
+    mote-cost: 1500
+    required-soul-exchanges: 2
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+    rift-time-bonus-seconds: 90
+    skyblock-xp: 10.0
+    custom-item: LIVING_TIMECHARM
+  GLOBULATE:
+    display-name: "<aqua>Globulate Timecharm</aqua>"
+    zone: DREADFARM
+    mote-cost: 2500
+    required-soul-exchanges: 3
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+    rift-time-bonus-seconds: 105
+    skyblock-xp: 10.0
+    custom-item: GLOBULATE_TIMECHARM
+  VAMPIRIC:
+    display-name: "<red>Vampiric Timecharm</red>"
+    zone: LAGOON_HUT
+    mote-cost: 4000
+    required-soul-exchanges: 4
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+    rift-time-bonus-seconds: 120
+    skyblock-xp: 10.0
+    custom-item: VAMPIRIC_TIMECHARM
+  SUPREME:
+    display-name: "<gold>Supreme Timecharm</gold>"
+    zone: STILLGORE_CHATEAU
+    mote-cost: 6500
+    required-soul-exchanges: 5
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+    rift-time-bonus-seconds: 150
+    skyblock-xp: 15.0
+    custom-item: SUPREME_TIMECHARM
+  CELESTIAL:
+    display-name: "<white>Celestial Timecharm</white>"
+    zone: MOUNTAINTOP
+    mote-cost: 10000
+    required-soul-exchanges: 6
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+      - SUPREME
+    rift-time-bonus-seconds: 180
+    skyblock-xp: 20.0
+    custom-item: CELESTIAL_TIMECHARM
+
+souls:
+  WYLD_WOODS_TREE:
+    display-name: "<light_purple>Wyld Woods Enigma Soul</light_purple>"
+    zone: WYLD_WOODS
+    required-timecharm-count: 0
+    required-timecharms: []
+    mote-reward: 25
+  WYLD_WOODS_LAKE:
+    display-name: "<light_purple>Lake Enigma Soul</light_purple>"
+    zone: WYLD_WOODS
+    required-timecharm-count: 0
+    required-timecharms: []
+    mote-reward: 25
+  WYLD_WOODS_MUSHROOM:
+    display-name: "<light_purple>Mushroom Grove Enigma Soul</light_purple>"
+    zone: WYLD_WOODS
+    required-timecharm-count: 0
+    required-timecharms: []
+    mote-reward: 25
+  WYLD_WOODS_CAVE:
+    display-name: "<light_purple>Wyld Cave Enigma Soul</light_purple>"
+    zone: WYLD_WOODS
+    required-timecharm-count: 0
+    required-timecharms: []
+    mote-reward: 25
+  LONELY_TERRACE_BALCONY:
+    display-name: "<light_purple>Terrace Balcony Enigma Soul</light_purple>"
+    zone: LONELY_TERRACE
+    required-timecharm-count: 1
+    required-timecharms:
+      - CHICKEN_N_EGG
+    mote-reward: 35
+  LONELY_TERRACE_MIRROR:
+    display-name: "<light_purple>Mirrorverse Enigma Soul</light_purple>"
+    zone: LONELY_TERRACE
+    required-timecharm-count: 1
+    required-timecharms:
+      - CHICKEN_N_EGG
+    mote-reward: 35
+  WEST_VILLAGE_ROOFTOP:
+    display-name: "<light_purple>West Village Rooftop Enigma Soul</light_purple>"
+    zone: WEST_VILLAGE
+    required-timecharm-count: 2
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+    mote-reward: 50
+  WEST_VILLAGE_CELLAR:
+    display-name: "<light_purple>West Village Cellar Enigma Soul</light_purple>"
+    zone: WEST_VILLAGE
+    required-timecharm-count: 2
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+    mote-reward: 50
+  DREADFARM_SILO:
+    display-name: "<light_purple>Dreadfarm Silo Enigma Soul</light_purple>"
+    zone: DREADFARM
+    required-timecharm-count: 3
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+    mote-reward: 75
+  DREADFARM_FIELD:
+    display-name: "<light_purple>Dreadfarm Field Enigma Soul</light_purple>"
+    zone: DREADFARM
+    required-timecharm-count: 3
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+    mote-reward: 75
+  DREADFARM_BARN:
+    display-name: "<light_purple>Dreadfarm Barn Enigma Soul</light_purple>"
+    zone: DREADFARM
+    required-timecharm-count: 3
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+    mote-reward: 75
+  DREADFARM_WINDMILL:
+    display-name: "<light_purple>Dreadfarm Windmill Enigma Soul</light_purple>"
+    zone: DREADFARM
+    required-timecharm-count: 3
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+    mote-reward: 75
+  LAGOON_CAVE:
+    display-name: "<light_purple>Lagoon Cave Enigma Soul</light_purple>"
+    zone: LAGOON_HUT
+    required-timecharm-count: 4
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+    mote-reward: 100
+  LAGOON_DOCK:
+    display-name: "<light_purple>Lagoon Dock Enigma Soul</light_purple>"
+    zone: LAGOON_HUT
+    required-timecharm-count: 4
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+    mote-reward: 100
+  LAGOON_REEDS:
+    display-name: "<light_purple>Lagoon Reeds Enigma Soul</light_purple>"
+    zone: LAGOON_HUT
+    required-timecharm-count: 4
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+    mote-reward: 100
+  LAGOON_WATERFALL:
+    display-name: "<light_purple>Lagoon Waterfall Enigma Soul</light_purple>"
+    zone: LAGOON_HUT
+    required-timecharm-count: 4
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+    mote-reward: 100
+  STILLGORE_LIBRARY:
+    display-name: "<light_purple>Stillgore Library Enigma Soul</light_purple>"
+    zone: STILLGORE_CHATEAU
+    required-timecharm-count: 5
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+    mote-reward: 150
+  STILLGORE_COURTYARD:
+    display-name: "<light_purple>Stillgore Courtyard Enigma Soul</light_purple>"
+    zone: STILLGORE_CHATEAU
+    required-timecharm-count: 5
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+    mote-reward: 150
+  STILLGORE_TOWER:
+    display-name: "<light_purple>Stillgore Tower Enigma Soul</light_purple>"
+    zone: STILLGORE_CHATEAU
+    required-timecharm-count: 5
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+    mote-reward: 150
+  STILLGORE_CRYPT:
+    display-name: "<light_purple>Stillgore Crypt Enigma Soul</light_purple>"
+    zone: STILLGORE_CHATEAU
+    required-timecharm-count: 5
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+    mote-reward: 150
+  MOUNTAINTOP_GATE:
+    display-name: "<light_purple>Mountaintop Gate Enigma Soul</light_purple>"
+    zone: MOUNTAINTOP
+    required-timecharm-count: 6
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+      - SUPREME
+    mote-reward: 250
+  MOUNTAINTOP_PATH:
+    display-name: "<light_purple>Mountaintop Path Enigma Soul</light_purple>"
+    zone: MOUNTAINTOP
+    required-timecharm-count: 6
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+      - SUPREME
+    mote-reward: 250
+  MOUNTAINTOP_ARCH:
+    display-name: "<light_purple>Mountaintop Arch Enigma Soul</light_purple>"
+    zone: MOUNTAINTOP
+    required-timecharm-count: 6
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+      - SUPREME
+    mote-reward: 250
+  MOUNTAINTOP_SUMMIT:
+    display-name: "<light_purple>Mountaintop Summit Enigma Soul</light_purple>"
+    zone: MOUNTAINTOP
+    required-timecharm-count: 6
+    required-timecharms:
+      - CHICKEN_N_EGG
+      - MIRRORVERSE
+      - LIVING
+      - GLOBULATE
+      - VAMPIRIC
+      - SUPREME
+    mote-reward: 250
+
+orbs:
+  SMALL:
+    display-name: "<aqua>Small Rift Orb</aqua>"
+    motes: 5
+    rift-time-seconds: 2
+  MEDIUM:
+    display-name: "<aqua>Rift Orb</aqua>"
+    motes: 20
+    rift-time-seconds: 8
+  LARGE:
+    display-name: "<light_purple>Large Rift Orb</light_purple>"
+    motes: 75
+    rift-time-seconds: 20

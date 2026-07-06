@@ -101,6 +101,69 @@ items:
     lore:
       - "<gray>A fragment from a Superior Dragon.</gray>"
     stats: {}
+  CHICKEN_N_EGG_TIMECHARM:
+    material: EGG
+    display-name: "<yellow>Chicken N Egg Timecharm</yellow>"
+    category: ACCESSORY
+    rarity: SPECIAL
+    lore:
+      - "<gray>A secured Rift Timecharm from the Wyld Woods.</gray>"
+    stats:
+      rift_time: 60.0
+  MIRRORVERSE_TIMECHARM:
+    material: CLOCK
+    display-name: "<light_purple>mrahcemiT esrevrorriM</light_purple>"
+    category: ACCESSORY
+    rarity: SPECIAL
+    lore:
+      - "<gray>A Timecharm recovered through reversed puzzles.</gray>"
+    stats:
+      rift_time: 75.0
+  LIVING_TIMECHARM:
+    material: VINE
+    display-name: "<green>Living Timecharm</green>"
+    category: ACCESSORY
+    rarity: SPECIAL
+    lore:
+      - "<gray>A living Rift Timecharm from the West Village.</gray>"
+    stats:
+      rift_time: 90.0
+  GLOBULATE_TIMECHARM:
+    material: SLIME_BALL
+    display-name: "<aqua>Globulate Timecharm</aqua>"
+    category: ACCESSORY
+    rarity: SPECIAL
+    lore:
+      - "<gray>A fluid Timecharm touched by the Lagoon.</gray>"
+    stats:
+      rift_time: 105.0
+  VAMPIRIC_TIMECHARM:
+    material: REDSTONE
+    display-name: "<red>Vampiric Timecharm</red>"
+    category: ACCESSORY
+    rarity: SPECIAL
+    lore:
+      - "<gray>A Timecharm claimed from Stillgore shadows.</gray>"
+    stats:
+      rift_time: 120.0
+  SUPREME_TIMECHARM:
+    material: NETHER_STAR
+    display-name: "<gold>Supreme Timecharm</gold>"
+    category: ACCESSORY
+    rarity: SPECIAL
+    lore:
+      - "<gray>A powerful Timecharm nearing the end of the Rift Guide.</gray>"
+    stats:
+      rift_time: 150.0
+  CELESTIAL_TIMECHARM:
+    material: END_CRYSTAL
+    display-name: "<white>Celestial Timecharm</white>"
+    category: ACCESSORY
+    rarity: SPECIAL
+    lore:
+      - "<gray>A final Timecharm tied to the Mountaintop.</gray>"
+    stats:
+      rift_time: 180.0
   BONZO_STAFF:
     material: BLAZE_ROD
     display-name: "<blue>Bonzo's Staff</blue>"

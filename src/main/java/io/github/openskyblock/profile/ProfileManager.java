@@ -216,6 +216,21 @@ public final class ProfileManager {
                 profile.setDragonKills(dragonId.toUpperCase(), dragonKills.getInt(dragonId, 0));
             }
         }
+        profile.riftMotes(section.getLong("rift.motes", 0L));
+        profile.riftSoulExchanges(section.getLong("rift.soul-exchanges", 0L));
+        profile.riftEntries(section.getLong("rift.entries", 0L));
+        profile.riftTimeSpentSeconds(section.getLong("rift.time-spent-seconds", 0L));
+        profile.riftOrbsCollected(section.getLong("rift.orbs-collected", 0L));
+        for (String timecharmId : section.getStringList("rift.timecharms")) {
+            if (timecharmId != null && !timecharmId.isBlank()) {
+                profile.addRiftTimecharm(timecharmId);
+            }
+        }
+        for (String soulId : section.getStringList("rift.souls")) {
+            if (soulId != null && !soulId.isBlank()) {
+                profile.addRiftSoul(soulId);
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -708,6 +723,14 @@ public final class ProfileManager {
                 profileData.set(base + ".dragons.kills." + entry.getKey(), entry.getValue());
             }
         }
+        profileData.set(base + ".rift", null);
+        profileData.set(base + ".rift.motes", profile.riftMotes());
+        profileData.set(base + ".rift.soul-exchanges", profile.riftSoulExchanges());
+        profileData.set(base + ".rift.entries", profile.riftEntries());
+        profileData.set(base + ".rift.time-spent-seconds", profile.riftTimeSpentSeconds());
+        profileData.set(base + ".rift.orbs-collected", profile.riftOrbsCollected());
+        profileData.set(base + ".rift.timecharms", profile.riftTimecharms().stream().sorted().toList());
+        profileData.set(base + ".rift.souls", profile.riftSouls().stream().sorted().toList());
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
         profileData.set(base + ".shop-purchases.items", null);
         for (Map.Entry<String, Integer> entry : profile.dailyShopPurchases().entrySet()) {

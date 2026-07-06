@@ -55,6 +55,7 @@ import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.quiver.QuiverService;
 import io.github.openskyblock.reforge.ReforgeService;
 import io.github.openskyblock.recipe.RecipeService;
+import io.github.openskyblock.rift.RiftService;
 import io.github.openskyblock.sack.SackService;
 import io.github.openskyblock.seacreature.SeaCreatureService;
 import io.github.openskyblock.service.CollectionService;
@@ -99,6 +100,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private DungeonService dungeonService;
     private GardenService gardenService;
     private DragonService dragonService;
+    private RiftService riftService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -162,12 +164,14 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.dungeonService = new DungeonService(configService, textService, profileManager, economyService, skillService, customItemService);
         this.gardenService = new GardenService(configService, textService, profileManager, economyService, skillService, collectionService, customItemService);
         this.dragonService = new DragonService(configService, textService, profileManager, economyService, skillService, customItemService);
+        this.riftService = new RiftService(configService, textService, profileManager, customItemService);
         this.forgeService = new ForgeService(configService, textService, profileManager, economyService, customItemService);
         this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
         this.skillService.museumService(museumService);
         this.skillService.fairySoulService(fairySoulService);
         this.skillService.gardenService(gardenService);
         this.skillService.dragonService(dragonService);
+        this.skillService.riftService(riftService);
         this.economyService.museumService(museumService);
         this.cookieService = new CookieService(configService, textService, profileManager, customItemService);
         this.cookieService.museumService(museumService);
@@ -310,6 +314,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         dungeonService.reload();
         gardenService.reload();
         dragonService.reload();
+        riftService.reload();
         forgeService.reload();
         museumService.reload();
         cookieService.reload();
@@ -481,6 +486,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public DragonService dragons() {
         return dragonService;
+    }
+
+    public RiftService rift() {
+        return riftService;
     }
 
     public MayorService mayors() {

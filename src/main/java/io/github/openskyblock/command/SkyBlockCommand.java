@@ -95,6 +95,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "dragons",
             "dragon",
             "enderdragon",
+            "rift",
             "stars",
             "star",
             "essence",
@@ -197,6 +198,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "dungeons", "dungeon", "catacombs" -> dungeons(sender, args);
             case "garden", "gardens" -> garden(sender, args);
             case "dragons", "dragon", "enderdragon" -> dragons(sender, args);
+            case "rift" -> rift(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -460,6 +462,24 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 4 && isDragonCommand(args[0]) && args[1].equalsIgnoreCase("fight")) {
             return startsWith(plugin.dragons().dragonIds(), args[3]);
         }
+        if (args.length == 2 && isRiftCommand(args[0])) {
+            return startsWith(List.of("status", "guide", "zones", "souls", "enter", "orb", "soul", "exchange", "timecharm"), args[1]);
+        }
+        if (args.length == 3 && isRiftCommand(args[0]) && args[1].equalsIgnoreCase("enter")) {
+            return startsWith(List.of("60", "180", "300", "600"), args[2]);
+        }
+        if (args.length == 3 && isRiftCommand(args[0]) && args[1].equalsIgnoreCase("orb")) {
+            return startsWith(plugin.rift().orbIds(), args[2]);
+        }
+        if (args.length == 4 && isRiftCommand(args[0]) && args[1].equalsIgnoreCase("orb")) {
+            return startsWith(List.of("1", "5", "10", "64"), args[3]);
+        }
+        if (args.length == 3 && isRiftCommand(args[0]) && args[1].equalsIgnoreCase("soul")) {
+            return startsWith(plugin.rift().soulIds(), args[2]);
+        }
+        if (args.length == 3 && isRiftCommand(args[0]) && args[1].equalsIgnoreCase("timecharm")) {
+            return startsWith(plugin.rift().timecharmIds(), args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -697,6 +717,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " dungeons status|floors|classes|run", "commands.help.dungeons");
         helpLine(sender, label + " garden status|crops|plots|visitors", "commands.help.garden");
         helpLine(sender, label + " dragons status|list|place|fight", "commands.help.dragons");
+        helpLine(sender, label + " rift status|guide|zones|souls", "commands.help.rift");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1626,6 +1647,55 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 parsePositiveAmount(player, args[2]).ifPresent(damage -> plugin.dragons().fight(player, damage, args.length >= 4 ? args[3] : ""));
             }
             default -> plugin.text().send(player, "commands.dragon-usage");
+        }
+    }
+
+    private void rift(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.rift().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "guide", "timecharms" -> plugin.rift().sendGuide(player);
+            case "zones" -> plugin.rift().sendZones(player);
+            case "souls" -> plugin.rift().sendSouls(player);
+            case "enter" -> {
+                if (args.length < 3) {
+                    plugin.rift().enter(player, 0L);
+                    return;
+                }
+                parsePositiveLong(player, args[2]).ifPresent(seconds -> plugin.rift().enter(player, seconds));
+            }
+            case "orb" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.rift-usage");
+                    return;
+                }
+                long amount = args.length >= 4 ? parsePositiveLong(player, args[3]).orElse(-1L) : 1L;
+                if (amount > 0L) {
+                    plugin.rift().gatherOrb(player, args[2], amount);
+                }
+            }
+            case "soul" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.rift-usage");
+                    return;
+                }
+                plugin.rift().collectSoul(player, args[2]);
+            }
+            case "exchange" -> plugin.rift().exchangeSouls(player);
+            case "timecharm" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.rift-usage");
+                    return;
+                }
+                plugin.rift().claimTimecharm(player, args[2]);
+            }
+            default -> plugin.text().send(player, "commands.rift-usage");
         }
     }
 
@@ -2781,6 +2851,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isDragonCommand(String value) {
         return value.equalsIgnoreCase("dragon") || value.equalsIgnoreCase("dragons") || value.equalsIgnoreCase("enderdragon");
+    }
+
+    private boolean isRiftCommand(String value) {
+        return value.equalsIgnoreCase("rift");
     }
 
     private boolean isUpgradeCommand(String value) {

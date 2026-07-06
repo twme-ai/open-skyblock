@@ -32,6 +32,8 @@ public final class SkyBlockProfile {
     private final Set<String> gardenPlots = new HashSet<>();
     private final Map<String, Integer> gardenVisitorsServed = new HashMap<>();
     private final Map<String, Integer> dragonKills = new HashMap<>();
+    private final Set<String> riftTimecharms = new HashSet<>();
+    private final Set<String> riftSouls = new HashSet<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -76,6 +78,11 @@ public final class SkyBlockProfile {
     private int placedDragonEyes;
     private long summoningEyesUsed;
     private double bestDragonDamage;
+    private long riftMotes;
+    private long riftSoulExchanges;
+    private long riftEntries;
+    private long riftTimeSpentSeconds;
+    private long riftOrbsCollected;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -536,6 +543,90 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> dragonKills() {
         return dragonKills;
+    }
+
+    public long riftMotes() {
+        return riftMotes;
+    }
+
+    public void riftMotes(long riftMotes) {
+        this.riftMotes = Math.max(0L, riftMotes);
+    }
+
+    public void addRiftMotes(long amount) {
+        riftMotes(riftMotes + amount);
+    }
+
+    public long riftSoulExchanges() {
+        return riftSoulExchanges;
+    }
+
+    public void riftSoulExchanges(long riftSoulExchanges) {
+        this.riftSoulExchanges = Math.max(0L, riftSoulExchanges);
+    }
+
+    public void addRiftSoulExchanges(long amount) {
+        riftSoulExchanges(riftSoulExchanges + amount);
+    }
+
+    public long riftEntries() {
+        return riftEntries;
+    }
+
+    public void riftEntries(long riftEntries) {
+        this.riftEntries = Math.max(0L, riftEntries);
+    }
+
+    public void addRiftEntries(long amount) {
+        riftEntries(riftEntries + amount);
+    }
+
+    public long riftTimeSpentSeconds() {
+        return riftTimeSpentSeconds;
+    }
+
+    public void riftTimeSpentSeconds(long riftTimeSpentSeconds) {
+        this.riftTimeSpentSeconds = Math.max(0L, riftTimeSpentSeconds);
+    }
+
+    public void addRiftTimeSpentSeconds(long amount) {
+        riftTimeSpentSeconds(riftTimeSpentSeconds + amount);
+    }
+
+    public long riftOrbsCollected() {
+        return riftOrbsCollected;
+    }
+
+    public void riftOrbsCollected(long riftOrbsCollected) {
+        this.riftOrbsCollected = Math.max(0L, riftOrbsCollected);
+    }
+
+    public void addRiftOrbsCollected(long amount) {
+        riftOrbsCollected(riftOrbsCollected + amount);
+    }
+
+    public boolean hasRiftTimecharm(String timecharmId) {
+        return riftTimecharms.contains(timecharmId.toUpperCase());
+    }
+
+    public boolean addRiftTimecharm(String timecharmId) {
+        return riftTimecharms.add(timecharmId.toUpperCase());
+    }
+
+    public Set<String> riftTimecharms() {
+        return riftTimecharms;
+    }
+
+    public boolean hasRiftSoul(String soulId) {
+        return riftSouls.contains(soulId.toUpperCase());
+    }
+
+    public boolean addRiftSoul(String soulId) {
+        return riftSouls.add(soulId.toUpperCase());
+    }
+
+    public Set<String> riftSouls() {
+        return riftSouls;
     }
 
     public String shopPurchaseDay() {

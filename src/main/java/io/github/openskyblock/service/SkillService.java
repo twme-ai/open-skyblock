@@ -9,6 +9,7 @@ import io.github.openskyblock.garden.GardenService;
 import io.github.openskyblock.museum.MuseumService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.rift.RiftService;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -37,6 +38,7 @@ public final class SkillService {
     private FairySoulService fairySoulService;
     private GardenService gardenService;
     private DragonService dragonService;
+    private RiftService riftService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -60,6 +62,10 @@ public final class SkillService {
 
     public void dragonService(DragonService dragonService) {
         this.dragonService = dragonService;
+    }
+
+    public void riftService(RiftService riftService) {
+        this.riftService = riftService;
     }
 
     public void reload() {
@@ -202,6 +208,9 @@ public final class SkillService {
         }
         if (dragonService != null) {
             xp += (int) Math.round(dragonService.skyBlockXp(profile));
+        }
+        if (riftService != null) {
+            xp += (int) Math.round(riftService.skyBlockXp(profile));
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);

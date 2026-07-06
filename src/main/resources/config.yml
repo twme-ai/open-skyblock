@@ -43,6 +43,7 @@ features:
   dungeons: true
   garden: true
   dragons: true
+  rift: true
   fairy-souls: true
   sea-creatures: true
   trophy-fishing: true
