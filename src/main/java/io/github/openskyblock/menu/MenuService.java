@@ -501,6 +501,39 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openEnchantingAnvil(Player player) {
+        if (!plugin.enchantments().enabled()) {
+            text.send(player, "commands.enchantment-disabled");
+            return;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        CustomItemDefinition itemDefinition = plugin.customItems().definition(held).orElse(null);
+        if (itemDefinition == null) {
+            text.send(player, "commands.enchantment-held-missing");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("enchanting-anvil");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 4)));
+        Map<Integer, EnchantingAnvilAction> actions = new HashMap<>();
+        EnchantingAnvilHolder holder = new EnchantingAnvilHolder(actions);
+        List<TextService.TextPlaceholder> placeholders = enchantingAnvilPlaceholders(held, itemDefinition);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Anvil</dark_gray>"), placeholders)
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        addEnchantingAnvilDisplay(inventory, section.getConfigurationSection("target"), held, itemDefinition);
+        addEnchantingAnvilAction(inventory, section.getConfigurationSection("book"), EnchantingAnvilAction.APPLY, actions, placeholders);
+        addEnchantingAnvilAction(inventory, section.getConfigurationSection("result"), EnchantingAnvilAction.APPLY, actions, placeholders);
+        addEnchantingAnvilAction(inventory, section.getConfigurationSection("back"), EnchantingAnvilAction.BACK, actions, placeholders);
+        player.openInventory(inventory);
+    }
+
     public void openShopSelector(Player player) {
         if (!plugin.shops().enabled()) {
             text.send(player, "commands.shop-disabled");
@@ -703,6 +736,7 @@ public final class MenuService {
             case WARDROBE -> openWardrobeMenu(player);
             case REFORGE_ANVIL -> openReforgeAnvil(player);
             case ENCHANTING_TABLE -> openEnchantingTable(player);
+            case ENCHANTING_ANVIL -> openEnchantingAnvil(player);
             case PETS -> openPetMenu(player);
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
@@ -949,6 +983,22 @@ public final class MenuService {
         if (holder.action(rawSlot) == EnchantingTableAction.BACK) {
             openSkyBlockMenu(player);
         }
+    }
+
+    public boolean runEnchantingAnvilClick(Player player, EnchantingAnvilHolder holder, int rawSlot, ItemStack cursor) {
+        EnchantingAnvilAction action = holder.action(rawSlot);
+        switch (action) {
+            case APPLY -> {
+                if (plugin.enchantments().applyBookToHeld(player, cursor)) {
+                    openEnchantingAnvil(player);
+                    return true;
+                }
+            }
+            case BACK -> openSkyBlockMenu(player);
+            case NONE -> {
+            }
+        }
+        return false;
     }
 
     public boolean runPetMenuClick(Player player, PetMenuHolder holder, int rawSlot, ItemStack cursor) {
@@ -1302,6 +1352,18 @@ public final class MenuService {
         actions.put(slot, action);
     }
 
+    private void addEnchantingAnvilAction(Inventory inventory, ConfigurationSection section, EnchantingAnvilAction action, Map<Integer, EnchantingAnvilAction> actions, List<TextService.TextPlaceholder> placeholders) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, placeholders));
+        actions.put(slot, action);
+    }
+
     private void addSackMenuAction(Inventory inventory, ConfigurationSection section, SackMenuAction action, Map<Integer, SackMenuAction> actions) {
         if (section == null) {
             return;
@@ -1527,11 +1589,35 @@ public final class MenuService {
         inventory.setItem(slot, enchantingPreviewItem(section, held, itemDefinition));
     }
 
+    private void addEnchantingAnvilDisplay(Inventory inventory, ConfigurationSection section, ItemStack held, CustomItemDefinition itemDefinition) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, enchantingAnvilTargetItem(section, held, itemDefinition));
+    }
+
     private ItemStack enchantingPreviewItem(ConfigurationSection section, ItemStack held, CustomItemDefinition itemDefinition) {
         ItemStack itemStack = held.clone();
         itemStack.setAmount(1);
         ItemMeta meta = itemStack.getItemMeta();
         List<TextService.TextPlaceholder> placeholders = enchantmentMenuPlaceholders(held, itemDefinition);
+        meta.displayName(text.deserialize(section.getString("display-name", "<item>"), placeholders));
+        meta.lore(section.getStringList("lore").stream()
+                .map(line -> text.deserialize(line, placeholders))
+                .toList());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack enchantingAnvilTargetItem(ConfigurationSection section, ItemStack held, CustomItemDefinition itemDefinition) {
+        ItemStack itemStack = held.clone();
+        itemStack.setAmount(1);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = enchantingAnvilPlaceholders(held, itemDefinition);
         meta.displayName(text.deserialize(section.getString("display-name", "<item>"), placeholders));
         meta.lore(section.getStringList("lore").stream()
                 .map(line -> text.deserialize(line, placeholders))
@@ -1752,6 +1838,20 @@ public final class MenuService {
                 TextService.raw("category", itemDefinition.category()),
                 TextService.raw("rarity", itemDefinition.rarity().name()),
                 TextService.raw("applied_enchantments", Integer.toString(applied))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> enchantingAnvilPlaceholders(ItemStack held, CustomItemDefinition itemDefinition) {
+        int applied = plugin.enchantments().enchantments(held).size();
+        boolean bookTarget = plugin.enchantments().isBookDefinition(itemDefinition);
+        return List.of(
+                TextService.parsed("item", itemDefinition.displayName()),
+                TextService.raw("category", itemDefinition.category()),
+                TextService.raw("rarity", itemDefinition.rarity().name()),
+                TextService.raw("applied_enchantments", Integer.toString(applied)),
+                TextService.raw("book_apply_multiplier", text.formatNumber(plugin.enchantments().bookApplyCostMultiplier())),
+                TextService.raw("book_combine_cost", text.formatNumber(plugin.enchantments().bookCombineCost())),
+                TextService.parsed("target_type", bookTarget ? text.rawMessage("enchantments.book-target") : text.rawMessage("enchantments.item-target"))
         );
     }
 

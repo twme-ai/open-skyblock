@@ -74,6 +74,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "enchants",
             "enchantments",
             "enchant",
+            "anvil",
             "stars",
             "star",
             "gemstones",
@@ -143,6 +144,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "reforge" -> reforge(sender, args);
             case "enchants", "enchantments" -> enchants(sender);
             case "enchant" -> enchant(sender, args);
+            case "anvil" -> anvil(sender);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "gemstones" -> gemstones(sender);
@@ -306,13 +308,24 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("enchant")) {
             List<String> values = new ArrayList<>();
             values.add("remove");
+            values.add("book");
+            values.add("anvil");
             values.addAll(plugin.enchantments().definitions().stream().map(SkyBlockEnchantmentDefinition::id).toList());
             return startsWith(values, args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("enchant") && args[1].equalsIgnoreCase("book")) {
+            return startsWith(plugin.enchantments().definitions().stream().map(SkyBlockEnchantmentDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("enchant") && args[1].equalsIgnoreCase("book")) {
+            return startsWith(plugin.enchantments().levelSuggestions(args[2]), args[3]);
+        }
+        if (args.length == 5 && args[0].equalsIgnoreCase("enchant") && args[1].equalsIgnoreCase("book")) {
+            return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[4]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("enchant") && args[1].equalsIgnoreCase("remove")) {
             return startsWith(plugin.enchantments().definitions().stream().map(SkyBlockEnchantmentDefinition::id).toList(), args[2]);
         }
-        if (args.length == 3 && args[0].equalsIgnoreCase("enchant") && !args[1].equalsIgnoreCase("remove")) {
+        if (args.length == 3 && args[0].equalsIgnoreCase("enchant") && !args[1].equalsIgnoreCase("remove") && !args[1].equalsIgnoreCase("book") && !args[1].equalsIgnoreCase("anvil")) {
             return startsWith(plugin.enchantments().levelSuggestions(args[1]), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
@@ -480,7 +493,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge [id|remove]", "commands.help.reforge");
         helpLine(sender, label + " enchants", "commands.help.enchants");
-        helpLine(sender, label + " enchant [id] [level]", "commands.help.enchant");
+        helpLine(sender, label + " enchant [id|anvil] [level]", "commands.help.enchant");
+        helpLine(sender, label + " anvil", "commands.help.anvil");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " gemstones", "commands.help.gemstones");
@@ -508,6 +522,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " recipes", "commands.help.recipes");
         if (sender.hasPermission("openskyblock.admin")) {
             helpLine(sender, label + " giveitem <id> [player]", "commands.help.giveitem");
+            helpLine(sender, label + " enchant book <id> [level] [player]", "commands.help.enchant-book");
             helpLine(sender, label + " pet give <id> [player]", "commands.help.pet-give");
             helpLine(sender, label + " pet xp <amount> [player]", "commands.help.pet-xp");
             helpLine(sender, label + " minion give <id> [player]", "commands.help.minion-give");
@@ -1124,12 +1139,20 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
     }
 
     private void enchant(CommandSender sender, String[] args) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("book")) {
+            enchantBook(sender, args);
+            return;
+        }
         Player player = requirePlayer(sender);
         if (player == null) {
             return;
         }
         if (args.length < 2) {
             plugin.menus().openEnchantingTable(player);
+            return;
+        }
+        if (args[1].equalsIgnoreCase("anvil")) {
+            plugin.menus().openEnchantingAnvil(player);
             return;
         }
         if (args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("clear")) {
@@ -1154,6 +1177,67 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         } catch (NumberFormatException ignored) {
             plugin.text().send(player, "errors.invalid-number");
         }
+    }
+
+    private void anvil(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.menus().openEnchantingAnvil(player);
+    }
+
+    private void enchantBook(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("openskyblock.admin")) {
+            plugin.text().send(sender, "errors.no-permission");
+            return;
+        }
+        if (!plugin.enchantments().enabled()) {
+            plugin.text().send(sender, "commands.enchantment-disabled");
+            return;
+        }
+        if (args.length < 3) {
+            plugin.text().send(sender, "commands.enchantment-book-usage");
+            return;
+        }
+        SkyBlockEnchantmentDefinition definition = plugin.enchantments().definition(args[2]).orElse(null);
+        if (definition == null) {
+            plugin.text().send(sender, "errors.unknown-enchantment", List.of(TextService.raw("enchantment", args[2])));
+            return;
+        }
+        int level = 1;
+        if (args.length >= 4) {
+            Optional<Integer> parsed = parsePositiveInt(sender, args[3]);
+            if (parsed.isEmpty()) {
+                return;
+            }
+            level = parsed.get();
+        }
+        Player target;
+        if (args.length >= 5) {
+            target = Bukkit.getPlayerExact(args[4]);
+            if (target == null) {
+                plugin.text().send(sender, "errors.unknown-player");
+                return;
+            }
+        } else {
+            target = requirePlayer(sender);
+            if (target == null) {
+                return;
+            }
+        }
+        ItemStack book = plugin.enchantments().createBook(definition, level).orElse(null);
+        if (book == null) {
+            plugin.text().send(sender, "commands.enchantment-book-config-missing", List.of(TextService.raw("item", plugin.enchantments().bookItemId())));
+            return;
+        }
+        int clampedLevel = Math.max(1, Math.min(definition.maxLevel(), level));
+        target.getInventory().addItem(book).values().forEach(leftover -> target.getWorld().dropItemNaturally(target.getLocation(), leftover));
+        plugin.text().send(sender, "commands.enchantment-book-given", List.of(
+                TextService.parsed("enchantment", definition.displayName()),
+                TextService.raw("level", plugin.enchantments().levelLabel(clampedLevel)),
+                TextService.raw("player", target.getName())
+        ));
     }
 
     private void stars(CommandSender sender) {

@@ -143,6 +143,13 @@ skyblock:
       lore:
         - "<gray>Apply configured enchantments to custom items.</gray>"
       action: ENCHANTING_TABLE
+    enchanting-anvil:
+      slot: 29
+      material: ANVIL
+      display-name: "<gold>Anvil</gold>"
+      lore:
+        - "<gray>Apply configured enchanted books to custom items.</gray>"
+      action: ENCHANTING_ANVIL
 
 minion:
   title: "<dark_gray><minion_name></dark_gray>"
@@ -853,6 +860,48 @@ enchanting-table:
       - "<yellow>Right-click to remove.</yellow>"
   back:
     slot: 50
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+
+enchanting-anvil:
+  title: "<dark_gray>Anvil</dark_gray>"
+  rows: 4
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  target:
+    slot: 11
+    display-name: "<item>"
+    lore:
+      - "<gray>Target:</gray> <target_type>"
+      - "<gray>Category:</gray> <yellow><category></yellow>"
+      - "<gray>Rarity:</gray> <yellow><rarity></yellow>"
+      - "<gray>Applied Enchantments:</gray> <yellow><applied_enchantments></yellow>"
+  book:
+    slot: 15
+    material: ENCHANTED_BOOK
+    display-name: "<blue>Enchanted Book</blue>"
+    lore:
+      - "<gray>Hold an enchanted book on your cursor.</gray>"
+      - "<gray>Click this slot to apply it to the held item.</gray>"
+      - ""
+      - "<gray>Gear cost multiplier:</gray> <gold><book_apply_multiplier></gold>"
+      - "<gray>Book combine cost:</gray> <gold><book_combine_cost></gold>"
+  result:
+    slot: 31
+    material: ANVIL
+    display-name: "<green>Combine Enchantments</green>"
+    lore:
+      - "<gray>Consumes one enchanted book from your cursor.</gray>"
+      - "<gray>Matching enchantments at the same level upgrade by one level.</gray>"
+      - "<gray>Different ultimate enchantments cannot be combined.</gray>"
+      - ""
+      - "<yellow>Click with an enchanted book to combine.</yellow>"
+  back:
+    slot: 35
     material: NETHER_STAR
     display-name: "<green>SkyBlock Menu</green>"
     lore: []

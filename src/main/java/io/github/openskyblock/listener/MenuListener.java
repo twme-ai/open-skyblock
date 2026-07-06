@@ -7,6 +7,7 @@ import io.github.openskyblock.menu.BankMenuAction;
 import io.github.openskyblock.menu.BankMenuHolder;
 import io.github.openskyblock.menu.BrowserMenuAction;
 import io.github.openskyblock.menu.BrowserMenuHolder;
+import io.github.openskyblock.menu.EnchantingAnvilHolder;
 import io.github.openskyblock.menu.EnchantingTableHolder;
 import io.github.openskyblock.menu.EquipmentHolder;
 import io.github.openskyblock.menu.MenuAction;
@@ -96,6 +97,9 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof EnchantingTableHolder enchantingTableHolder) {
                 handleEnchantingTableClick(event, player, enchantingTableHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof EnchantingAnvilHolder enchantingAnvilHolder) {
+                handleEnchantingAnvilClick(event, player, enchantingAnvilHolder);
             }
             return;
         }
@@ -198,6 +202,13 @@ public final class MenuListener implements Listener {
     private void handleEnchantingTableClick(InventoryClickEvent event, Player player, EnchantingTableHolder holder) {
         event.setCancelled(true);
         plugin.menus().runEnchantingTableClick(player, holder, event.getRawSlot(), event.getClick().isRightClick());
+    }
+
+    private void handleEnchantingAnvilClick(InventoryClickEvent event, Player player, EnchantingAnvilHolder holder) {
+        event.setCancelled(true);
+        if (plugin.menus().runEnchantingAnvilClick(player, holder, event.getRawSlot(), event.getCursor())) {
+            consumeCursorItem(event);
+        }
     }
 
     private void consumeCursorItem(InventoryClickEvent event) {

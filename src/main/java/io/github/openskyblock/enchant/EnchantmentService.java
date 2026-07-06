@@ -6,6 +6,7 @@ import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.CustomItemService;
 import io.github.openskyblock.stats.StatSnapshot;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,6 +21,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -87,9 +89,42 @@ public final class EnchantmentService {
         if (itemDefinition == null) {
             return List.of();
         }
+        if (isBookDefinition(itemDefinition)) {
+            return definitions();
+        }
         return definitions().stream()
                 .filter(definition -> isApplicable(definition, itemDefinition))
                 .toList();
+    }
+
+    public String bookItemId() {
+        return configService.enchantments().getString("settings.book-item-id", "ENCHANTED_BOOK").toUpperCase(Locale.ROOT);
+    }
+
+    public boolean isEnchantedBook(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType().isAir() || enchantments(itemStack).isEmpty()) {
+            return false;
+        }
+        CustomItemDefinition itemDefinition = customItems.definition(itemStack).orElse(null);
+        if (itemDefinition != null && isBookDefinition(itemDefinition)) {
+            return true;
+        }
+        return itemStack.getType() == Material.ENCHANTED_BOOK;
+    }
+
+    public Optional<ItemStack> createBook(SkyBlockEnchantmentDefinition definition, int requestedLevel) {
+        if (!enabled() || definition == null) {
+            return Optional.empty();
+        }
+        CustomItemDefinition bookDefinition = customItems.definition(bookItemId()).orElse(null);
+        if (bookDefinition == null) {
+            return Optional.empty();
+        }
+        int level = Math.max(1, Math.min(definition.maxLevel(), requestedLevel));
+        ItemStack book = customItems.createItem(bookDefinition);
+        writeEnchantments(book, Map.of(definition.id(), level));
+        customItems.refreshItem(book);
+        return Optional.of(book);
     }
 
     public Map<String, Integer> enchantments(ItemStack itemStack) {
@@ -155,7 +190,8 @@ public final class EnchantmentService {
             text.send(player, "commands.enchantment-held-missing");
             return false;
         }
-        if (!isApplicable(definition, itemDefinition)) {
+        boolean targetIsBook = isBookDefinition(itemDefinition);
+        if (!targetIsBook && !isApplicable(definition, itemDefinition)) {
             text.send(player, "commands.enchantment-not-applicable", placeholders(definition, itemDefinition, level, cost(definition, itemDefinition, level)));
             return false;
         }
@@ -190,6 +226,77 @@ public final class EnchantmentService {
         writeEnchantments(held, current);
         customItems.refreshItem(held);
         text.send(player, "commands.enchantment-applied", placeholders(definition, itemDefinition, level, cost));
+        return true;
+    }
+
+    public boolean applyBookToHeld(Player player, ItemStack bookStack) {
+        if (!enabled()) {
+            text.send(player, "commands.enchantment-disabled");
+            return false;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        CustomItemDefinition itemDefinition = customItems.definition(held).orElse(null);
+        if (itemDefinition == null) {
+            text.send(player, "commands.enchantment-held-missing");
+            return false;
+        }
+        if (!isEnchantedBook(bookStack)) {
+            text.send(player, "commands.enchantment-book-invalid");
+            return false;
+        }
+        Map<String, Integer> bookEnchantments = enchantments(bookStack);
+        if (bookEnchantments.isEmpty()) {
+            text.send(player, "commands.enchantment-book-empty");
+            return false;
+        }
+        Map<String, Integer> current = new LinkedHashMap<>(enchantments(held));
+        Map<String, Integer> merged = new LinkedHashMap<>(current);
+        boolean targetIsBook = isBookDefinition(itemDefinition);
+        int improved = 0;
+        double totalCost = 0.0D;
+        List<String> blocked = new ArrayList<>();
+
+        for (Map.Entry<String, Integer> entry : bookEnchantments.entrySet()) {
+            SkyBlockEnchantmentDefinition definition = definition(entry.getKey()).orElse(null);
+            if (definition == null) {
+                continue;
+            }
+            if (!targetIsBook && !isApplicable(definition, itemDefinition)) {
+                blocked.add(definition.id());
+                continue;
+            }
+            SkyBlockEnchantmentDefinition existingUltimate = ultimateConflict(merged, definition);
+            if (existingUltimate != null) {
+                text.send(player, "commands.enchantment-ultimate-conflict", List.of(
+                        TextService.parsed("enchantment", definition.displayName()),
+                        TextService.parsed("existing", existingUltimate.displayName())
+                ));
+                return false;
+            }
+            int currentLevel = merged.getOrDefault(definition.id(), 0);
+            int targetLevel = mergedLevel(currentLevel, entry.getValue(), definition.maxLevel());
+            if (targetLevel <= currentLevel) {
+                continue;
+            }
+            merged.put(definition.id(), targetLevel);
+            improved++;
+            if (!targetIsBook) {
+                totalCost += cost(definition, itemDefinition, targetLevel);
+            }
+        }
+
+        if (improved <= 0) {
+            text.send(player, blocked.isEmpty() ? "commands.enchantment-book-no-improvement" : "commands.enchantment-book-not-applicable");
+            return false;
+        }
+        totalCost = targetIsBook ? bookCombineCost() : totalCost * bookApplyCostMultiplier();
+        if (!economy.spendPurse(player, totalCost)) {
+            text.send(player, "commands.enchantment-book-no-money", bookPlaceholders(itemDefinition, improved, totalCost));
+            return false;
+        }
+        writeEnchantments(held, merged);
+        customItems.refreshItem(held);
+        text.send(player, "commands.enchantment-book-applied", bookPlaceholders(itemDefinition, improved, totalCost));
         return true;
     }
 
@@ -262,6 +369,13 @@ public final class EnchantmentService {
         return definition.allowedCategories().contains(itemDefinition.category().toUpperCase(Locale.ROOT));
     }
 
+    public boolean isBookDefinition(CustomItemDefinition itemDefinition) {
+        if (itemDefinition == null) {
+            return false;
+        }
+        return itemDefinition.id().equals(bookItemId()) || itemDefinition.category().equalsIgnoreCase("ENCHANTED_BOOK");
+    }
+
     public double cost(SkyBlockEnchantmentDefinition definition, CustomItemDefinition itemDefinition, int level) {
         double base = Math.max(0.0D, configService.enchantments().getDouble("settings.base-costs." + itemDefinition.rarity().name(), 0.0D));
         return base * Math.max(0.0D, definition.costMultiplier()) * Math.max(1, level);
@@ -269,6 +383,14 @@ public final class EnchantmentService {
 
     public double removeCost() {
         return Math.max(0.0D, configService.enchantments().getDouble("settings.remove-cost", 0.0D));
+    }
+
+    public double bookApplyCostMultiplier() {
+        return Math.max(0.0D, configService.enchantments().getDouble("settings.book-apply-cost-multiplier", 1.0D));
+    }
+
+    public double bookCombineCost() {
+        return Math.max(0.0D, configService.enchantments().getDouble("settings.book-combine-cost", 0.0D));
     }
 
     public List<String> levelSuggestions(String enchantmentId) {
@@ -295,6 +417,27 @@ public final class EnchantmentService {
         itemStack.setItemMeta(meta);
     }
 
+    private int mergedLevel(int currentLevel, int bookLevel, int maxLevel) {
+        int clampedBookLevel = Math.max(1, Math.min(maxLevel, bookLevel));
+        if (currentLevel == clampedBookLevel && currentLevel < maxLevel) {
+            return currentLevel + 1;
+        }
+        return Math.max(currentLevel, clampedBookLevel);
+    }
+
+    private SkyBlockEnchantmentDefinition ultimateConflict(Map<String, Integer> current, SkyBlockEnchantmentDefinition candidate) {
+        if (!candidate.ultimate()) {
+            return null;
+        }
+        return current.keySet().stream()
+                .map(this::definition)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(existing -> existing.ultimate() && !existing.id().equals(candidate.id()))
+                .findFirst()
+                .orElse(null);
+    }
+
     public List<TextService.TextPlaceholder> placeholders(SkyBlockEnchantmentDefinition definition, CustomItemDefinition itemDefinition, int level, double cost) {
         return List.of(
                 TextService.raw("enchantment_id", definition.id()),
@@ -303,6 +446,14 @@ public final class EnchantmentService {
                 TextService.raw("numeric_level", Integer.toString(level)),
                 TextService.parsed("item", itemDefinition.displayName()),
                 TextService.raw("category", itemDefinition.category().toUpperCase(Locale.ROOT)),
+                TextService.raw("cost", text.formatNumber(cost))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> bookPlaceholders(CustomItemDefinition itemDefinition, int applied, double cost) {
+        return List.of(
+                TextService.parsed("item", itemDefinition.displayName()),
+                TextService.raw("applied", Integer.toString(applied)),
                 TextService.raw("cost", text.formatNumber(cost))
         );
     }

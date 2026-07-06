@@ -8,6 +8,15 @@ items:
       - "<gray>Open your profile, skills, collections,</gray>"
       - "<gray>recipes, storage, pets, and island tools.</gray>"
     stats: {}
+  ENCHANTED_BOOK:
+    material: ENCHANTED_BOOK
+    display-name: "<blue>Enchanted Book</blue>"
+    category: ENCHANTED_BOOK
+    rarity: COMMON
+    lore:
+      - "<gray>Apply this book to a compatible custom item in the Anvil.</gray>"
+      - "<gray>Matching enchantments of the same level combine into the next level.</gray>"
+    stats: {}
   AGRONOMY_SACK:
     material: WHEAT
     display-name: "<green>Agronomy Sack</green>"
