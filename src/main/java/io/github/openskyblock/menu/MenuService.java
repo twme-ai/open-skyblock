@@ -14,6 +14,7 @@ import io.github.openskyblock.service.CollectionTier;
 import io.github.openskyblock.service.MinionPlacement;
 import io.github.openskyblock.shop.ShopDefinition;
 import io.github.openskyblock.shop.ShopItemDefinition;
+import io.github.openskyblock.wardrobe.WardrobeSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -287,6 +288,47 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openWardrobeMenu(Player player) {
+        if (!plugin.wardrobe().enabled()) {
+            text.send(player, "commands.wardrobe-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("wardrobe");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 6)));
+        Map<Integer, Integer> wardrobeSlots = new HashMap<>();
+        Map<Integer, WardrobeAction> actions = new HashMap<>();
+        WardrobeHolder holder = new WardrobeHolder(wardrobeSlots, actions);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Wardrobe</dark_gray>"), wardrobePlaceholders(player))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        SkyBlockProfile profile = profiles.profile(player);
+        List<Integer> contentSlots = contentSlots(section);
+        int maxSlots = Math.min(plugin.wardrobe().slotCount(), contentSlots.size());
+        for (int index = 0; index < maxSlots; index++) {
+            int wardrobeSlot = index + 1;
+            int inventorySlot = contentSlots.get(index);
+            if (inventorySlot < 0 || inventorySlot >= inventory.getSize()) {
+                continue;
+            }
+            inventory.setItem(inventorySlot, wardrobeSlotItem(
+                    wardrobeSlot,
+                    profile.wardrobe().get(wardrobeSlot),
+                    section.getConfigurationSection("empty-slot"),
+                    section.getConfigurationSection("stored-slot")
+            ));
+            wardrobeSlots.put(inventorySlot, wardrobeSlot);
+        }
+        addWardrobeAction(inventory, section.getConfigurationSection("back"), WardrobeAction.BACK, actions);
+        player.openInventory(inventory);
+    }
+
     public void openTuningMenu(Player player) {
         if (!plugin.tuning().enabled()) {
             text.send(player, "commands.tuning-disabled");
@@ -449,6 +491,7 @@ public final class MenuService {
             case ACCESSORY_BAG -> openAccessoryBag(player);
             case TUNING -> openTuningMenu(player);
             case EQUIPMENT -> openEquipmentMenu(player);
+            case WARDROBE -> openWardrobeMenu(player);
             case PETS -> openPetMenu(player);
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
@@ -567,6 +610,22 @@ public final class MenuService {
             return;
         }
         if (holder.action(rawSlot) == EquipmentAction.BACK) {
+            openSkyBlockMenu(player);
+        }
+    }
+
+    public void runWardrobeClick(Player player, WardrobeHolder holder, int rawSlot, boolean withdrawClick) {
+        Integer wardrobeSlot = holder.slot(rawSlot);
+        if (wardrobeSlot != null) {
+            if (withdrawClick) {
+                plugin.wardrobe().withdraw(player, wardrobeSlot);
+            } else {
+                plugin.wardrobe().swap(player, wardrobeSlot);
+            }
+            openWardrobeMenu(player);
+            return;
+        }
+        if (holder.action(rawSlot) == WardrobeAction.BACK) {
             openSkyBlockMenu(player);
         }
     }
@@ -878,6 +937,18 @@ public final class MenuService {
         actions.put(slot, action);
     }
 
+    private void addWardrobeAction(Inventory inventory, ConfigurationSection section, WardrobeAction action, Map<Integer, WardrobeAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
     private ItemStack emptyEquipmentItem(EquipmentSlotDefinition slot, ConfigurationSection section) {
         ItemStack itemStack = item(section, equipmentSlotPlaceholders(slot));
         ItemMeta meta = itemStack.getItemMeta();
@@ -900,6 +971,34 @@ public final class MenuService {
         }
         for (String line : configService.messages().getStringList("menus.equipment-equipped")) {
             lore.add(text.deserialize(line, equipmentSlotPlaceholders(slot)));
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack wardrobeSlotItem(int slot, WardrobeSet set, ConfigurationSection emptySection, ConfigurationSection storedSection) {
+        boolean empty = set == null || set.empty();
+        ConfigurationSection section = empty ? emptySection : storedSection;
+        Material material = Material.ARMOR_STAND;
+        if (section != null) {
+            String configuredMaterial = section.getString("material", empty ? "ARMOR_STAND" : "AUTO");
+            Material matched = Material.matchMaterial(configuredMaterial);
+            if (matched != null) {
+                material = matched;
+            }
+        }
+        if (!empty && (section == null || section.getString("material", "AUTO").equalsIgnoreCase("AUTO"))) {
+            material = set.iconMaterial(Material.ARMOR_STAND);
+        }
+        ItemStack itemStack = new ItemStack(material);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = wardrobeSlotPlaceholders(slot, set);
+        String defaultName = empty ? "<yellow>Wardrobe Slot <slot></yellow>" : "<green>Wardrobe Slot <slot></green>";
+        meta.displayName(text.deserialize(section == null ? defaultName : section.getString("display-name", defaultName), placeholders));
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        for (String line : configService.messages().getStringList(empty ? "menus.wardrobe-empty" : "menus.wardrobe-stored")) {
+            lore.add(text.deserialize(line, placeholders));
         }
         meta.lore(lore);
         itemStack.setItemMeta(meta);
@@ -1067,6 +1166,26 @@ public final class MenuService {
         return List.of(
                 TextService.raw("slot_id", slot.id()),
                 TextService.parsed("slot", slot.displayName())
+        );
+    }
+
+    private List<TextService.TextPlaceholder> wardrobePlaceholders(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        long stored = profile.wardrobe().values().stream()
+                .filter(set -> set != null && !set.empty())
+                .count();
+        return List.of(
+                TextService.raw("stored", Long.toString(stored)),
+                TextService.raw("slots", Integer.toString(plugin.wardrobe().slotCount()))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> wardrobeSlotPlaceholders(int slot, WardrobeSet set) {
+        int pieces = set == null ? 0 : set.pieceCount();
+        return List.of(
+                TextService.raw("slot", Integer.toString(slot)),
+                TextService.raw("pieces", Integer.toString(pieces)),
+                TextService.raw("max_pieces", "4")
         );
     }
 

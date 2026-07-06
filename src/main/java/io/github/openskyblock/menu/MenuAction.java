@@ -12,6 +12,7 @@ public enum MenuAction {
     ACCESSORY_BAG,
     TUNING,
     EQUIPMENT,
+    WARDROBE,
     PETS,
     COLLECTIONS,
     RECIPES,

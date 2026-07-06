@@ -31,6 +31,7 @@ import io.github.openskyblock.shop.ShopNpcService;
 import io.github.openskyblock.stats.StatService;
 import io.github.openskyblock.stats.ArmorSetService;
 import io.github.openskyblock.star.StarService;
+import io.github.openskyblock.wardrobe.WardrobeService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -45,6 +46,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private AccessoryService accessoryService;
     private TuningService tuningService;
     private EquipmentService equipmentService;
+    private WardrobeService wardrobeService;
     private ArmorSetService armorSetService;
     private ReforgeService reforgeService;
     private EnchantmentService enchantmentService;
@@ -84,6 +86,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.customItemService.starService(starService);
         this.customItemService.gemstoneService(gemstoneService);
         this.equipmentService = new EquipmentService(configService, textService, profileManager, customItemService);
+        this.wardrobeService = new WardrobeService(configService, textService, profileManager);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
         this.petService = new PetService(configService, textService, profileManager);
@@ -139,6 +142,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         skillService.reload();
         customItemService.reload();
         equipmentService.reload();
+        wardrobeService.reload();
         armorSetService.reload();
         reforgeService.reload();
         enchantmentService.reload();
@@ -214,6 +218,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public EquipmentService equipment() {
         return equipmentService;
+    }
+
+    public WardrobeService wardrobe() {
+        return wardrobeService;
     }
 
     public ArmorSetService armorSets() {

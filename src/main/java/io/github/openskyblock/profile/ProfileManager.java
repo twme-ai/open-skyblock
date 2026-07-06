@@ -2,6 +2,7 @@ package io.github.openskyblock.profile;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.service.SkillType;
+import io.github.openskyblock.wardrobe.WardrobeSet;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -151,6 +152,29 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection wardrobe = section.getConfigurationSection("wardrobe");
+        if (wardrobe != null) {
+            for (String key : wardrobe.getKeys(false)) {
+                ConfigurationSection slotSection = wardrobe.getConfigurationSection(key);
+                if (slotSection == null) {
+                    continue;
+                }
+                try {
+                    int slot = Integer.parseInt(key);
+                    WardrobeSet set = WardrobeSet.of(
+                            slotSection.getItemStack("helmet"),
+                            slotSection.getItemStack("chestplate"),
+                            slotSection.getItemStack("leggings"),
+                            slotSection.getItemStack("boots")
+                    );
+                    if (!set.empty()) {
+                        profile.wardrobe().put(slot, set);
+                    }
+                } catch (NumberFormatException ignored) {
+                    plugin.getLogger().warning("Skipping invalid wardrobe slot in profiles.yml: " + key);
+                }
+            }
+        }
         profile.activePetInstanceId(section.getString("pets.active", null));
         ConfigurationSection pets = section.getConfigurationSection("pets.owned");
         if (pets != null) {
@@ -210,6 +234,18 @@ public final class ProfileManager {
         profileData.set(base + ".equipment", null);
         for (Map.Entry<String, ItemStack> entry : profile.equipment().entrySet()) {
             profileData.set(base + ".equipment." + entry.getKey(), entry.getValue());
+        }
+        profileData.set(base + ".wardrobe", null);
+        for (Map.Entry<Integer, WardrobeSet> entry : profile.wardrobe().entrySet()) {
+            WardrobeSet set = entry.getValue();
+            if (set == null || set.empty()) {
+                continue;
+            }
+            String wardrobeBase = base + ".wardrobe." + entry.getKey();
+            profileData.set(wardrobeBase + ".helmet", set.helmet());
+            profileData.set(wardrobeBase + ".chestplate", set.chestplate());
+            profileData.set(wardrobeBase + ".leggings", set.leggings());
+            profileData.set(wardrobeBase + ".boots", set.boots());
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());
         profileData.set(base + ".pets.owned", null);

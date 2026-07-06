@@ -47,6 +47,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "gemstones",
             "gemstone",
             "equipment",
+            "wardrobe",
             "accessorybag",
             "tuning",
             "pets",
@@ -97,6 +98,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "gemstones" -> gemstones(sender);
             case "gemstone" -> gemstone(sender, args);
             case "equipment" -> equipment(sender, args);
+            case "wardrobe" -> wardrobe(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
             case "pets" -> pets(sender);
@@ -179,6 +181,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && args[0].equalsIgnoreCase("equipment") && (args[1].equalsIgnoreCase("equip") || args[1].equalsIgnoreCase("unequip"))) {
             return startsWith(plugin.equipment().slots().stream().map(EquipmentSlotDefinition::id).toList(), args[2]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("wardrobe")) {
+            return startsWith(List.of("open", "save", "equip", "withdraw", "summary"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("wardrobe") && (args[1].equalsIgnoreCase("save") || args[1].equalsIgnoreCase("equip") || args[1].equalsIgnoreCase("withdraw"))) {
+            return startsWith(numberRange(plugin.wardrobe().slotCount()), args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
         }
@@ -258,6 +266,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " equipment", "commands.help.equipment");
         helpLine(sender, label + " equipment equip [slot]", "commands.help.equipment-equip");
         helpLine(sender, label + " equipment unequip <slot>", "commands.help.equipment-unequip");
+        helpLine(sender, label + " wardrobe", "commands.help.wardrobe");
+        helpLine(sender, label + " wardrobe save|equip|withdraw <slot>", "commands.help.wardrobe-slot");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
@@ -548,6 +558,42 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             }
             case "summary" -> plugin.equipment().sendSummary(player);
             default -> plugin.text().send(player, "commands.equipment-usage");
+        }
+    }
+
+    private void wardrobe(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("open")) {
+            plugin.menus().openWardrobeMenu(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "save" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.wardrobe-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(slot -> plugin.wardrobe().saveCurrentArmor(player, slot));
+            }
+            case "equip" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.wardrobe-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(slot -> plugin.wardrobe().swap(player, slot));
+            }
+            case "withdraw", "clear" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.wardrobe-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(slot -> plugin.wardrobe().withdraw(player, slot));
+            }
+            case "summary" -> plugin.wardrobe().sendSummary(player);
+            default -> plugin.text().send(player, "commands.wardrobe-usage");
         }
     }
 
@@ -989,5 +1035,13 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             }
         }
         return matches;
+    }
+
+    private List<String> numberRange(int max) {
+        List<String> values = new ArrayList<>();
+        for (int value = 1; value <= max; value++) {
+            values.add(Integer.toString(value));
+        }
+        return values;
     }
 }

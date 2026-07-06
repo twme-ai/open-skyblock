@@ -1,6 +1,7 @@
 package io.github.openskyblock.profile;
 
 import io.github.openskyblock.service.SkillType;
+import io.github.openskyblock.wardrobe.WardrobeSet;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
+    private final Map<Integer, WardrobeSet> wardrobe = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private final List<OwnedPet> pets = new ArrayList<>();
@@ -151,6 +153,10 @@ public final class SkyBlockProfile {
 
     public Map<String, ItemStack> equipment() {
         return equipment;
+    }
+
+    public Map<Integer, WardrobeSet> wardrobe() {
+        return wardrobe;
     }
 
     public List<String> accessoryBag() {

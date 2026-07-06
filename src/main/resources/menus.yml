@@ -58,6 +58,13 @@ skyblock:
       lore:
         - "<gray>Equip necklaces, cloaks, belts, and gloves.</gray>"
       action: EQUIPMENT
+    wardrobe:
+      slot: 21
+      material: ARMOR_STAND
+      display-name: "<aqua>Wardrobe</aqua>"
+      lore:
+        - "<gray>Store and swap armor setups.</gray>"
+      action: WARDROBE
     collections:
       slot: 26
       material: CHEST
@@ -462,6 +469,47 @@ equipment:
       lore: []
   back:
     slot: 31
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+
+wardrobe:
+  title: "<dark_gray>Wardrobe</dark_gray>"
+  rows: 6
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 28
+    - 29
+    - 30
+    - 31
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  empty-slot:
+    material: ARMOR_STAND
+    display-name: "<yellow>Wardrobe Slot <slot></yellow>"
+    lore: []
+  stored-slot:
+    material: AUTO
+    display-name: "<green>Wardrobe Slot <slot></green>"
+    lore: []
+  back:
+    slot: 49
     material: NETHER_STAR
     display-name: "<green>SkyBlock Menu</green>"
     lore: []

@@ -15,6 +15,7 @@ import io.github.openskyblock.menu.ShopMenuHolder;
 import io.github.openskyblock.menu.ShopSelectorHolder;
 import io.github.openskyblock.menu.SkyBlockMenuHolder;
 import io.github.openskyblock.menu.TuningHolder;
+import io.github.openskyblock.menu.WardrobeHolder;
 import io.github.openskyblock.service.CustomItemDefinition;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -60,6 +61,9 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof EquipmentHolder equipmentHolder) {
                 handleEquipmentClick(event, player, equipmentHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof WardrobeHolder wardrobeHolder) {
+                handleWardrobeClick(event, player, wardrobeHolder);
             }
             if (event.getView().getTopInventory().getHolder() instanceof PetMenuHolder petMenuHolder) {
                 handlePetClick(event, player, petMenuHolder);
@@ -126,6 +130,11 @@ public final class MenuListener implements Listener {
     private void handleEquipmentClick(InventoryClickEvent event, Player player, EquipmentHolder holder) {
         event.setCancelled(true);
         plugin.menus().runEquipmentClick(player, holder, event.getRawSlot());
+    }
+
+    private void handleWardrobeClick(InventoryClickEvent event, Player player, WardrobeHolder holder) {
+        event.setCancelled(true);
+        plugin.menus().runWardrobeClick(player, holder, event.getRawSlot(), event.getClick().isRightClick());
     }
 
     private void handlePetClick(InventoryClickEvent event, Player player, PetMenuHolder holder) {
