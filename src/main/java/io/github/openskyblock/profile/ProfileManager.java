@@ -353,6 +353,24 @@ public final class ProfileManager {
                 profile.addMuseumDonation(donationId, donatedAtMillis);
             }
         }
+        ConfigurationSection darkAuctionPurchases = section.getConfigurationSection("dark-auction.purchases");
+        if (darkAuctionPurchases != null) {
+            for (String itemId : darkAuctionPurchases.getKeys(false)) {
+                int amount = darkAuctionPurchases.getInt(itemId, 0);
+                if (amount > 0) {
+                    profile.setDarkAuctionPurchases(itemId.toUpperCase(), amount);
+                }
+            }
+        }
+        ConfigurationSection darkAuctionClaims = section.getConfigurationSection("dark-auction.claims");
+        if (darkAuctionClaims != null) {
+            for (String key : darkAuctionClaims.getKeys(false)) {
+                ItemStack itemStack = darkAuctionClaims.getItemStack(key);
+                if (itemStack != null && !itemStack.getType().isAir()) {
+                    profile.darkAuctionClaims().add(itemStack);
+                }
+            }
+        }
         ConfigurationSection slayerXp = section.getConfigurationSection("slayers.xp");
         if (slayerXp != null) {
             for (String slayerId : slayerXp.getKeys(false)) {
@@ -565,6 +583,18 @@ public final class ProfileManager {
         profileData.set(base + ".museum", null);
         for (Map.Entry<String, Long> entry : profile.museumDonations().entrySet()) {
             profileData.set(base + ".museum.donations." + entry.getKey(), entry.getValue());
+        }
+        profileData.set(base + ".dark-auction", null);
+        for (Map.Entry<String, Integer> entry : profile.darkAuctionPurchases().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".dark-auction.purchases." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (int index = 0; index < profile.darkAuctionClaims().size(); index++) {
+            ItemStack itemStack = profile.darkAuctionClaims().get(index);
+            if (itemStack != null && !itemStack.getType().isAir()) {
+                profileData.set(base + ".dark-auction.claims." + index, itemStack);
+            }
         }
         profileData.set(base + ".slayers", null);
         for (Map.Entry<String, Double> entry : profile.slayerXp().entrySet()) {

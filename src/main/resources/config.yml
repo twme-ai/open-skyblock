@@ -12,6 +12,7 @@ features:
   npc-shops: true
   physical-shop-npcs: true
   auction-house: true
+  dark-auction: true
   bazaar: true
   player-trading: true
   storage: true

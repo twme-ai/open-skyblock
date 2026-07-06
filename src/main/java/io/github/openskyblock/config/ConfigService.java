@@ -29,6 +29,7 @@ public final class ConfigService {
             "bestiary.yml",
             "museum.yml",
             "calendar.yml",
+            "dark_auction.yml",
             "slayers.yml",
             "equipment.yml",
             "wardrobe.yml",
@@ -141,6 +142,10 @@ public final class ConfigService {
 
     public FileConfiguration calendar() {
         return file("calendar.yml");
+    }
+
+    public FileConfiguration darkAuction() {
+        return file("dark_auction.yml");
     }
 
     public FileConfiguration slayers() {

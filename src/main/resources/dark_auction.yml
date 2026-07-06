@@ -1,0 +1,50 @@
+settings:
+  epoch-millis: 0
+  interval-seconds: 3600
+  lot-duration-seconds: 180
+  lots-per-session: 3
+  tick-interval-ticks: 20
+  page-size: 8
+  minimum-purse: 400000.0
+  min-bid-increment: 10000.0
+  bid-increment-percent: 0.05
+  broadcast-start: true
+  broadcast-award: true
+  auto-claim-online-winners: true
+
+items:
+  FLOWER_MINION:
+    custom-item: FLOWER_MINION
+    starting-bid: 100000.0
+    weight: 20.0
+    max-purchases-per-profile: 0
+    description:
+      - "A rare minion sold by Sirius."
+  MIDAS_SWORD:
+    custom-item: MIDAS_SWORD
+    starting-bid: 1000000.0
+    weight: 15.0
+    max-purchases-per-profile: 0
+    description:
+      - "A gold sword associated with high Dark Auction bids."
+  SPIRIT_MASK:
+    custom-item: SPIRIT_MASK
+    starting-bid: 500000.0
+    weight: 12.0
+    max-purchases-per-profile: 0
+    description:
+      - "A defensive mask from the Dark Auction rotation."
+  WITHER_ARTIFACT:
+    custom-item: WITHER_ARTIFACT
+    starting-bid: 2000000.0
+    weight: 10.0
+    max-purchases-per-profile: 1
+    description:
+      - "An accessory prize with wither-themed protection."
+  HEGEMONY_ARTIFACT:
+    custom-item: HEGEMONY_ARTIFACT
+    starting-bid: 5000000.0
+    weight: 3.0
+    max-purchases-per-profile: 1
+    description:
+      - "A prestigious accessory for dedicated collectors."

@@ -49,6 +49,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "shop",
             "auctions",
             "auction",
+            "darkauction",
+            "da",
             "bazaar",
             "bz",
             "trade",
@@ -139,6 +141,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "shops" -> shops(sender);
             case "shop" -> shop(sender, args);
             case "auctions", "auction" -> auctions(sender, args);
+            case "darkauction", "da" -> darkAuction(sender, args);
             case "bazaar", "bz" -> bazaar(sender, args);
             case "trade" -> trade(sender, args);
             case "storage", "enderchest", "ec" -> storage(sender, args);
@@ -216,6 +219,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && isAuctionCommand(args[0]) && (args[1].equalsIgnoreCase("buy") || args[1].equalsIgnoreCase("cancel"))) {
             return startsWith(plugin.auctions().listingIds(), args[2]);
+        }
+        if (args.length == 2 && isDarkAuctionCommand(args[0])) {
+            return startsWith(List.of("status", "bid", "items", "claim", "purchases"), args[1]);
+        }
+        if (args.length == 3 && isDarkAuctionCommand(args[0]) && args[1].equalsIgnoreCase("bid")) {
+            return startsWith(List.of("400000", "1000000", "5000000"), args[2]);
+        }
+        if (args.length == 3 && isDarkAuctionCommand(args[0]) && args[1].equalsIgnoreCase("items")) {
+            return startsWith(numberRange(Math.max(1, (int) Math.ceil(plugin.darkAuction().itemIds().size() / 8.0D))), args[2]);
         }
         if (args.length == 2 && isBazaarCommand(args[0])) {
             return startsWith(List.of("products", "info", "instabuy", "instasell", "buyorder", "selloffer", "claim", "cancel", "orders"), args[1]);
@@ -520,6 +532,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " shop <id>", "commands.help.shop");
         helpLine(sender, label + " auctions", "commands.help.auctions");
         helpLine(sender, label + " auction create|buy|cancel|claim", "commands.help.auction");
+        helpLine(sender, label + " darkauction [status|items|claim]", "commands.help.dark-auction");
+        helpLine(sender, label + " darkauction bid <amount>", "commands.help.dark-auction-bid");
         helpLine(sender, label + " bazaar", "commands.help.bazaar");
         helpLine(sender, label + " bazaar instabuy|instasell|buyorder|selloffer", "commands.help.bazaar-order");
         helpLine(sender, label + " trade <player>", "commands.help.trade");
@@ -746,6 +760,36 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "claim" -> plugin.auctions().claim(player);
             case "mine" -> plugin.auctions().sendMine(player);
             default -> plugin.text().send(player, "commands.auction-usage");
+        }
+    }
+
+    private void darkAuction(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.darkAuction().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "bid" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.dark-auction-usage");
+                    return;
+                }
+                parsePositiveAmount(player, args[2]).ifPresent(amount -> plugin.darkAuction().bid(player, amount));
+            }
+            case "items", "list" -> {
+                if (args.length >= 3) {
+                    parsePositiveInt(player, args[2]).ifPresent(page -> plugin.darkAuction().sendItems(player, page));
+                    return;
+                }
+                plugin.darkAuction().sendItems(player, 1);
+            }
+            case "claim" -> plugin.darkAuction().claim(player);
+            case "purchases", "wins" -> plugin.darkAuction().sendPurchases(player);
+            default -> plugin.text().send(player, "commands.dark-auction-usage");
         }
     }
 
@@ -2179,6 +2223,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isAuctionCommand(String value) {
         return value.equalsIgnoreCase("auction") || value.equalsIgnoreCase("auctions");
+    }
+
+    private boolean isDarkAuctionCommand(String value) {
+        return value.equalsIgnoreCase("darkauction") || value.equalsIgnoreCase("da");
     }
 
     private boolean isBazaarCommand(String value) {

@@ -12,6 +12,7 @@ import io.github.openskyblock.cake.CakeService;
 import io.github.openskyblock.calendar.CalendarService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.darkauction.DarkAuctionService;
 import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.equipment.EquipmentService;
@@ -90,6 +91,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private ShopService shopService;
     private ShopNpcService shopNpcService;
     private AuctionService auctionService;
+    private DarkAuctionService darkAuctionService;
     private BazaarService bazaarService;
     private TradeService tradeService;
     private StorageService storageService;
@@ -109,6 +111,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BukkitTask slayerTask;
     private BukkitTask itemAbilityTask;
     private BukkitTask petCosmeticTask;
+    private BukkitTask darkAuctionTask;
 
     @Override
     public void onEnable() {
@@ -160,6 +163,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.shopNpcService = new ShopNpcService(this, configService, textService, shopService);
         this.auctionService = new AuctionService(this, configService, textService, economyService, customItemService);
         this.auctionService.load();
+        this.darkAuctionService = new DarkAuctionService(this, configService, textService, profileManager, economyService, customItemService);
+        this.darkAuctionService.load();
         this.bazaarService = new BazaarService(this, configService, textService, economyService, customItemService);
         this.bazaarService.load();
         this.tradeService = new TradeService(configService, textService, economyService, customItemService);
@@ -200,6 +205,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         if (petCosmeticTask != null) {
             petCosmeticTask.cancel();
         }
+        if (darkAuctionTask != null) {
+            darkAuctionTask.cancel();
+        }
         if (petService != null) {
             petService.removeAllCosmeticPets();
         }
@@ -211,6 +219,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         }
         if (auctionService != null) {
             auctionService.save();
+        }
+        if (darkAuctionService != null) {
+            darkAuctionService.save();
         }
         if (bazaarService != null) {
             bazaarService.save();
@@ -261,6 +272,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         shopService.reload();
         shopNpcService.reload();
         auctionService.reload();
+        darkAuctionService.reload();
         bazaarService.reload();
         tradeService.reload();
         storageService.reload();
@@ -308,6 +320,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.slayerTask = getServer().getScheduler().runTaskTimer(this, slayerService::tickBosses, 20L, 20L);
         this.itemAbilityTask = getServer().getScheduler().runTaskTimer(this, itemAbilityService::tickMana, 20L, 20L);
         this.petCosmeticTask = getServer().getScheduler().runTaskTimer(this, petService::tickCosmeticPets, 20L, petService.cosmeticUpdateTicks());
+        this.darkAuctionTask = getServer().getScheduler().runTaskTimer(this, darkAuctionService::tick, 20L, darkAuctionService.tickIntervalTicks());
     }
 
     public ConfigService configService() {
@@ -428,6 +441,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public AuctionService auctions() {
         return auctionService;
+    }
+
+    public DarkAuctionService darkAuction() {
+        return darkAuctionService;
     }
 
     public BazaarService bazaar() {

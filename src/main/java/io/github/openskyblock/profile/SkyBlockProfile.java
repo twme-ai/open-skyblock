@@ -35,11 +35,13 @@ public final class SkyBlockProfile {
     private final Map<String, Long> bestiaryKills = new HashMap<>();
     private final Map<String, Integer> bestiaryTiers = new HashMap<>();
     private final Map<String, Long> museumDonations = new HashMap<>();
+    private final Map<String, Integer> darkAuctionPurchases = new HashMap<>();
     private final Map<String, Double> slayerXp = new HashMap<>();
     private final Map<String, Integer> slayerLevels = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private final List<PlacedCake> placedCakes = new ArrayList<>();
+    private final List<ItemStack> darkAuctionClaims = new ArrayList<>();
     private final List<OwnedPet> pets = new ArrayList<>();
     private final List<AutoPetRule> autoPetRules = new ArrayList<>();
     private String shopPurchaseDay;
@@ -262,6 +264,26 @@ public final class SkyBlockProfile {
         museumDonations.put(donationId.toUpperCase(), Math.max(0L, donatedAtMillis));
     }
 
+    public Map<String, Integer> darkAuctionPurchases() {
+        return darkAuctionPurchases;
+    }
+
+    public int darkAuctionPurchases(String itemId) {
+        return darkAuctionPurchases.getOrDefault(itemId.toUpperCase(), 0);
+    }
+
+    public void setDarkAuctionPurchases(String itemId, int amount) {
+        if (amount <= 0) {
+            darkAuctionPurchases.remove(itemId.toUpperCase());
+            return;
+        }
+        darkAuctionPurchases.put(itemId.toUpperCase(), amount);
+    }
+
+    public void addDarkAuctionPurchase(String itemId, int amount) {
+        setDarkAuctionPurchases(itemId, darkAuctionPurchases(itemId) + amount);
+    }
+
     public Map<String, Double> slayerXp() {
         return slayerXp;
     }
@@ -300,6 +322,10 @@ public final class SkyBlockProfile {
 
     public List<PlacedCake> placedCakes() {
         return placedCakes;
+    }
+
+    public List<ItemStack> darkAuctionClaims() {
+        return darkAuctionClaims;
     }
 
     public List<OwnedPet> pets() {

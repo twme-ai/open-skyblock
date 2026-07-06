@@ -587,6 +587,62 @@ items:
         radius: 6
         damage: 500
         heal: 100
+  FLOWER_MINION:
+    material: POPPY
+    display-name: "<yellow>Flower Minion</yellow>"
+    category: MINION
+    rarity: RARE
+    lore:
+      - "<gray>A decorative resource minion from the Dark Auction.</gray>"
+      - "<gray>Future minion integrations may map this item to a placeable minion.</gray>"
+    stats: {}
+  MIDAS_SWORD:
+    material: GOLDEN_SWORD
+    display-name: "<gold>Midas' Sword</gold>"
+    category: SWORD
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A blade made famous by Dark Auction bidding.</gray>"
+      - "<gray>Configured here as a strong late-game melee weapon.</gray>"
+    stats:
+      damage: 150
+      strength: 120
+      magic_find: 3
+  SPIRIT_MASK:
+    material: PLAYER_HEAD
+    display-name: "<light_purple>Spirit Mask</light_purple>"
+    category: HELMET
+    rarity: EPIC
+    lore:
+      - "<gray>A strange mask carried by collectors and bidders.</gray>"
+    stats:
+      health: 100
+      defense: 50
+      true_defense: 5
+  WITHER_ARTIFACT:
+    material: NETHER_STAR
+    display-name: "<light_purple>Wither Artifact</light_purple>"
+    category: ACCESSORY
+    rarity: EPIC
+    lore:
+      - "<gray>A rare Dark Auction accessory.</gray>"
+      - "<gray>Carry it in your Accessory Bag for configured stat value.</gray>"
+    stats:
+      health: 20
+      defense: 20
+      true_defense: 5
+  HEGEMONY_ARTIFACT:
+    material: ECHO_SHARD
+    display-name: "<gold>Hegemony Artifact</gold>"
+    category: ACCESSORY
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A prestigious Dark Auction accessory.</gray>"
+      - "<gray>Carry it in your Accessory Bag for configured stat value.</gray>"
+    stats:
+      strength: 10
+      crit_damage: 10
+      magic_find: 5
 
 rarity-upgrades:
   enabled: true
