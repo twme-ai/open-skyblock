@@ -131,6 +131,10 @@ public final class TradeService {
             text.send(player, "commands.trade-held-missing");
             return;
         }
+        if (customItems.soulbound(held)) {
+            text.send(player, "commands.soulbound-blocked-trade");
+            return;
+        }
         ItemStack offered = held.clone();
         player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
         items.add(offered);

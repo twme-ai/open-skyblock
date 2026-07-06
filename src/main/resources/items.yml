@@ -599,3 +599,12 @@ rarity-upgrades:
     - ARMOR
     - EQUIPMENT
     - ACCESSORY
+
+soulbound:
+  enabled: true
+  default-type: PLAYER
+  allowed-categories:
+    - ALL
+  display-names:
+    PLAYER: "<red>Soulbound</red>"
+    COOP: "<gold>Co-op Soulbound</gold>"

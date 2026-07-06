@@ -72,6 +72,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "reforges",
             "reforge",
             "recombobulate",
+            "soulbind",
+            "soulbound",
             "enchants",
             "enchantments",
             "enchant",
@@ -147,6 +149,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "reforges" -> reforges(sender);
             case "reforge" -> reforge(sender, args);
             case "recombobulate" -> recombobulate(sender);
+            case "soulbind", "soulbound" -> soulbind(sender, args);
             case "enchants", "enchantments" -> enchants(sender);
             case "enchant" -> enchant(sender, args);
             case "anvil" -> anvil(sender);
@@ -311,6 +314,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             values.add("remove");
             values.addAll(plugin.reforges().definitions().stream().map(ReforgeDefinition::id).toList());
             return startsWith(values, args[1]);
+        }
+        if (args.length == 2 && (args[0].equalsIgnoreCase("soulbind") || args[0].equalsIgnoreCase("soulbound"))) {
+            return startsWith(plugin.customItems().soulboundTypes(), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("enchant")) {
             List<String> values = new ArrayList<>();
@@ -514,6 +520,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge [id|remove]", "commands.help.reforge");
         helpLine(sender, label + " recombobulate", "commands.help.recombobulate");
+        helpLine(sender, label + " soulbind [player|coop]", "commands.help.soulbind");
         helpLine(sender, label + " enchants", "commands.help.enchants");
         helpLine(sender, label + " enchant [id|anvil] [level]", "commands.help.enchant");
         helpLine(sender, label + " anvil", "commands.help.anvil");
@@ -1165,6 +1172,14 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return;
         }
         plugin.customItems().recombobulateHeld(player);
+    }
+
+    private void soulbind(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.customItems().soulbindHeld(player, args.length >= 2 ? args[1] : "");
     }
 
     private void enchants(CommandSender sender) {

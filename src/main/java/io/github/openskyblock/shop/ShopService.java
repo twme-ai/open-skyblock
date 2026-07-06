@@ -5,6 +5,7 @@ import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.service.CustomItemService;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Comparator;
@@ -25,13 +26,15 @@ public final class ShopService {
     private final TextService text;
     private final ProfileManager profiles;
     private final EconomyService economy;
+    private final CustomItemService customItems;
     private final Map<String, ShopDefinition> shops = new HashMap<>();
 
-    public ShopService(ConfigService configService, TextService text, ProfileManager profiles, EconomyService economy) {
+    public ShopService(ConfigService configService, TextService text, ProfileManager profiles, EconomyService economy, CustomItemService customItems) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.economy = economy;
+        this.customItems = customItems;
     }
 
     public void reload() {
@@ -133,6 +136,10 @@ public final class ShopService {
         ItemStack itemStack = player.getInventory().getItemInMainHand();
         if (itemStack.getType().isAir()) {
             text.send(player, "commands.shop-no-items");
+            return 0;
+        }
+        if (customItems.soulbound(itemStack)) {
+            text.send(player, "commands.soulbound-blocked-sell");
             return 0;
         }
         ShopItemDefinition definition = sellDefinition(itemStack.getType()).orElse(null);
@@ -274,6 +281,9 @@ public final class ShopService {
         for (int index = 0; index < contents.length && remaining > 0; index++) {
             ItemStack itemStack = contents[index];
             if (itemStack == null || itemStack.getType() != material) {
+                continue;
+            }
+            if (customItems.soulbound(itemStack)) {
                 continue;
             }
             int next = Math.min(remaining, itemStack.getAmount());

@@ -10,10 +10,12 @@ import io.github.openskyblock.star.StarService;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -30,6 +32,9 @@ public final class CustomItemService {
     private final NamespacedKey itemIdKey;
     private final NamespacedKey rarityKey;
     private final NamespacedKey recombobulatedKey;
+    private final NamespacedKey soulboundTypeKey;
+    private final NamespacedKey soulboundOwnerKey;
+    private final NamespacedKey soulboundOwnerNameKey;
     private final Map<String, CustomItemDefinition> definitions = new HashMap<>();
     private ReforgeService reforgeService;
     private EnchantmentService enchantmentService;
@@ -42,6 +47,9 @@ public final class CustomItemService {
         this.itemIdKey = new NamespacedKey(plugin, "item_id");
         this.rarityKey = new NamespacedKey(plugin, "rarity_override");
         this.recombobulatedKey = new NamespacedKey(plugin, "recombobulated");
+        this.soulboundTypeKey = new NamespacedKey(plugin, "soulbound_type");
+        this.soulboundOwnerKey = new NamespacedKey(plugin, "soulbound_owner");
+        this.soulboundOwnerNameKey = new NamespacedKey(plugin, "soulbound_owner_name");
     }
 
     public void reforgeService(ReforgeService reforgeService) {
@@ -174,6 +182,35 @@ public final class CustomItemService {
         return value != null && value == (byte) 1;
     }
 
+    public boolean soulbound(ItemStack itemStack) {
+        return !soulboundType(itemStack).isBlank();
+    }
+
+    public String soulboundType(ItemStack itemStack) {
+        if (itemStack == null || !itemStack.hasItemMeta()) {
+            return "";
+        }
+        String value = itemStack.getItemMeta().getPersistentDataContainer().get(soulboundTypeKey, PersistentDataType.STRING);
+        return value == null ? "" : normalizeSoulboundType(value);
+    }
+
+    public List<String> soulboundTypes() {
+        Set<String> types = new LinkedHashSet<>();
+        types.add("PLAYER");
+        types.add("COOP");
+        types.add(soulboundDefaultType());
+        ConfigurationSection section = configService.items().getConfigurationSection("soulbound.display-names");
+        if (section != null) {
+            for (String key : section.getKeys(false)) {
+                String normalized = normalizeSoulboundType(key);
+                if (!normalized.isBlank()) {
+                    types.add(normalized);
+                }
+            }
+        }
+        return types.stream().filter(type -> !type.isBlank()).toList();
+    }
+
     public boolean recombobulateHeld(Player player) {
         if (!rarityUpgradesEnabled()) {
             text.send(player, "commands.recombobulate-disabled");
@@ -218,6 +255,47 @@ public final class CustomItemService {
         held.setItemMeta(meta);
         refreshItem(held);
         text.send(player, "commands.recombobulate-success", recombobulatePlaceholders(held, definition, upgraded));
+        return true;
+    }
+
+    public boolean soulbindHeld(Player player, String rawType) {
+        if (!soulbindingEnabled()) {
+            text.send(player, "commands.soulbind-disabled");
+            return false;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        CustomItemDefinition definition = definition(held).orElse(null);
+        if (definition == null) {
+            text.send(player, "commands.soulbind-held-missing");
+            return false;
+        }
+        if (held.getAmount() != 1) {
+            text.send(player, "commands.soulbind-single-item");
+            return false;
+        }
+        if (soulbound(held)) {
+            text.send(player, "commands.soulbind-already", soulboundPlaceholders(held, definition, soulboundType(held)));
+            return false;
+        }
+        String type = normalizeSoulboundType(rawType == null || rawType.isBlank() ? soulboundDefaultType() : rawType);
+        if (!soulboundTypes().contains(type)) {
+            text.send(player, "commands.soulbind-unknown-type", List.of(
+                    TextService.raw("type", rawType == null ? "" : rawType),
+                    TextService.raw("types", String.join(", ", soulboundTypes()))
+            ));
+            return false;
+        }
+        if (!soulbindingAllowed(definition)) {
+            text.send(player, "commands.soulbind-not-applicable", soulboundPlaceholders(held, definition, type));
+            return false;
+        }
+        ItemMeta meta = held.getItemMeta();
+        meta.getPersistentDataContainer().set(soulboundTypeKey, PersistentDataType.STRING, type);
+        meta.getPersistentDataContainer().set(soulboundOwnerKey, PersistentDataType.STRING, player.getUniqueId().toString());
+        meta.getPersistentDataContainer().set(soulboundOwnerNameKey, PersistentDataType.STRING, player.getName());
+        held.setItemMeta(meta);
+        refreshItem(held);
+        text.send(player, "commands.soulbind-success", soulboundPlaceholders(held, definition, type));
         return true;
     }
 
@@ -313,6 +391,9 @@ public final class CustomItemService {
         if (recombobulated(itemStack)) {
             lines.add(text.message("items.recombobulated-line"));
         }
+        if (soulbound(itemStack)) {
+            lines.add(text.message("items.soulbound-line", soulboundPlaceholders(itemStack, definition, soulboundType(itemStack))));
+        }
         lines.add(Component.empty());
         String rarityFormat = text.rawMessage("items.rarity-line")
                 .replace("<rarity_color>", effectiveRarity.colorTag())
@@ -354,6 +435,10 @@ public final class CustomItemService {
         return configService.items().getBoolean("rarity-upgrades.enabled", true);
     }
 
+    private boolean soulbindingEnabled() {
+        return configService.items().getBoolean("soulbound.enabled", true);
+    }
+
     private String recombobulatorItemId() {
         return configService.items().getString("rarity-upgrades.required-item", "RECOMBOBULATOR_3000").toUpperCase(Locale.ROOT);
     }
@@ -364,6 +449,15 @@ public final class CustomItemService {
 
     private boolean rarityUpgradeAllowed(CustomItemDefinition definition) {
         List<String> categories = configService.items().getStringList("rarity-upgrades.allowed-categories");
+        if (categories.isEmpty()) {
+            return true;
+        }
+        String category = definition.category().toUpperCase(Locale.ROOT);
+        return categories.stream().anyMatch(allowed -> allowed.equalsIgnoreCase(category) || allowed.equalsIgnoreCase("ALL"));
+    }
+
+    private boolean soulbindingAllowed(CustomItemDefinition definition) {
+        List<String> categories = configService.items().getStringList("soulbound.allowed-categories");
         if (categories.isEmpty()) {
             return true;
         }
@@ -391,6 +485,58 @@ public final class CustomItemService {
                 TextService.raw("required_amount", Integer.toString(recombobulatorAmount())),
                 TextService.parsed("required_item", requiredItem)
         );
+    }
+
+    private List<TextService.TextPlaceholder> soulboundPlaceholders(ItemStack itemStack, CustomItemDefinition definition, String type) {
+        String normalizedType = normalizeSoulboundType(type);
+        return List.of(
+                TextService.parsed("item", definition.displayName()),
+                TextService.raw("category", definition.category().toUpperCase(Locale.ROOT)),
+                TextService.raw("type_id", normalizedType),
+                TextService.parsed("type", soulboundDisplayName(normalizedType)),
+                TextService.raw("owner", soulboundOwnerName(itemStack))
+        );
+    }
+
+    private String soulboundDefaultType() {
+        String configured = configService.items().getString("soulbound.default-type", "PLAYER");
+        String normalized = normalizeSoulboundType(configured);
+        return normalized.isBlank() ? "PLAYER" : normalized;
+    }
+
+    private String soulboundDisplayName(String type) {
+        String normalized = normalizeSoulboundType(type);
+        String configured = configService.items().getString("soulbound.display-names." + normalized);
+        if (configured != null && !configured.isBlank()) {
+            return configured;
+        }
+        if (normalized.equals("COOP")) {
+            return "Co-op Soulbound";
+        }
+        String readable = normalized.toLowerCase(Locale.ROOT).replace('_', ' ');
+        if (readable.isBlank()) {
+            return "Soulbound";
+        }
+        return Character.toUpperCase(readable.charAt(0)) + readable.substring(1) + " Soulbound";
+    }
+
+    private String soulboundOwnerName(ItemStack itemStack) {
+        if (itemStack == null || !itemStack.hasItemMeta()) {
+            return "";
+        }
+        String owner = itemStack.getItemMeta().getPersistentDataContainer().get(soulboundOwnerNameKey, PersistentDataType.STRING);
+        return owner == null || owner.isBlank() ? "Unknown" : owner;
+    }
+
+    private String normalizeSoulboundType(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        String normalized = raw.trim().replace('-', '_').replace(' ', '_').toUpperCase(Locale.ROOT);
+        if (normalized.equals("CO_OP") || normalized.equals("COOP")) {
+            return "COOP";
+        }
+        return normalized;
     }
 
     private int countRequiredItems(Player player, String requiredItemId) {

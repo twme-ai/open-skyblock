@@ -242,12 +242,21 @@ public final class BazaarService {
             text.send(player, "commands.bazaar-unknown-product", List.of(TextService.raw("product", productId == null ? "" : productId)));
             return false;
         }
-        long resolvedAmount = amount <= 0L ? countMatching(player, product) : amount;
+        long held = countMatching(player, product);
+        long soulboundHeld = countSoulboundMatching(player, product);
+        long resolvedAmount = amount <= 0L ? held : amount;
+        if (resolvedAmount <= 0L && soulboundHeld > 0L) {
+            text.send(player, "commands.soulbound-blocked-bazaar");
+            return false;
+        }
         if (!validAmount(player, resolvedAmount)) {
             return false;
         }
-        long held = countMatching(player, product);
         if (held < resolvedAmount) {
+            if (soulboundHeld > 0L && held + soulboundHeld >= resolvedAmount) {
+                text.send(player, "commands.soulbound-blocked-bazaar");
+                return false;
+            }
             text.send(player, "commands.bazaar-not-enough-items", List.of(
                     TextService.parsed("product", product.displayName()),
                     TextService.raw("amount", text.formatNumber(resolvedAmount))
@@ -330,7 +339,13 @@ public final class BazaarService {
             text.send(player, "commands.bazaar-unknown-product", List.of(TextService.raw("product", productId == null ? "" : productId)));
             return false;
         }
-        long resolvedAmount = amount <= 0L ? countMatching(player, product) : amount;
+        long held = countMatching(player, product);
+        long soulboundHeld = countSoulboundMatching(player, product);
+        long resolvedAmount = amount <= 0L ? held : amount;
+        if (resolvedAmount <= 0L && soulboundHeld > 0L) {
+            text.send(player, "commands.soulbound-blocked-bazaar");
+            return false;
+        }
         if (!validAmount(player, resolvedAmount) || !validPrice(player, pricePerUnit)) {
             return false;
         }
@@ -346,8 +361,11 @@ public final class BazaarService {
             ));
             return false;
         }
-        long held = countMatching(player, product);
         if (held < resolvedAmount) {
+            if (soulboundHeld > 0L && held + soulboundHeld >= resolvedAmount) {
+                text.send(player, "commands.soulbound-blocked-bazaar");
+                return false;
+            }
             text.send(player, "commands.bazaar-not-enough-items", List.of(
                     TextService.parsed("product", product.displayName()),
                     TextService.raw("amount", text.formatNumber(resolvedAmount))
@@ -711,6 +729,16 @@ public final class BazaarService {
         return amount;
     }
 
+    private long countSoulboundMatching(Player player, BazaarProductDefinition product) {
+        long amount = 0L;
+        for (ItemStack itemStack : player.getInventory().getStorageContents()) {
+            if (matchesProduct(product, itemStack) && customItems.soulbound(itemStack)) {
+                amount += itemStack.getAmount();
+            }
+        }
+        return amount;
+    }
+
     private long removeMatching(Player player, BazaarProductDefinition product, long maxAmount) {
         long remaining = maxAmount;
         long removed = 0L;
@@ -733,6 +761,10 @@ public final class BazaarService {
     }
 
     private boolean matches(BazaarProductDefinition product, ItemStack itemStack) {
+        return matchesProduct(product, itemStack) && !customItems.soulbound(itemStack);
+    }
+
+    private boolean matchesProduct(BazaarProductDefinition product, ItemStack itemStack) {
         if (itemStack == null || itemStack.getType().isAir() || itemStack.getType() != product.material()) {
             return false;
         }

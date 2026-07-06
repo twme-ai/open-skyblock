@@ -130,6 +130,10 @@ public final class AuctionService {
             text.send(player, "commands.auction-held-missing");
             return false;
         }
+        if (customItems.soulbound(held)) {
+            text.send(player, "commands.soulbound-blocked-auction");
+            return false;
+        }
         long activeCount = listings.values().stream()
                 .filter(listing -> listing.sellerId().equals(player.getUniqueId()))
                 .filter(listing -> listing.active(System.currentTimeMillis()))
