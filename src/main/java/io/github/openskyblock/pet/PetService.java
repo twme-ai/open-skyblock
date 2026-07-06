@@ -10,12 +10,16 @@ import io.github.openskyblock.service.CustomItemService;
 import io.github.openskyblock.service.Rarity;
 import io.github.openskyblock.stats.StatSnapshot;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -31,6 +35,10 @@ public final class PetService {
     private final Map<String, PetDefinition> definitions = new HashMap<>();
     private final Map<String, PetItemDefinition> petItems = new HashMap<>();
     private final Map<String, PetItemDefinition> petItemsByItem = new HashMap<>();
+    private final Map<Rarity, Integer> petScoreByRarity = new EnumMap<>(Rarity.class);
+    private final TreeMap<Integer, PetScoreReward> petScoreRewards = new TreeMap<>();
+    private int maxLevelScoreBonus = 1;
+    private double skyBlockXpPerPetScore = 1.0D;
 
     public PetService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems) {
         this.configService = configService;
@@ -43,6 +51,9 @@ public final class PetService {
         definitions.clear();
         petItems.clear();
         petItemsByItem.clear();
+        petScoreByRarity.clear();
+        petScoreRewards.clear();
+        readPetScore(configService.pets().getConfigurationSection("pet-score"));
         readPetItems(configService.pets().getConfigurationSection("pet-items"));
         ConfigurationSection section = configService.pets().getConfigurationSection("pets");
         if (section == null) {
@@ -161,6 +172,96 @@ public final class PetService {
         profiles.save(player);
         text.send(player, "commands.pet-item-attached", placeholders(pet, definition, isActive(profile, pet)));
         return true;
+    }
+
+    public int score(SkyBlockProfile profile) {
+        if (!enabled()) {
+            return 0;
+        }
+        Map<String, Integer> bestPetScores = new HashMap<>();
+        Set<String> maxedPets = new HashSet<>();
+        for (OwnedPet pet : profile.pets()) {
+            PetDefinition definition = definition(pet.petId()).orElse(null);
+            if (definition == null) {
+                continue;
+            }
+            bestPetScores.merge(definition.id(), petScore(definition.rarity()), Math::max);
+            if (level(definition, pet) >= definition.maxLevel()) {
+                maxedPets.add(definition.id());
+            }
+        }
+        int score = bestPetScores.values().stream().mapToInt(Integer::intValue).sum();
+        score += maxedPets.size() * maxLevelScoreBonus;
+        return Math.max(0, score);
+    }
+
+    public int uniquePetCount(SkyBlockProfile profile) {
+        return (int) profile.pets().stream()
+                .map(OwnedPet::petId)
+                .filter(petId -> definition(petId).isPresent())
+                .distinct()
+                .count();
+    }
+
+    public int maxedPetCount(SkyBlockProfile profile) {
+        Set<String> maxedPets = new HashSet<>();
+        for (OwnedPet pet : profile.pets()) {
+            PetDefinition definition = definition(pet.petId()).orElse(null);
+            if (definition != null && level(definition, pet) >= definition.maxLevel()) {
+                maxedPets.add(definition.id());
+            }
+        }
+        return maxedPets.size();
+    }
+
+    public double scoreSkyBlockXp(SkyBlockProfile profile) {
+        return score(profile) * skyBlockXpPerPetScore;
+    }
+
+    public Map<String, Double> scoreStats(SkyBlockProfile profile) {
+        if (!enabled()) {
+            return Map.of();
+        }
+        int score = score(profile);
+        Map<String, Double> stats = new HashMap<>();
+        for (PetScoreReward reward : petScoreRewards.headMap(score, true).values()) {
+            for (Map.Entry<String, Double> entry : reward.stats().entrySet()) {
+                stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
+            }
+        }
+        stats.entrySet().removeIf(entry -> Math.abs(entry.getValue()) <= 0.000001D);
+        return stats;
+    }
+
+    public void sendScore(Player player) {
+        if (!enabled()) {
+            text.send(player, "commands.pet-disabled");
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        text.send(player, "commands.pet-score-summary", scorePlaceholders(profile));
+        if (petScoreRewards.isEmpty()) {
+            text.send(player, "commands.pet-score-no-rewards");
+            return;
+        }
+        Map.Entry<Integer, PetScoreReward> next = petScoreRewards.higherEntry(score(profile));
+        if (next == null) {
+            text.send(player, "commands.pet-score-next-maxed");
+        } else {
+            text.send(player, "commands.pet-score-next", List.of(
+                    TextService.raw("score", Integer.toString(next.getKey())),
+                    TextService.parsed("reward", formatStats(next.getValue().stats()))
+            ));
+        }
+        text.send(player, "commands.pet-score-rewards-header");
+        int currentScore = score(profile);
+        for (PetScoreReward reward : petScoreRewards.values()) {
+            text.send(player, "commands.pet-score-reward-line", List.of(
+                    TextService.raw("score", Integer.toString(reward.score())),
+                    TextService.parsed("status", text.rawMessage(currentScore >= reward.score() ? "pets.score-unlocked" : "pets.score-locked")),
+                    TextService.parsed("reward", formatStats(reward.stats()))
+            ));
+        }
     }
 
     public Optional<OwnedPet> activePet(SkyBlockProfile profile) {
@@ -302,6 +403,15 @@ public final class PetService {
         );
     }
 
+    public List<TextService.TextPlaceholder> scorePlaceholders(SkyBlockProfile profile) {
+        return List.of(
+                TextService.raw("pet_score", Integer.toString(score(profile))),
+                TextService.raw("skyblock_xp", text.formatNumber(scoreSkyBlockXp(profile))),
+                TextService.raw("unique_pets", Integer.toString(uniquePetCount(profile))),
+                TextService.raw("maxed_pets", Integer.toString(maxedPetCount(profile)))
+        );
+    }
+
     public String petItemName(OwnedPet pet) {
         return petItem(pet.petItemId())
                 .map(PetItemDefinition::displayName)
@@ -328,6 +438,48 @@ public final class PetService {
             merged.put(placeholder.key(), placeholder);
         }
         return merged.values().stream().toList();
+    }
+
+    private void readPetScore(ConfigurationSection section) {
+        maxLevelScoreBonus = 1;
+        skyBlockXpPerPetScore = 1.0D;
+        for (Rarity rarity : Rarity.values()) {
+            petScoreByRarity.put(rarity, defaultPetScore(rarity));
+        }
+        if (section == null) {
+            return;
+        }
+        ConfigurationSection raritySection = section.getConfigurationSection("rarity-points");
+        if (raritySection != null) {
+            for (String key : raritySection.getKeys(false)) {
+                Rarity rarity = Rarity.parse(key);
+                petScoreByRarity.put(rarity, Math.max(0, raritySection.getInt(key, defaultPetScore(rarity))));
+            }
+        }
+        maxLevelScoreBonus = Math.max(0, section.getInt("max-level-bonus", maxLevelScoreBonus));
+        skyBlockXpPerPetScore = Math.max(0.0D, section.getDouble("skyblock-xp-per-score", skyBlockXpPerPetScore));
+        ConfigurationSection rewards = section.getConfigurationSection("rewards");
+        if (rewards == null) {
+            return;
+        }
+        for (String key : rewards.getKeys(false)) {
+            ConfigurationSection rewardSection = rewards.getConfigurationSection(key);
+            if (rewardSection == null) {
+                continue;
+            }
+            try {
+                int score = Integer.parseInt(key);
+                if (score <= 0) {
+                    continue;
+                }
+                petScoreRewards.put(score, new PetScoreReward(
+                        score,
+                        Map.copyOf(stats(rewardSection.getConfigurationSection("stats")))
+                ));
+            } catch (NumberFormatException ignored) {
+                // Invalid reward keys are skipped so one bad config entry does not disable pets.
+            }
+        }
     }
 
     private void readPetItems(ConfigurationSection section) {
@@ -364,6 +516,33 @@ public final class PetService {
         }
         stats.entrySet().removeIf(entry -> Math.abs(entry.getValue()) <= 0.000001D);
         return stats;
+    }
+
+    private int petScore(Rarity rarity) {
+        return petScoreByRarity.getOrDefault(rarity, defaultPetScore(rarity));
+    }
+
+    private int defaultPetScore(Rarity rarity) {
+        return switch (rarity) {
+            case COMMON -> 1;
+            case UNCOMMON -> 2;
+            case RARE -> 3;
+            case EPIC -> 4;
+            case LEGENDARY -> 5;
+            case MYTHIC -> 6;
+            case SPECIAL -> 0;
+        };
+    }
+
+    private String formatStats(Map<String, Double> stats) {
+        if (stats.isEmpty()) {
+            return text.rawMessage("pets.no-stats");
+        }
+        return stats.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> statLabel(entry.getKey()) + " +" + text.formatNumber(entry.getValue()))
+                .reduce((first, second) -> first + ", " + second)
+                .orElseGet(() -> text.rawMessage("pets.no-stats"));
     }
 
     private Map<String, Double> statsAtLevel(PetDefinition definition, int level) {

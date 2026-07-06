@@ -1405,6 +1405,10 @@ public final class MenuService {
                 .orElse(text.rawMessage("pets.no-active"));
         return List.of(
                 TextService.raw("count", Integer.toString(profile.pets().size())),
+                TextService.raw("pet_score", Integer.toString(plugin.pets().score(profile))),
+                TextService.raw("skyblock_xp", text.formatNumber(plugin.pets().scoreSkyBlockXp(profile))),
+                TextService.raw("unique_pets", Integer.toString(plugin.pets().uniquePetCount(profile))),
+                TextService.raw("maxed_pets", Integer.toString(plugin.pets().maxedPetCount(profile))),
                 TextService.parsed("active_pet", activePet)
         );
     }

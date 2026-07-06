@@ -6,6 +6,28 @@ pet-items:
       strength: 5.0
       crit_damage: 10.0
 
+pet-score:
+  rarity-points:
+    common: 1
+    uncommon: 2
+    rare: 3
+    epic: 4
+    legendary: 5
+    mythic: 6
+    special: 0
+  max-level-bonus: 1
+  skyblock-xp-per-score: 1.0
+  rewards:
+    10:
+      stats:
+        magic_find: 1.0
+    25:
+      stats:
+        magic_find: 1.0
+    50:
+      stats:
+        magic_find: 1.0
+
 pets:
   ROCK:
     material: COBBLESTONE

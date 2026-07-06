@@ -83,6 +83,7 @@ public final class StatService {
         addPotionStats(stats, profile);
         addUpgradeStats(stats, profile);
         addPetStats(stats, profile);
+        addPetScoreStats(stats, profile);
         addBestiaryStats(stats, profile);
         addSlayerStats(stats, profile);
         return new StatSnapshot(stats);
@@ -192,6 +193,12 @@ public final class StatService {
 
     private void addPetStats(Map<String, Double> stats, SkyBlockProfile profile) {
         for (Map.Entry<String, Double> entry : pets.activeStats(profile).entrySet()) {
+            stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
+        }
+    }
+
+    private void addPetScoreStats(Map<String, Double> stats, SkyBlockProfile profile) {
+        for (Map.Entry<String, Double> entry : pets.scoreStats(profile).entrySet()) {
             stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
         }
     }

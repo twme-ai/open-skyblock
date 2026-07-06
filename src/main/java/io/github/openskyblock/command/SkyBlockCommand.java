@@ -376,7 +376,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(List.of("add", "remove", "reset", "summary", "open"), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("pet")) {
-            return startsWith(List.of("open", "list", "activate", "give", "xp"), args[1]);
+            return startsWith(List.of("open", "list", "score", "activate", "give", "xp"), args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("tuning") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
             return startsWith(plugin.tuning().tunableStats(), args[2]);
@@ -472,6 +472,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
+        helpLine(sender, label + " pet score", "commands.help.pet-score");
         helpLine(sender, label + " pet activate <slot>", "commands.help.pet-activate");
         helpLine(sender, label + " profile", "commands.help.profile");
         helpLine(sender, label + " purse", "commands.help.purse");
@@ -1449,11 +1450,20 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                     plugin.pets().sendList(player);
                 }
             }
+            case "score" -> petScore(sender);
             case "activate" -> petActivate(sender, args);
             case "give" -> petGive(sender, args);
             case "xp" -> petXp(sender, args);
             default -> plugin.text().send(sender, "errors.unknown-command");
         }
+    }
+
+    private void petScore(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.pets().sendScore(player);
     }
 
     private void petActivate(CommandSender sender, String[] args) {

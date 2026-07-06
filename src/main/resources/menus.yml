@@ -686,6 +686,9 @@ pets:
     display-name: "<aqua>Pets</aqua>"
     lore:
       - "<gray>Owned:</gray> <yellow><count></yellow>"
+      - "<gray>Unique:</gray> <yellow><unique_pets></yellow> <dark_gray>|</dark_gray> <gray>Maxed:</gray> <yellow><maxed_pets></yellow>"
+      - "<gray>Pet Score:</gray> <yellow><pet_score></yellow>"
+      - "<gray>SkyBlock XP:</gray> <aqua><skyblock_xp></aqua>"
       - "<gray>Active:</gray> <active_pet>"
   pet-item:
     display-name: "<pet>"
