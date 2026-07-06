@@ -1,5 +1,6 @@
 package io.github.openskyblock.profile;
 
+import io.github.openskyblock.pet.AutoPetRule;
 import io.github.openskyblock.service.SkillType;
 import io.github.openskyblock.wardrobe.WardrobeSet;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public final class SkyBlockProfile {
     private final List<PlacedMinion> minions = new ArrayList<>();
     private final List<PlacedCake> placedCakes = new ArrayList<>();
     private final List<OwnedPet> pets = new ArrayList<>();
+    private final List<AutoPetRule> autoPetRules = new ArrayList<>();
     private String shopPurchaseDay;
     private String activePetInstanceId;
     private String selectedQuiverItem;
@@ -259,6 +261,10 @@ public final class SkyBlockProfile {
 
     public List<OwnedPet> pets() {
         return pets;
+    }
+
+    public List<AutoPetRule> autoPetRules() {
+        return autoPetRules;
     }
 
     public String activePetInstanceId() {

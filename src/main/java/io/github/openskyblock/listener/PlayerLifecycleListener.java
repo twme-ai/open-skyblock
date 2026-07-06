@@ -1,6 +1,7 @@
 package io.github.openskyblock.listener;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
+import io.github.openskyblock.pet.AutoPetTrigger;
 import io.github.openskyblock.service.CustomItemDefinition;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.EventHandler;
@@ -21,6 +22,7 @@ public final class PlayerLifecycleListener implements Listener {
         giveStarterMenuItem(event.getPlayer());
         plugin.potions().playerJoined(event.getPlayer());
         plugin.slayers().playerJoined(event.getPlayer());
+        plugin.pets().triggerAutoPet(event.getPlayer(), AutoPetTrigger.LOGIN);
     }
 
     @EventHandler

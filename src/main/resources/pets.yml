@@ -1,3 +1,8 @@
+autopet:
+  enabled: true
+  max-rules: 8
+  announce: true
+
 pet-items:
   IRON_CLAWS:
     display-name: "<green>Iron Claws</green>"

@@ -11,6 +11,7 @@ import io.github.openskyblock.gemstone.GemstoneDefinition;
 import io.github.openskyblock.gemstone.GemstoneSlotDefinition;
 import io.github.openskyblock.mob.SkyBlockMobDefinition;
 import io.github.openskyblock.mobspawn.MobSpawnZoneDefinition;
+import io.github.openskyblock.pet.AutoPetTrigger;
 import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.potion.PotionBundleDefinition;
 import io.github.openskyblock.profile.PlacedMinion;
@@ -88,6 +89,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "slayer",
             "accessorybag",
             "tuning",
+            "autopet",
             "pets",
             "pet",
             "profile",
@@ -153,6 +155,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "slayers", "slayer" -> slayers(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
+            case "autopet" -> autopet(sender, args);
             case "pets" -> pets(sender);
             case "pet" -> pet(sender, args);
             case "purse" -> purse(sender);
@@ -385,6 +388,21 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("pet")) {
             return startsWith(List.of("open", "list", "score", "activate", "give", "xp"), args[1]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("autopet")) {
+            return startsWith(List.of("list", "add", "remove", "clear"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("autopet") && args[1].equalsIgnoreCase("add")) {
+            return startsWith(java.util.Arrays.stream(AutoPetTrigger.values()).map(AutoPetTrigger::key).toList(), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("autopet") && args[1].equalsIgnoreCase("add")) {
+            return startsWith(plugin.pets().definitions().stream().map(PetDefinition::id).toList(), args[3]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("autopet") && args[1].equalsIgnoreCase("remove")) {
+            if (sender instanceof Player player) {
+                return startsWith(numberRange(plugin.profiles().profile(player).autoPetRules().size()), args[2]);
+            }
+            return startsWith(numberRange(plugin.pets().autoPetRuleLimit()), args[2]);
+        }
         if (args.length == 3 && args[0].equalsIgnoreCase("tuning") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
             return startsWith(plugin.tuning().tunableStats(), args[2]);
         }
@@ -478,6 +496,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " slayer start|status|cancel", "commands.help.slayer");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
+        helpLine(sender, label + " autopet add|remove|list|clear", "commands.help.autopet");
         helpLine(sender, label + " pets", "commands.help.pets");
         helpLine(sender, label + " pet score", "commands.help.pet-score");
         helpLine(sender, label + " pet activate <slot>", "commands.help.pet-activate");
@@ -1462,6 +1481,35 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return;
         }
         plugin.menus().openPetMenu(player);
+    }
+
+    private void autopet(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("list")) {
+            plugin.pets().sendAutoPetRules(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "add" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.autopet-usage");
+                    return;
+                }
+                plugin.pets().addAutoPetRule(player, args[2], args[3]);
+            }
+            case "remove" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.autopet-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(slot -> plugin.pets().removeAutoPetRule(player, slot));
+            }
+            case "clear" -> plugin.pets().clearAutoPetRules(player);
+            default -> plugin.text().send(player, "commands.autopet-usage");
+        }
     }
 
     private void pet(CommandSender sender, String[] args) {

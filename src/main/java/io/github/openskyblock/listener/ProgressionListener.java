@@ -1,6 +1,7 @@
 package io.github.openskyblock.listener;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
+import io.github.openskyblock.pet.AutoPetTrigger;
 import io.github.openskyblock.stats.StatSnapshot;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.block.data.Ageable;
@@ -31,6 +32,7 @@ public final class ProgressionListener implements Listener {
         plugin.skills()
                 .blockReward(event.getBlock().getType())
                 .ifPresent(reward -> plugin.skills().grantActionReward(event.getPlayer(), reward));
+        plugin.pets().triggerAutoPet(event.getPlayer(), AutoPetTrigger.BLOCK_BREAK);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -39,6 +41,7 @@ public final class ProgressionListener implements Listener {
         if (killer == null) {
             return;
         }
+        plugin.pets().triggerAutoPet(killer, AutoPetTrigger.KILL);
         if (plugin.mobs().enabled() && plugin.mobs().definition(event.getEntity()).isPresent()) {
             return;
         }

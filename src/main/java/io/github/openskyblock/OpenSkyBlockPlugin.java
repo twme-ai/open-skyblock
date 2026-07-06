@@ -16,6 +16,7 @@ import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.equipment.EquipmentService;
 import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.island.IslandService;
+import io.github.openskyblock.listener.AutoPetListener;
 import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.CakeListener;
 import io.github.openskyblock.listener.ItemAbilityListener;
@@ -267,6 +268,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerLifecycleListener(this), this);
         getServer().getPluginManager().registerEvents(new ItemAbilityListener(this), this);
         getServer().getPluginManager().registerEvents(new ProgressionListener(this), this);
+        getServer().getPluginManager().registerEvents(new AutoPetListener(this), this);
         getServer().getPluginManager().registerEvents(new SackListener(this), this);
         getServer().getPluginManager().registerEvents(new QuiverListener(this), this);
         getServer().getPluginManager().registerEvents(new CakeListener(this), this);

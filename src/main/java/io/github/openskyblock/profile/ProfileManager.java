@@ -1,6 +1,8 @@
 package io.github.openskyblock.profile;
 
 import io.github.openskyblock.config.ConfigService;
+import io.github.openskyblock.pet.AutoPetRule;
+import io.github.openskyblock.pet.AutoPetTrigger;
 import io.github.openskyblock.service.SkillType;
 import io.github.openskyblock.wardrobe.WardrobeSet;
 import java.io.File;
@@ -382,6 +384,19 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection autoPetRules = section.getConfigurationSection("pets.autopet");
+        if (autoPetRules != null) {
+            for (String key : autoPetRules.getKeys(false)) {
+                ConfigurationSection rule = autoPetRules.getConfigurationSection(key);
+                if (rule == null) {
+                    continue;
+                }
+                AutoPetTrigger.parse(rule.getString("trigger", ""))
+                        .filter(trigger -> !rule.getString("pet", "").isBlank())
+                        .map(trigger -> new AutoPetRule(trigger, rule.getString("pet", "")))
+                        .ifPresent(profile.autoPetRules()::add);
+            }
+        }
         ConfigurationSection minions = section.getConfigurationSection("minions");
         if (minions != null) {
             for (String key : minions.getKeys(false)) {
@@ -558,6 +573,13 @@ public final class ProfileManager {
             if (!pet.petItemId().isBlank()) {
                 profileData.set(petBase + ".pet-item", pet.petItemId());
             }
+        }
+        profileData.set(base + ".pets.autopet", null);
+        for (int index = 0; index < profile.autoPetRules().size(); index++) {
+            AutoPetRule rule = profile.autoPetRules().get(index);
+            String ruleBase = base + ".pets.autopet." + index;
+            profileData.set(ruleBase + ".trigger", rule.trigger().key());
+            profileData.set(ruleBase + ".pet", rule.petId());
         }
         profileData.set(base + ".minions", null);
         for (int index = 0; index < profile.minions().size(); index++) {

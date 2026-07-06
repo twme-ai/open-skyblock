@@ -143,8 +143,159 @@ public final class PetService {
             return false;
         }
         profile.activePetInstanceId(pet.instanceId());
+        profiles.save(player);
         text.send(player, "commands.pet-activated", placeholders(pet, definition, true));
         return true;
+    }
+
+    public int autoPetRuleLimit() {
+        return Math.max(1, configService.pets().getInt("autopet.max-rules", 8));
+    }
+
+    public void sendAutoPetRules(Player player) {
+        if (!enabled()) {
+            text.send(player, "commands.pet-disabled");
+            return;
+        }
+        if (!autoPetEnabled()) {
+            text.send(player, "commands.autopet-disabled");
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        if (profile.autoPetRules().isEmpty()) {
+            text.send(player, "commands.autopet-empty");
+            return;
+        }
+        text.send(player, "commands.autopet-header", List.of(
+                TextService.raw("rules", Integer.toString(profile.autoPetRules().size())),
+                TextService.raw("limit", Integer.toString(autoPetRuleLimit()))
+        ));
+        for (int index = 0; index < profile.autoPetRules().size(); index++) {
+            AutoPetRule rule = profile.autoPetRules().get(index);
+            String petName = definition(rule.petId())
+                    .map(PetDefinition::displayName)
+                    .orElse(rule.petId());
+            text.send(player, "commands.autopet-line", autoPetPlaceholders(index + 1, rule, petName));
+        }
+    }
+
+    public boolean addAutoPetRule(Player player, String triggerInput, String petInput) {
+        if (!enabled()) {
+            text.send(player, "commands.pet-disabled");
+            return false;
+        }
+        if (!autoPetEnabled()) {
+            text.send(player, "commands.autopet-disabled");
+            return false;
+        }
+        AutoPetTrigger trigger = AutoPetTrigger.parse(triggerInput).orElse(null);
+        if (trigger == null) {
+            text.send(player, "commands.autopet-unknown-trigger", List.of(
+                    TextService.raw("trigger", triggerInput == null ? "" : triggerInput),
+                    TextService.raw("triggers", triggerList())
+            ));
+            return false;
+        }
+        PetDefinition definition = definition(petInput).orElse(null);
+        if (definition == null) {
+            text.send(player, "errors.unknown-pet", List.of(TextService.raw("pet", petInput == null ? "" : petInput)));
+            return false;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        if (!ownsPet(profile, definition.id())) {
+            text.send(player, "commands.autopet-pet-missing", List.of(TextService.parsed("pet", definition.displayName())));
+            return false;
+        }
+        boolean duplicate = profile.autoPetRules().stream()
+                .anyMatch(rule -> rule.trigger() == trigger && rule.petId().equals(definition.id()));
+        if (duplicate) {
+            text.send(player, "commands.autopet-duplicate");
+            return false;
+        }
+        int limit = autoPetRuleLimit();
+        if (profile.autoPetRules().size() >= limit) {
+            text.send(player, "commands.autopet-limit", List.of(TextService.raw("limit", Integer.toString(limit))));
+            return false;
+        }
+        AutoPetRule rule = new AutoPetRule(trigger, definition.id());
+        profile.autoPetRules().add(rule);
+        profiles.save(player);
+        text.send(player, "commands.autopet-added", autoPetPlaceholders(profile.autoPetRules().size(), rule, definition.displayName()));
+        return true;
+    }
+
+    public boolean removeAutoPetRule(Player player, int slot) {
+        if (!enabled()) {
+            text.send(player, "commands.pet-disabled");
+            return false;
+        }
+        if (!autoPetEnabled()) {
+            text.send(player, "commands.autopet-disabled");
+            return false;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        int index = slot - 1;
+        if (index < 0 || index >= profile.autoPetRules().size()) {
+            text.send(player, "commands.autopet-rule-missing", List.of(TextService.raw("slot", Integer.toString(slot))));
+            return false;
+        }
+        AutoPetRule removed = profile.autoPetRules().remove(index);
+        profiles.save(player);
+        String petName = definition(removed.petId())
+                .map(PetDefinition::displayName)
+                .orElse(removed.petId());
+        text.send(player, "commands.autopet-removed", autoPetPlaceholders(slot, removed, petName));
+        return true;
+    }
+
+    public void clearAutoPetRules(Player player) {
+        if (!enabled()) {
+            text.send(player, "commands.pet-disabled");
+            return;
+        }
+        if (!autoPetEnabled()) {
+            text.send(player, "commands.autopet-disabled");
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        if (profile.autoPetRules().isEmpty()) {
+            text.send(player, "commands.autopet-empty");
+            return;
+        }
+        int count = profile.autoPetRules().size();
+        profile.autoPetRules().clear();
+        profiles.save(player);
+        text.send(player, "commands.autopet-cleared", List.of(TextService.raw("rules", Integer.toString(count))));
+    }
+
+    public boolean triggerAutoPet(Player player, AutoPetTrigger trigger) {
+        if (!enabled() || !autoPetEnabled()) {
+            return false;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        for (AutoPetRule rule : profile.autoPetRules()) {
+            if (rule.trigger() != trigger) {
+                continue;
+            }
+            PetDefinition definition = definition(rule.petId()).orElse(null);
+            if (definition == null) {
+                continue;
+            }
+            if (activePet(profile).filter(pet -> pet.petId().equals(definition.id())).isPresent()) {
+                return true;
+            }
+            OwnedPet pet = firstOwnedPet(profile, definition.id()).orElse(null);
+            if (pet == null) {
+                continue;
+            }
+            profile.activePetInstanceId(pet.instanceId());
+            profiles.save(player);
+            if (configService.pets().getBoolean("autopet.announce", true)) {
+                text.send(player, "commands.autopet-activated", autoPetPlaceholders(0, rule, definition.displayName()));
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean attachItem(Player player, int petIndex, ItemStack itemStack) {
@@ -438,6 +589,38 @@ public final class PetService {
             merged.put(placeholder.key(), placeholder);
         }
         return merged.values().stream().toList();
+    }
+
+    private boolean autoPetEnabled() {
+        return configService.pets().getBoolean("autopet.enabled", true);
+    }
+
+    private boolean ownsPet(SkyBlockProfile profile, String petId) {
+        return firstOwnedPet(profile, petId).isPresent();
+    }
+
+    private Optional<OwnedPet> firstOwnedPet(SkyBlockProfile profile, String petId) {
+        String normalized = petId == null ? "" : petId.toUpperCase(Locale.ROOT);
+        return profile.pets().stream()
+                .filter(pet -> pet.petId().equals(normalized))
+                .findFirst();
+    }
+
+    private List<TextService.TextPlaceholder> autoPetPlaceholders(int slot, AutoPetRule rule, String petName) {
+        return List.of(
+                TextService.raw("slot", Integer.toString(slot)),
+                TextService.raw("trigger", rule.trigger().displayName()),
+                TextService.raw("trigger_key", rule.trigger().key()),
+                TextService.raw("pet_id", rule.petId()),
+                TextService.parsed("pet", petName)
+        );
+    }
+
+    private String triggerList() {
+        return java.util.Arrays.stream(AutoPetTrigger.values())
+                .map(AutoPetTrigger::key)
+                .reduce((first, second) -> first + ", " + second)
+                .orElse("");
     }
 
     private void readPetScore(ConfigurationSection section) {
