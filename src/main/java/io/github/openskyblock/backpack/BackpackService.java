@@ -2,6 +2,7 @@ package io.github.openskyblock.backpack;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.fairysoul.FairySoulService;
 import io.github.openskyblock.menu.BackpackHolder;
 import io.github.openskyblock.profile.OwnedBackpack;
 import io.github.openskyblock.profile.ProfileManager;
@@ -31,6 +32,7 @@ public final class BackpackService {
     private final ProfileManager profiles;
     private final NamespacedKey backpackIdKey;
     private final Map<String, BackpackDefinition> definitions = new HashMap<>();
+    private FairySoulService fairySouls;
     private int slots = 18;
     private String title = "<dark_gray>Backpack <slot>: <backpack></dark_gray>";
 
@@ -39,6 +41,10 @@ public final class BackpackService {
         this.text = text;
         this.profiles = profiles;
         this.backpackIdKey = new NamespacedKey(plugin, "backpack_id");
+    }
+
+    public void fairySoulService(FairySoulService fairySouls) {
+        this.fairySouls = fairySouls;
     }
 
     public void reload() {
@@ -70,7 +76,8 @@ public final class BackpackService {
     }
 
     public int slots() {
-        return slots;
+        int bonusCap = fairySouls == null ? 0 : fairySouls.maxBackpackSlotBonus();
+        return Math.min(36, slots + bonusCap);
     }
 
     public List<BackpackDefinition> definitions() {
@@ -128,7 +135,7 @@ public final class BackpackService {
         SkyBlockProfile profile = profiles.profile(player);
         int slot = firstEmptySlot(profile);
         if (slot < 0) {
-            text.send(player, "commands.backpack-full", List.of(TextService.raw("slots", Integer.toString(slots))));
+            text.send(player, "commands.backpack-full", List.of(TextService.raw("slots", Integer.toString(slots(profile)))));
             return false;
         }
         ItemStack[] contents = new ItemStack[MAX_CONTENTS];
@@ -150,11 +157,13 @@ public final class BackpackService {
             text.send(player, "commands.backpack-disabled");
             return;
         }
-        if (requestedSlot < 1 || requestedSlot > slots) {
-            text.send(player, "commands.backpack-invalid-slot", List.of(TextService.raw("slots", Integer.toString(slots))));
+        SkyBlockProfile profile = profiles.profile(player);
+        int playerSlots = slots(profile);
+        if (requestedSlot < 1 || requestedSlot > playerSlots) {
+            text.send(player, "commands.backpack-invalid-slot", List.of(TextService.raw("slots", Integer.toString(playerSlots))));
             return;
         }
-        OwnedBackpack backpack = profiles.profile(player).backpacks().get(requestedSlot);
+        OwnedBackpack backpack = profile.backpacks().get(requestedSlot);
         if (backpack == null) {
             text.send(player, "commands.backpack-empty-slot", List.of(TextService.raw("slot", Integer.toString(requestedSlot))));
             return;
@@ -234,7 +243,7 @@ public final class BackpackService {
         }
         SkyBlockProfile profile = profiles.profile(player);
         text.send(player, "commands.backpack-list-header");
-        for (int slot = 1; slot <= slots; slot++) {
+        for (int slot = 1; slot <= slots(profile); slot++) {
             OwnedBackpack backpack = profile.backpacks().get(slot);
             if (backpack == null) {
                 text.send(player, "commands.backpack-list-line", List.of(
@@ -257,12 +266,17 @@ public final class BackpackService {
     }
 
     private int firstEmptySlot(SkyBlockProfile profile) {
-        for (int slot = 1; slot <= slots; slot++) {
+        for (int slot = 1; slot <= slots(profile); slot++) {
             if (!profile.backpacks().containsKey(slot)) {
                 return slot;
             }
         }
         return -1;
+    }
+
+    private int slots(SkyBlockProfile profile) {
+        int bonus = fairySouls == null ? 0 : fairySouls.backpackSlotBonus(profile);
+        return Math.max(1, Math.min(36, slots + bonus));
     }
 
     private boolean empty(ItemStack[] contents) {

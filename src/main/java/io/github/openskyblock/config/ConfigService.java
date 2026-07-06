@@ -26,6 +26,7 @@ public final class ConfigService {
             "storage.yml",
             "backpacks.yml",
             "mobs.yml",
+            "fairy_souls.yml",
             "sea_creatures.yml",
             "trophy_fish.yml",
             "mob_spawns.yml",
@@ -137,6 +138,10 @@ public final class ConfigService {
 
     public FileConfiguration mobs() {
         return file("mobs.yml");
+    }
+
+    public FileConfiguration fairySouls() {
+        return file("fairy_souls.yml");
     }
 
     public FileConfiguration seaCreatures() {

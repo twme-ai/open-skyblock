@@ -18,6 +18,7 @@ import io.github.openskyblock.darkauction.DarkAuctionService;
 import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.equipment.EquipmentService;
+import io.github.openskyblock.fairysoul.FairySoulService;
 import io.github.openskyblock.farmingcontest.FarmingContestService;
 import io.github.openskyblock.forge.ForgeService;
 import io.github.openskyblock.gemstone.GemstoneService;
@@ -26,6 +27,7 @@ import io.github.openskyblock.listener.AutoPetListener;
 import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.CakeListener;
 import io.github.openskyblock.listener.CookieListener;
+import io.github.openskyblock.listener.FairySoulListener;
 import io.github.openskyblock.listener.ItemAbilityListener;
 import io.github.openskyblock.listener.MenuListener;
 import io.github.openskyblock.listener.MinionListener;
@@ -85,6 +87,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private EquipmentService equipmentService;
     private WardrobeService wardrobeService;
     private ArmorSetService armorSetService;
+    private FairySoulService fairySoulService;
     private CalendarService calendarService;
     private CommissionService commissionService;
     private ForgeService forgeService;
@@ -143,12 +146,14 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.upgradeService = new UpgradeService(configService, textService, profileManager, economyService);
         this.economyService.upgradeService(upgradeService);
         this.collectionService = new CollectionService(configService, textService, profileManager);
+        this.fairySoulService = new FairySoulService(configService, textService, profileManager);
         this.skillService = new SkillService(configService, textService, profileManager, collectionService, economyService);
         this.commissionService = new CommissionService(configService, textService, profileManager, economyService, skillService);
         this.customItemService = new CustomItemService(this, configService, textService);
         this.forgeService = new ForgeService(configService, textService, profileManager, economyService, customItemService);
         this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
         this.skillService.museumService(museumService);
+        this.skillService.fairySoulService(fairySoulService);
         this.economyService.museumService(museumService);
         this.cookieService = new CookieService(configService, textService, profileManager, customItemService);
         this.cookieService.museumService(museumService);
@@ -198,6 +203,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.tradeService = new TradeService(configService, textService, economyService, customItemService);
         this.storageService = new StorageService(configService, textService, profileManager, customItemService);
         this.backpackService = new BackpackService(this, configService, textService, profileManager);
+        this.backpackService.fairySoulService(fairySoulService);
 
         reloadServices();
         registerCommands();
@@ -282,6 +288,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private void reloadServices() {
         textService.reload();
         collectionService.reload();
+        fairySoulService.reload();
         skillService.reload();
         commissionService.reload();
         customItemService.reload();
@@ -340,6 +347,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ProgressionListener(this), this);
         getServer().getPluginManager().registerEvents(new AutoPetListener(this), this);
         getServer().getPluginManager().registerEvents(new SackListener(this), this);
+        getServer().getPluginManager().registerEvents(new FairySoulListener(this), this);
         getServer().getPluginManager().registerEvents(new TrophyFishListener(this), this);
         getServer().getPluginManager().registerEvents(new SeaCreatureListener(this), this);
         getServer().getPluginManager().registerEvents(new QuiverListener(this), this);
@@ -423,6 +431,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public ArmorSetService armorSets() {
         return armorSetService;
+    }
+
+    public FairySoulService fairySouls() {
+        return fairySoulService;
     }
 
     public CalendarService calendar() {

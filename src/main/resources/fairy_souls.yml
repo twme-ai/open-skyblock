@@ -1,0 +1,38 @@
+settings:
+  default-claim-radius: 2.5
+  souls-per-exchange: 5
+  skyblock-xp-per-exchange: 10.0
+  backpack-slots-per-exchange: 1
+  max-backpack-slot-bonus: 18
+
+souls:
+  HUB_POND:
+    display-name: "<light_purple>Hub Pond Fairy Soul</light_purple>"
+    world: "world"
+    x: 0
+    y: 80
+    z: 0
+  HUB_LIBRARY:
+    display-name: "<light_purple>Library Fairy Soul</light_purple>"
+    world: "world"
+    x: 8
+    y: 80
+    z: 0
+  HUB_MOUNTAIN:
+    display-name: "<light_purple>Mountain Fairy Soul</light_purple>"
+    world: "world"
+    x: 16
+    y: 82
+    z: 0
+  HUB_FOREST:
+    display-name: "<light_purple>Forest Fairy Soul</light_purple>"
+    world: "world"
+    x: 24
+    y: 80
+    z: 0
+  HUB_RUINS:
+    display-name: "<light_purple>Ruins Fairy Soul</light_purple>"
+    world: "world"
+    x: 32
+    y: 80
+    z: 0

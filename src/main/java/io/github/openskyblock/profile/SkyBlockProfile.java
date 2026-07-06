@@ -6,8 +6,10 @@ import io.github.openskyblock.wardrobe.WardrobeSet;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.bukkit.inventory.ItemStack;
 
@@ -20,6 +22,7 @@ public final class SkyBlockProfile {
     private String islandWorldName;
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
+    private final Set<String> fairySouls = new HashSet<>();
     private final Map<String, Map<String, Long>> trophyFish = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
@@ -61,6 +64,7 @@ public final class SkyBlockProfile {
     private long totalCommissions;
     private String commissionDay;
     private int dailyCommissions;
+    private long fairySoulExchanges;
     private long cookieBuffExpiresAtMillis;
     private long bits;
     private long bitsAvailable;
@@ -149,6 +153,30 @@ public final class SkyBlockProfile {
 
     public Map<String, Long> collections() {
         return collections;
+    }
+
+    public boolean hasFairySoul(String soulId) {
+        return fairySouls.contains(soulId.toUpperCase());
+    }
+
+    public boolean addFairySoul(String soulId) {
+        return fairySouls.add(soulId.toUpperCase());
+    }
+
+    public Set<String> fairySouls() {
+        return fairySouls;
+    }
+
+    public long fairySoulExchanges() {
+        return fairySoulExchanges;
+    }
+
+    public void fairySoulExchanges(long fairySoulExchanges) {
+        this.fairySoulExchanges = Math.max(0L, fairySoulExchanges);
+    }
+
+    public void addFairySoulExchanges(long amount) {
+        fairySoulExchanges(fairySoulExchanges + amount);
     }
 
     public long trophyFish(String fishId, String tier) {

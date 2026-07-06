@@ -9,6 +9,10 @@ forge:
   status-ready: "<green>Ready</green>"
   status-working: "<yellow>Forging</yellow>"
 
+fairy-souls:
+  found-status: "Found"
+  missing-status: "Missing"
+
 errors:
   players-only: "<prefix><red>This command can only be used by a player.</red>"
   no-permission: "<prefix><red>You do not have permission to use this command.</red>"
@@ -82,6 +86,7 @@ commands:
     commissions: "View and claim active mining commissions."
     hotm: "View Heart of the Mountain XP, level, and powder."
     forge: "View and run timed Dwarven Mines Forge jobs."
+    fairy-souls: "Track Fairy Soul discoveries and Tia exchanges."
     sea-creatures: "View fishing sea creature chance and unlocks."
     trophy-fish: "View Trophy Fishing catches, tiers, and unlocks."
     mobs: "List configured SkyBlock mobs."
@@ -616,6 +621,16 @@ commands:
   forge-missing-output: "<prefix><red>Configured Forge output is missing: <item><red>.</red></red>"
   forge-collected: "<prefix><green>Collected</green> <output> <green>from Forge slot <yellow><slot></yellow>.</green>"
   forge-no-ready-jobs: "<prefix><gray>No Forge jobs are ready to collect.</gray>"
+  fairy-soul-disabled: "<prefix><red>Fairy Souls are disabled on this server.</red>"
+  fairy-soul-usage: "<prefix><red>Use <yellow>/skyblock fairysouls</yellow>, <yellow>/skyblock fairysouls list</yellow>, or <yellow>/skyblock fairysouls exchange</yellow>.</red>"
+  fairy-soul-empty: "<prefix><gray>There are no configured Fairy Souls.</gray>"
+  fairy-soul-found: "<prefix><light_purple>Fairy Soul found:</light_purple> <soul> <dark_gray>|</dark_gray> <yellow><found></yellow><gray>/</gray><yellow><total></yellow> <dark_gray>|</dark_gray> <gray>Available exchanges:</gray> <yellow><available_exchanges></yellow>"
+  fairy-soul-exchange-ready: "<prefix><green>You can exchange Fairy Souls with <yellow>/skyblock fairysouls exchange</yellow>.</green> <gray>Available:</gray> <yellow><available_exchanges></yellow>"
+  fairy-soul-summary: "<prefix><light_purple>Fairy Souls</light_purple> <dark_gray>|</dark_gray> <gray>Found:</gray> <yellow><found></yellow><gray>/</gray><yellow><total></yellow> <dark_gray>|</dark_gray> <gray>Set size:</gray> <yellow><souls_per_exchange></yellow> <dark_gray>|</dark_gray> <gray>Available:</gray> <yellow><available_exchanges></yellow> <dark_gray>|</dark_gray> <gray>Exchanges:</gray> <yellow><exchanges></yellow> <dark_gray>|</dark_gray> <gray>SkyBlock XP:</gray> <aqua><skyblock_xp></aqua> <dark_gray>|</dark_gray> <gray>Backpack slots:</gray> <yellow><backpack_slots></yellow>"
+  fairy-soul-list-header: "<prefix><light_purple>Fairy Soul Guide</light_purple> <dark_gray>|</dark_gray> <yellow><found></yellow><gray>/</gray><yellow><total></yellow>"
+  fairy-soul-list-line: "<gray>[<status>]</gray> <gray><id>:</gray> <soul> <dark_gray>|</dark_gray> <yellow><world></yellow> <gray>(<x>, <y>, <z>)</gray>"
+  fairy-soul-no-exchange: "<prefix><red>You do not have enough unexchanged Fairy Souls.</red> <gray>Found:</gray> <yellow><found></yellow> <dark_gray>|</dark_gray> <gray>Need per exchange:</gray> <yellow><souls_per_exchange></yellow>"
+  fairy-soul-exchanged: "<prefix><green>Exchanged <yellow><exchanges></yellow> Fairy Soul set(s).</green> <gray>SkyBlock XP:</gray> <aqua><skyblock_xp></aqua> <dark_gray>|</dark_gray> <gray>Backpack slot bonus:</gray> <yellow><backpack_slots></yellow> <dark_gray>|</dark_gray> <gray>Total exchanges:</gray> <yellow><total_exchanges></yellow>"
   skills-header: "<prefix><aqua>Skills</aqua>"
   stats-header: "<prefix><aqua>Stats</aqua>"
   stats-line: "<gray><stat>:</gray> <green><value></green>"

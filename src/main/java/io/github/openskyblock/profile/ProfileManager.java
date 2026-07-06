@@ -139,6 +139,12 @@ public final class ProfileManager {
                 profile.setCollectionAmount(key.toUpperCase(), collections.getLong(key, 0L));
             }
         }
+        for (String soulId : section.getStringList("fairy-souls.found")) {
+            if (soulId != null && !soulId.isBlank()) {
+                profile.addFairySoul(soulId);
+            }
+        }
+        profile.fairySoulExchanges(section.getLong("fairy-souls.exchanges", 0L));
         ConfigurationSection trophyFish = section.getConfigurationSection("trophy-fish.catches");
         if (trophyFish != null) {
             for (String fishId : trophyFish.getKeys(false)) {
@@ -580,6 +586,9 @@ public final class ProfileManager {
         for (Map.Entry<String, Long> entry : profile.collections().entrySet()) {
             profileData.set(base + ".collections." + entry.getKey(), entry.getValue());
         }
+        profileData.set(base + ".fairy-souls", null);
+        profileData.set(base + ".fairy-souls.found", profile.fairySouls().stream().sorted().toList());
+        profileData.set(base + ".fairy-souls.exchanges", profile.fairySoulExchanges());
         profileData.set(base + ".trophy-fish", null);
         for (Map.Entry<String, Map<String, Long>> fishEntry : profile.trophyFish().entrySet()) {
             for (Map.Entry<String, Long> tierEntry : fishEntry.getValue().entrySet()) {

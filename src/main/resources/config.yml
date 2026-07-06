@@ -39,6 +39,7 @@ features:
   minions: true
   combat-stats: true
   custom-mobs: true
+  fairy-souls: true
   sea-creatures: true
   trophy-fishing: true
   mob-spawn-zones: true
