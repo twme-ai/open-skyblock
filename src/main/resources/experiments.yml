@@ -1,0 +1,80 @@
+settings:
+  default-daily-limit: 1
+  max-bonus-clicks: 20
+  default-bonus-clicks-per-extra-roll: 4
+
+experiments:
+  SUPERPAIRS:
+    display-name: "<light_purple>Superpairs</light_purple>"
+    type: SUPERPAIRS
+    required-enchanting-level: 0
+    daily-limit: 1
+    cost: 0.0
+    enchanting-xp: 500.0
+    consumes-bonus-clicks: true
+    base-clicks: 12
+    bonus-clicks-per-extra-roll: 4
+    reward-rolls: 1
+    rewards:
+      - type: VANILLA
+        material: EXPERIENCE_BOTTLE
+        amount: 16
+        weight: 60.0
+      - type: VANILLA
+        material: LAPIS_LAZULI
+        amount: 32
+        weight: 30.0
+      - type: CUSTOM_ITEM
+        item: ENCHANTED_BOOK
+        amount: 1
+        weight: 8.0
+      - type: CUSTOM_ITEM
+        item: RECOMBOBULATOR_3000
+        amount: 1
+        weight: 2.0
+  CHRONOMATRON:
+    display-name: "<aqua>Chronomatron</aqua>"
+    type: BONUS
+    required-enchanting-level: 10
+    daily-limit: 1
+    cost: 0.0
+    enchanting-xp: 750.0
+    bonus-clicks: 3
+    reward-rolls: 1
+    rewards:
+      - type: VANILLA
+        material: EXPERIENCE_BOTTLE
+        amount: 24
+        weight: 55.0
+      - type: COINS
+        coins: 2500.0
+        weight: 35.0
+      - type: CUSTOM_ITEM
+        item: ENCHANTED_BOOK
+        amount: 1
+        weight: 10.0
+  ULTRASEQUENCER:
+    display-name: "<yellow>Ultrasequencer</yellow>"
+    type: BONUS
+    required-enchanting-level: 15
+    daily-limit: 1
+    cost: 0.0
+    enchanting-xp: 1000.0
+    bonus-clicks: 5
+    reward-rolls: 1
+    rewards:
+      - type: VANILLA
+        material: EXPERIENCE_BOTTLE
+        amount: 32
+        weight: 50.0
+      - type: COINS
+        coins: 5000.0
+        weight: 35.0
+      - type: CUSTOM_ITEM
+        item: ENCHANTED_BOOK
+        amount: 1
+        weight: 12.0
+      - type: CUSTOM_ITEM
+        item: RECOMBOBULATOR_3000
+        amount: 1
+        weight: 3.0

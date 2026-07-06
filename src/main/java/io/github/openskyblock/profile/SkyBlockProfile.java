@@ -24,6 +24,7 @@ public final class SkyBlockProfile {
     private final Map<String, Long> collections = new HashMap<>();
     private final Set<String> fairySouls = new HashSet<>();
     private final Map<String, Map<String, Long>> trophyFish = new HashMap<>();
+    private final Map<String, Integer> experimentCompletions = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -56,6 +57,8 @@ public final class SkyBlockProfile {
     private final List<OwnedPet> pets = new ArrayList<>();
     private final List<AutoPetRule> autoPetRules = new ArrayList<>();
     private String shopPurchaseDay;
+    private String experimentDay;
+    private int experimentBonusClicks;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -224,6 +227,51 @@ public final class SkyBlockProfile {
 
     public Map<String, Map<String, Long>> trophyFish() {
         return trophyFish;
+    }
+
+    public String experimentDay() {
+        return experimentDay;
+    }
+
+    public void experimentDay(String experimentDay) {
+        this.experimentDay = experimentDay;
+    }
+
+    public int experimentCompletions(String experimentId) {
+        return experimentCompletions.getOrDefault(experimentId.toUpperCase(), 0);
+    }
+
+    public void setExperimentCompletions(String experimentId, int amount) {
+        String normalized = experimentId.toUpperCase();
+        if (amount <= 0) {
+            experimentCompletions.remove(normalized);
+            return;
+        }
+        experimentCompletions.put(normalized, amount);
+    }
+
+    public void addExperimentCompletion(String experimentId, int amount) {
+        setExperimentCompletions(experimentId, experimentCompletions(experimentId) + amount);
+    }
+
+    public void clearExperimentCompletions() {
+        experimentCompletions.clear();
+    }
+
+    public Map<String, Integer> experimentCompletions() {
+        return experimentCompletions;
+    }
+
+    public int experimentBonusClicks() {
+        return experimentBonusClicks;
+    }
+
+    public void experimentBonusClicks(int experimentBonusClicks) {
+        this.experimentBonusClicks = Math.max(0, experimentBonusClicks);
+    }
+
+    public void addExperimentBonusClicks(int amount) {
+        experimentBonusClicks(experimentBonusClicks + amount);
     }
 
     public String shopPurchaseDay() {

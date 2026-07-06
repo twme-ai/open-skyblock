@@ -157,6 +157,14 @@ public final class ProfileManager {
                 }
             }
         }
+        profile.experimentDay(section.getString("experiments.day", null));
+        profile.experimentBonusClicks(section.getInt("experiments.bonus-clicks", 0));
+        ConfigurationSection experiments = section.getConfigurationSection("experiments.completions");
+        if (experiments != null) {
+            for (String experimentId : experiments.getKeys(false)) {
+                profile.setExperimentCompletions(experimentId.toUpperCase(), experiments.getInt(experimentId, 0));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -595,6 +603,14 @@ public final class ProfileManager {
                 if (tierEntry.getValue() > 0L) {
                     profileData.set(base + ".trophy-fish.catches." + fishEntry.getKey() + "." + tierEntry.getKey(), tierEntry.getValue());
                 }
+            }
+        }
+        profileData.set(base + ".experiments", null);
+        profileData.set(base + ".experiments.day", profile.experimentDay());
+        profileData.set(base + ".experiments.bonus-clicks", profile.experimentBonusClicks());
+        for (Map.Entry<String, Integer> entry : profile.experimentCompletions().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".experiments.completions." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());

@@ -84,6 +84,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "enchantments",
             "enchant",
             "anvil",
+            "experiments",
+            "experiment",
+            "etable",
             "stars",
             "star",
             "essence",
@@ -182,6 +185,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "enchants", "enchantments" -> enchants(sender);
             case "enchant" -> enchant(sender, args);
             case "anvil" -> anvil(sender);
+            case "experiments", "experiment", "etable" -> experiments(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -399,6 +403,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("enchant") && !args[1].equalsIgnoreCase("remove") && !args[1].equalsIgnoreCase("book") && !args[1].equalsIgnoreCase("anvil")) {
             return startsWith(plugin.enchantments().levelSuggestions(args[1]), args[2]);
+        }
+        if (args.length == 2 && isExperimentCommand(args[0])) {
+            return startsWith(List.of("status", "list", "run"), args[1]);
+        }
+        if (args.length == 3 && isExperimentCommand(args[0]) && args[1].equalsIgnoreCase("run")) {
+            return startsWith(plugin.experiments().experimentIds(), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
@@ -633,6 +643,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " enchants", "commands.help.enchants");
         helpLine(sender, label + " enchant [id|anvil] [level]", "commands.help.enchant");
         helpLine(sender, label + " anvil", "commands.help.anvil");
+        helpLine(sender, label + " experiments status|list|run", "commands.help.experiments");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1429,6 +1440,28 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return;
         }
         plugin.menus().openEnchantingAnvil(player);
+    }
+
+    private void experiments(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.experiments().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "list", "guide" -> plugin.experiments().sendList(player);
+            case "run", "start" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.experiment-usage");
+                    return;
+                }
+                plugin.experiments().run(player, args[2]);
+            }
+            default -> plugin.text().send(player, "commands.experiment-usage");
+        }
     }
 
     private void enchantBook(CommandSender sender, String[] args) {
@@ -2567,6 +2600,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isCookieCommand(String value) {
         return value.equalsIgnoreCase("cookie") || value.equalsIgnoreCase("cookies");
+    }
+
+    private boolean isExperimentCommand(String value) {
+        return value.equalsIgnoreCase("experiment") || value.equalsIgnoreCase("experiments") || value.equalsIgnoreCase("etable");
     }
 
     private boolean isUpgradeCommand(String value) {

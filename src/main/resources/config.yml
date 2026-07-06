@@ -25,6 +25,7 @@ features:
   profile-upgrades: true
   reforges: true
   enchantments: true
+  experiments: true
   item-stars: true
   gemstones: true
   equipment: true
