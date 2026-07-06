@@ -22,20 +22,23 @@ public final class StatService {
     private final CustomItemService customItems;
     private final AccessoryService accessories;
     private final TuningService tuning;
+    private final ArmorSetService armorSets;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.customItems = customItems;
         this.accessories = accessories;
         this.tuning = tuning;
+        this.armorSets = armorSets;
     }
 
     public StatSnapshot snapshot(Player player) {
         Map<String, Double> stats = baseStats();
         SkyBlockProfile profile = profiles.profile(player);
         addEquipmentStats(stats, player);
+        addArmorSetStats(stats, player);
         addAccessoryStats(stats, profile);
         addTuningStats(stats, profile);
         return new StatSnapshot(stats);
@@ -86,6 +89,27 @@ public final class StatService {
         addItemStats(stats, player.getInventory().getItemInOffHand(), false);
         for (ItemStack armor : player.getInventory().getArmorContents()) {
             addItemStats(stats, armor, false);
+        }
+    }
+
+    private void addArmorSetStats(Map<String, Double> stats, Player player) {
+        Map<String, Integer> wornPieces = new LinkedHashMap<>();
+        for (ItemStack armor : player.getInventory().getArmorContents()) {
+            CustomItemDefinition definition = customItems.definition(armor).orElse(null);
+            if (definition == null || definition.armorSet() == null || definition.armorSet().isBlank()) {
+                continue;
+            }
+            String armorSet = definition.armorSet().toUpperCase();
+            wornPieces.put(armorSet, wornPieces.getOrDefault(armorSet, 0) + 1);
+        }
+        for (Map.Entry<String, Integer> entry : wornPieces.entrySet()) {
+            ArmorSetDefinition definition = armorSets.definition(entry.getKey()).orElse(null);
+            if (definition == null || entry.getValue() < definition.requiredPieces()) {
+                continue;
+            }
+            for (Map.Entry<String, Double> stat : definition.stats().entrySet()) {
+                stats.put(stat.getKey(), stats.getOrDefault(stat.getKey(), 0.0D) + stat.getValue());
+            }
         }
     }
 

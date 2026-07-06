@@ -52,6 +52,50 @@ items:
       - "<gray>A simple accessory that increases movement.</gray>"
     stats:
       speed: 5
+  FARM_SUIT_HELMET:
+    material: LEATHER_HELMET
+    display-name: "<green>Farm Suit Helmet</green>"
+    category: ARMOR
+    rarity: COMMON
+    armor-set: FARM_SUIT
+    lore:
+      - "<gray>Part of the Farm Suit set.</gray>"
+    stats:
+      health: 10
+      defense: 5
+  FARM_SUIT_CHESTPLATE:
+    material: LEATHER_CHESTPLATE
+    display-name: "<green>Farm Suit Chestplate</green>"
+    category: ARMOR
+    rarity: COMMON
+    armor-set: FARM_SUIT
+    lore:
+      - "<gray>Part of the Farm Suit set.</gray>"
+    stats:
+      health: 20
+      defense: 10
+  FARM_SUIT_LEGGINGS:
+    material: LEATHER_LEGGINGS
+    display-name: "<green>Farm Suit Leggings</green>"
+    category: ARMOR
+    rarity: COMMON
+    armor-set: FARM_SUIT
+    lore:
+      - "<gray>Part of the Farm Suit set.</gray>"
+    stats:
+      health: 15
+      defense: 8
+  FARM_SUIT_BOOTS:
+    material: LEATHER_BOOTS
+    display-name: "<green>Farm Suit Boots</green>"
+    category: ARMOR
+    rarity: COMMON
+    armor-set: FARM_SUIT
+    lore:
+      - "<gray>Part of the Farm Suit set.</gray>"
+    stats:
+      health: 10
+      defense: 5
   HYPERION:
     material: NETHERITE_SWORD
     display-name: "<gold>Hyperion</gold>"

@@ -14,6 +14,7 @@ public final class ConfigService {
             "skills.yml",
             "collections.yml",
             "items.yml",
+            "armor_sets.yml",
             "minions.yml",
             "menus.yml",
             "recipes.yml",
@@ -57,6 +58,10 @@ public final class ConfigService {
 
     public FileConfiguration items() {
         return file("items.yml");
+    }
+
+    public FileConfiguration armorSets() {
+        return file("armor_sets.yml");
     }
 
     public FileConfiguration minions() {

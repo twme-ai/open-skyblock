@@ -1,0 +1,10 @@
+sets:
+  FARM_SUIT:
+    display-name: "<green>Farm Suit</green>"
+    required-pieces: 4
+    lore:
+      - "<gray>Full Set Bonus: Farming Fortune</gray>"
+      - "<gray>Gain extra health and speed while wearing the full set.</gray>"
+    stats:
+      health: 25
+      speed: 10

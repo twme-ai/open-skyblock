@@ -124,6 +124,8 @@ items:
   ability-header: "<gold>Item Ability: <ability></gold> <yellow><type></yellow>"
   ability-line: "<gray><line></gray>"
   rarity-line: "<rarity_color><bold><rarity> <category></bold></rarity_color>"
+  armor-set-line: "<dark_gray>Set: <set></dark_gray>"
+  full-set-bonus-header: "<gold>Full Set Bonus: <set></gold>"
   stat-labels:
     damage: "Damage"
     strength: "Strength"

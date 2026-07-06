@@ -65,6 +65,7 @@ public final class CustomItemService {
                     material == null ? Material.STONE : material,
                     itemSection.getString("display-name", id),
                     itemSection.getString("category", "ITEM"),
+                    itemSection.getString("armor-set", ""),
                     Rarity.parse(itemSection.getString("rarity", "COMMON")),
                     itemSection.getStringList("lore"),
                     stats,
@@ -117,6 +118,9 @@ public final class CustomItemService {
                             TextService.raw("stat", statName(entry.getKey())),
                             TextService.raw("value", text.formatNumber(entry.getValue()))
                     ))));
+        }
+        if (definition.armorSet() != null && !definition.armorSet().isBlank()) {
+            lines.add(text.message("items.armor-set-line", List.of(TextService.raw("set", definition.armorSet()))));
         }
         AbilityDefinition ability = definition.ability();
         if (ability != null && !ability.name().isBlank()) {

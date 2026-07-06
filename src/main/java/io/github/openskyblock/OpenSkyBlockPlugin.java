@@ -24,6 +24,7 @@ import io.github.openskyblock.service.SkillService;
 import io.github.openskyblock.shop.ShopService;
 import io.github.openskyblock.shop.ShopNpcService;
 import io.github.openskyblock.stats.StatService;
+import io.github.openskyblock.stats.ArmorSetService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -37,6 +38,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private CustomItemService customItemService;
     private AccessoryService accessoryService;
     private TuningService tuningService;
+    private ArmorSetService armorSetService;
     private MinionService minionService;
     private IslandService islandService;
     private MenuService menuService;
@@ -60,9 +62,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.collectionService = new CollectionService(configService, textService, profileManager);
         this.skillService = new SkillService(configService, textService, profileManager, collectionService, economyService);
         this.customItemService = new CustomItemService(this, configService, textService);
+        this.armorSetService = new ArmorSetService(configService);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
-        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService);
+        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, armorSetService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -113,6 +116,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         collectionService.reload();
         skillService.reload();
         customItemService.reload();
+        armorSetService.reload();
         minionService.reload();
         menuService.reload();
         recipeService.reload();
@@ -178,6 +182,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public TuningService tuning() {
         return tuningService;
+    }
+
+    public ArmorSetService armorSets() {
+        return armorSetService;
     }
 
     public MinionService minions() {

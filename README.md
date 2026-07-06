@@ -23,6 +23,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Aggregated combat stats from configurable base stats, equipment, and accessory-category custom items.
 - Accessory Bag with unique accessory storage, Magical Power, GUI add/remove flow, and stat aggregation from bagged accessories.
 - Accessory tuning with Magical Power-derived tuning points, configurable per-stat values, commands, GUI controls, and stat aggregation.
+- Configurable armor set IDs and full-set stat bonuses, with a starter Farm Suit set.
 - `/skyblock` command with profile, purse, skills, collections, custom item, minion, and reload subcommands.
 - Listeners for block breaking, entity kills, item pickup, custom item combat bonuses, join, and quit persistence.
 

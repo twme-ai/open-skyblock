@@ -75,3 +75,63 @@ recipes:
     requirement:
       collection: SUGAR_CANE
       tier: 1
+  FARM_SUIT_HELMET:
+    display-name: "<green>Farm Suit Helmet Recipe</green>"
+    result:
+      type: CUSTOM_ITEM
+      id: FARM_SUIT_HELMET
+      amount: 1
+    shape:
+      - "WWW"
+      - "W W"
+      - "   "
+    ingredients:
+      W: WHEAT
+    requirement:
+      collection: WHEAT
+      tier: 2
+  FARM_SUIT_CHESTPLATE:
+    display-name: "<green>Farm Suit Chestplate Recipe</green>"
+    result:
+      type: CUSTOM_ITEM
+      id: FARM_SUIT_CHESTPLATE
+      amount: 1
+    shape:
+      - "W W"
+      - "WWW"
+      - "WWW"
+    ingredients:
+      W: WHEAT
+    requirement:
+      collection: WHEAT
+      tier: 2
+  FARM_SUIT_LEGGINGS:
+    display-name: "<green>Farm Suit Leggings Recipe</green>"
+    result:
+      type: CUSTOM_ITEM
+      id: FARM_SUIT_LEGGINGS
+      amount: 1
+    shape:
+      - "WWW"
+      - "W W"
+      - "W W"
+    ingredients:
+      W: WHEAT
+    requirement:
+      collection: WHEAT
+      tier: 2
+  FARM_SUIT_BOOTS:
+    display-name: "<green>Farm Suit Boots Recipe</green>"
+    result:
+      type: CUSTOM_ITEM
+      id: FARM_SUIT_BOOTS
+      amount: 1
+    shape:
+      - "   "
+      - "W W"
+      - "W W"
+    ingredients:
+      W: WHEAT
+    requirement:
+      collection: WHEAT
+      tier: 2

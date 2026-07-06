@@ -9,6 +9,7 @@ public record CustomItemDefinition(
         Material material,
         String displayName,
         String category,
+        String armorSet,
         Rarity rarity,
         List<String> lore,
         Map<String, Double> stats,
