@@ -2,6 +2,7 @@ package io.github.openskyblock.stats;
 
 import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.accessory.TuningService;
+import io.github.openskyblock.bestiary.BestiaryService;
 import io.github.openskyblock.cake.CakeService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
@@ -38,12 +39,13 @@ public final class StatService {
     private final PotionService potions;
     private final UpgradeService upgrades;
     private final PetService pets;
+    private final BestiaryService bestiary;
     private final ReforgeService reforges;
     private final EnchantmentService enchantments;
     private final StarService stars;
     private final GemstoneService gemstones;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, EquipmentService equipment, ArmorSetService armorSets, CakeService cakes, PotionService potions, UpgradeService upgrades, PetService pets, ReforgeService reforges, EnchantmentService enchantments, StarService stars, GemstoneService gemstones) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, EquipmentService equipment, ArmorSetService armorSets, CakeService cakes, PotionService potions, UpgradeService upgrades, PetService pets, BestiaryService bestiary, ReforgeService reforges, EnchantmentService enchantments, StarService stars, GemstoneService gemstones) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
@@ -56,6 +58,7 @@ public final class StatService {
         this.potions = potions;
         this.upgrades = upgrades;
         this.pets = pets;
+        this.bestiary = bestiary;
         this.reforges = reforges;
         this.enchantments = enchantments;
         this.stars = stars;
@@ -74,6 +77,7 @@ public final class StatService {
         addPotionStats(stats, profile);
         addUpgradeStats(stats, profile);
         addPetStats(stats, profile);
+        addBestiaryStats(stats, profile);
         return new StatSnapshot(stats);
     }
 
@@ -199,6 +203,12 @@ public final class StatService {
 
     private void addUpgradeStats(Map<String, Double> stats, SkyBlockProfile profile) {
         for (Map.Entry<String, Double> entry : upgrades.activeStats(profile).entrySet()) {
+            stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
+        }
+    }
+
+    private void addBestiaryStats(Map<String, Double> stats, SkyBlockProfile profile) {
+        for (Map.Entry<String, Double> entry : bestiary.activeStats(profile).entrySet()) {
             stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
         }
     }

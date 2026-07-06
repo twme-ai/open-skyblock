@@ -1,0 +1,68 @@
+families:
+  GRAVEYARD_ZOMBIE:
+    display-name: "<green>Graveyard Zombie</green>"
+    category: "Hub"
+    mobs:
+      - GRAVEYARD_ZOMBIE
+    tiers:
+      1:
+        kills: 5
+        skill: COMBAT
+        xp: 25
+        coins: 10
+        stats:
+          health: 1
+      2:
+        kills: 15
+        skill: COMBAT
+        xp: 75
+        coins: 25
+        stats:
+          magic_find: 1
+      3:
+        kills: 50
+        skill: COMBAT
+        xp: 250
+        coins: 100
+        stats:
+          strength: 1
+  GRAVEYARD_SKELETON:
+    display-name: "<white>Graveyard Skeleton</white>"
+    category: "Hub"
+    mobs:
+      - GRAVEYARD_SKELETON
+    tiers:
+      1:
+        kills: 5
+        skill: COMBAT
+        xp: 25
+        coins: 10
+        stats:
+          health: 1
+      2:
+        kills: 15
+        skill: COMBAT
+        xp: 75
+        coins: 25
+        stats:
+          strength: 1
+  SPIDER_DEN_SPIDER:
+    display-name: "<dark_gray>Spider Den Spider</dark_gray>"
+    category: "Spider's Den"
+    mobs:
+      - SPIDER_DEN_SPIDER
+    tiers:
+      1:
+        kills: 5
+        skill: COMBAT
+        xp: 30
+        coins: 15
+        stats:
+          health: 1
+      2:
+        kills: 20
+        skill: COMBAT
+        xp: 100
+        coins: 50
+        stats:
+          magic_find: 1

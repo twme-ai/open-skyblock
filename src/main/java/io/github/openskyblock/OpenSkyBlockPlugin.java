@@ -5,6 +5,7 @@ import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.accessory.TuningService;
 import io.github.openskyblock.auction.AuctionService;
 import io.github.openskyblock.backpack.BackpackService;
+import io.github.openskyblock.bestiary.BestiaryService;
 import io.github.openskyblock.bazaar.BazaarService;
 import io.github.openskyblock.cake.CakeService;
 import io.github.openskyblock.config.ConfigService;
@@ -85,6 +86,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private StorageService storageService;
     private BackpackService backpackService;
     private MobService mobService;
+    private BestiaryService bestiaryService;
     private StatService statService;
     private UpgradeService upgradeService;
     private BukkitTask autosaveTask;
@@ -123,8 +125,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
         this.potionService = new PotionService(this, configService, textService, profileManager);
         this.petService = new PetService(configService, textService, profileManager);
-        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, reforgeService, enchantmentService, starService, gemstoneService);
-        this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService);
+        this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
+        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, bestiaryService, reforgeService, enchantmentService, starService, gemstoneService);
+        this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -217,6 +220,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         tradeService.reload();
         storageService.reload();
         backpackService.reload();
+        bestiaryService.reload();
         mobService.reload();
     }
 
@@ -383,6 +387,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public MobService mobs() {
         return mobService;
+    }
+
+    public BestiaryService bestiary() {
+        return bestiaryService;
     }
 
     public StatService stats() {

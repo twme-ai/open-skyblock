@@ -1,5 +1,6 @@
 package io.github.openskyblock.mob;
 
+import io.github.openskyblock.bestiary.BestiaryService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.service.ActionReward;
@@ -40,18 +41,20 @@ public final class MobService {
     private final CustomItemService customItems;
     private final SkillService skills;
     private final StatService stats;
+    private final BestiaryService bestiary;
     private final NamespacedKey mobIdKey;
     private final Map<String, SkyBlockMobDefinition> definitions = new HashMap<>();
     private String nameFormat = DEFAULT_NAME_FORMAT;
     private int spawnLimitPerCommand = 25;
 
-    public MobService(JavaPlugin plugin, ConfigService configService, TextService text, CustomItemService customItems, SkillService skills, StatService stats) {
+    public MobService(JavaPlugin plugin, ConfigService configService, TextService text, CustomItemService customItems, SkillService skills, StatService stats, BestiaryService bestiary) {
         this.plugin = plugin;
         this.configService = configService;
         this.text = text;
         this.customItems = customItems;
         this.skills = skills;
         this.stats = stats;
+        this.bestiary = bestiary;
         this.mobIdKey = new NamespacedKey(plugin, "mob_id");
     }
 
@@ -201,6 +204,7 @@ public final class MobService {
                 definition.collectionAmount(),
                 definition.coins()
         ));
+        bestiary.recordKill(killer, definition.id());
         for (ItemStack itemStack : rollDrops(killer, definition)) {
             event.getDrops().add(itemStack);
         }

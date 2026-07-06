@@ -2,6 +2,7 @@ package io.github.openskyblock.command;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.backpack.BackpackDefinition;
+import io.github.openskyblock.bestiary.BestiaryFamilyDefinition;
 import io.github.openskyblock.cake.CakeDefinition;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
@@ -78,6 +79,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "wardrobe",
             "mobs",
             "mob",
+            "bestiary",
             "accessorybag",
             "tuning",
             "pets",
@@ -140,6 +142,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "equipment" -> equipment(sender, args);
             case "wardrobe" -> wardrobe(sender, args);
             case "mobs", "mob" -> mobs(sender, args);
+            case "bestiary" -> bestiary(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
             case "pets" -> pets(sender);
@@ -333,6 +336,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 4 && isMobCommand(args[0]) && args[1].equalsIgnoreCase("spawn")) {
             return startsWith(List.of("1", "5", "10", Integer.toString(plugin.mobs().spawnLimitPerCommand())), args[3]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("bestiary")) {
+            return startsWith(plugin.bestiary().families().stream().map(BestiaryFamilyDefinition::id).toList(), args[1]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
         }
@@ -430,6 +436,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " wardrobe", "commands.help.wardrobe");
         helpLine(sender, label + " wardrobe save|equip|withdraw <slot>", "commands.help.wardrobe-slot");
         helpLine(sender, label + " mobs", "commands.help.mobs");
+        helpLine(sender, label + " bestiary [family]", "commands.help.bestiary");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
@@ -1248,6 +1255,18 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                     TextService.parsed("mob", definition.displayName())
             ));
         }
+    }
+
+    private void bestiary(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.bestiary().sendSummary(player);
+            return;
+        }
+        plugin.bestiary().sendDetail(player, args[1]);
     }
 
     private void accessoryBag(CommandSender sender, String[] args) {

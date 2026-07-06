@@ -36,6 +36,7 @@ features:
   minions: true
   combat-stats: true
   custom-mobs: true
+  bestiary: true
 
 islands:
   world-prefix: "openskyblock_island_"

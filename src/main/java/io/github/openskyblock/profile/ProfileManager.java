@@ -305,6 +305,24 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection bestiaryKills = section.getConfigurationSection("bestiary.kills");
+        if (bestiaryKills != null) {
+            for (String familyId : bestiaryKills.getKeys(false)) {
+                long kills = bestiaryKills.getLong(familyId, 0L);
+                if (kills > 0L) {
+                    profile.bestiaryKills().put(familyId.toUpperCase(), kills);
+                }
+            }
+        }
+        ConfigurationSection bestiaryTiers = section.getConfigurationSection("bestiary.tiers");
+        if (bestiaryTiers != null) {
+            for (String familyId : bestiaryTiers.getKeys(false)) {
+                int tier = bestiaryTiers.getInt(familyId, 0);
+                if (tier > 0) {
+                    profile.bestiaryTiers().put(familyId.toUpperCase(), tier);
+                }
+            }
+        }
         profile.activePetInstanceId(section.getString("pets.active", null));
         ConfigurationSection pets = section.getConfigurationSection("pets.owned");
         if (pets != null) {
@@ -447,6 +465,17 @@ public final class ProfileManager {
         for (Map.Entry<String, Integer> entry : profile.upgrades().entrySet()) {
             if (entry.getValue() > 0) {
                 profileData.set(base + ".upgrades." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".bestiary", null);
+        for (Map.Entry<String, Long> entry : profile.bestiaryKills().entrySet()) {
+            if (entry.getValue() > 0L) {
+                profileData.set(base + ".bestiary.kills." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Integer> entry : profile.bestiaryTiers().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".bestiary.tiers." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());
