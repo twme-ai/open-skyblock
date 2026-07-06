@@ -221,10 +221,14 @@ items:
     ability:
       name: "Speed Boost"
       type: "RIGHT CLICK"
+      action: SPEED_BOOST
       lines:
         - "Gain a short burst of speed."
       mana-cost: 50
       cooldown-seconds: 30
+      parameters:
+        duration-seconds: 30
+        speed-amplifier: 1
   ASPECT_OF_THE_END:
     material: DIAMOND_SWORD
     display-name: "<blue>Aspect of the End</blue>"
@@ -239,10 +243,15 @@ items:
     ability:
       name: "Instant Transmission"
       type: "RIGHT CLICK"
+      action: TELEPORT
       lines:
         - "Teleport forward and gain brief speed."
       mana-cost: 50
       cooldown-seconds: 1
+      parameters:
+        distance: 8
+        speed-duration-seconds: 3
+        speed-amplifier: 2
   SPEED_TALISMAN:
     material: FEATHER
     display-name: "<green>Speed Talisman</green>"
@@ -365,7 +374,13 @@ items:
     ability:
       name: "Wither Impact"
       type: "RIGHT CLICK"
+      action: WITHER_IMPACT
       lines:
         - "Explode with wither energy around you."
       mana-cost: 300
       cooldown-seconds: 5
+      parameters:
+        teleport-distance: 8
+        radius: 6
+        damage: 500
+        heal: 100

@@ -14,7 +14,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable SkyBlock menu GUI and starter menu item.
 - Paged collection browser and recipe book menus with configurable layout, lore, and navigation.
 - Configurable MiniMessage messages in `messages.yml`.
-- Configurable skills, collection tiers, action XP, coin rewards, custom items, and minion definitions.
+- Configurable skills, collection tiers, action XP, coin rewards, custom items, item abilities, mana regeneration, and minion definitions.
 - Placeable minion items with island-only placement, generated storage, claim menu, pickup flow, and offline ticking from persisted timestamps.
 - Data-driven shaped recipes for vanilla, custom item, and minion outputs with collection-tier and Slayer-level crafting gates.
 - Purse and bank economy with deposit, withdraw, deposit-all, withdraw-all, capacity limits, and a configurable bank menu.
@@ -34,7 +34,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable Potion Effects and God Potion bundles with persistent online-only timers, private-island timer pause, vanilla effect refresh, stat bonuses, item activation, and command status.
 - Configurable Century Cakes with persistent placed cake furniture, reusable right-click buffs, visitor activation option, active buff timers, pickup flow, and stat aggregation.
 - Configurable profile/account upgrades with persistent tier levels, purse-cost purchases, stat bonuses, bank-capacity bonuses, accessory-bag slot bonuses, and minion-slot bonuses.
-- Aggregated combat stats from configurable base stats, held/armor items, equipment slots, and accessory-category custom items.
+- Aggregated combat stats from configurable base stats, held/armor items, equipment slots, accessory-category custom items, and Slayer rewards.
 - Configurable item reforges with persistent item metadata, rarity-scaled stat tables, purse costs, lore rendering, and stat aggregation.
 - Configurable item enchantments with persistent item metadata, max levels, ultimate-enchantment exclusivity, purse costs, lore rendering, and stat aggregation.
 - Configurable item stars with persistent item metadata, category limits, purse costs, display suffix/lore, and item stat scaling.

@@ -3,6 +3,7 @@ package io.github.openskyblock;
 import io.github.openskyblock.command.SkyBlockCommand;
 import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.accessory.TuningService;
+import io.github.openskyblock.ability.ItemAbilityService;
 import io.github.openskyblock.auction.AuctionService;
 import io.github.openskyblock.backpack.BackpackService;
 import io.github.openskyblock.bestiary.BestiaryService;
@@ -17,6 +18,7 @@ import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.island.IslandService;
 import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.CakeListener;
+import io.github.openskyblock.listener.ItemAbilityListener;
 import io.github.openskyblock.listener.MenuListener;
 import io.github.openskyblock.listener.MinionListener;
 import io.github.openskyblock.listener.MobListener;
@@ -61,6 +63,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private SkillService skillService;
     private CollectionService collectionService;
     private CustomItemService customItemService;
+    private ItemAbilityService itemAbilityService;
     private SackService sackService;
     private QuiverService quiverService;
     private AccessoryService accessoryService;
@@ -99,6 +102,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BukkitTask potionTask;
     private BukkitTask mobSpawnTask;
     private BukkitTask slayerTask;
+    private BukkitTask itemAbilityTask;
 
     @Override
     public void onEnable() {
@@ -136,6 +140,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
         this.slayerService = new SlayerService(this, configService, textService, profileManager, economyService, skillService, mobService);
         this.statService.slayerService(slayerService);
+        this.itemAbilityService = new ItemAbilityService(this, configService, textService, customItemService, statService);
         this.mobSpawnService = new MobSpawnService(this, configService, textService, mobService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService);
         this.islandService = new IslandService(configService, textService, profileManager);
@@ -179,6 +184,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         if (slayerTask != null) {
             slayerTask.cancel();
         }
+        if (itemAbilityTask != null) {
+            itemAbilityTask.cancel();
+        }
         if (slayerService != null) {
             slayerService.shutdown();
         }
@@ -215,6 +223,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         collectionService.reload();
         skillService.reload();
         customItemService.reload();
+        itemAbilityService.reload();
         upgradeService.reload();
         sackService.reload();
         quiverService.reload();
@@ -256,6 +265,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerLifecycleListener(this), this);
+        getServer().getPluginManager().registerEvents(new ItemAbilityListener(this), this);
         getServer().getPluginManager().registerEvents(new ProgressionListener(this), this);
         getServer().getPluginManager().registerEvents(new SackListener(this), this);
         getServer().getPluginManager().registerEvents(new QuiverListener(this), this);
@@ -277,6 +287,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.potionTask = getServer().getScheduler().runTaskTimer(this, potionService::tickOnlinePlayers, 20L, potionService.refreshTicks());
         this.mobSpawnTask = getServer().getScheduler().runTaskTimer(this, mobSpawnService::tick, 20L, mobSpawnService.tickIntervalTicks());
         this.slayerTask = getServer().getScheduler().runTaskTimer(this, slayerService::tickBosses, 20L, 20L);
+        this.itemAbilityTask = getServer().getScheduler().runTaskTimer(this, itemAbilityService::tickMana, 20L, 20L);
     }
 
     public ConfigService configService() {
@@ -301,6 +312,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public CustomItemService customItems() {
         return customItemService;
+    }
+
+    public ItemAbilityService itemAbilities() {
+        return itemAbilityService;
     }
 
     public SackService sacks() {

@@ -77,12 +77,21 @@ public final class CustomItemService {
             AbilityDefinition ability = null;
             ConfigurationSection abilitySection = itemSection.getConfigurationSection("ability");
             if (abilitySection != null) {
+                Map<String, Double> parameters = new HashMap<>();
+                ConfigurationSection parameterSection = abilitySection.getConfigurationSection("parameters");
+                if (parameterSection != null) {
+                    for (String parameter : parameterSection.getKeys(false)) {
+                        parameters.put(parameter.toLowerCase(Locale.ROOT).replace('-', '_'), parameterSection.getDouble(parameter, 0.0D));
+                    }
+                }
                 ability = new AbilityDefinition(
                         abilitySection.getString("name", ""),
                         abilitySection.getString("type", ""),
+                        abilitySection.getString("action", ""),
                         abilitySection.getStringList("lines"),
                         abilitySection.getDouble("mana-cost", 0.0D),
-                        abilitySection.getInt("cooldown-seconds", 0)
+                        abilitySection.getInt("cooldown-seconds", 0),
+                        Map.copyOf(parameters)
                 );
             }
             definitions.put(id.toUpperCase(Locale.ROOT), new CustomItemDefinition(

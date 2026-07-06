@@ -33,6 +33,7 @@ features:
   skills: true
   collections: true
   custom-items: true
+  item-abilities: true
   minions: true
   combat-stats: true
   custom-mobs: true
@@ -55,6 +56,14 @@ bank:
 
 shop-npcs:
   respawn-ticks: 200
+
+item-abilities:
+  base-mana: 100.0
+  mana-per-intelligence: 1.0
+  mana-regen-flat: 10.0
+  mana-regen-percent: 0.02
+  max-teleport-distance: 12.0
+  action-bar: true
 
 stats:
   base:
