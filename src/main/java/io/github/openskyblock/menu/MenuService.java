@@ -5,7 +5,11 @@ import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.recipe.SkyBlockRecipe;
+import io.github.openskyblock.service.CollectionDefinition;
+import io.github.openskyblock.service.CollectionTier;
 import io.github.openskyblock.service.MinionPlacement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,13 +111,68 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openCollectionBrowser(Player player, int requestedPage) {
+        ConfigurationSection section = configService.menus().getConfigurationSection("collection-browser");
+        if (section == null) {
+            return;
+        }
+        List<CollectionDefinition> collections = plugin.collections().definitions();
+        List<Integer> contentSlots = contentSlots(section);
+        int maxPage = maxPage(collections.size(), contentSlots.size());
+        int page = clampPage(requestedPage, maxPage);
+        Map<Integer, BrowserMenuAction> actions = new HashMap<>();
+        BrowserMenuHolder holder = new BrowserMenuHolder(BrowserMenuType.COLLECTIONS, page, maxPage, actions);
+        Inventory inventory = browserInventory(holder, section, page, maxPage);
+        fill(inventory, section.getConfigurationSection("filler"));
+
+        SkyBlockProfile profile = profiles.profile(player);
+        int offset = page * contentSlots.size();
+        for (int index = 0; index < contentSlots.size(); index++) {
+            int collectionIndex = offset + index;
+            if (collectionIndex >= collections.size()) {
+                break;
+            }
+            CollectionDefinition definition = collections.get(collectionIndex);
+            inventory.setItem(contentSlots.get(index), collectionItem(profile, definition, section.getConfigurationSection("collection-item")));
+        }
+        addBrowserNavigation(inventory, section, page, maxPage, actions);
+        player.openInventory(inventory);
+    }
+
+    public void openRecipeBook(Player player, int requestedPage) {
+        ConfigurationSection section = configService.menus().getConfigurationSection("recipe-book");
+        if (section == null) {
+            return;
+        }
+        List<SkyBlockRecipe> recipes = plugin.recipes().recipes();
+        List<Integer> contentSlots = contentSlots(section);
+        int maxPage = maxPage(recipes.size(), contentSlots.size());
+        int page = clampPage(requestedPage, maxPage);
+        Map<Integer, BrowserMenuAction> actions = new HashMap<>();
+        BrowserMenuHolder holder = new BrowserMenuHolder(BrowserMenuType.RECIPES, page, maxPage, actions);
+        Inventory inventory = browserInventory(holder, section, page, maxPage);
+        fill(inventory, section.getConfigurationSection("filler"));
+
+        int offset = page * contentSlots.size();
+        for (int index = 0; index < contentSlots.size(); index++) {
+            int recipeIndex = offset + index;
+            if (recipeIndex >= recipes.size()) {
+                break;
+            }
+            SkyBlockRecipe recipe = recipes.get(recipeIndex);
+            inventory.setItem(contentSlots.get(index), recipeItem(player, recipe, section.getConfigurationSection("recipe-item")));
+        }
+        addBrowserNavigation(inventory, section, page, maxPage, actions);
+        player.openInventory(inventory);
+    }
+
     public void runAction(Player player, MenuAction action) {
         switch (action) {
             case PROFILE -> player.performCommand("skyblock profile");
             case ISLAND_HOME -> player.performCommand("skyblock island home");
             case SKILLS -> player.performCommand("skyblock skills");
-            case COLLECTIONS -> player.performCommand("skyblock collections");
-            case RECIPES -> player.performCommand("skyblock recipes");
+            case COLLECTIONS -> openCollectionBrowser(player, 0);
+            case RECIPES -> openRecipeBook(player, 0);
             case MINIONS -> player.performCommand("skyblock minion list");
             case NONE -> {
             }
@@ -137,6 +196,16 @@ public final class MenuService {
                 plugin.minions().pickup(player, placement);
                 player.closeInventory();
             }
+            case NONE -> {
+            }
+        }
+    }
+
+    public void runBrowserAction(Player player, BrowserMenuHolder holder, BrowserMenuAction action) {
+        switch (action) {
+            case PREVIOUS_PAGE -> openBrowser(player, holder.type(), holder.page() - 1);
+            case NEXT_PAGE -> openBrowser(player, holder.type(), holder.page() + 1);
+            case BACK -> openSkyBlockMenu(player);
             case NONE -> {
             }
         }
@@ -166,6 +235,158 @@ public final class MenuService {
                 .toList());
         itemStack.setItemMeta(meta);
         return itemStack;
+    }
+
+    private Inventory browserInventory(BrowserMenuHolder holder, ConfigurationSection section, int page, int maxPage) {
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 6)));
+        List<TextService.TextPlaceholder> placeholders = List.of(
+                TextService.raw("page", Integer.toString(page + 1)),
+                TextService.raw("max_page", Integer.toString(maxPage + 1))
+        );
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Menu</dark_gray>"), placeholders)
+        );
+        holder.inventory(inventory);
+        return inventory;
+    }
+
+    private void openBrowser(Player player, BrowserMenuType type, int page) {
+        switch (type) {
+            case COLLECTIONS -> openCollectionBrowser(player, page);
+            case RECIPES -> openRecipeBook(player, page);
+        }
+    }
+
+    private List<Integer> contentSlots(ConfigurationSection section) {
+        List<Integer> slots = section.getIntegerList("content-slots");
+        if (!slots.isEmpty()) {
+            return slots;
+        }
+        List<Integer> fallback = new ArrayList<>();
+        int size = Math.max(9, Math.min(54, section.getInt("rows", 6) * 9));
+        for (int slot = 0; slot < size; slot++) {
+            fallback.add(slot);
+        }
+        return fallback;
+    }
+
+    private void addBrowserNavigation(Inventory inventory, ConfigurationSection section, int page, int maxPage, Map<Integer, BrowserMenuAction> actions) {
+        if (page > 0) {
+            addNavigationItem(inventory, section.getConfigurationSection("previous"), BrowserMenuAction.PREVIOUS_PAGE, actions);
+        }
+        addNavigationItem(inventory, section.getConfigurationSection("back"), BrowserMenuAction.BACK, actions);
+        if (page < maxPage) {
+            addNavigationItem(inventory, section.getConfigurationSection("next"), BrowserMenuAction.NEXT_PAGE, actions);
+        }
+    }
+
+    private void addNavigationItem(Inventory inventory, ConfigurationSection section, BrowserMenuAction action, Map<Integer, BrowserMenuAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
+    private ItemStack collectionItem(SkyBlockProfile profile, CollectionDefinition definition, ConfigurationSection section) {
+        Material material = definition.material();
+        ItemStack itemStack = new ItemStack(material == null ? Material.CHEST : material);
+        ItemMeta meta = itemStack.getItemMeta();
+        long amount = profile.collectionAmount(definition.id());
+        int tier = plugin.collections().tier(definition, amount);
+        List<TextService.TextPlaceholder> placeholders = List.of(
+                TextService.parsed("collection", definition.displayName()),
+                TextService.raw("amount", text.formatNumber(amount)),
+                TextService.raw("tier", Integer.toString(tier)),
+                TextService.parsed("next_tier", nextTierText(definition, amount))
+        );
+        meta.displayName(text.deserialize(section.getString("display-name", "<collection>"), placeholders));
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        for (String line : section.getStringList("lore")) {
+            if (line.equals("<rewards>")) {
+                appendCollectionRewards(lore, definition, rewardTier(definition, amount, tier));
+            } else {
+                lore.add(text.deserialize(line, placeholders));
+            }
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private void appendCollectionRewards(List<net.kyori.adventure.text.Component> lore, CollectionDefinition definition, int tier) {
+        CollectionTier collectionTier = definition.tiers().get(tier);
+        if (collectionTier == null || collectionTier.rewards().isEmpty()) {
+            lore.add(text.deserialize(text.rawMessage("menus.collection-no-rewards")));
+            return;
+        }
+        for (String reward : collectionTier.rewards()) {
+            lore.add(text.deserialize(reward));
+        }
+    }
+
+    private int rewardTier(CollectionDefinition definition, long amount, int currentTier) {
+        for (Integer tierNumber : definition.sortedTierNumbers()) {
+            CollectionTier tier = definition.tiers().get(tierNumber);
+            if (tier != null && amount < tier.amount()) {
+                return tier.tier();
+            }
+        }
+        return currentTier;
+    }
+
+    private String nextTierText(CollectionDefinition definition, long amount) {
+        for (Integer tierNumber : definition.sortedTierNumbers()) {
+            CollectionTier tier = definition.tiers().get(tierNumber);
+            if (tier != null && amount < tier.amount()) {
+                return text.rawMessage("menus.collection-next-tier")
+                        .replace("<tier>", Integer.toString(tier.tier()))
+                        .replace("<amount>", text.formatNumber(tier.amount()));
+            }
+        }
+        return text.rawMessage("menus.collection-maxed");
+    }
+
+    private ItemStack recipeItem(Player player, SkyBlockRecipe recipe, ConfigurationSection section) {
+        boolean unlocked = plugin.recipes().canCraft(player, recipe);
+        ItemStack itemStack = unlocked ? recipe.result().clone() : new ItemStack(lockedRecipeMaterial(section));
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = List.of(
+                TextService.parsed("recipe", recipe.displayName()),
+                TextService.parsed("status", text.rawMessage(unlocked ? "commands.recipe-unlocked" : "commands.recipe-locked")),
+                TextService.parsed("requirement", plugin.recipes().requirementText(recipe)),
+                TextService.parsed("result", text.rawMessage("menus.recipe-result")
+                        .replace("<amount>", Integer.toString(recipe.result().getAmount()))
+                        .replace("<item>", recipe.displayName()))
+        );
+        meta.displayName(text.deserialize(section.getString("display-name", "<recipe>"), placeholders));
+        meta.lore(section.getStringList("lore").stream()
+                .map(line -> text.deserialize(line, placeholders))
+                .toList());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private Material lockedRecipeMaterial(ConfigurationSection section) {
+        Material material = Material.matchMaterial(section.getString("locked-material", "BARRIER"));
+        return material == null ? Material.BARRIER : material;
+    }
+
+    private int maxPage(int itemCount, int pageSize) {
+        if (itemCount <= 0 || pageSize <= 0) {
+            return 0;
+        }
+        return Math.max(0, (itemCount - 1) / pageSize);
+    }
+
+    private int clampPage(int page, int maxPage) {
+        return Math.max(0, Math.min(maxPage, page));
     }
 
     private void sendClaimResult(Player player, long claimed) {

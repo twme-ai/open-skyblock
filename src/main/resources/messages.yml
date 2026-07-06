@@ -93,3 +93,9 @@ minions:
   item-rarity-line: "<blue><bold>MINION</bold></blue>"
   location-present: "<yellow><world></yellow> <gray>(<x>, <y>, <z>)</gray>"
   location-missing: "<dark_gray>not placed</dark_gray>"
+
+menus:
+  collection-next-tier: "<yellow>Tier <tier></yellow> <gray>at</gray> <white><amount></white>"
+  collection-maxed: "<gold>Maxed</gold>"
+  collection-no-rewards: "<dark_gray>No rewards configured.</dark_gray>"
+  recipe-result: "<white><amount>x <item></white>"

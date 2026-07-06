@@ -84,3 +84,124 @@ minion:
       lore:
         - "<gray>Claim stored resources and return the minion item.</gray>"
       action: PICKUP
+
+collection-browser:
+  title: "<dark_gray>Collections - Page <page></dark_gray>"
+  rows: 6
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 37
+    - 38
+    - 39
+    - 40
+    - 41
+    - 42
+    - 43
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  collection-item:
+    display-name: "<collection>"
+    lore:
+      - "<gray>Amount:</gray> <white><amount></white>"
+      - "<gray>Tier:</gray> <yellow><tier></yellow>"
+      - "<gray>Next:</gray> <next_tier>"
+      - "<gray>Rewards:</gray>"
+      - "<rewards>"
+  previous:
+    slot: 45
+    material: ARROW
+    display-name: "<yellow>Previous Page</yellow>"
+    lore: []
+  back:
+    slot: 49
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+  next:
+    slot: 53
+    material: ARROW
+    display-name: "<yellow>Next Page</yellow>"
+    lore: []
+
+recipe-book:
+  title: "<dark_gray>Recipe Book - Page <page></dark_gray>"
+  rows: 6
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 37
+    - 38
+    - 39
+    - 40
+    - 41
+    - 42
+    - 43
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  recipe-item:
+    locked-material: BARRIER
+    display-name: "<recipe>"
+    lore:
+      - "<gray>Status:</gray> <status>"
+      - "<gray>Requires:</gray> <requirement>"
+      - "<gray>Result:</gray> <result>"
+  previous:
+    slot: 45
+    material: ARROW
+    display-name: "<yellow>Previous Page</yellow>"
+    lore: []
+  back:
+    slot: 49
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+  next:
+    slot: 53
+    material: ARROW
+    display-name: "<yellow>Next Page</yellow>"
+    lore: []

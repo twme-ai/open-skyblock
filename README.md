@@ -12,6 +12,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Persistent player profiles with purse, bank, skills, collections, and SkyBlock level calculation.
 - Private island world creation with starter platform, starter chest, home teleport, and basic island protection.
 - Configurable SkyBlock menu GUI and starter menu item.
+- Paged collection browser and recipe book menus with configurable layout, lore, and navigation.
 - Configurable MiniMessage messages in `messages.yml`.
 - Configurable skills, collection tiers, action rewards, custom items, and minion definitions.
 - Placeable minion items with island-only placement, generated storage, claim menu, pickup flow, and offline ticking from persisted timestamps.

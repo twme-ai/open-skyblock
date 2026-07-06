@@ -1,6 +1,8 @@
 package io.github.openskyblock.listener;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
+import io.github.openskyblock.menu.BrowserMenuAction;
+import io.github.openskyblock.menu.BrowserMenuHolder;
 import io.github.openskyblock.menu.MenuAction;
 import io.github.openskyblock.menu.MinionMenuAction;
 import io.github.openskyblock.menu.MinionMenuHolder;
@@ -30,6 +32,9 @@ public final class MenuListener implements Listener {
             if (event.getView().getTopInventory().getHolder() instanceof MinionMenuHolder minionHolder) {
                 handleMinionClick(event, player, minionHolder);
             }
+            if (event.getView().getTopInventory().getHolder() instanceof BrowserMenuHolder browserHolder) {
+                handleBrowserClick(event, player, browserHolder);
+            }
             return;
         }
         event.setCancelled(true);
@@ -48,6 +53,15 @@ public final class MenuListener implements Listener {
             return;
         }
         plugin.menus().runMinionAction(player, holder, action);
+    }
+
+    private void handleBrowserClick(InventoryClickEvent event, Player player, BrowserMenuHolder holder) {
+        event.setCancelled(true);
+        BrowserMenuAction action = holder.action(event.getRawSlot());
+        if (action == BrowserMenuAction.NONE) {
+            return;
+        }
+        plugin.menus().runBrowserAction(player, holder, action);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

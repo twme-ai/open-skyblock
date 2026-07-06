@@ -4,7 +4,6 @@ import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.SkyBlockProfile;
-import io.github.openskyblock.service.CollectionDefinition;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionDefinition;
 import io.github.openskyblock.service.SkillDefinition;
@@ -198,16 +197,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (player == null) {
             return;
         }
-        SkyBlockProfile profile = plugin.profiles().profile(player);
-        plugin.text().send(player, "commands.collections-header");
-        for (CollectionDefinition definition : plugin.collections().definitions()) {
-            long amount = profile.collectionAmount(definition.id());
-            plugin.text().send(player, "commands.collection-line", List.of(
-                    TextService.parsed("collection", definition.displayName()),
-                    TextService.raw("amount", plugin.text().formatNumber(amount)),
-                    TextService.raw("tier", Integer.toString(plugin.collections().tier(definition, amount)))
-            ));
-        }
+        plugin.menus().openCollectionBrowser(player, 0);
     }
 
     private void recipes(CommandSender sender) {
@@ -215,7 +205,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (player == null) {
             return;
         }
-        plugin.recipes().sendRecipes(player);
+        plugin.menus().openRecipeBook(player, 0);
     }
 
     private void giveItem(CommandSender sender, String[] args) {
