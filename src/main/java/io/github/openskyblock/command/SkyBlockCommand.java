@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
     private static final List<String> ROOT_SUBCOMMANDS = List.of(
             "help",
+            "menu",
             "island",
             "profile",
             "purse",
@@ -53,6 +54,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         String subcommand = args[0].toLowerCase(Locale.ROOT);
         switch (subcommand) {
             case "profile" -> profile(sender);
+            case "menu" -> menu(sender);
             case "island" -> island(sender, args);
             case "purse" -> purse(sender);
             case "skills" -> skills(sender);
@@ -94,6 +96,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
     private void help(CommandSender sender, String label) {
         TextService text = plugin.text();
         text.send(sender, "commands.help-header");
+        helpLine(sender, label + " menu", "commands.help.menu");
         helpLine(sender, label + " island create|home|info", "commands.help.island");
         helpLine(sender, label + " profile", "commands.help.profile");
         helpLine(sender, label + " purse", "commands.help.purse");
@@ -127,6 +130,14 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 TextService.raw("purse", plugin.text().formatNumber(profile.purse())),
                 TextService.raw("bank", plugin.text().formatNumber(profile.bank()))
         ));
+    }
+
+    private void menu(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.menus().openSkyBlockMenu(player);
     }
 
     private void island(CommandSender sender, String[] args) {

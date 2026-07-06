@@ -6,6 +6,8 @@ settings:
 
 features:
   private-islands: true
+  skyblock-menu: true
+  starter-menu-item: true
   skills: true
   collections: true
   custom-items: true

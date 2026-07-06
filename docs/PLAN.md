@@ -95,4 +95,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, skill XP, collections, custom item metadata, combat stat hooks, and simple minion records. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, starter menu item flow, skill XP, collections, custom item metadata, combat stat hooks, and simple minion records. Full feature parity remains open until every milestone above is implemented, tested, and documented.

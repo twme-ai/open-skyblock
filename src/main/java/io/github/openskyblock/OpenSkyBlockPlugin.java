@@ -5,7 +5,9 @@ import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.island.IslandService;
 import io.github.openskyblock.listener.IslandProtectionListener;
+import io.github.openskyblock.listener.MenuListener;
 import io.github.openskyblock.listener.PlayerLifecycleListener;
+import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.listener.ProgressionListener;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.service.CollectionService;
@@ -25,6 +27,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private CustomItemService customItemService;
     private MinionService minionService;
     private IslandService islandService;
+    private MenuService menuService;
     private BukkitTask autosaveTask;
     private BukkitTask minionTask;
 
@@ -40,6 +43,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.customItemService = new CustomItemService(this, configService, textService);
         this.minionService = new MinionService(configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
+        this.menuService = new MenuService(this, configService, textService, profileManager);
 
         reloadServices();
         registerCommands();
@@ -76,6 +80,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         skillService.reload();
         customItemService.reload();
         minionService.reload();
+        menuService.reload();
     }
 
     private void registerCommands() {
@@ -89,9 +94,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     }
 
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new PlayerLifecycleListener(profileManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerLifecycleListener(this), this);
         getServer().getPluginManager().registerEvents(new ProgressionListener(this), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
+        getServer().getPluginManager().registerEvents(new MenuListener(this), this);
     }
 
     private void startTasks() {
@@ -130,5 +136,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public IslandService islands() {
         return islandService;
+    }
+
+    public MenuService menus() {
+        return menuService;
     }
 }

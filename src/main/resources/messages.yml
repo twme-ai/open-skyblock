@@ -18,6 +18,7 @@ commands:
   help-header: "<prefix><aqua>OpenSkyBlock commands</aqua>"
   help-line: "<gray>/<command></gray> <white><description></white>"
   help:
+    menu: "Open the SkyBlock menu."
     island: "Create or travel to your private island."
     profile: "View your profile summary."
     purse: "View your purse and bank balance."

@@ -1,0 +1,46 @@
+skyblock:
+  title: "<dark_gray>SkyBlock Menu</dark_gray>"
+  rows: 4
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  items:
+    profile:
+      slot: 10
+      material: PLAYER_HEAD
+      display-name: "<green>Your Profile</green>"
+      lore:
+        - "<gray>Player:</gray> <yellow><player></yellow>"
+        - "<gray>SkyBlock Level:</gray> <yellow><level></yellow>"
+        - "<gray>Purse:</gray> <gold><purse></gold>"
+      action: PROFILE
+    island:
+      slot: 12
+      material: GRASS_BLOCK
+      display-name: "<green>Private Island</green>"
+      lore:
+        - "<gray>Travel to your private island.</gray>"
+      action: ISLAND_HOME
+    skills:
+      slot: 14
+      material: DIAMOND_PICKAXE
+      display-name: "<aqua>Skills</aqua>"
+      lore:
+        - "<gray>View your skill progression.</gray>"
+      action: SKILLS
+    collections:
+      slot: 16
+      material: CHEST
+      display-name: "<gold>Collections</gold>"
+      lore:
+        - "<gray>View your collection tiers.</gray>"
+      action: COLLECTIONS
+    minions:
+      slot: 22
+      material: HAY_BLOCK
+      display-name: "<yellow>Minions</yellow>"
+      lore:
+        - "<gray>View recorded minions.</gray>"
+      action: MINIONS
