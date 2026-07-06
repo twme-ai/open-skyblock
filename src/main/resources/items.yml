@@ -73,6 +73,174 @@ items:
       - "<gray>Attach this to a pet from the Pets menu.</gray>"
       - "<gray>Grants the configured combat stat bonuses.</gray>"
     stats: {}
+  GEMSTONE_CHAMBER:
+    material: ECHO_SHARD
+    display-name: "<light_purple>Gemstone Chamber</light_purple>"
+    category: ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>Consumed to unlock configured gemstone slots.</gray>"
+    stats: {}
+  ROUGH_RUBY_GEMSTONE:
+    material: REDSTONE
+    display-name: "<red>Rough Ruby Gemstone</red>"
+    category: GEMSTONE
+    rarity: COMMON
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FLAWED_RUBY_GEMSTONE:
+    material: REDSTONE
+    display-name: "<red>Flawed Ruby Gemstone</red>"
+    category: GEMSTONE
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FINE_RUBY_GEMSTONE:
+    material: REDSTONE
+    display-name: "<red>Fine Ruby Gemstone</red>"
+    category: GEMSTONE
+    rarity: RARE
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FLAWLESS_RUBY_GEMSTONE:
+    material: REDSTONE
+    display-name: "<red>Flawless Ruby Gemstone</red>"
+    category: GEMSTONE
+    rarity: EPIC
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  PERFECT_RUBY_GEMSTONE:
+    material: REDSTONE
+    display-name: "<red>Perfect Ruby Gemstone</red>"
+    category: GEMSTONE
+    rarity: LEGENDARY
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  ROUGH_AMETHYST_GEMSTONE:
+    material: AMETHYST_SHARD
+    display-name: "<dark_purple>Rough Amethyst Gemstone</dark_purple>"
+    category: GEMSTONE
+    rarity: COMMON
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FLAWED_AMETHYST_GEMSTONE:
+    material: AMETHYST_SHARD
+    display-name: "<dark_purple>Flawed Amethyst Gemstone</dark_purple>"
+    category: GEMSTONE
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FINE_AMETHYST_GEMSTONE:
+    material: AMETHYST_SHARD
+    display-name: "<dark_purple>Fine Amethyst Gemstone</dark_purple>"
+    category: GEMSTONE
+    rarity: RARE
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FLAWLESS_AMETHYST_GEMSTONE:
+    material: AMETHYST_SHARD
+    display-name: "<dark_purple>Flawless Amethyst Gemstone</dark_purple>"
+    category: GEMSTONE
+    rarity: EPIC
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  PERFECT_AMETHYST_GEMSTONE:
+    material: AMETHYST_SHARD
+    display-name: "<dark_purple>Perfect Amethyst Gemstone</dark_purple>"
+    category: GEMSTONE
+    rarity: LEGENDARY
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  ROUGH_SAPPHIRE_GEMSTONE:
+    material: PRISMARINE_CRYSTALS
+    display-name: "<aqua>Rough Sapphire Gemstone</aqua>"
+    category: GEMSTONE
+    rarity: COMMON
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FLAWED_SAPPHIRE_GEMSTONE:
+    material: PRISMARINE_CRYSTALS
+    display-name: "<aqua>Flawed Sapphire Gemstone</aqua>"
+    category: GEMSTONE
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FINE_SAPPHIRE_GEMSTONE:
+    material: PRISMARINE_CRYSTALS
+    display-name: "<aqua>Fine Sapphire Gemstone</aqua>"
+    category: GEMSTONE
+    rarity: RARE
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FLAWLESS_SAPPHIRE_GEMSTONE:
+    material: PRISMARINE_CRYSTALS
+    display-name: "<aqua>Flawless Sapphire Gemstone</aqua>"
+    category: GEMSTONE
+    rarity: EPIC
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  PERFECT_SAPPHIRE_GEMSTONE:
+    material: PRISMARINE_CRYSTALS
+    display-name: "<aqua>Perfect Sapphire Gemstone</aqua>"
+    category: GEMSTONE
+    rarity: LEGENDARY
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  ROUGH_JASPER_GEMSTONE:
+    material: MAGENTA_DYE
+    display-name: "<light_purple>Rough Jasper Gemstone</light_purple>"
+    category: GEMSTONE
+    rarity: COMMON
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FLAWED_JASPER_GEMSTONE:
+    material: MAGENTA_DYE
+    display-name: "<light_purple>Flawed Jasper Gemstone</light_purple>"
+    category: GEMSTONE
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FINE_JASPER_GEMSTONE:
+    material: MAGENTA_DYE
+    display-name: "<light_purple>Fine Jasper Gemstone</light_purple>"
+    category: GEMSTONE
+    rarity: RARE
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  FLAWLESS_JASPER_GEMSTONE:
+    material: MAGENTA_DYE
+    display-name: "<light_purple>Flawless Jasper Gemstone</light_purple>"
+    category: GEMSTONE
+    rarity: EPIC
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
+  PERFECT_JASPER_GEMSTONE:
+    material: MAGENTA_DYE
+    display-name: "<light_purple>Perfect Jasper Gemstone</light_purple>"
+    category: GEMSTONE
+    rarity: LEGENDARY
+    lore:
+      - "<gray>Consumed when applying this gemstone to an item.</gray>"
+    stats: {}
   CRAB_COLORED_CENTURY_CAKE:
     material: CAKE
     display-name: "<red>Crab-Colored Century Cake</red>"

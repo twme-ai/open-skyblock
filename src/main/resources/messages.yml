@@ -350,7 +350,7 @@ commands:
   star-cleared: "<prefix><green>Cleared stars from <item>.</green>"
   star-none: "<prefix><red>Your held item does not have stars.</red>"
   gemstone-disabled: "<prefix><red>Gemstones are disabled on this server.</red>"
-  gemstone-usage: "<prefix><red>Use <yellow>/skyblock gemstones</yellow>, <yellow>/skyblock gemstone slots</yellow>, <yellow>/skyblock gemstone apply <slot> <gemstone> <tier></yellow>, or <yellow>/skyblock gemstone remove <slot></yellow>.</red>"
+  gemstone-usage: "<prefix><red>Use <yellow>/skyblock gemstones</yellow>, <yellow>/skyblock gemstone slots</yellow>, <yellow>/skyblock gemstone apply <slot> <gemstone> <tier></yellow>, <yellow>/skyblock gemstone unlock <slot></yellow>, or <yellow>/skyblock gemstone remove <slot></yellow>.</red>"
   gemstone-list-header: "<prefix><aqua>Gemstones</aqua>"
   gemstone-list-line: "<gray><id>:</gray> <gemstone> <dark_gray>|</dark_gray> <gray>Tiers:</gray> <yellow><tiers></yellow>"
   gemstone-held-missing: "<prefix><red>You must hold a configured custom item.</red>"
@@ -360,6 +360,11 @@ commands:
   gemstone-unknown-slot: "<prefix><red>Unknown gemstone slot: <yellow><slot></yellow>.</red>"
   gemstone-unknown-tier: "<prefix><red>Unknown gemstone tier: <yellow><tier></yellow>.</red>"
   gemstone-not-applicable: "<prefix><red><gemstone> cannot be applied to the <slot> slot.</red>"
+  gemstone-slot-locked: "<prefix><red>The <slot> slot on <item> is locked.</red>"
+  gemstone-required-item-missing: "<prefix><red>You need <yellow><required_amount>x</yellow> <required_item> <red>to apply that gemstone.</red></red>"
+  gemstone-unlock-item-missing: "<prefix><red>You need <yellow><required_amount>x</yellow> <required_item> <red>to unlock the <slot> slot.</red></red>"
+  gemstone-unlocked: "<prefix><green>Unlocked the <slot> slot on <item> using <yellow><required_amount>x</yellow> <required_item><green>.</green></green>"
+  gemstone-already-unlocked: "<prefix><red>The <slot> slot on <item> is already unlocked.</red>"
   gemstone-already: "<prefix><red><item> already has <gemstone> <tier> in the <slot> slot.</red>"
   gemstone-no-money: "<prefix><red>You need <gold><cost></gold> coins in your purse.</red>"
   gemstone-applied: "<prefix><green>Applied <gemstone> <tier> to <item> <gray>(<slot>)</gray> for <gold><cost></gold> coins.</green>"
@@ -479,6 +484,7 @@ items:
   star-line: "<gold><star_symbols></gold> <gray>Stars:</gray> <yellow><stars></yellow><gray>/</gray><yellow><max_stars></yellow> <dark_gray>|</dark_gray> <green>+<bonus>% item stats</green>"
   gemstone-line: "<gray>[<slot_symbol>]</gray> <slot><gray>:</gray> <gemstone> <yellow><tier></yellow>"
   gemstone-empty-line: "<dark_gray>[<slot_symbol>]</dark_gray> <slot><gray>:</gray> <dark_gray>Empty</dark_gray>"
+  gemstone-locked-line: "<dark_gray>[<slot_symbol>]</dark_gray> <slot><gray>:</gray> <red>Locked</red>"
   equipment-slot-line: "<dark_gray>Equipment Slot: <slot></dark_gray>"
   ability-header: "<gold>Item Ability: <ability></gold> <yellow><type></yellow>"
   ability-line: "<gray><line></gray>"
@@ -537,6 +543,8 @@ stars:
 
 gemstones:
   empty-slot: "<dark_gray>Empty</dark_gray>"
+  locked-slot: "<red>Locked</red>"
+  no-required-item: "<dark_gray>No item required</dark_gray>"
 
 equipment:
   empty-slot: "<dark_gray>Empty</dark_gray>"

@@ -6,6 +6,7 @@ public record GemstoneSlotDefinition(
         String id,
         String displayName,
         String symbol,
-        Set<String> allowedGemstones
+        Set<String> allowedGemstones,
+        boolean defaultUnlocked
 ) {
 }

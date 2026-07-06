@@ -312,9 +312,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("gemstone")) {
-            return startsWith(List.of("slots", "apply", "remove"), args[1]);
+            return startsWith(List.of("slots", "apply", "remove", "unlock"), args[1]);
         }
-        if (args.length == 3 && args[0].equalsIgnoreCase("gemstone") && (args[1].equalsIgnoreCase("apply") || args[1].equalsIgnoreCase("remove"))) {
+        if (args.length == 3 && args[0].equalsIgnoreCase("gemstone") && (args[1].equalsIgnoreCase("apply") || args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("unlock"))) {
             return startsWith(plugin.gemstones().slots().stream().map(GemstoneSlotDefinition::id).toList(), args[2]);
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("gemstone") && args[1].equalsIgnoreCase("apply")) {
@@ -459,7 +459,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " gemstones", "commands.help.gemstones");
-        helpLine(sender, label + " gemstone apply|remove", "commands.help.gemstone");
+        helpLine(sender, label + " gemstone apply|remove|unlock", "commands.help.gemstone");
         helpLine(sender, label + " equipment", "commands.help.equipment");
         helpLine(sender, label + " equipment equip [slot]", "commands.help.equipment-equip");
         helpLine(sender, label + " equipment unequip <slot>", "commands.help.equipment-unequip");
@@ -1177,6 +1177,13 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
                 plugin.gemstones().removeHeld(player, args[2]);
+            }
+            case "unlock" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.gemstone-usage");
+                    return;
+                }
+                plugin.gemstones().unlockHeld(player, args[2]);
             }
             default -> plugin.text().send(player, "commands.gemstone-usage");
         }

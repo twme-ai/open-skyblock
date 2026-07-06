@@ -6,6 +6,9 @@ settings:
     - FLAWLESS
     - PERFECT
   remove-cost: 0.0
+  gemstone-item-amount: 1
+  unlock-item: GEMSTONE_CHAMBER
+  unlock-item-amount: 1
   apply-costs:
     ROUGH: 250.0
     FLAWED: 1000.0
@@ -37,8 +40,14 @@ slots:
   JASPER:
     display-name: "<light_purple>Jasper Slot</light_purple>"
     symbol: "❁"
+    default-unlocked: false
     allowed-gemstones:
       - JASPER
+
+unlock-items:
+  JASPER:
+    item: GEMSTONE_CHAMBER
+    amount: 1
 
 category-slots:
   SWORD:
@@ -54,6 +63,32 @@ item-slots:
   ASPECT_OF_THE_END:
     - COMBAT
     - SAPPHIRE
+
+gemstone-items:
+  RUBY:
+    ROUGH: ROUGH_RUBY_GEMSTONE
+    FLAWED: FLAWED_RUBY_GEMSTONE
+    FINE: FINE_RUBY_GEMSTONE
+    FLAWLESS: FLAWLESS_RUBY_GEMSTONE
+    PERFECT: PERFECT_RUBY_GEMSTONE
+  AMETHYST:
+    ROUGH: ROUGH_AMETHYST_GEMSTONE
+    FLAWED: FLAWED_AMETHYST_GEMSTONE
+    FINE: FINE_AMETHYST_GEMSTONE
+    FLAWLESS: FLAWLESS_AMETHYST_GEMSTONE
+    PERFECT: PERFECT_AMETHYST_GEMSTONE
+  SAPPHIRE:
+    ROUGH: ROUGH_SAPPHIRE_GEMSTONE
+    FLAWED: FLAWED_SAPPHIRE_GEMSTONE
+    FINE: FINE_SAPPHIRE_GEMSTONE
+    FLAWLESS: FLAWLESS_SAPPHIRE_GEMSTONE
+    PERFECT: PERFECT_SAPPHIRE_GEMSTONE
+  JASPER:
+    ROUGH: ROUGH_JASPER_GEMSTONE
+    FLAWED: FLAWED_JASPER_GEMSTONE
+    FINE: FINE_JASPER_GEMSTONE
+    FLAWLESS: FLAWLESS_JASPER_GEMSTONE
+    PERFECT: PERFECT_JASPER_GEMSTONE
 
 gemstones:
   RUBY:

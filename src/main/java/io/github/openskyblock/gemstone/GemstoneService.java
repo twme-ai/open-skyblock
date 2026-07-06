@@ -32,6 +32,7 @@ public final class GemstoneService {
     private final EconomyService economy;
     private final CustomItemService customItems;
     private final NamespacedKey gemstonesKey;
+    private final NamespacedKey unlockedSlotsKey;
     private final Map<String, GemstoneDefinition> gemstones = new HashMap<>();
     private final Map<String, GemstoneSlotDefinition> slots = new HashMap<>();
 
@@ -41,6 +42,7 @@ public final class GemstoneService {
         this.economy = economy;
         this.customItems = customItems;
         this.gemstonesKey = new NamespacedKey(plugin, "gemstones");
+        this.unlockedSlotsKey = new NamespacedKey(plugin, "gemstone_unlocked_slots");
     }
 
     public void reload() {
@@ -58,7 +60,8 @@ public final class GemstoneService {
                         normalizedId,
                         section.getString("display-name", normalizedId),
                         section.getString("symbol", normalizedId.substring(0, 1)),
-                        normalizedSet(section.getStringList("allowed-gemstones"))
+                        normalizedSet(section.getStringList("allowed-gemstones")),
+                        section.getBoolean("default-unlocked", true)
                 ));
             }
         }
@@ -228,6 +231,10 @@ public final class GemstoneService {
             text.send(player, "commands.gemstone-not-applicable", placeholders(itemDefinition, slot, gemstone, tier, 0.0D));
             return false;
         }
+        if (!isUnlocked(held, slot)) {
+            text.send(player, "commands.gemstone-slot-locked", placeholders(itemDefinition, slot, gemstone, tier, 0.0D));
+            return false;
+        }
         Map<String, AppliedGemstone> current = new LinkedHashMap<>(applied(held));
         AppliedGemstone existing = current.get(slot.id());
         if (existing != null && existing.gemstoneId().equals(gemstone.id()) && existing.tier().equals(tier)) {
@@ -235,14 +242,60 @@ public final class GemstoneService {
             return false;
         }
         double cost = applyCost(tier);
+        String requiredItem = gemstoneItem(gemstone.id(), tier);
+        int requiredAmount = gemstoneItemAmount(gemstone.id(), tier);
+        if (!requiredItem.isBlank() && !hasCustomItems(player, requiredItem, requiredAmount)) {
+            text.send(player, "commands.gemstone-required-item-missing", itemPlaceholders(itemDefinition, slot, gemstone, tier, cost, requiredItem, requiredAmount));
+            return false;
+        }
         if (!economy.spendPurse(player, cost)) {
             text.send(player, "commands.gemstone-no-money", placeholders(itemDefinition, slot, gemstone, tier, cost));
             return false;
         }
+        if (!requiredItem.isBlank()) {
+            consumeCustomItems(player, requiredItem, requiredAmount);
+        }
         current.put(slot.id(), new AppliedGemstone(gemstone.id(), tier));
         writeGemstones(held, current);
         customItems.refreshItem(held);
-        text.send(player, "commands.gemstone-applied", placeholders(itemDefinition, slot, gemstone, tier, cost));
+        text.send(player, "commands.gemstone-applied", itemPlaceholders(itemDefinition, slot, gemstone, tier, cost, requiredItem, requiredAmount));
+        return true;
+    }
+
+    public boolean unlockHeld(Player player, String rawSlotId) {
+        if (!enabled()) {
+            text.send(player, "commands.gemstone-disabled");
+            return false;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        CustomItemDefinition itemDefinition = customItems.definition(held).orElse(null);
+        if (itemDefinition == null) {
+            text.send(player, "commands.gemstone-held-missing");
+            return false;
+        }
+        GemstoneSlotDefinition slot = availableSlot(itemDefinition, rawSlotId).orElse(null);
+        if (slot == null) {
+            text.send(player, "commands.gemstone-unknown-slot", List.of(TextService.raw("slot", rawSlotId)));
+            return false;
+        }
+        if (isUnlocked(held, slot)) {
+            text.send(player, "commands.gemstone-already-unlocked", List.of(
+                    TextService.parsed("item", itemDefinition.displayName()),
+                    TextService.parsed("slot", slot.displayName())
+            ));
+            return false;
+        }
+        String requiredItem = unlockItem(slot.id());
+        int requiredAmount = unlockItemAmount(slot.id());
+        if (!requiredItem.isBlank() && !consumeCustomItems(player, requiredItem, requiredAmount)) {
+            text.send(player, "commands.gemstone-unlock-item-missing", slotItemPlaceholders(itemDefinition, slot, requiredItem, requiredAmount));
+            return false;
+        }
+        Set<String> unlocked = new LinkedHashSet<>(unlockedSlots(held));
+        unlocked.add(slot.id());
+        writeUnlockedSlots(held, unlocked);
+        customItems.refreshItem(held);
+        text.send(player, "commands.gemstone-unlocked", slotItemPlaceholders(itemDefinition, slot, requiredItem, requiredAmount));
         return true;
     }
 
@@ -319,7 +372,7 @@ public final class GemstoneService {
         text.send(player, "commands.gemstone-slots-header", List.of(TextService.parsed("item", itemDefinition.displayName())));
         for (GemstoneSlotDefinition slot : availableSlots) {
             AppliedGemstone appliedGemstone = applied.get(slot.id());
-            String value = text.rawMessage("gemstones.empty-slot");
+            String value = isUnlocked(held, slot) ? text.rawMessage("gemstones.empty-slot") : text.rawMessage("gemstones.locked-slot");
             if (appliedGemstone != null) {
                 GemstoneDefinition gemstone = gemstone(appliedGemstone.gemstoneId()).orElse(null);
                 if (gemstone != null) {
@@ -347,6 +400,13 @@ public final class GemstoneService {
         for (GemstoneSlotDefinition slot : availableSlots) {
             AppliedGemstone appliedGemstone = applied.get(slot.id());
             if (appliedGemstone == null) {
+                if (!isUnlocked(itemStack, slot)) {
+                    lore.add(text.message("items.gemstone-locked-line", List.of(
+                            TextService.parsed("slot", slot.displayName()),
+                            TextService.raw("slot_symbol", slot.symbol())
+                    )));
+                    continue;
+                }
                 lore.add(text.message("items.gemstone-empty-line", List.of(
                         TextService.parsed("slot", slot.displayName()),
                         TextService.raw("slot_symbol", slot.symbol())
@@ -374,6 +434,27 @@ public final class GemstoneService {
                 .findFirst();
     }
 
+    private Set<String> unlockedSlots(ItemStack itemStack) {
+        if (itemStack == null || !itemStack.hasItemMeta()) {
+            return Set.of();
+        }
+        String raw = itemStack.getItemMeta().getPersistentDataContainer().get(unlockedSlotsKey, PersistentDataType.STRING);
+        if (raw == null || raw.isBlank()) {
+            return Set.of();
+        }
+        Set<String> unlocked = new LinkedHashSet<>();
+        for (String part : raw.split(";")) {
+            if (!part.isBlank()) {
+                unlocked.add(part.toUpperCase(Locale.ROOT));
+            }
+        }
+        return unlocked;
+    }
+
+    private boolean isUnlocked(ItemStack itemStack, GemstoneSlotDefinition slot) {
+        return slot.defaultUnlocked() || unlockedSlots(itemStack).contains(slot.id());
+    }
+
     private void writeGemstones(ItemStack itemStack, Map<String, AppliedGemstone> gemstones) {
         ItemMeta meta = itemStack.getItemMeta();
         if (gemstones.isEmpty()) {
@@ -384,6 +465,20 @@ public final class GemstoneService {
                     .map(entry -> entry.getKey() + "=" + entry.getValue().gemstoneId() + ":" + entry.getValue().tier())
                     .collect(java.util.stream.Collectors.joining(";"));
             meta.getPersistentDataContainer().set(gemstonesKey, PersistentDataType.STRING, raw);
+        }
+        itemStack.setItemMeta(meta);
+    }
+
+    private void writeUnlockedSlots(ItemStack itemStack, Set<String> unlockedSlots) {
+        ItemMeta meta = itemStack.getItemMeta();
+        if (unlockedSlots.isEmpty()) {
+            meta.getPersistentDataContainer().remove(unlockedSlotsKey);
+        } else {
+            String raw = unlockedSlots.stream()
+                    .map(slot -> slot.toUpperCase(Locale.ROOT))
+                    .sorted()
+                    .collect(java.util.stream.Collectors.joining(";"));
+            meta.getPersistentDataContainer().set(unlockedSlotsKey, PersistentDataType.STRING, raw);
         }
         itemStack.setItemMeta(meta);
     }
@@ -409,6 +504,32 @@ public final class GemstoneService {
         );
     }
 
+    private List<TextService.TextPlaceholder> itemPlaceholders(CustomItemDefinition itemDefinition, GemstoneSlotDefinition slot, GemstoneDefinition gemstone, String tier, double cost, String itemId, int amount) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(placeholders(itemDefinition, slot, gemstone, tier, cost));
+        placeholders.addAll(itemPlaceholders(itemId, amount));
+        return placeholders;
+    }
+
+    private List<TextService.TextPlaceholder> slotItemPlaceholders(CustomItemDefinition itemDefinition, GemstoneSlotDefinition slot, String itemId, int amount) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>();
+        placeholders.add(TextService.parsed("item", itemDefinition.displayName()));
+        placeholders.add(TextService.raw("slot_id", slot.id()));
+        placeholders.add(TextService.parsed("slot", slot.displayName()));
+        placeholders.add(TextService.raw("slot_symbol", slot.symbol()));
+        placeholders.addAll(itemPlaceholders(itemId, amount));
+        return placeholders;
+    }
+
+    private List<TextService.TextPlaceholder> itemPlaceholders(String itemId, int amount) {
+        String displayName = itemId == null || itemId.isBlank()
+                ? text.rawMessage("gemstones.no-required-item")
+                : customItems.definition(itemId).map(CustomItemDefinition::displayName).orElse(itemId);
+        return List.of(
+                TextService.raw("required_amount", Integer.toString(Math.max(0, amount))),
+                TextService.parsed("required_item", displayName)
+        );
+    }
+
     private List<String> configuredTierOrder() {
         List<String> configured = configService.gemstones().getStringList("settings.tier-order");
         if (!configured.isEmpty()) {
@@ -425,6 +546,82 @@ public final class GemstoneService {
             }
         }
         return normalized;
+    }
+
+    private String gemstoneItem(String gemstoneId, String tier) {
+        String path = "gemstone-items." + gemstoneId.toUpperCase(Locale.ROOT) + "." + tier.toUpperCase(Locale.ROOT);
+        String direct = configService.gemstones().getString(path + ".item", "");
+        if (!direct.isBlank()) {
+            return direct.toUpperCase(Locale.ROOT);
+        }
+        return configService.gemstones().getString(path, "").toUpperCase(Locale.ROOT);
+    }
+
+    private int gemstoneItemAmount(String gemstoneId, String tier) {
+        String path = "gemstone-items." + gemstoneId.toUpperCase(Locale.ROOT) + "." + tier.toUpperCase(Locale.ROOT) + ".amount";
+        return Math.max(1, configService.gemstones().getInt(path, configService.gemstones().getInt("settings.gemstone-item-amount", 1)));
+    }
+
+    private String unlockItem(String slotId) {
+        String path = "unlock-items." + slotId.toUpperCase(Locale.ROOT);
+        String direct = configService.gemstones().getString(path + ".item", "");
+        if (!direct.isBlank()) {
+            return direct.toUpperCase(Locale.ROOT);
+        }
+        return configService.gemstones().getString("settings.unlock-item", "").toUpperCase(Locale.ROOT);
+    }
+
+    private int unlockItemAmount(String slotId) {
+        String path = "unlock-items." + slotId.toUpperCase(Locale.ROOT) + ".amount";
+        return Math.max(1, configService.gemstones().getInt(path, configService.gemstones().getInt("settings.unlock-item-amount", 1)));
+    }
+
+    private boolean consumeCustomItems(Player player, String itemId, int amount) {
+        if (itemId == null || itemId.isBlank() || amount <= 0) {
+            return true;
+        }
+        if (!hasCustomItems(player, itemId, amount)) {
+            return false;
+        }
+        String normalizedId = itemId.toUpperCase(Locale.ROOT);
+        int heldSlot = player.getInventory().getHeldItemSlot();
+        int remaining = amount;
+        for (int slot = 0; slot < player.getInventory().getSize() && remaining > 0; slot++) {
+            if (slot == heldSlot) {
+                continue;
+            }
+            ItemStack itemStack = player.getInventory().getItem(slot);
+            if (customItems.definition(itemStack).map(CustomItemDefinition::id).filter(normalizedId::equals).isEmpty()) {
+                continue;
+            }
+            int remove = Math.min(remaining, itemStack.getAmount());
+            remaining -= remove;
+            if (itemStack.getAmount() <= remove) {
+                player.getInventory().setItem(slot, null);
+            } else {
+                itemStack.setAmount(itemStack.getAmount() - remove);
+            }
+        }
+        return true;
+    }
+
+    private boolean hasCustomItems(Player player, String itemId, int amount) {
+        if (itemId == null || itemId.isBlank() || amount <= 0) {
+            return true;
+        }
+        String normalizedId = itemId.toUpperCase(Locale.ROOT);
+        int heldSlot = player.getInventory().getHeldItemSlot();
+        int available = 0;
+        for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
+            if (slot == heldSlot) {
+                continue;
+            }
+            ItemStack itemStack = player.getInventory().getItem(slot);
+            if (customItems.definition(itemStack).map(CustomItemDefinition::id).filter(normalizedId::equals).isPresent()) {
+                available += itemStack.getAmount();
+            }
+        }
+        return available >= amount;
     }
 
     private Map<String, Map<String, Double>> statsByTier(ConfigurationSection section) {
