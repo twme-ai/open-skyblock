@@ -1,0 +1,12 @@
+settings:
+  auto-save-ticks: 6000
+  default-purse: 0.0
+  default-bank: 0.0
+  skyblock-level-xp-per-level: 100
+
+features:
+  skills: true
+  collections: true
+  custom-items: true
+  minions: true
+  combat-stats: true

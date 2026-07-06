@@ -1,0 +1,129 @@
+level-xp:
+  1: 50
+  2: 125
+  3: 200
+  4: 300
+  5: 500
+  6: 750
+  7: 1000
+  8: 1500
+  9: 2000
+  10: 3500
+  11: 5000
+  12: 7500
+  13: 10000
+  14: 15000
+  15: 20000
+  16: 30000
+  17: 50000
+  18: 75000
+  19: 100000
+  20: 200000
+
+skills:
+  FARMING:
+    display-name: "<yellow>Farming</yellow>"
+    max-level: 60
+  MINING:
+    display-name: "<gray>Mining</gray>"
+    max-level: 60
+  COMBAT:
+    display-name: "<red>Combat</red>"
+    max-level: 60
+  FORAGING:
+    display-name: "<green>Foraging</green>"
+    max-level: 50
+  FISHING:
+    display-name: "<aqua>Fishing</aqua>"
+    max-level: 50
+  ENCHANTING:
+    display-name: "<light_purple>Enchanting</light_purple>"
+    max-level: 60
+  ALCHEMY:
+    display-name: "<dark_purple>Alchemy</dark_purple>"
+    max-level: 50
+  TAMING:
+    display-name: "<gold>Taming</gold>"
+    max-level: 50
+  CARPENTRY:
+    display-name: "<#d98b5f>Carpentry</#d98b5f>"
+    max-level: 50
+  RUNECRAFTING:
+    display-name: "<#55ffff>Runecrafting</#55ffff>"
+    max-level: 25
+  SOCIAL:
+    display-name: "<#ff77aa>Social</#ff77aa>"
+    max-level: 25
+  DUNGEONEERING:
+    display-name: "<dark_red>Dungeoneering</dark_red>"
+    max-level: 50
+
+actions:
+  block-break:
+    WHEAT:
+      skill: FARMING
+      xp: 4.0
+      collection: WHEAT
+      collection-amount: 1
+    CARROTS:
+      skill: FARMING
+      xp: 4.0
+      collection: CARROT
+      collection-amount: 1
+    POTATOES:
+      skill: FARMING
+      xp: 4.0
+      collection: POTATO
+      collection-amount: 1
+    SUGAR_CANE:
+      skill: FARMING
+      xp: 2.0
+      collection: SUGAR_CANE
+      collection-amount: 1
+    COBBLESTONE:
+      skill: MINING
+      xp: 1.0
+      collection: COBBLESTONE
+      collection-amount: 1
+    COAL_ORE:
+      skill: MINING
+      xp: 5.0
+      collection: COAL
+      collection-amount: 1
+    DEEPSLATE_COAL_ORE:
+      skill: MINING
+      xp: 5.0
+      collection: COAL
+      collection-amount: 1
+    OAK_LOG:
+      skill: FORAGING
+      xp: 6.0
+      collection: OAK_WOOD
+      collection-amount: 1
+    BIRCH_LOG:
+      skill: FORAGING
+      xp: 6.0
+      collection: BIRCH_WOOD
+      collection-amount: 1
+  entity-kill:
+    ZOMBIE:
+      skill: COMBAT
+      xp: 6.0
+      collection: ROTTEN_FLESH
+      collection-amount: 1
+    SKELETON:
+      skill: COMBAT
+      xp: 6.0
+      collection: BONE
+      collection-amount: 1
+    SPIDER:
+      skill: COMBAT
+      xp: 6.0
+      collection: STRING
+      collection-amount: 1
+  item-pickup:
+    COD:
+      skill: FISHING
+      xp: 5.0
+      collection: RAW_FISH
+      collection-amount: 1

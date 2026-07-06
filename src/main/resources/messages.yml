@@ -1,0 +1,62 @@
+prefix: "<gradient:#55ffff:#ffaa00><bold>OpenSkyBlock</bold></gradient> <dark_gray>|</dark_gray> "
+
+startup:
+  enabled: "<prefix><green>OpenSkyBlock enabled.</green>"
+  disabled: "<prefix><red>OpenSkyBlock disabled.</red>"
+  reloaded: "<prefix><green>Configuration reloaded.</green>"
+
+errors:
+  players-only: "<prefix><red>This command can only be used by a player.</red>"
+  no-permission: "<prefix><red>You do not have permission to use this command.</red>"
+  unknown-command: "<prefix><red>Unknown subcommand. Use <yellow>/skyblock help</yellow>.</red>"
+  unknown-player: "<prefix><red>That player is not online.</red>"
+  unknown-item: "<prefix><red>Unknown custom item: <yellow><item></yellow>.</red>"
+  unknown-minion: "<prefix><red>Unknown minion: <yellow><minion></yellow>.</red>"
+  invalid-number: "<prefix><red>That number is invalid.</red>"
+
+commands:
+  help-header: "<prefix><aqua>OpenSkyBlock commands</aqua>"
+  help-line: "<gray>/<command></gray> <white><description></white>"
+  help:
+    profile: "View your profile summary."
+    purse: "View your purse and bank balance."
+    skills: "View your skill levels."
+    collections: "View your collection progress."
+    giveitem: "Give a configured custom item."
+    minion-add: "Record a placed minion for your profile."
+    minion-list: "List minions recorded on your profile."
+    minion-claim: "Claim generated minion resources."
+    reload: "Reload configuration files."
+  profile-summary: "<prefix><aqua><player></aqua> <gray>Level</gray> <yellow><level></yellow> <gray>| Purse</gray> <gold><purse></gold> <gray>| Bank</gray> <gold><bank></gold>"
+  purse-summary: "<prefix><gray>Purse:</gray> <gold><purse></gold> <dark_gray>|</dark_gray> <gray>Bank:</gray> <gold><bank></gold>"
+  skills-header: "<prefix><aqua>Skills</aqua>"
+  skill-line: "<gray><skill>:</gray> <yellow>Level <level></yellow> <dark_gray>(</dark_gray><white><xp></white><gray> XP</gray><dark_gray>)</dark_gray>"
+  collections-header: "<prefix><aqua>Collections</aqua>"
+  collection-line: "<gray><collection>:</gray> <white><amount></white> <dark_gray>|</dark_gray> <yellow>Tier <tier></yellow>"
+  item-given: "<prefix><green>Gave <item_name> <green>to <yellow><player></yellow>.</green></green>"
+  minion-added: "<prefix><green>Recorded <minion_name> <green>on your profile.</green></green>"
+  minion-list-header: "<prefix><aqua>Minions</aqua>"
+  minion-list-line: "<gray><slot>.</gray> <minion_name> <dark_gray>|</dark_gray> <white><generated></white><gray> generated</gray>"
+  minion-claimed: "<prefix><green>Claimed <white><amount></white> generated resources from minions.</green>"
+  minion-nothing: "<prefix><gray>There are no generated minion resources to claim.</gray>"
+
+progression:
+  skill-xp: "<prefix><gray>+<xp> <skill> XP</gray>"
+  skill-level-up: "<prefix><gold><skill> leveled up to <level>!</gold>"
+  collection-progress: "<prefix><gray>+<amount> <collection></gray>"
+  collection-tier-up: "<prefix><gold><collection> reached Tier <tier>!</gold>"
+
+items:
+  stat-line: "<gray><stat>:</gray> <green><value></green>"
+  mana-cost-line: "<dark_gray>Mana Cost: <mana_cost></dark_gray>"
+  cooldown-line: "<dark_gray>Cooldown: <cooldown_seconds>s</dark_gray>"
+  ability-header: "<gold>Item Ability: <ability></gold> <yellow><type></yellow>"
+  ability-line: "<gray><line></gray>"
+  rarity-line: "<rarity_color><bold><rarity> <category></bold></rarity_color>"
+  stat-labels:
+    damage: "Damage"
+    strength: "Strength"
+    intelligence: "Intelligence"
+    crit_chance: "Crit Chance"
+    crit_damage: "Crit Damage"
+    ferocity: "Ferocity"

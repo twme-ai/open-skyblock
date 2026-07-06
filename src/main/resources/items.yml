@@ -1,0 +1,64 @@
+items:
+  SKYBLOCK_MENU:
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    category: ITEM
+    rarity: SPECIAL
+    lore:
+      - "<gray>Open your profile, skills, collections,</gray>"
+      - "<gray>recipes, storage, pets, and island tools.</gray>"
+    stats: {}
+  ROGUE_SWORD:
+    material: GOLDEN_SWORD
+    display-name: "<green>Rogue Sword</green>"
+    category: SWORD
+    rarity: COMMON
+    lore:
+      - "<gray>A quick starter blade.</gray>"
+    stats:
+      damage: 20
+      strength: 10
+    ability:
+      name: "Speed Boost"
+      type: "RIGHT CLICK"
+      lines:
+        - "Gain a short burst of speed."
+      mana-cost: 50
+      cooldown-seconds: 30
+  ASPECT_OF_THE_END:
+    material: DIAMOND_SWORD
+    display-name: "<blue>Aspect of the End</blue>"
+    category: SWORD
+    rarity: RARE
+    lore:
+      - "<gray>A teleportation-focused combat sword.</gray>"
+    stats:
+      damage: 100
+      strength: 100
+      intelligence: 50
+    ability:
+      name: "Instant Transmission"
+      type: "RIGHT CLICK"
+      lines:
+        - "Teleport forward and gain brief speed."
+      mana-cost: 50
+      cooldown-seconds: 1
+  HYPERION:
+    material: NETHERITE_SWORD
+    display-name: "<gold>Hyperion</gold>"
+    category: SWORD
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A high-end mage weapon placeholder for future dungeons.</gray>"
+    stats:
+      damage: 260
+      strength: 150
+      intelligence: 350
+      ferocity: 30
+    ability:
+      name: "Wither Impact"
+      type: "RIGHT CLICK"
+      lines:
+        - "Explode with wither energy around you."
+      mana-cost: 300
+      cooldown-seconds: 5

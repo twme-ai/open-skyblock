@@ -1,0 +1,157 @@
+package io.github.openskyblock.profile;
+
+import io.github.openskyblock.config.ConfigService;
+import io.github.openskyblock.service.SkillType;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public final class ProfileManager {
+    private final JavaPlugin plugin;
+    private final ConfigService configService;
+    private final Map<UUID, SkyBlockProfile> profiles = new HashMap<>();
+    private File profileFile;
+    private YamlConfiguration profileData;
+
+    public ProfileManager(JavaPlugin plugin, ConfigService configService) {
+        this.plugin = plugin;
+        this.configService = configService;
+    }
+
+    public void loadAll() {
+        this.profileFile = new File(plugin.getDataFolder(), "profiles.yml");
+        if (!profileFile.exists()) {
+            try {
+                File parent = profileFile.getParentFile();
+                if (parent != null && !parent.exists()) {
+                    parent.mkdirs();
+                }
+                profileFile.createNewFile();
+            } catch (IOException exception) {
+                throw new IllegalStateException("Unable to create profiles.yml", exception);
+            }
+        }
+        this.profileData = YamlConfiguration.loadConfiguration(profileFile);
+        ConfigurationSection section = profileData.getConfigurationSection("profiles");
+        if (section == null) {
+            return;
+        }
+        for (String key : section.getKeys(false)) {
+            try {
+                UUID uniqueId = UUID.fromString(key);
+                profiles.put(uniqueId, loadProfile(uniqueId, section.getConfigurationSection(key)));
+            } catch (IllegalArgumentException ignored) {
+                plugin.getLogger().warning("Skipping invalid profile UUID in profiles.yml: " + key);
+            }
+        }
+    }
+
+    public SkyBlockProfile profile(Player player) {
+        SkyBlockProfile profile = profiles.computeIfAbsent(player.getUniqueId(), uniqueId -> newProfile(uniqueId, player.getName()));
+        profile.playerName(player.getName());
+        return profile;
+    }
+
+    public SkyBlockProfile profile(UUID uniqueId) {
+        return profiles.get(uniqueId);
+    }
+
+    public Collection<SkyBlockProfile> loadedProfiles() {
+        return profiles.values();
+    }
+
+    public void save(Player player) {
+        SkyBlockProfile profile = profiles.get(player.getUniqueId());
+        if (profile != null) {
+            writeProfile(profile);
+            saveFile();
+        }
+    }
+
+    public void saveAll() {
+        for (SkyBlockProfile profile : profiles.values()) {
+            writeProfile(profile);
+        }
+        saveFile();
+    }
+
+    private SkyBlockProfile newProfile(UUID uniqueId, String playerName) {
+        double purse = configService.main().getDouble("settings.default-purse", 0.0D);
+        double bank = configService.main().getDouble("settings.default-bank", 0.0D);
+        return new SkyBlockProfile(uniqueId, playerName, purse, bank);
+    }
+
+    private SkyBlockProfile loadProfile(UUID uniqueId, ConfigurationSection section) {
+        if (section == null) {
+            return newProfile(uniqueId, "Unknown");
+        }
+        SkyBlockProfile profile = new SkyBlockProfile(
+                uniqueId,
+                section.getString("name", "Unknown"),
+                section.getDouble("purse", 0.0D),
+                section.getDouble("bank", 0.0D)
+        );
+        ConfigurationSection skills = section.getConfigurationSection("skills");
+        if (skills != null) {
+            for (String key : skills.getKeys(false)) {
+                SkillType.fromKey(key).ifPresent(type -> profile.setSkillXp(type, skills.getDouble(key + ".xp", 0.0D)));
+            }
+        }
+        ConfigurationSection collections = section.getConfigurationSection("collections");
+        if (collections != null) {
+            for (String key : collections.getKeys(false)) {
+                profile.setCollectionAmount(key.toUpperCase(), collections.getLong(key, 0L));
+            }
+        }
+        ConfigurationSection minions = section.getConfigurationSection("minions");
+        if (minions != null) {
+            for (String key : minions.getKeys(false)) {
+                ConfigurationSection minion = minions.getConfigurationSection(key);
+                if (minion != null) {
+                    profile.minions().add(new PlacedMinion(
+                            minion.getString("id", ""),
+                            minion.getLong("generated", 0L),
+                            minion.getLong("last-action-millis", System.currentTimeMillis())
+                    ));
+                }
+            }
+        }
+        return profile;
+    }
+
+    private void writeProfile(SkyBlockProfile profile) {
+        String base = "profiles." + profile.uniqueId();
+        profileData.set(base + ".name", profile.playerName());
+        profileData.set(base + ".purse", profile.purse());
+        profileData.set(base + ".bank", profile.bank());
+        for (Map.Entry<SkillType, Double> entry : profile.skillXp().entrySet()) {
+            profileData.set(base + ".skills." + entry.getKey().key() + ".xp", entry.getValue());
+        }
+        for (Map.Entry<String, Long> entry : profile.collections().entrySet()) {
+            profileData.set(base + ".collections." + entry.getKey(), entry.getValue());
+        }
+        profileData.set(base + ".minions", null);
+        for (int index = 0; index < profile.minions().size(); index++) {
+            PlacedMinion minion = profile.minions().get(index);
+            String minionBase = base + ".minions." + index;
+            profileData.set(minionBase + ".id", minion.id());
+            profileData.set(minionBase + ".generated", minion.generatedAmount());
+            profileData.set(minionBase + ".last-action-millis", minion.lastActionMillis());
+        }
+    }
+
+    private void saveFile() {
+        try {
+            profileData.save(profileFile);
+        } catch (IOException exception) {
+            plugin.getLogger().severe("Unable to save profiles.yml: " + exception.getMessage());
+        }
+    }
+}

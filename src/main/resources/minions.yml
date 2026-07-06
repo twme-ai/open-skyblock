@@ -1,0 +1,22 @@
+minions:
+  WHEAT_MINION:
+    display-name: "<yellow>Wheat Minion</yellow>"
+    material: HAY_BLOCK
+    generated-collection: WHEAT
+    generated-amount: 1
+    interval-ticks: 400
+    storage-size: 64
+  COBBLESTONE_MINION:
+    display-name: "<gray>Cobblestone Minion</gray>"
+    material: COBBLESTONE
+    generated-collection: COBBLESTONE
+    generated-amount: 1
+    interval-ticks: 300
+    storage-size: 64
+  ZOMBIE_MINION:
+    display-name: "<dark_green>Zombie Minion</dark_green>"
+    material: ZOMBIE_HEAD
+    generated-collection: ROTTEN_FLESH
+    generated-amount: 1
+    interval-ticks: 500
+    storage-size: 64

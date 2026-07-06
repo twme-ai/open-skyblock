@@ -1,0 +1,70 @@
+package io.github.openskyblock.config;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public final class ConfigService {
+    private static final List<String> RESOURCE_FILES = List.of(
+            "messages.yml",
+            "skills.yml",
+            "collections.yml",
+            "items.yml",
+            "minions.yml"
+    );
+
+    private final JavaPlugin plugin;
+    private final Map<String, FileConfiguration> configurations = new HashMap<>();
+
+    public ConfigService(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public void load() {
+        plugin.saveDefaultConfig();
+        plugin.reloadConfig();
+        for (String resource : RESOURCE_FILES) {
+            File file = new File(plugin.getDataFolder(), resource);
+            if (!file.exists()) {
+                plugin.saveResource(resource, false);
+            }
+            configurations.put(resource, YamlConfiguration.loadConfiguration(file));
+        }
+    }
+
+    public FileConfiguration main() {
+        return plugin.getConfig();
+    }
+
+    public FileConfiguration messages() {
+        return file("messages.yml");
+    }
+
+    public FileConfiguration skills() {
+        return file("skills.yml");
+    }
+
+    public FileConfiguration collections() {
+        return file("collections.yml");
+    }
+
+    public FileConfiguration items() {
+        return file("items.yml");
+    }
+
+    public FileConfiguration minions() {
+        return file("minions.yml");
+    }
+
+    private FileConfiguration file(String name) {
+        FileConfiguration configuration = configurations.get(name);
+        if (configuration == null) {
+            throw new IllegalStateException("Configuration has not been loaded: " + name);
+        }
+        return configuration;
+    }
+}

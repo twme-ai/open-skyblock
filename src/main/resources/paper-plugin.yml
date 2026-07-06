@@ -1,0 +1,20 @@
+name: OpenSkyBlock
+version: 0.1.0-SNAPSHOT
+main: io.github.openskyblock.OpenSkyBlockPlugin
+description: A configurable PaperMC SkyBlock progression plugin.
+authors:
+  - OpenSkyBlock Contributors
+api-version: '1.21'
+commands:
+  skyblock:
+    description: Main OpenSkyBlock command.
+    usage: /skyblock help
+    aliases:
+      - sb
+permissions:
+  openskyblock.command:
+    description: Allows basic OpenSkyBlock commands.
+    default: true
+  openskyblock.admin:
+    description: Allows administrative OpenSkyBlock commands.
+    default: op

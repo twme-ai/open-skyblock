@@ -1,0 +1,105 @@
+collections:
+  WHEAT:
+    display-name: "<yellow>Wheat</yellow>"
+    material: WHEAT
+    tiers:
+      1:
+        amount: 50
+        rewards:
+          - "<gray>Wheat Minion I Recipe</gray>"
+      2:
+        amount: 100
+        rewards:
+          - "<gray>Farm Suit Recipe</gray>"
+  CARROT:
+    display-name: "<gold>Carrot</gold>"
+    material: CARROT
+    tiers:
+      1:
+        amount: 100
+        rewards:
+          - "<gray>Carrot Minion I Recipe</gray>"
+  POTATO:
+    display-name: "<yellow>Potato</yellow>"
+    material: POTATO
+    tiers:
+      1:
+        amount: 100
+        rewards:
+          - "<gray>Potato Minion I Recipe</gray>"
+  SUGAR_CANE:
+    display-name: "<green>Sugar Cane</green>"
+    material: SUGAR_CANE
+    tiers:
+      1:
+        amount: 100
+        rewards:
+          - "<gray>Speed Talisman Recipe</gray>"
+  COBBLESTONE:
+    display-name: "<gray>Cobblestone</gray>"
+    material: COBBLESTONE
+    tiers:
+      1:
+        amount: 50
+        rewards:
+          - "<gray>Cobblestone Minion I Recipe</gray>"
+      2:
+        amount: 100
+        rewards:
+          - "<gray>Compactor Recipe</gray>"
+  COAL:
+    display-name: "<dark_gray>Coal</dark_gray>"
+    material: COAL
+    tiers:
+      1:
+        amount: 50
+        rewards:
+          - "<gray>Coal Minion I Recipe</gray>"
+  OAK_WOOD:
+    display-name: "<green>Oak Wood</green>"
+    material: OAK_LOG
+    tiers:
+      1:
+        amount: 50
+        rewards:
+          - "<gray>Oak Minion I Recipe</gray>"
+  BIRCH_WOOD:
+    display-name: "<white>Birch Wood</white>"
+    material: BIRCH_LOG
+    tiers:
+      1:
+        amount: 50
+        rewards:
+          - "<gray>Birch Minion I Recipe</gray>"
+  ROTTEN_FLESH:
+    display-name: "<dark_green>Rotten Flesh</dark_green>"
+    material: ROTTEN_FLESH
+    tiers:
+      1:
+        amount: 50
+        rewards:
+          - "<gray>Zombie Minion I Recipe</gray>"
+  BONE:
+    display-name: "<white>Bone</white>"
+    material: BONE
+    tiers:
+      1:
+        amount: 50
+        rewards:
+          - "<gray>Skeleton Minion I Recipe</gray>"
+  STRING:
+    display-name: "<gray>String</gray>"
+    material: STRING
+    tiers:
+      1:
+        amount: 50
+        rewards:
+          - "<gray>Spider Minion I Recipe</gray>"
+  RAW_FISH:
+    display-name: "<aqua>Raw Fish</aqua>"
+    material: COD
+    tiers:
+      1:
+        amount: 50
+        rewards:
+          - "<gray>Fishing Minion I Recipe</gray>"
