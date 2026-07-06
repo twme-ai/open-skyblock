@@ -124,6 +124,11 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "baker",
             "newyearcake",
             "newyearcakes",
+            "chocolate",
+            "chocolatefactory",
+            "chocolate-factory",
+            "cf",
+            "hoppity",
             "stars",
             "star",
             "essence",
@@ -235,6 +240,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "zoo", "travelingzoo", "traveling-zoo", "oringo" -> travelingZoo(sender, args);
             case "jerry", "seasonofjerry", "season-jerry", "winter" -> seasonOfJerry(sender, args);
             case "newyear", "new-year", "baker", "newyearcake", "newyearcakes" -> newYear(sender, args);
+            case "chocolate", "chocolatefactory", "chocolate-factory", "cf", "hoppity" -> chocolate(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -610,6 +616,24 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isNewYearCommand(args[0]) && args[1].equalsIgnoreCase("store") && sender instanceof Player player) {
             return startsWith(plugin.newYear().inventoryCakeYears(player), args[2]);
         }
+        if (args.length == 2 && isChocolateCommand(args[0])) {
+            return startsWith(List.of("status", "click", "upgrades", "upgrade", "rabbits", "egg", "hoppity", "buyrabbit", "shop", "buy", "prestige"), args[1]);
+        }
+        if (args.length == 3 && isChocolateCommand(args[0]) && args[1].equalsIgnoreCase("upgrade")) {
+            return startsWith(plugin.chocolateFactory().upgradeIds(), args[2]);
+        }
+        if (args.length == 3 && isChocolateCommand(args[0]) && (args[1].equalsIgnoreCase("buyrabbit") || args[1].equalsIgnoreCase("hoppity")) && sender instanceof Player player) {
+            return startsWith(plugin.chocolateFactory().currentOfferIds(player), args[2]);
+        }
+        if (args.length == 4 && isChocolateCommand(args[0]) && args[1].equalsIgnoreCase("hoppity") && args[2].equalsIgnoreCase("buy") && sender instanceof Player player) {
+            return startsWith(plugin.chocolateFactory().currentOfferIds(player), args[3]);
+        }
+        if (args.length == 3 && isChocolateCommand(args[0]) && (args[1].equalsIgnoreCase("buy") || args[1].equalsIgnoreCase("shop"))) {
+            return startsWith(plugin.chocolateFactory().shopItemIds(), args[2]);
+        }
+        if (args.length == 4 && isChocolateCommand(args[0]) && args[1].equalsIgnoreCase("shop") && args[2].equalsIgnoreCase("buy")) {
+            return startsWith(plugin.chocolateFactory().shopItemIds(), args[3]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -856,6 +880,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " zoo status|offers|buy", "commands.help.zoo");
         helpLine(sender, label + " jerry status|gifts|find|defend|open", "commands.help.jerry");
         helpLine(sender, label + " newyear status|claim|bag|store|cakes", "commands.help.new-year");
+        helpLine(sender, label + " chocolate status|click|upgrades|egg|hoppity|shop", "commands.help.chocolate");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -2116,6 +2141,76 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void chocolate(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.chocolateFactory().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "click", "bake" -> plugin.chocolateFactory().click(player);
+            case "upgrades" -> plugin.chocolateFactory().sendUpgrades(player);
+            case "upgrade" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.chocolate-usage");
+                    return;
+                }
+                plugin.chocolateFactory().upgrade(player, args[2]);
+            }
+            case "rabbits", "rabbit" -> plugin.chocolateFactory().sendRabbits(player);
+            case "egg", "claim" -> plugin.chocolateFactory().claimEgg(player);
+            case "hoppity", "offers" -> {
+                if (args.length >= 3 && args[2].equalsIgnoreCase("buy")) {
+                    if (args.length < 4) {
+                        plugin.text().send(player, "commands.chocolate-usage");
+                        return;
+                    }
+                    plugin.chocolateFactory().buyHoppityRabbit(player, args[3]);
+                    return;
+                }
+                if (args.length >= 3) {
+                    plugin.chocolateFactory().buyHoppityRabbit(player, args[2]);
+                    return;
+                }
+                plugin.chocolateFactory().sendHoppityShop(player);
+            }
+            case "buyrabbit" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.chocolate-usage");
+                    return;
+                }
+                plugin.chocolateFactory().buyHoppityRabbit(player, args[2]);
+            }
+            case "shop" -> {
+                if (args.length >= 3 && args[2].equalsIgnoreCase("buy")) {
+                    if (args.length < 4) {
+                        plugin.text().send(player, "commands.chocolate-usage");
+                        return;
+                    }
+                    plugin.chocolateFactory().buyChocolateShopItem(player, args[3]);
+                    return;
+                }
+                if (args.length >= 3) {
+                    plugin.chocolateFactory().buyChocolateShopItem(player, args[2]);
+                    return;
+                }
+                plugin.chocolateFactory().sendChocolateShop(player);
+            }
+            case "buy" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.chocolate-usage");
+                    return;
+                }
+                plugin.chocolateFactory().buyChocolateShopItem(player, args[2]);
+            }
+            case "prestige", "levelup" -> plugin.chocolateFactory().prestige(player);
+            default -> plugin.text().send(player, "commands.chocolate-usage");
+        }
+    }
+
     private void enchantBook(CommandSender sender, String[] args) {
         if (!sender.hasPermission("openskyblock.admin")) {
             plugin.text().send(sender, "errors.no-permission");
@@ -3300,6 +3395,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isNewYearCommand(String value) {
         return value.equalsIgnoreCase("newyear") || value.equalsIgnoreCase("new-year") || value.equalsIgnoreCase("baker") || value.equalsIgnoreCase("newyearcake") || value.equalsIgnoreCase("newyearcakes");
+    }
+
+    private boolean isChocolateCommand(String value) {
+        return value.equalsIgnoreCase("chocolate") || value.equalsIgnoreCase("chocolatefactory") || value.equalsIgnoreCase("chocolate-factory") || value.equalsIgnoreCase("cf") || value.equalsIgnoreCase("hoppity");
     }
 
     private boolean isUpgradeCommand(String value) {

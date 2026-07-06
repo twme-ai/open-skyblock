@@ -10,6 +10,7 @@ import io.github.openskyblock.bestiary.BestiaryService;
 import io.github.openskyblock.bazaar.BazaarService;
 import io.github.openskyblock.cake.CakeService;
 import io.github.openskyblock.calendar.CalendarService;
+import io.github.openskyblock.chocolate.ChocolateFactoryService;
 import io.github.openskyblock.commission.CommissionService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
@@ -117,6 +118,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private TravelingZooService travelingZooService;
     private SeasonOfJerryService seasonOfJerryService;
     private NewYearService newYearService;
+    private ChocolateFactoryService chocolateFactoryService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -226,6 +228,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.skillService.seasonOfJerryService(seasonOfJerryService);
         this.newYearService = new NewYearService(this, configService, textService, profileManager, economyService, customItemService, calendarService);
         this.skillService.newYearService(newYearService);
+        this.chocolateFactoryService = new ChocolateFactoryService(configService, textService, profileManager, economyService, customItemService, calendarService);
+        this.skillService.chocolateFactoryService(chocolateFactoryService);
         this.mythologicalService = new MythologicalService(configService, textService, profileManager, economyService, skillService, customItemService, mayorService, petService);
         this.skillService.mythologicalService(mythologicalService);
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
@@ -375,6 +379,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         travelingZooService.reload();
         seasonOfJerryService.reload();
         newYearService.reload();
+        chocolateFactoryService.reload();
         mythologicalService.reload();
         minionService.reload();
         menuService.reload();
@@ -603,6 +608,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public NewYearService newYear() {
         return newYearService;
+    }
+
+    public ChocolateFactoryService chocolateFactory() {
+        return chocolateFactoryService;
     }
 
     public MinionService minions() {

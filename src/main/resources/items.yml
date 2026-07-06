@@ -533,6 +533,44 @@ items:
       - "<gray>Stores unique New Year Cakes by SkyBlock year.</gray>"
       - "<gray>Each stored unique cake grants configured Health.</gray>"
     stats: {}
+  EGGLOCATOR:
+    material: COMPASS
+    display-name: "<yellow>Egglocator</yellow>"
+    category: TOOL
+    rarity: UNCOMMON
+    lore:
+      - "<gray>A Hoppity's Hunt tool for tracking Chocolate Eggs.</gray>"
+      - "<gray>Use the configured commands to claim egg cycles.</gray>"
+    stats: {}
+  NIBBLE_CHOCOLATE_STICK:
+    material: STICK
+    display-name: "<green>Nibble Chocolate Stick</green>"
+    category: ACCESSORY
+    rarity: UNCOMMON
+    lore:
+      - "<gray>A Chocolate Factory shop accessory.</gray>"
+      - "<gray>Carry it in your Accessory Bag for configured stat value.</gray>"
+    stats:
+      health: 5
+  SUPREME_CHOCOLATE_BAR:
+    material: COCOA_BEANS
+    display-name: "<gold>Supreme Chocolate Bar</gold>"
+    category: ACCESSORY
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A prestigious Chocolate Factory reward.</gray>"
+      - "<gray>Carry it in your Accessory Bag for configured stat value.</gray>"
+    stats:
+      health: 25
+      magic_find: 1
+  HOT_CHOCOLATE_MIXIN:
+    material: HONEY_BOTTLE
+    display-name: "<light_purple>Hot Chocolate Mixin</light_purple>"
+    category: ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>A rich Chocolate Factory shop reward.</gray>"
+    stats: {}
   NORTH_STAR:
     material: NETHER_STAR
     display-name: "<aqua>North Star</aqua>"

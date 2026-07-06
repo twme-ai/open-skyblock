@@ -52,6 +52,15 @@ events:
     duration-days: 3
     rewards:
       - "<yellow>New Year Cake</yellow>"
+  HOPPITY_HUNT:
+    display-name: "<gold>Hoppity's Hunt</gold>"
+    description: "Find Chocolate Eggs and collect rabbits for the Chocolate Factory."
+    month: 2
+    day: 1
+    duration-days: 93
+    rewards:
+      - "<gold>Chocolate Eggs</gold>"
+      - "<yellow>Chocolate Rabbits</yellow>"
   TRAVELING_ZOO:
     display-name: "<green>Traveling Zoo</green>"
     description: "A pet-focused event inspired by Oringo's traveling shop."

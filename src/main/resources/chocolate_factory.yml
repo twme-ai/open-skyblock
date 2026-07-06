@@ -1,0 +1,243 @@
+settings:
+  require-calendar-event: true
+  event-id: HOPPITY_HUNT
+  max-offline-seconds: 86400
+  egg-cycle-seconds: 2400
+  base-click-chocolate: 1.0
+  base-production: 0.0
+  skyblock-xp-per-rabbit: 1.0
+  skyblock-xp-per-factory-level: 25.0
+  hoppity-offer-count: 7
+  pity-mythic-eggs: 500
+  pity-divine-eggs: 2500
+  egg-types:
+    - BREAKFAST
+    - LUNCH
+    - DINNER
+    - BRUNCH
+    - DEJEUNER
+    - SUPPER
+
+factory-levels:
+  1:
+    display-name: "<white>Chocolate Factory I</white>"
+    production-multiplier: 1.0
+    max-chocolate: 50000000.0
+    prestige-cost: 0.0
+  2:
+    display-name: "<green>Chocolate Factory II</green>"
+    production-multiplier: 1.25
+    max-chocolate: 100000000.0
+    prestige-cost: 150000000.0
+  3:
+    display-name: "<blue>Chocolate Factory III</blue>"
+    production-multiplier: 1.55
+    max-chocolate: 250000000.0
+    prestige-cost: 500000000.0
+  4:
+    display-name: "<dark_purple>Chocolate Factory IV</dark_purple>"
+    production-multiplier: 1.9
+    max-chocolate: 500000000.0
+    prestige-cost: 1500000000.0
+  5:
+    display-name: "<gold>Chocolate Factory V</gold>"
+    production-multiplier: 2.3
+    max-chocolate: 1000000000.0
+    prestige-cost: 4000000000.0
+
+upgrades:
+  RABBIT_BRO:
+    display-name: "<yellow>Rabbit Bro</yellow>"
+    max-level: 20
+    base-cost: 100.0
+    cost-multiplier: 1.45
+    chocolate-per-second: 1.0
+    production-multiplier: 0.0
+    click-chocolate: 0.0
+    capacity: 0.0
+  TIME_TOWER:
+    display-name: "<aqua>Time Tower</aqua>"
+    max-level: 10
+    base-cost: 2000.0
+    cost-multiplier: 1.7
+    chocolate-per-second: 3.0
+    production-multiplier: 0.02
+    click-chocolate: 0.0
+    capacity: 0.0
+  HAND_BAKED:
+    display-name: "<gold>Hand-Baked Chocolate</gold>"
+    max-level: 15
+    base-cost: 750.0
+    cost-multiplier: 1.55
+    chocolate-per-second: 0.0
+    production-multiplier: 0.0
+    click-chocolate: 2.0
+    capacity: 0.0
+  RABBIT_BARN:
+    display-name: "<green>Rabbit Barn</green>"
+    max-level: 12
+    base-cost: 5000.0
+    cost-multiplier: 1.8
+    chocolate-per-second: 0.0
+    production-multiplier: 0.01
+    click-chocolate: 0.0
+    capacity: 25000000.0
+
+rarity-costs:
+  COMMON: 10000.0
+  UNCOMMON: 50000.0
+  RARE: 250000.0
+  EPIC: 1000000.0
+  LEGENDARY: 5000000.0
+  MYTHIC: 25000000.0
+  DIVINE: 100000000.0
+
+duplicate-multipliers:
+  COMMON: 150.0
+  UNCOMMON: 350.0
+  RARE: 900.0
+  EPIC: 2500.0
+  LEGENDARY: 7500.0
+  MYTHIC: 25000.0
+  DIVINE: 100000.0
+
+egg-rarity-weights:
+  COMMON: 600.0
+  UNCOMMON: 250.0
+  RARE: 100.0
+  EPIC: 35.0
+  LEGENDARY: 12.0
+  MYTHIC: 2.5
+  DIVINE: 0.5
+
+hoppity-shop:
+  slot-rarity-weights:
+    1:
+      COMMON: 80.0
+      UNCOMMON: 20.0
+    2:
+      COMMON: 60.0
+      UNCOMMON: 35.0
+      RARE: 5.0
+    3:
+      UNCOMMON: 65.0
+      RARE: 30.0
+      EPIC: 5.0
+    4:
+      RARE: 70.0
+      EPIC: 25.0
+      LEGENDARY: 5.0
+    5:
+      RARE: 45.0
+      EPIC: 40.0
+      LEGENDARY: 15.0
+    6:
+      EPIC: 50.0
+      LEGENDARY: 35.0
+      MYTHIC: 15.0
+    7:
+      LEGENDARY: 50.0
+      MYTHIC: 35.0
+      DIVINE: 15.0
+
+rabbits:
+  BUNNY:
+    display-name: "<white>Bunny Rabbit</white>"
+    rarity: COMMON
+    weight: 120.0
+    chocolate-per-second: 1.0
+    production-multiplier: 0.002
+    required-factory-level: 1
+  COCOA:
+    display-name: "<white>Cocoa Rabbit</white>"
+    rarity: COMMON
+    weight: 120.0
+    chocolate-per-second: 1.2
+    production-multiplier: 0.002
+    required-factory-level: 1
+  SPRING:
+    display-name: "<green>Spring Rabbit</green>"
+    rarity: UNCOMMON
+    weight: 80.0
+    chocolate-per-second: 3.0
+    production-multiplier: 0.006
+    required-factory-level: 1
+  LUCKY:
+    display-name: "<green>Lucky Rabbit</green>"
+    rarity: UNCOMMON
+    weight: 80.0
+    chocolate-per-second: 3.5
+    production-multiplier: 0.008
+    required-factory-level: 1
+  JACK:
+    display-name: "<blue>Jack Rabbit</blue>"
+    rarity: RARE
+    weight: 45.0
+    chocolate-per-second: 9.0
+    production-multiplier: 0.018
+    required-factory-level: 2
+  FIGARO:
+    display-name: "<blue>Figaro Rabbit</blue>"
+    rarity: RARE
+    weight: 45.0
+    chocolate-per-second: 10.0
+    production-multiplier: 0.02
+    required-factory-level: 2
+  HOPPITY:
+    display-name: "<dark_purple>Hoppity Rabbit</dark_purple>"
+    rarity: EPIC
+    weight: 18.0
+    chocolate-per-second: 24.0
+    production-multiplier: 0.04
+    required-factory-level: 3
+  COMET:
+    display-name: "<gold>Comet Rabbit</gold>"
+    rarity: LEGENDARY
+    weight: 7.0
+    chocolate-per-second: 65.0
+    production-multiplier: 0.08
+    required-factory-level: 4
+  APOLLO:
+    display-name: "<light_purple>Apollo Rabbit</light_purple>"
+    rarity: MYTHIC
+    weight: 2.0
+    chocolate-per-second: 160.0
+    production-multiplier: 0.15
+    required-factory-level: 5
+  SUNSHINE:
+    display-name: "<aqua>Sunshine Rabbit</aqua>"
+    rarity: DIVINE
+    weight: 0.4
+    chocolate-per-second: 450.0
+    production-multiplier: 0.3
+    required-factory-level: 5
+
+chocolate-shop:
+  EGGLOCATOR:
+    display-name: "<yellow>Egglocator</yellow>"
+    item: EGGLOCATOR
+    amount: 1
+    cost: 250000.0
+    required-factory-level: 1
+    annual-stock: 1
+  NIBBLE_CHOCOLATE_STICK:
+    display-name: "<green>Nibble Chocolate Stick</green>"
+    item: NIBBLE_CHOCOLATE_STICK
+    amount: 1
+    cost: 1000000.0
+    required-factory-level: 2
+    annual-stock: 1
+  SUPREME_CHOCOLATE_BAR:
+    display-name: "<gold>Supreme Chocolate Bar</gold>"
+    item: SUPREME_CHOCOLATE_BAR
+    amount: 1
+    cost: 25000000.0
+    required-factory-level: 4
+    annual-stock: 1
+  HOT_CHOCOLATE_MIXIN:
+    display-name: "<light_purple>Hot Chocolate Mixin</light_purple>"
+    item: HOT_CHOCOLATE_MIXIN
+    amount: 1
+    cost: 50000000.0
+    required-factory-level: 5
+    annual-stock: 1

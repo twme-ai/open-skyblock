@@ -48,6 +48,10 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> jerryGiftsOpened = new HashMap<>();
     private final Set<Integer> claimedNewYearCakeYears = new HashSet<>();
     private final Set<Integer> newYearCakeBagYears = new HashSet<>();
+    private final Map<String, Integer> chocolateUpgrades = new HashMap<>();
+    private final Map<String, Integer> chocolateRabbits = new HashMap<>();
+    private final Set<String> hoppityShopPurchases = new HashSet<>();
+    private final Map<String, Integer> chocolateShopPurchases = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -116,6 +120,16 @@ public final class SkyBlockProfile {
     private int jerryGiftAttackWaves;
     private long jerryNorthStars;
     private boolean newYearCakeBagOwned;
+    private double chocolate;
+    private double allTimeChocolate;
+    private double chocolateThisPrestige;
+    private double chocolateSpent;
+    private long chocolateLastAccrualMillis;
+    private int chocolateFactoryLevel = 1;
+    private long hoppityEggsFound;
+    private String hoppityEggClaimKey;
+    private int hoppityShopYear;
+    private int chocolateShopYear;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -1120,6 +1134,179 @@ public final class SkyBlockProfile {
 
     public Set<Integer> newYearCakeBagYears() {
         return newYearCakeBagYears;
+    }
+
+    public double chocolate() {
+        return chocolate;
+    }
+
+    public void chocolate(double chocolate) {
+        this.chocolate = Math.max(0.0D, chocolate);
+    }
+
+    public void addChocolate(double amount) {
+        chocolate(chocolate + amount);
+    }
+
+    public double allTimeChocolate() {
+        return allTimeChocolate;
+    }
+
+    public void allTimeChocolate(double allTimeChocolate) {
+        this.allTimeChocolate = Math.max(0.0D, allTimeChocolate);
+    }
+
+    public void addAllTimeChocolate(double amount) {
+        allTimeChocolate(allTimeChocolate + amount);
+    }
+
+    public double chocolateThisPrestige() {
+        return chocolateThisPrestige;
+    }
+
+    public void chocolateThisPrestige(double chocolateThisPrestige) {
+        this.chocolateThisPrestige = Math.max(0.0D, chocolateThisPrestige);
+    }
+
+    public void addChocolateThisPrestige(double amount) {
+        chocolateThisPrestige(chocolateThisPrestige + amount);
+    }
+
+    public double chocolateSpent() {
+        return chocolateSpent;
+    }
+
+    public void chocolateSpent(double chocolateSpent) {
+        this.chocolateSpent = Math.max(0.0D, chocolateSpent);
+    }
+
+    public void addChocolateSpent(double amount) {
+        chocolateSpent(chocolateSpent + amount);
+    }
+
+    public long chocolateLastAccrualMillis() {
+        return chocolateLastAccrualMillis;
+    }
+
+    public void chocolateLastAccrualMillis(long chocolateLastAccrualMillis) {
+        this.chocolateLastAccrualMillis = Math.max(0L, chocolateLastAccrualMillis);
+    }
+
+    public int chocolateFactoryLevel() {
+        return Math.max(1, chocolateFactoryLevel);
+    }
+
+    public void chocolateFactoryLevel(int chocolateFactoryLevel) {
+        this.chocolateFactoryLevel = Math.max(1, chocolateFactoryLevel);
+    }
+
+    public int chocolateUpgradeLevel(String upgradeId) {
+        return chocolateUpgrades.getOrDefault(upgradeId.toUpperCase(), 0);
+    }
+
+    public void setChocolateUpgradeLevel(String upgradeId, int level) {
+        String normalized = upgradeId.toUpperCase();
+        if (level <= 0) {
+            chocolateUpgrades.remove(normalized);
+            return;
+        }
+        chocolateUpgrades.put(normalized, level);
+    }
+
+    public Map<String, Integer> chocolateUpgrades() {
+        return chocolateUpgrades;
+    }
+
+    public int chocolateRabbitCopies(String rabbitId) {
+        return chocolateRabbits.getOrDefault(rabbitId.toUpperCase(), 0);
+    }
+
+    public void setChocolateRabbitCopies(String rabbitId, int copies) {
+        String normalized = rabbitId.toUpperCase();
+        if (copies <= 0) {
+            chocolateRabbits.remove(normalized);
+            return;
+        }
+        chocolateRabbits.put(normalized, copies);
+    }
+
+    public int addChocolateRabbit(String rabbitId) {
+        int copies = chocolateRabbitCopies(rabbitId) + 1;
+        setChocolateRabbitCopies(rabbitId, copies);
+        return copies;
+    }
+
+    public Map<String, Integer> chocolateRabbits() {
+        return chocolateRabbits;
+    }
+
+    public long hoppityEggsFound() {
+        return hoppityEggsFound;
+    }
+
+    public void hoppityEggsFound(long hoppityEggsFound) {
+        this.hoppityEggsFound = Math.max(0L, hoppityEggsFound);
+    }
+
+    public void addHoppityEggsFound(long amount) {
+        hoppityEggsFound(hoppityEggsFound + amount);
+    }
+
+    public String hoppityEggClaimKey() {
+        return hoppityEggClaimKey;
+    }
+
+    public void hoppityEggClaimKey(String hoppityEggClaimKey) {
+        this.hoppityEggClaimKey = hoppityEggClaimKey;
+    }
+
+    public int hoppityShopYear() {
+        return hoppityShopYear;
+    }
+
+    public void hoppityShopYear(int hoppityShopYear) {
+        this.hoppityShopYear = Math.max(0, hoppityShopYear);
+    }
+
+    public boolean hasHoppityShopPurchase(String rabbitId) {
+        return hoppityShopPurchases.contains(rabbitId.toUpperCase());
+    }
+
+    public boolean addHoppityShopPurchase(String rabbitId) {
+        return hoppityShopPurchases.add(rabbitId.toUpperCase());
+    }
+
+    public Set<String> hoppityShopPurchases() {
+        return hoppityShopPurchases;
+    }
+
+    public int chocolateShopYear() {
+        return chocolateShopYear;
+    }
+
+    public void chocolateShopYear(int chocolateShopYear) {
+        this.chocolateShopYear = Math.max(0, chocolateShopYear);
+    }
+
+    public int chocolateShopPurchases(String itemId) {
+        return chocolateShopPurchases.getOrDefault(itemId.toUpperCase(), 0);
+    }
+
+    public void setChocolateShopPurchases(String itemId, int purchases) {
+        String normalized = itemId.toUpperCase();
+        if (purchases <= 0) {
+            chocolateShopPurchases.remove(normalized);
+            return;
+        }
+        chocolateShopPurchases.put(normalized, purchases);
+    }
+
+    public void addChocolateShopPurchase(String itemId, int amount) {
+        setChocolateShopPurchases(itemId, chocolateShopPurchases(itemId) + amount);
+    }
+
+    public Map<String, Integer> chocolateShopPurchases() {
+        return chocolateShopPurchases;
     }
 
     public String shopPurchaseDay() {

@@ -326,6 +326,39 @@ public final class ProfileManager {
         for (Integer year : section.getIntegerList("new-year.cake-bag-years")) {
             profile.storeNewYearCake(year);
         }
+        profile.chocolate(section.getDouble("chocolate-factory.chocolate", 0.0D));
+        profile.allTimeChocolate(section.getDouble("chocolate-factory.all-time", 0.0D));
+        profile.chocolateThisPrestige(section.getDouble("chocolate-factory.this-prestige", 0.0D));
+        profile.chocolateSpent(section.getDouble("chocolate-factory.spent", 0.0D));
+        profile.chocolateLastAccrualMillis(section.getLong("chocolate-factory.last-accrual-millis", 0L));
+        profile.chocolateFactoryLevel(section.getInt("chocolate-factory.factory-level", 1));
+        profile.hoppityEggsFound(section.getLong("chocolate-factory.hoppity-eggs", 0L));
+        profile.hoppityEggClaimKey(section.getString("chocolate-factory.hoppity-egg-claim-key", null));
+        profile.hoppityShopYear(section.getInt("chocolate-factory.hoppity-shop-year", 0));
+        profile.chocolateShopYear(section.getInt("chocolate-factory.shop-year", 0));
+        ConfigurationSection chocolateUpgrades = section.getConfigurationSection("chocolate-factory.upgrades");
+        if (chocolateUpgrades != null) {
+            for (String upgradeId : chocolateUpgrades.getKeys(false)) {
+                profile.setChocolateUpgradeLevel(upgradeId.toUpperCase(), chocolateUpgrades.getInt(upgradeId, 0));
+            }
+        }
+        ConfigurationSection chocolateRabbits = section.getConfigurationSection("chocolate-factory.rabbits");
+        if (chocolateRabbits != null) {
+            for (String rabbitId : chocolateRabbits.getKeys(false)) {
+                profile.setChocolateRabbitCopies(rabbitId.toUpperCase(), chocolateRabbits.getInt(rabbitId, 0));
+            }
+        }
+        for (String rabbitId : section.getStringList("chocolate-factory.hoppity-shop-purchases")) {
+            if (rabbitId != null && !rabbitId.isBlank()) {
+                profile.addHoppityShopPurchase(rabbitId);
+            }
+        }
+        ConfigurationSection chocolateShopPurchases = section.getConfigurationSection("chocolate-factory.shop-purchases");
+        if (chocolateShopPurchases != null) {
+            for (String itemId : chocolateShopPurchases.getKeys(false)) {
+                profile.setChocolateShopPurchases(itemId.toUpperCase(), chocolateShopPurchases.getInt(itemId, 0));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -907,6 +940,33 @@ public final class ProfileManager {
         profileData.set(base + ".new-year.claimed-cakes", profile.claimedNewYearCakeYears().stream().sorted().toList());
         profileData.set(base + ".new-year.cake-bag-owned", profile.newYearCakeBagOwned());
         profileData.set(base + ".new-year.cake-bag-years", profile.newYearCakeBagYears().stream().sorted().toList());
+        profileData.set(base + ".chocolate-factory", null);
+        profileData.set(base + ".chocolate-factory.chocolate", profile.chocolate());
+        profileData.set(base + ".chocolate-factory.all-time", profile.allTimeChocolate());
+        profileData.set(base + ".chocolate-factory.this-prestige", profile.chocolateThisPrestige());
+        profileData.set(base + ".chocolate-factory.spent", profile.chocolateSpent());
+        profileData.set(base + ".chocolate-factory.last-accrual-millis", profile.chocolateLastAccrualMillis());
+        profileData.set(base + ".chocolate-factory.factory-level", profile.chocolateFactoryLevel());
+        profileData.set(base + ".chocolate-factory.hoppity-eggs", profile.hoppityEggsFound());
+        profileData.set(base + ".chocolate-factory.hoppity-egg-claim-key", profile.hoppityEggClaimKey());
+        profileData.set(base + ".chocolate-factory.hoppity-shop-year", profile.hoppityShopYear());
+        profileData.set(base + ".chocolate-factory.hoppity-shop-purchases", profile.hoppityShopPurchases().stream().sorted().toList());
+        profileData.set(base + ".chocolate-factory.shop-year", profile.chocolateShopYear());
+        for (Map.Entry<String, Integer> entry : profile.chocolateUpgrades().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".chocolate-factory.upgrades." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Integer> entry : profile.chocolateRabbits().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".chocolate-factory.rabbits." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Integer> entry : profile.chocolateShopPurchases().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".chocolate-factory.shop-purchases." + entry.getKey(), entry.getValue());
+            }
+        }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
         profileData.set(base + ".shop-purchases.items", null);
         for (Map.Entry<String, Integer> entry : profile.dailyShopPurchases().entrySet()) {
