@@ -15,6 +15,7 @@ import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.cookie.CookieService;
 import io.github.openskyblock.darkauction.DarkAuctionService;
+import io.github.openskyblock.dungeon.DungeonService;
 import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.equipment.EquipmentService;
@@ -93,6 +94,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private CommissionService commissionService;
     private ForgeService forgeService;
     private ExperimentService experimentService;
+    private DungeonService dungeonService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -153,6 +155,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.commissionService = new CommissionService(configService, textService, profileManager, economyService, skillService);
         this.customItemService = new CustomItemService(this, configService, textService);
         this.experimentService = new ExperimentService(configService, textService, profileManager, economyService, skillService, customItemService);
+        this.dungeonService = new DungeonService(configService, textService, profileManager, economyService, skillService, customItemService);
         this.forgeService = new ForgeService(configService, textService, profileManager, economyService, customItemService);
         this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
         this.skillService.museumService(museumService);
@@ -296,6 +299,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         commissionService.reload();
         customItemService.reload();
         experimentService.reload();
+        dungeonService.reload();
         forgeService.reload();
         museumService.reload();
         cookieService.reload();
@@ -455,6 +459,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public ExperimentService experiments() {
         return experimentService;
+    }
+
+    public DungeonService dungeons() {
+        return dungeonService;
     }
 
     public MayorService mayors() {

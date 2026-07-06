@@ -25,6 +25,8 @@ public final class SkyBlockProfile {
     private final Set<String> fairySouls = new HashSet<>();
     private final Map<String, Map<String, Long>> trophyFish = new HashMap<>();
     private final Map<String, Integer> experimentCompletions = new HashMap<>();
+    private final Map<String, Integer> dungeonCompletions = new HashMap<>();
+    private final Map<String, Double> dungeonClassXp = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -59,6 +61,9 @@ public final class SkyBlockProfile {
     private String shopPurchaseDay;
     private String experimentDay;
     private int experimentBonusClicks;
+    private String selectedDungeonClass;
+    private String dungeonRunDay;
+    private int dailyDungeonRuns;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -272,6 +277,76 @@ public final class SkyBlockProfile {
 
     public void addExperimentBonusClicks(int amount) {
         experimentBonusClicks(experimentBonusClicks + amount);
+    }
+
+    public int dungeonCompletions(String floorId) {
+        return dungeonCompletions.getOrDefault(floorId.toUpperCase(), 0);
+    }
+
+    public void setDungeonCompletions(String floorId, int amount) {
+        String normalized = floorId.toUpperCase();
+        if (amount <= 0) {
+            dungeonCompletions.remove(normalized);
+            return;
+        }
+        dungeonCompletions.put(normalized, amount);
+    }
+
+    public void addDungeonCompletion(String floorId, int amount) {
+        setDungeonCompletions(floorId, dungeonCompletions(floorId) + amount);
+    }
+
+    public Map<String, Integer> dungeonCompletions() {
+        return dungeonCompletions;
+    }
+
+    public double dungeonClassXp(String classId) {
+        return dungeonClassXp.getOrDefault(classId.toUpperCase(), 0.0D);
+    }
+
+    public void setDungeonClassXp(String classId, double xp) {
+        String normalized = classId.toUpperCase();
+        if (xp <= 0.0D) {
+            dungeonClassXp.remove(normalized);
+            return;
+        }
+        dungeonClassXp.put(normalized, xp);
+    }
+
+    public void addDungeonClassXp(String classId, double xp) {
+        setDungeonClassXp(classId, dungeonClassXp(classId) + xp);
+    }
+
+    public Map<String, Double> dungeonClassXp() {
+        return dungeonClassXp;
+    }
+
+    public String selectedDungeonClass() {
+        return selectedDungeonClass;
+    }
+
+    public void selectedDungeonClass(String selectedDungeonClass) {
+        this.selectedDungeonClass = selectedDungeonClass == null ? null : selectedDungeonClass.toUpperCase();
+    }
+
+    public String dungeonRunDay() {
+        return dungeonRunDay;
+    }
+
+    public void dungeonRunDay(String dungeonRunDay) {
+        this.dungeonRunDay = dungeonRunDay;
+    }
+
+    public int dailyDungeonRuns() {
+        return dailyDungeonRuns;
+    }
+
+    public void dailyDungeonRuns(int dailyDungeonRuns) {
+        this.dailyDungeonRuns = Math.max(0, dailyDungeonRuns);
+    }
+
+    public void addDailyDungeonRun() {
+        dailyDungeonRuns(dailyDungeonRuns + 1);
     }
 
     public String shopPurchaseDay() {

@@ -87,6 +87,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "experiments",
             "experiment",
             "etable",
+            "dungeons",
+            "dungeon",
+            "catacombs",
             "stars",
             "star",
             "essence",
@@ -186,6 +189,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "enchant" -> enchant(sender, args);
             case "anvil" -> anvil(sender);
             case "experiments", "experiment", "etable" -> experiments(sender, args);
+            case "dungeons", "dungeon", "catacombs" -> dungeons(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -409,6 +413,18 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && isExperimentCommand(args[0]) && args[1].equalsIgnoreCase("run")) {
             return startsWith(plugin.experiments().experimentIds(), args[2]);
+        }
+        if (args.length == 2 && isDungeonCommand(args[0])) {
+            return startsWith(List.of("status", "floors", "classes", "class", "run"), args[1]);
+        }
+        if (args.length == 3 && isDungeonCommand(args[0]) && args[1].equalsIgnoreCase("class")) {
+            return startsWith(plugin.dungeons().classIds(), args[2]);
+        }
+        if (args.length == 3 && isDungeonCommand(args[0]) && args[1].equalsIgnoreCase("run")) {
+            return startsWith(plugin.dungeons().floorIds(), args[2]);
+        }
+        if (args.length == 4 && isDungeonCommand(args[0]) && args[1].equalsIgnoreCase("run")) {
+            return startsWith(List.of("100", "230", "270", "300"), args[3]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
@@ -644,6 +660,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " enchant [id|anvil] [level]", "commands.help.enchant");
         helpLine(sender, label + " anvil", "commands.help.anvil");
         helpLine(sender, label + " experiments status|list|run", "commands.help.experiments");
+        helpLine(sender, label + " dungeons status|floors|classes|run", "commands.help.dungeons");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1461,6 +1478,44 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.experiments().run(player, args[2]);
             }
             default -> plugin.text().send(player, "commands.experiment-usage");
+        }
+    }
+
+    private void dungeons(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.dungeons().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "floors", "floor", "list" -> plugin.dungeons().sendFloors(player);
+            case "classes" -> plugin.dungeons().sendClasses(player);
+            case "class" -> {
+                if (args.length < 3) {
+                    plugin.dungeons().sendClasses(player);
+                    return;
+                }
+                plugin.dungeons().selectClass(player, args[2]);
+            }
+            case "run", "complete" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.dungeon-usage");
+                    return;
+                }
+                int score = 300;
+                if (args.length >= 4) {
+                    Optional<Integer> parsed = parseNonNegativeInt(player, args[3]);
+                    if (parsed.isEmpty()) {
+                        return;
+                    }
+                    score = parsed.get();
+                }
+                plugin.dungeons().run(player, args[2], score);
+            }
+            default -> plugin.text().send(player, "commands.dungeon-usage");
         }
     }
 
@@ -2604,6 +2659,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isExperimentCommand(String value) {
         return value.equalsIgnoreCase("experiment") || value.equalsIgnoreCase("experiments") || value.equalsIgnoreCase("etable");
+    }
+
+    private boolean isDungeonCommand(String value) {
+        return value.equalsIgnoreCase("dungeon") || value.equalsIgnoreCase("dungeons") || value.equalsIgnoreCase("catacombs");
     }
 
     private boolean isUpgradeCommand(String value) {

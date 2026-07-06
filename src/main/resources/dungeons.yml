@@ -1,0 +1,317 @@
+settings:
+  max-score: 300
+  daily-bonus-runs: 5
+  daily-bonus-multiplier: 1.4
+  default-class: BERSERK
+
+classes:
+  ARCHER:
+    display-name: "<green>Archer</green>"
+    description: "Ranged damage class focused on bows and critical hits."
+  BERSERK:
+    display-name: "<red>Berserk</red>"
+    description: "Melee damage class focused on lifesteal and aggressive clears."
+  MAGE:
+    display-name: "<aqua>Mage</aqua>"
+    description: "Ability damage class focused on Intelligence and area control."
+  TANK:
+    display-name: "<gray>Tank</gray>"
+    description: "Defensive class focused on damage reduction and protecting allies."
+  HEALER:
+    display-name: "<light_purple>Healer</light_purple>"
+    description: "Support class focused on recovery and team sustain."
+
+floors:
+  ENTRANCE:
+    display-name: "<gray>Catacombs Entrance</gray>"
+    boss: "The Watcher"
+    required-catacombs-level: 0
+    base-xp: 25.0
+    completion-coins: 250.0
+    chests:
+      WOOD:
+        display-name: "<yellow>Wood Chest</yellow>"
+        min-score: 0
+        cost: 0.0
+        reward-rolls: 1
+        rewards:
+          - type: VANILLA
+            material: BONE
+            amount: 16
+            weight: 60.0
+          - type: COINS
+            coins: 500.0
+            weight: 30.0
+          - type: CUSTOM_ITEM
+            item: ENCHANTED_BOOK
+            amount: 1
+            weight: 10.0
+  FLOOR_1:
+    display-name: "<green>Catacombs Floor I</green>"
+    boss: "Bonzo"
+    required-catacombs-level: 1
+    base-xp: 80.0
+    completion-coins: 1000.0
+    chests:
+      WOOD:
+        display-name: "<yellow>Wood Chest</yellow>"
+        min-score: 0
+        cost: 0.0
+        reward-rolls: 1
+        rewards:
+          - type: VANILLA
+            material: BONE
+            amount: 24
+            weight: 55.0
+          - type: COINS
+            coins: 1500.0
+            weight: 35.0
+          - type: CUSTOM_ITEM
+            item: ENCHANTED_BOOK
+            amount: 1
+            weight: 10.0
+      EMERALD:
+        display-name: "<green>Emerald Chest</green>"
+        min-score: 230
+        cost: 1000.0
+        reward-rolls: 1
+        rewards:
+          - type: VANILLA
+            material: EMERALD
+            amount: 8
+            weight: 55.0
+          - type: CUSTOM_ITEM
+            item: BONZO_STAFF
+            amount: 1
+            weight: 8.0
+          - type: CUSTOM_ITEM
+            item: RECOMBOBULATOR_3000
+            amount: 1
+            weight: 2.0
+      OBSIDIAN:
+        display-name: "<dark_purple>Obsidian Chest</dark_purple>"
+        min-score: 270
+        cost: 5000.0
+        reward-rolls: 2
+        rewards:
+          - type: VANILLA
+            material: OBSIDIAN
+            amount: 16
+            weight: 65.0
+          - type: CUSTOM_ITEM
+            item: BONZO_STAFF
+            amount: 1
+            weight: 12.0
+          - type: CUSTOM_ITEM
+            item: RECOMBOBULATOR_3000
+            amount: 1
+            weight: 3.0
+  FLOOR_2:
+    display-name: "<yellow>Catacombs Floor II</yellow>"
+    boss: "Scarf"
+    required-catacombs-level: 2
+    base-xp: 160.0
+    completion-coins: 2000.0
+    chests:
+      WOOD:
+        display-name: "<yellow>Wood Chest</yellow>"
+        min-score: 0
+        cost: 0.0
+        reward-rolls: 1
+        rewards:
+          - type: VANILLA
+            material: ROTTEN_FLESH
+            amount: 24
+            weight: 50.0
+          - type: COINS
+            coins: 2500.0
+            weight: 35.0
+          - type: CUSTOM_ITEM
+            item: ENCHANTED_BOOK
+            amount: 1
+            weight: 15.0
+      OBSIDIAN:
+        display-name: "<dark_purple>Obsidian Chest</dark_purple>"
+        min-score: 270
+        cost: 12000.0
+        reward-rolls: 2
+        rewards:
+          - type: VANILLA
+            material: EMERALD
+            amount: 16
+            weight: 55.0
+          - type: CUSTOM_ITEM
+            item: SCARF_STUDIES
+            amount: 1
+            weight: 12.0
+          - type: CUSTOM_ITEM
+            item: RECOMBOBULATOR_3000
+            amount: 1
+            weight: 3.0
+  FLOOR_3:
+    display-name: "<aqua>Catacombs Floor III</aqua>"
+    boss: "The Professor"
+    required-catacombs-level: 3
+    base-xp: 320.0
+    completion-coins: 3500.0
+    chests:
+      WOOD:
+        display-name: "<yellow>Wood Chest</yellow>"
+        min-score: 0
+        cost: 0.0
+        reward-rolls: 1
+        rewards:
+          - type: VANILLA
+            material: PRISMARINE_SHARD
+            amount: 24
+            weight: 55.0
+          - type: COINS
+            coins: 4000.0
+            weight: 35.0
+          - type: CUSTOM_ITEM
+            item: ENCHANTED_BOOK
+            amount: 1
+            weight: 10.0
+      OBSIDIAN:
+        display-name: "<dark_purple>Obsidian Chest</dark_purple>"
+        min-score: 270
+        cost: 20000.0
+        reward-rolls: 2
+        rewards:
+          - type: VANILLA
+            material: DIAMOND
+            amount: 16
+            weight: 55.0
+          - type: CUSTOM_ITEM
+            item: ADAPTIVE_FRAGMENT
+            amount: 2
+            weight: 18.0
+          - type: CUSTOM_ITEM
+            item: RECOMBOBULATOR_3000
+            amount: 1
+            weight: 3.0
+  FLOOR_4:
+    display-name: "<light_purple>Catacombs Floor IV</light_purple>"
+    boss: "Thorn"
+    required-catacombs-level: 4
+    base-xp: 640.0
+    completion-coins: 5000.0
+    chests:
+      WOOD:
+        display-name: "<yellow>Wood Chest</yellow>"
+        min-score: 0
+        cost: 0.0
+        reward-rolls: 1
+        rewards:
+          - type: VANILLA
+            material: BONE
+            amount: 48
+            weight: 55.0
+          - type: COINS
+            coins: 6500.0
+            weight: 35.0
+          - type: CUSTOM_ITEM
+            item: ENCHANTED_BOOK
+            amount: 1
+            weight: 10.0
+      OBSIDIAN:
+        display-name: "<dark_purple>Obsidian Chest</dark_purple>"
+        min-score: 270
+        cost: 35000.0
+        reward-rolls: 2
+        rewards:
+          - type: VANILLA
+            material: FEATHER
+            amount: 32
+            weight: 55.0
+          - type: CUSTOM_ITEM
+            item: SPIRIT_BOW
+            amount: 1
+            weight: 10.0
+          - type: CUSTOM_ITEM
+            item: RECOMBOBULATOR_3000
+            amount: 1
+            weight: 3.0
+  FLOOR_5:
+    display-name: "<gold>Catacombs Floor V</gold>"
+    boss: "Livid"
+    required-catacombs-level: 5
+    base-xp: 1200.0
+    completion-coins: 7500.0
+    chests:
+      OBSIDIAN:
+        display-name: "<dark_purple>Obsidian Chest</dark_purple>"
+        min-score: 270
+        cost: 50000.0
+        reward-rolls: 2
+        rewards:
+          - type: VANILLA
+            material: DIAMOND
+            amount: 32
+            weight: 50.0
+          - type: CUSTOM_ITEM
+            item: LIVID_DAGGER
+            amount: 1
+            weight: 10.0
+          - type: CUSTOM_ITEM
+            item: SHADOW_FURY
+            amount: 1
+            weight: 3.0
+          - type: CUSTOM_ITEM
+            item: RECOMBOBULATOR_3000
+            amount: 1
+            weight: 3.0
+  FLOOR_6:
+    display-name: "<red>Catacombs Floor VI</red>"
+    boss: "Sadan"
+    required-catacombs-level: 6
+    base-xp: 2400.0
+    completion-coins: 10000.0
+    chests:
+      BEDROCK:
+        display-name: "<white>Bedrock Chest</white>"
+        min-score: 300
+        cost: 100000.0
+        reward-rolls: 3
+        rewards:
+          - type: VANILLA
+            material: DIAMOND_BLOCK
+            amount: 8
+            weight: 50.0
+          - type: CUSTOM_ITEM
+            item: GIANT_SWORD
+            amount: 1
+            weight: 4.0
+          - type: CUSTOM_ITEM
+            item: RECOMBOBULATOR_3000
+            amount: 1
+            weight: 4.0
+  FLOOR_7:
+    display-name: "<dark_red>Catacombs Floor VII</dark_red>"
+    boss: "Necron"
+    required-catacombs-level: 7
+    base-xp: 5000.0
+    completion-coins: 20000.0
+    chests:
+      BEDROCK:
+        display-name: "<white>Bedrock Chest</white>"
+        min-score: 300
+        cost: 250000.0
+        reward-rolls: 3
+        rewards:
+          - type: VANILLA
+            material: NETHER_STAR
+            amount: 1
+            weight: 45.0
+          - type: CUSTOM_ITEM
+            item: WITHER_CATALYST
+            amount: 1
+            weight: 16.0
+          - type: CUSTOM_ITEM
+            item: NECRON_HANDLE
+            amount: 1
+            weight: 2.0
+          - type: CUSTOM_ITEM
+            item: RECOMBOBULATOR_3000
+            amount: 1
+            weight: 4.0

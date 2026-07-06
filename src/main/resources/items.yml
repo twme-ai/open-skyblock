@@ -26,6 +26,94 @@ items:
       - "<gray>Consumed to permanently increase the rarity of one compatible item.</gray>"
       - "<gray>Use <yellow>/skyblock recombobulate</yellow> while holding the target item.</gray>"
     stats: {}
+  BONZO_STAFF:
+    material: BLAZE_ROD
+    display-name: "<blue>Bonzo's Staff</blue>"
+    category: WEAPON
+    rarity: RARE
+    lore:
+      - "<gray>A clownish Catacombs wand from Floor I.</gray>"
+      - "<gray>Useful for early Mage progression.</gray>"
+    stats:
+      damage: 80.0
+      intelligence: 150.0
+  SCARF_STUDIES:
+    material: BOOK
+    display-name: "<blue>Scarf's Studies</blue>"
+    category: ACCESSORY
+    rarity: RARE
+    lore:
+      - "<gray>A Dungeon accessory inspired by Scarf's lessons.</gray>"
+    stats:
+      intelligence: 10.0
+  ADAPTIVE_FRAGMENT:
+    material: PRISMARINE_SHARD
+    display-name: "<dark_purple>Adaptive Fragment</dark_purple>"
+    category: ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>A flexible crafting fragment from The Professor.</gray>"
+    stats: {}
+  SPIRIT_BOW:
+    material: BOW
+    display-name: "<dark_purple>Spirit Bow</dark_purple>"
+    category: WEAPON
+    rarity: EPIC
+    lore:
+      - "<gray>A Catacombs bow tied to Thorn's arena.</gray>"
+    stats:
+      damage: 210.0
+      strength: 50.0
+      crit_damage: 10.0
+  LIVID_DAGGER:
+    material: IRON_SWORD
+    display-name: "<gold>Livid Dagger</gold>"
+    category: WEAPON
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A fast Floor V dagger for Berserk builds.</gray>"
+    stats:
+      damage: 210.0
+      strength: 60.0
+      crit_chance: 100.0
+      crit_damage: 50.0
+  SHADOW_FURY:
+    material: NETHERITE_SWORD
+    display-name: "<gold>Shadow Fury</gold>"
+    category: WEAPON
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A rare Floor V blade for burst melee damage.</gray>"
+    stats:
+      damage: 300.0
+      strength: 125.0
+      crit_damage: 30.0
+  GIANT_SWORD:
+    material: IRON_SWORD
+    display-name: "<gold>Giant's Sword</gold>"
+    category: WEAPON
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A massive Floor VI sword dropped from Sadan.</gray>"
+    stats:
+      damage: 500.0
+      strength: 50.0
+  WITHER_CATALYST:
+    material: WITHER_SKELETON_SKULL
+    display-name: "<dark_purple>Wither Catalyst</dark_purple>"
+    category: ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>A volatile crafting item from Necron's vault.</gray>"
+    stats: {}
+  NECRON_HANDLE:
+    material: TRIPWIRE_HOOK
+    display-name: "<gold>Necron's Handle</gold>"
+    category: ITEM
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A legendary Floor VII reward component.</gray>"
+    stats: {}
   AGRONOMY_SACK:
     material: WHEAT
     display-name: "<green>Agronomy Sack</green>"

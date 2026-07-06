@@ -165,6 +165,21 @@ public final class ProfileManager {
                 profile.setExperimentCompletions(experimentId.toUpperCase(), experiments.getInt(experimentId, 0));
             }
         }
+        profile.selectedDungeonClass(section.getString("dungeons.selected-class", null));
+        profile.dungeonRunDay(section.getString("dungeons.daily.day", null));
+        profile.dailyDungeonRuns(section.getInt("dungeons.daily.runs", 0));
+        ConfigurationSection dungeonCompletions = section.getConfigurationSection("dungeons.completions");
+        if (dungeonCompletions != null) {
+            for (String floorId : dungeonCompletions.getKeys(false)) {
+                profile.setDungeonCompletions(floorId.toUpperCase(), dungeonCompletions.getInt(floorId, 0));
+            }
+        }
+        ConfigurationSection dungeonClassXp = section.getConfigurationSection("dungeons.class-xp");
+        if (dungeonClassXp != null) {
+            for (String classId : dungeonClassXp.getKeys(false)) {
+                profile.setDungeonClassXp(classId.toUpperCase(), dungeonClassXp.getDouble(classId, 0.0D));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -611,6 +626,20 @@ public final class ProfileManager {
         for (Map.Entry<String, Integer> entry : profile.experimentCompletions().entrySet()) {
             if (entry.getValue() > 0) {
                 profileData.set(base + ".experiments.completions." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".dungeons", null);
+        profileData.set(base + ".dungeons.selected-class", profile.selectedDungeonClass());
+        profileData.set(base + ".dungeons.daily.day", profile.dungeonRunDay());
+        profileData.set(base + ".dungeons.daily.runs", profile.dailyDungeonRuns());
+        for (Map.Entry<String, Integer> entry : profile.dungeonCompletions().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".dungeons.completions." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Double> entry : profile.dungeonClassXp().entrySet()) {
+            if (entry.getValue() > 0.0D) {
+                profileData.set(base + ".dungeons.class-xp." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
