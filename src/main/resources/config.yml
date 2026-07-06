@@ -12,6 +12,7 @@ features:
   npc-shops: true
   physical-shop-npcs: true
   reforges: true
+  enchantments: true
   pets: true
   accessory-bag: true
   accessory-tuning: true

@@ -1,0 +1,89 @@
+settings:
+  remove-cost: 0.0
+  base-costs:
+    COMMON: 100.0
+    UNCOMMON: 250.0
+    RARE: 500.0
+    EPIC: 1000.0
+    LEGENDARY: 2500.0
+    MYTHIC: 5000.0
+    SPECIAL: 500.0
+
+enchantments:
+  SHARPNESS:
+    display-name: "<blue>Sharpness</blue>"
+    ultimate: false
+    max-level: 5
+    allowed-categories:
+      - SWORD
+    cost-multiplier: 1.0
+    lore:
+      - "<gray>Increases weapon damage.</gray>"
+    stats-per-level:
+      damage: 5.0
+  CRITICAL:
+    display-name: "<blue>Critical</blue>"
+    ultimate: false
+    max-level: 5
+    allowed-categories:
+      - SWORD
+    cost-multiplier: 1.0
+    lore:
+      - "<gray>Improves critical damage.</gray>"
+    stats-per-level:
+      crit_damage: 10.0
+  ENDER_SLAYER:
+    display-name: "<blue>Ender Slayer</blue>"
+    ultimate: false
+    max-level: 5
+    allowed-categories:
+      - SWORD
+    cost-multiplier: 1.1
+    lore:
+      - "<gray>Adds general combat strength in this foundation build.</gray>"
+    stats-per-level:
+      strength: 4.0
+  GROWTH:
+    display-name: "<blue>Growth</blue>"
+    ultimate: false
+    max-level: 5
+    allowed-categories:
+      - ARMOR
+    cost-multiplier: 1.0
+    lore:
+      - "<gray>Increases health.</gray>"
+    stats-per-level:
+      health: 15.0
+  PROTECTION:
+    display-name: "<blue>Protection</blue>"
+    ultimate: false
+    max-level: 5
+    allowed-categories:
+      - ARMOR
+    cost-multiplier: 1.0
+    lore:
+      - "<gray>Increases defense.</gray>"
+    stats-per-level:
+      defense: 3.0
+  ULTIMATE_WISE:
+    display-name: "<light_purple>Ultimate Wise</light_purple>"
+    ultimate: true
+    max-level: 5
+    allowed-categories:
+      - SWORD
+    cost-multiplier: 5.0
+    lore:
+      - "<gray>Improves mana-focused weapons in this foundation build.</gray>"
+    stats-per-level:
+      intelligence: 10.0
+  LAST_STAND:
+    display-name: "<light_purple>Last Stand</light_purple>"
+    ultimate: true
+    max-level: 5
+    allowed-categories:
+      - ARMOR
+    cost-multiplier: 5.0
+    lore:
+      - "<gray>Improves survivability in this foundation build.</gray>"
+    stats-per-level:
+      defense: 5.0

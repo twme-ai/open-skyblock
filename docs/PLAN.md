@@ -34,6 +34,7 @@ Verified reference links:
 - Official collections reference: https://wiki.hypixel.net/Collections
 - Official minions reference: https://wiki.hypixel.net/Minions
 - Official SkyBlock levels reference: https://wiki.hypixel.net/SkyBlock_Levels
+- Official enchantments reference: https://wiki.hypixel.net/Enchantments
 - Official pets reference: https://wiki.hypixel.net/Pets
 - Official reforging reference: https://wiki.hypixel.net/Reforging
 - Official auction house reference: https://wiki.hypixel.net/Auction_House
@@ -82,8 +83,9 @@ Planned additions when each subsystem needs them:
    - Accessory tuning with Magical Power-derived tuning points and configurable per-stat values is implemented.
    - Configurable armor set IDs and full-set stat bonuses are implemented.
    - Configurable item reforges with item metadata persistence, rarity-scaled stat tables, purse costs, and stat/lore integration are implemented.
+   - Configurable item enchantments with item metadata persistence, max levels, ultimate-enchantment exclusivity, purse costs, and stat/lore integration are implemented.
    - Configurable pet definitions, persistent owned pets, active pet selection, pet XP/levels, pet menu activation, and active pet stat aggregation are implemented.
-   - Pet items, pet score, autopet rules, cosmetic summoned pet entities, advanced reforge stones, reforge anvil UI, potion modifiers, enchantments, gemstones, and ability cooldowns remain future work.
+   - Pet items, pet score, autopet rules, cosmetic summoned pet entities, advanced reforge stones, reforge anvil UI, vanilla/SkyBlock-specific enchantment effects, enchanting table/anvil UI, potion modifiers, gemstones, and ability cooldowns remain future work.
    - Custom mobs, loot tables, spawn zones, boss bars, damage formula, aggro, and death rewards.
 
 5. Economy
@@ -111,4 +113,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, armor set bonuses, item reforges, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, armor set bonuses, item reforges, item enchantments, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

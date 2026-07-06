@@ -4,6 +4,7 @@ import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.accessory.TuningService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
@@ -27,8 +28,9 @@ public final class StatService {
     private final ArmorSetService armorSets;
     private final PetService pets;
     private final ReforgeService reforges;
+    private final EnchantmentService enchantments;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets, ReforgeService reforges) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets, ReforgeService reforges, EnchantmentService enchantments) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
@@ -38,6 +40,7 @@ public final class StatService {
         this.armorSets = armorSets;
         this.pets = pets;
         this.reforges = reforges;
+        this.enchantments = enchantments;
     }
 
     public StatSnapshot snapshot(Player player) {
@@ -156,6 +159,10 @@ public final class StatService {
             stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
         }
         for (Map.Entry<String, Double> entry : reforges.stats(itemStack, definition).entrySet()) {
+            String stat = StatSnapshot.normalize(entry.getKey());
+            stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
+        }
+        for (Map.Entry<String, Double> entry : enchantments.stats(itemStack, definition).entrySet()) {
             String stat = StatSnapshot.normalize(entry.getKey());
             stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
         }

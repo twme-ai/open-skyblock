@@ -2,6 +2,7 @@ package io.github.openskyblock.command;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
 import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.SkyBlockProfile;
@@ -35,6 +36,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "sell",
             "reforges",
             "reforge",
+            "enchants",
+            "enchantments",
+            "enchant",
             "accessorybag",
             "tuning",
             "pets",
@@ -78,6 +82,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "sell" -> sell(sender, args);
             case "reforges" -> reforges(sender);
             case "reforge" -> reforge(sender, args);
+            case "enchants", "enchantments" -> enchants(sender);
+            case "enchant" -> enchant(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
             case "pets" -> pets(sender);
@@ -123,6 +129,18 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             values.add("remove");
             values.addAll(plugin.reforges().definitions().stream().map(ReforgeDefinition::id).toList());
             return startsWith(values, args[1]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("enchant")) {
+            List<String> values = new ArrayList<>();
+            values.add("remove");
+            values.addAll(plugin.enchantments().definitions().stream().map(SkyBlockEnchantmentDefinition::id).toList());
+            return startsWith(values, args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("enchant") && args[1].equalsIgnoreCase("remove")) {
+            return startsWith(plugin.enchantments().definitions().stream().map(SkyBlockEnchantmentDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("enchant") && !args[1].equalsIgnoreCase("remove")) {
+            return startsWith(plugin.enchantments().levelSuggestions(args[1]), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
@@ -194,6 +212,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge <id|remove>", "commands.help.reforge");
+        helpLine(sender, label + " enchants", "commands.help.enchants");
+        helpLine(sender, label + " enchant <id> <level>", "commands.help.enchant");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
@@ -361,6 +381,43 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return;
         }
         plugin.reforges().applyHeld(player, args[1]);
+    }
+
+    private void enchants(CommandSender sender) {
+        plugin.enchantments().sendList(sender);
+    }
+
+    private void enchant(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.text().send(player, "commands.enchantment-usage");
+            return;
+        }
+        if (args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("clear")) {
+            if (args.length < 3) {
+                plugin.text().send(player, "commands.enchantment-usage");
+                return;
+            }
+            plugin.enchantments().removeHeld(player, args[2]);
+            return;
+        }
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.enchantment-usage");
+            return;
+        }
+        try {
+            int level = Integer.parseInt(args[2]);
+            if (level <= 0) {
+                plugin.text().send(player, "errors.invalid-number");
+                return;
+            }
+            plugin.enchantments().applyHeld(player, args[1], level);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(player, "errors.invalid-number");
+        }
     }
 
     private void accessoryBag(CommandSender sender, String[] args) {

@@ -14,6 +14,7 @@ errors:
   unknown-minion: "<prefix><red>Unknown minion: <yellow><minion></yellow>.</red>"
   unknown-pet: "<prefix><red>Unknown pet: <yellow><pet></yellow>.</red>"
   unknown-reforge: "<prefix><red>Unknown reforge: <yellow><reforge></yellow>.</red>"
+  unknown-enchantment: "<prefix><red>Unknown enchantment: <yellow><enchantment></yellow>.</red>"
   invalid-number: "<prefix><red>That number is invalid.</red>"
 
 commands:
@@ -28,6 +29,8 @@ commands:
     sell: "Sell held items or matching inventory items to NPC shops."
     reforges: "List configured item reforges."
     reforge: "Apply or remove a reforge from your held custom item."
+    enchants: "List configured custom enchantments."
+    enchant: "Apply or remove an enchantment from your held custom item."
     stats: "View your aggregated SkyBlock stats."
     accessory-bag: "Open your Accessory Bag."
     tuning: "Open or edit stat tuning."
@@ -81,6 +84,18 @@ commands:
   reforge-applied: "<prefix><green>Applied <reforge> to <item> for <gold><cost></gold> coins.</green>"
   reforge-removed: "<prefix><green>Removed <reforge> from <item>.</green>"
   reforge-none: "<prefix><red>Your held item does not have a reforge.</red>"
+  enchantment-disabled: "<prefix><red>Enchantments are disabled on this server.</red>"
+  enchantment-usage: "<prefix><red>Use <yellow>/skyblock enchants</yellow>, <yellow>/skyblock enchant <id> <level></yellow>, or <yellow>/skyblock enchant remove <id></yellow>.</red>"
+  enchantment-list-header: "<prefix><aqua>Enchantments</aqua>"
+  enchantment-list-line: "<gray><id>:</gray> <enchantment> <dark_gray>|</dark_gray> <gray>Max:</gray> <yellow><max_level></yellow> <dark_gray>|</dark_gray> <gray>Type:</gray> <yellow><type></yellow> <dark_gray>|</dark_gray> <gray>Categories:</gray> <yellow><categories></yellow>"
+  enchantment-held-missing: "<prefix><red>You must hold a configured custom item.</red>"
+  enchantment-not-applicable: "<prefix><red><enchantment> cannot be applied to <item>.</red>"
+  enchantment-already: "<prefix><red><item> already has <enchantment> <level>.</red>"
+  enchantment-ultimate-conflict: "<prefix><red><existing> is already applied. Items can only have one ultimate enchantment.</red>"
+  enchantment-no-money: "<prefix><red>You need <gold><cost></gold> coins in your purse.</red>"
+  enchantment-applied: "<prefix><green>Applied <enchantment> <level> to <item> for <gold><cost></gold> coins.</green>"
+  enchantment-removed: "<prefix><green>Removed <enchantment> from <item>.</green>"
+  enchantment-none: "<prefix><red>Your held item does not have that enchantment.</red>"
   skills-header: "<prefix><aqua>Skills</aqua>"
   stats-header: "<prefix><aqua>Stats</aqua>"
   stats-line: "<gray><stat>:</gray> <green><value></green>"
@@ -154,6 +169,8 @@ items:
   reforged-display-name: "<reforge_prefix> <item_name>"
   reforge-line: "<dark_gray>Reforge: <reforge></dark_gray>"
   reforge-stat-line: "<gray><stat>:</gray> <green>+<value></green>"
+  enchantment-line: "<blue><enchantment> <level></blue>"
+  ultimate-enchantment-line: "<light_purple><bold><enchantment> <level></bold></light_purple>"
   ability-header: "<gold>Item Ability: <ability></gold> <yellow><type></yellow>"
   ability-line: "<gray><line></gray>"
   rarity-line: "<rarity_color><bold><rarity> <category></bold></rarity_color>"
@@ -188,6 +205,10 @@ pets:
   max-level-xp: "<gold>Maxed</gold>"
   no-stats: "<dark_gray>No stat bonuses configured.</dark_gray>"
   stat-line: "<gray><stat>:</gray> <green>+<value></green>"
+
+enchantments:
+  normal-type: "Normal"
+  ultimate-type: "Ultimate"
 
 menus:
   collection-next-tier: "<yellow>Tier <tier></yellow> <gray>at</gray> <white><amount></white>"

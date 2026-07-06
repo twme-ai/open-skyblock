@@ -2,6 +2,7 @@ package io.github.openskyblock.service;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.reforge.ReforgeDefinition;
 import io.github.openskyblock.reforge.ReforgeService;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public final class CustomItemService {
     private final NamespacedKey itemIdKey;
     private final Map<String, CustomItemDefinition> definitions = new HashMap<>();
     private ReforgeService reforgeService;
+    private EnchantmentService enchantmentService;
 
     public CustomItemService(JavaPlugin plugin, ConfigService configService, TextService text) {
         this.configService = configService;
@@ -35,6 +37,10 @@ public final class CustomItemService {
 
     public void reforgeService(ReforgeService reforgeService) {
         this.reforgeService = reforgeService;
+    }
+
+    public void enchantmentService(EnchantmentService enchantmentService) {
+        this.enchantmentService = enchantmentService;
     }
 
     public void reload() {
@@ -137,6 +143,13 @@ public final class CustomItemService {
         List<Component> lines = new ArrayList<>();
         for (String line : definition.lore()) {
             lines.add(text.deserialize(line));
+        }
+        if (enchantmentService != null) {
+            List<Component> enchantmentLore = enchantmentService.lore(itemStack);
+            if (!enchantmentLore.isEmpty()) {
+                lines.add(Component.empty());
+                lines.addAll(enchantmentLore);
+            }
         }
         if (!definition.stats().isEmpty()) {
             lines.add(Component.empty());
