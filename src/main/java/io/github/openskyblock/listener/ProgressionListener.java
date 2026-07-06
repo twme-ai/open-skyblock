@@ -56,7 +56,8 @@ public final class ProgressionListener implements Listener {
                     reward.skillType(),
                     reward.skillXp() * amount,
                     reward.collectionId(),
-                    reward.collectionAmount() * amount
+                    reward.collectionAmount() * amount,
+                    reward.coins() * amount
             );
             plugin.skills().grantActionReward(player, scaled);
         });

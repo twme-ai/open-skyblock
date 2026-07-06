@@ -2,6 +2,7 @@ package io.github.openskyblock.service;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import java.util.ArrayList;
@@ -22,17 +23,19 @@ public final class SkillService {
     private final TextService text;
     private final ProfileManager profiles;
     private final CollectionService collections;
+    private final EconomyService economy;
     private final Map<SkillType, SkillDefinition> definitions = new EnumMap<>(SkillType.class);
     private final Map<Integer, Double> levelXp = new HashMap<>();
     private final Map<Material, ActionReward> blockRewards = new HashMap<>();
     private final Map<EntityType, ActionReward> entityRewards = new HashMap<>();
     private final Map<Material, ActionReward> pickupRewards = new HashMap<>();
 
-    public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections) {
+    public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.collections = collections;
+        this.economy = economy;
     }
 
     public void reload() {
@@ -90,6 +93,10 @@ public final class SkillService {
         }
         if (reward.collectionId() != null && !reward.collectionId().isBlank() && reward.collectionAmount() > 0L) {
             collections.addProgress(player, reward.collectionId(), reward.collectionAmount());
+        }
+        if (reward.coins() > 0.0D) {
+            economy.addPurse(player, reward.coins());
+            text.send(player, "progression.coins", List.of(TextService.raw("coins", text.formatNumber(reward.coins()))));
         }
     }
 
@@ -192,12 +199,13 @@ public final class SkillService {
         }
         SkillType skillType = SkillType.fromKey(section.getString("skill", "")).orElse(null);
         double xp = section.getDouble("xp", 0.0D);
+        double coins = section.getDouble("coins", 0.0D);
         String collectionId = section.getString("collection", "");
         long collectionAmount = section.getLong("collection-amount", 0L);
         if (collectionId != null && !collectionId.isBlank()) {
             collectionId = collectionId.toUpperCase(Locale.ROOT);
         }
-        return new ActionReward(skillType, xp, collectionId, collectionAmount);
+        return new ActionReward(skillType, xp, collectionId, collectionAmount, coins);
     }
 
     private List<Integer> sortedLevels() {

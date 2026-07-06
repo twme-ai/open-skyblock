@@ -14,7 +14,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable SkyBlock menu GUI and starter menu item.
 - Paged collection browser and recipe book menus with configurable layout, lore, and navigation.
 - Configurable MiniMessage messages in `messages.yml`.
-- Configurable skills, collection tiers, action rewards, custom items, and minion definitions.
+- Configurable skills, collection tiers, action XP, coin rewards, custom items, and minion definitions.
 - Placeable minion items with island-only placement, generated storage, claim menu, pickup flow, and offline ticking from persisted timestamps.
 - Data-driven shaped recipes for vanilla, custom item, and minion outputs with collection-tier crafting gates.
 - Purse and bank economy with deposit, withdraw, deposit-all, withdraw-all, capacity limits, and a configurable bank menu.

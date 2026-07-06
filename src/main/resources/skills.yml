@@ -63,67 +63,80 @@ actions:
     WHEAT:
       skill: FARMING
       xp: 4.0
+      coins: 0.5
       collection: WHEAT
       collection-amount: 1
     CARROTS:
       skill: FARMING
       xp: 4.0
+      coins: 0.5
       collection: CARROT
       collection-amount: 1
     POTATOES:
       skill: FARMING
       xp: 4.0
+      coins: 0.5
       collection: POTATO
       collection-amount: 1
     SUGAR_CANE:
       skill: FARMING
       xp: 2.0
+      coins: 0.5
       collection: SUGAR_CANE
       collection-amount: 1
     COBBLESTONE:
       skill: MINING
       xp: 1.0
+      coins: 0.2
       collection: COBBLESTONE
       collection-amount: 1
     COAL_ORE:
       skill: MINING
       xp: 5.0
+      coins: 1.0
       collection: COAL
       collection-amount: 1
     DEEPSLATE_COAL_ORE:
       skill: MINING
       xp: 5.0
+      coins: 1.0
       collection: COAL
       collection-amount: 1
     OAK_LOG:
       skill: FORAGING
       xp: 6.0
+      coins: 0.8
       collection: OAK_WOOD
       collection-amount: 1
     BIRCH_LOG:
       skill: FORAGING
       xp: 6.0
+      coins: 0.8
       collection: BIRCH_WOOD
       collection-amount: 1
   entity-kill:
     ZOMBIE:
       skill: COMBAT
       xp: 6.0
+      coins: 2.0
       collection: ROTTEN_FLESH
       collection-amount: 1
     SKELETON:
       skill: COMBAT
       xp: 6.0
+      coins: 2.0
       collection: BONE
       collection-amount: 1
     SPIDER:
       skill: COMBAT
       xp: 6.0
+      coins: 2.0
       collection: STRING
       collection-amount: 1
   item-pickup:
     COD:
       skill: FISHING
       xp: 5.0
+      coins: 1.0
       collection: RAW_FISH
       collection-amount: 1

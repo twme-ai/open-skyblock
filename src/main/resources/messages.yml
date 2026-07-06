@@ -88,6 +88,7 @@ commands:
 
 progression:
   skill-xp: "<prefix><gray>+<xp> <skill> XP</gray>"
+  coins: "<prefix><gold>+<coins> coins</gold>"
   skill-level-up: "<prefix><gold><skill> leveled up to <level>!</gold>"
   collection-progress: "<prefix><gray>+<amount> <collection></gray>"
   collection-tier-up: "<prefix><gold><collection> reached Tier <tier>!</gold>"

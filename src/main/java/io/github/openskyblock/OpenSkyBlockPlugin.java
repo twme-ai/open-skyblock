@@ -46,14 +46,14 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.textService = new TextService(configService);
         this.profileManager = new ProfileManager(this, configService);
         this.profileManager.loadAll();
+        this.economyService = new EconomyService(configService, textService, profileManager);
         this.collectionService = new CollectionService(configService, textService, profileManager);
-        this.skillService = new SkillService(configService, textService, profileManager, collectionService);
+        this.skillService = new SkillService(configService, textService, profileManager, collectionService, economyService);
         this.customItemService = new CustomItemService(this, configService, textService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
         this.recipeService = new RecipeService(this, configService, textService, profileManager, collectionService, customItemService, minionService);
-        this.economyService = new EconomyService(configService, textService, profileManager);
         this.shopService = new ShopService(configService, textService, profileManager, economyService);
 
         reloadServices();
