@@ -23,3 +23,24 @@ settings:
     3: 3.0
     4: 4.0
     5: 5.0
+  essence:
+    enabled: true
+    default-type: WITHER
+    type-by-category:
+      SWORD: WITHER
+      ARMOR: WITHER
+    display-names:
+      WITHER: "<dark_gray>Wither Essence</dark_gray>"
+      UNDEAD: "<green>Undead Essence</green>"
+      DRAGON: "<light_purple>Dragon Essence</light_purple>"
+      GOLD: "<gold>Gold Essence</gold>"
+      DIAMOND: "<aqua>Diamond Essence</aqua>"
+      SPIDER: "<dark_gray>Spider Essence</dark_gray>"
+      ICE: "<aqua>Ice Essence</aqua>"
+      CRIMSON: "<red>Crimson Essence</red>"
+    costs-by-star:
+      1: 10.0
+      2: 20.0
+      3: 40.0
+      4: 80.0
+      5: 160.0

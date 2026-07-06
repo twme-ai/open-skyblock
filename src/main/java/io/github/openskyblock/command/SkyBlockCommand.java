@@ -77,6 +77,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "anvil",
             "stars",
             "star",
+            "essence",
+            "essences",
             "gemstones",
             "gemstone",
             "equipment",
@@ -147,6 +149,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "anvil" -> anvil(sender);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
+            case "essence", "essences" -> essence(sender, args);
             case "gemstones" -> gemstones(sender);
             case "gemstone" -> gemstone(sender, args);
             case "equipment" -> equipment(sender, args);
@@ -334,6 +337,20 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && args[0].equalsIgnoreCase("star") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set"))) {
             return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
         }
+        if (args.length == 2 && isEssenceCommand(args[0])) {
+            List<String> values = new ArrayList<>(List.of("give"));
+            values.addAll(plugin.stars().essenceTypes());
+            return startsWith(values, args[1]);
+        }
+        if (args.length == 3 && isEssenceCommand(args[0]) && args[1].equalsIgnoreCase("give")) {
+            return startsWith(plugin.stars().essenceTypes(), args[2]);
+        }
+        if (args.length == 4 && isEssenceCommand(args[0]) && args[1].equalsIgnoreCase("give")) {
+            return startsWith(List.of("10", "100", "1000", "10000"), args[3]);
+        }
+        if (args.length == 5 && isEssenceCommand(args[0]) && args[1].equalsIgnoreCase("give")) {
+            return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[4]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("gemstone")) {
             return startsWith(List.of("slots", "apply", "remove", "unlock"), args[1]);
         }
@@ -497,6 +514,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " anvil", "commands.help.anvil");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
+        helpLine(sender, label + " essence", "commands.help.essence");
         helpLine(sender, label + " gemstones", "commands.help.gemstones");
         helpLine(sender, label + " gemstone apply|remove|unlock", "commands.help.gemstone");
         helpLine(sender, label + " equipment", "commands.help.equipment");
@@ -523,6 +541,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("openskyblock.admin")) {
             helpLine(sender, label + " giveitem <id> [player]", "commands.help.giveitem");
             helpLine(sender, label + " enchant book <id> [level] [player]", "commands.help.enchant-book");
+            helpLine(sender, label + " essence give <type> <amount> [player]", "commands.help.essence-give");
             helpLine(sender, label + " pet give <id> [player]", "commands.help.pet-give");
             helpLine(sender, label + " pet xp <amount> [player]", "commands.help.pet-xp");
             helpLine(sender, label + " minion give <id> [player]", "commands.help.minion-give");
@@ -1270,6 +1289,59 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "clear" -> plugin.stars().clearHeld(player);
             default -> plugin.text().send(player, "commands.star-usage");
         }
+    }
+
+    private void essence(CommandSender sender, String[] args) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("give")) {
+            essenceGive(sender, args);
+            return;
+        }
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.stars().sendEssence(player);
+    }
+
+    private void essenceGive(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("openskyblock.admin")) {
+            plugin.text().send(sender, "errors.no-permission");
+            return;
+        }
+        if (args.length < 4) {
+            plugin.text().send(sender, "commands.essence-usage");
+            return;
+        }
+        String essenceId = plugin.stars().normalizeEssence(args[2]);
+        if (!plugin.stars().knownEssence(essenceId)) {
+            plugin.text().send(sender, "commands.essence-unknown", List.of(TextService.raw("essence", args[2])));
+            return;
+        }
+        Optional<Double> amount = parsePositiveAmount(sender, args[3]);
+        if (amount.isEmpty()) {
+            return;
+        }
+        Player target;
+        if (args.length >= 5) {
+            target = Bukkit.getPlayerExact(args[4]);
+            if (target == null) {
+                plugin.text().send(sender, "errors.unknown-player");
+                return;
+            }
+        } else {
+            target = requirePlayer(sender);
+            if (target == null) {
+                return;
+            }
+        }
+        SkyBlockProfile profile = plugin.profiles().profile(target);
+        plugin.stars().addEssence(profile, essenceId, amount.get());
+        plugin.text().send(sender, "commands.essence-given", List.of(
+                TextService.raw("amount", plugin.text().formatNumber(amount.get())),
+                TextService.parsed("essence", plugin.stars().essenceDisplayName(essenceId)),
+                TextService.raw("player", target.getName()),
+                TextService.raw("balance", plugin.text().formatNumber(plugin.stars().essenceBalance(profile, essenceId)))
+        ));
     }
 
     private void gemstones(CommandSender sender) {
@@ -2047,6 +2119,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isUpgradeCommand(String value) {
         return value.equalsIgnoreCase("upgrade") || value.equalsIgnoreCase("upgrades");
+    }
+
+    private boolean isEssenceCommand(String value) {
+        return value.equalsIgnoreCase("essence") || value.equalsIgnoreCase("essences");
     }
 
     private boolean numeric(String value) {

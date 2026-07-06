@@ -122,7 +122,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.armorSetService = new ArmorSetService(configService);
         this.reforgeService = new ReforgeService(this, configService, textService, economyService, customItemService);
         this.enchantmentService = new EnchantmentService(this, configService, textService, economyService, customItemService);
-        this.starService = new StarService(this, configService, textService, economyService, customItemService);
+        this.starService = new StarService(this, configService, textService, economyService, profileManager, customItemService);
         this.gemstoneService = new GemstoneService(this, configService, textService, economyService, customItemService);
         this.customItemService.reforgeService(reforgeService);
         this.customItemService.enchantmentService(enchantmentService);

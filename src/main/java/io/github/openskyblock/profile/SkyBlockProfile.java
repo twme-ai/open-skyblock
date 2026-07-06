@@ -30,6 +30,7 @@ public final class SkyBlockProfile {
     private final Map<String, Long> potionEffects = new HashMap<>();
     private final Map<String, Long> cakeBuffs = new HashMap<>();
     private final Map<String, Integer> upgrades = new HashMap<>();
+    private final Map<String, Double> essence = new HashMap<>();
     private final Map<String, Long> bestiaryKills = new HashMap<>();
     private final Map<String, Integer> bestiaryTiers = new HashMap<>();
     private final Map<String, Double> slayerXp = new HashMap<>();
@@ -209,6 +210,26 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> upgrades() {
         return upgrades;
+    }
+
+    public double essence(String essenceId) {
+        return essence.getOrDefault(essenceId.toUpperCase(), 0.0D);
+    }
+
+    public void setEssence(String essenceId, double amount) {
+        if (amount <= 0.0D) {
+            essence.remove(essenceId.toUpperCase());
+            return;
+        }
+        essence.put(essenceId.toUpperCase(), amount);
+    }
+
+    public void addEssence(String essenceId, double amount) {
+        setEssence(essenceId, essence(essenceId) + amount);
+    }
+
+    public Map<String, Double> essence() {
+        return essence;
     }
 
     public Map<String, Long> bestiaryKills() {

@@ -318,6 +318,15 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection essence = section.getConfigurationSection("essence");
+        if (essence != null) {
+            for (String essenceId : essence.getKeys(false)) {
+                double amount = essence.getDouble(essenceId, 0.0D);
+                if (amount > 0.0D) {
+                    profile.setEssence(essenceId.toUpperCase(), amount);
+                }
+            }
+        }
         ConfigurationSection bestiaryKills = section.getConfigurationSection("bestiary.kills");
         if (bestiaryKills != null) {
             for (String familyId : bestiaryKills.getKeys(false)) {
@@ -525,6 +534,12 @@ public final class ProfileManager {
         for (Map.Entry<String, Integer> entry : profile.upgrades().entrySet()) {
             if (entry.getValue() > 0) {
                 profileData.set(base + ".upgrades." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".essence", null);
+        for (Map.Entry<String, Double> entry : profile.essence().entrySet()) {
+            if (entry.getValue() > 0.0D) {
+                profileData.set(base + ".essence." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".bestiary", null);
