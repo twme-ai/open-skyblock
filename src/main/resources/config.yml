@@ -9,6 +9,7 @@ features:
   skyblock-menu: true
   starter-menu-item: true
   bank: true
+  npc-shops: true
   skills: true
   collections: true
   custom-items: true

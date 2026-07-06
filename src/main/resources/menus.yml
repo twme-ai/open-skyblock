@@ -52,8 +52,15 @@ skyblock:
         - "<gray>Purse:</gray> <gold><purse></gold>"
         - "<gray>Bank:</gray> <gold><bank></gold>"
       action: BANK
+    shops:
+      slot: 23
+      material: EMERALD
+      display-name: "<green>NPC Shops</green>"
+      lore:
+        - "<gray>Browse configured NPC merchants.</gray>"
+      action: SHOPS
     minions:
-      slot: 24
+      slot: 25
       material: HAY_BLOCK
       display-name: "<yellow>Minions</yellow>"
       lore:
@@ -245,3 +252,43 @@ bank:
       lore:
         - "<gray>Withdraw all banked coins.</gray>"
       action: WITHDRAW_ALL
+
+shop-selector:
+  title: "<dark_gray>NPC Shops</dark_gray>"
+  rows: 3
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+  shop-item:
+    display-name: "<shop>"
+    lore:
+      - "<gray>Click to open this shop.</gray>"
+  back:
+    slot: 22
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+
+shop:
+  title: "<dark_gray><shop></dark_gray>"
+  rows: 6
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  back:
+    slot: 49
+    material: EMERALD
+    display-name: "<green>NPC Shops</green>"
+    lore: []

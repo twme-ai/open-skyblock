@@ -1,0 +1,88 @@
+shops:
+  FARM_MERCHANT:
+    display-name: "<yellow>Farm Merchant</yellow>"
+    material: WHEAT
+    rows: 4
+    items:
+      WHEAT:
+        slot: 10
+        material: WHEAT
+        display-name: "<yellow>Wheat</yellow>"
+        amount: 16
+        buy-price: 32.0
+        sell-price: 2.0
+        daily-buy-limit: 640
+      CARROT:
+        slot: 11
+        material: CARROT
+        display-name: "<gold>Carrot</gold>"
+        amount: 16
+        buy-price: 48.0
+        sell-price: 2.0
+        daily-buy-limit: 640
+      POTATO:
+        slot: 12
+        material: POTATO
+        display-name: "<yellow>Potato</yellow>"
+        amount: 16
+        buy-price: 48.0
+        sell-price: 2.0
+        daily-buy-limit: 640
+      WHEAT_SEEDS:
+        slot: 13
+        material: WHEAT_SEEDS
+        display-name: "<green>Wheat Seeds</green>"
+        amount: 16
+        buy-price: 16.0
+        sell-price: 1.0
+        daily-buy-limit: 640
+  MINE_MERCHANT:
+    display-name: "<gray>Mine Merchant</gray>"
+    material: IRON_PICKAXE
+    rows: 4
+    items:
+      COBBLESTONE:
+        slot: 10
+        material: COBBLESTONE
+        display-name: "<gray>Cobblestone</gray>"
+        amount: 16
+        buy-price: 48.0
+        sell-price: 1.0
+        daily-buy-limit: 640
+      COAL:
+        slot: 11
+        material: COAL
+        display-name: "<dark_gray>Coal</dark_gray>"
+        amount: 16
+        buy-price: 64.0
+        sell-price: 2.0
+        daily-buy-limit: 640
+      IRON_INGOT:
+        slot: 12
+        material: IRON_INGOT
+        display-name: "<white>Iron Ingot</white>"
+        amount: 8
+        buy-price: 120.0
+        sell-price: 3.0
+        daily-buy-limit: 640
+  LUMBER_MERCHANT:
+    display-name: "<green>Lumber Merchant</green>"
+    material: OAK_LOG
+    rows: 4
+    items:
+      OAK_LOG:
+        slot: 10
+        material: OAK_LOG
+        display-name: "<green>Oak Log</green>"
+        amount: 16
+        buy-price: 64.0
+        sell-price: 2.0
+        daily-buy-limit: 640
+      BIRCH_LOG:
+        slot: 11
+        material: BIRCH_LOG
+        display-name: "<white>Birch Log</white>"
+        amount: 16
+        buy-price: 64.0
+        sell-price: 2.0
+        daily-buy-limit: 640

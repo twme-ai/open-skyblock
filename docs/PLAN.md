@@ -77,7 +77,8 @@ Planned additions when each subsystem needs them:
 
 5. Economy
    - Base purse/bank deposit and withdraw flow is implemented.
-   - Bank upgrades, NPC shops, trading, auction house, bazaar order books, escrow, claim queues, taxes, anti-duplication checks, and audit logging remain future work.
+   - Configurable NPC shop buy/sell flow with daily buy limits is implemented.
+   - Bank upgrades, physical shop NPC spawning, trading, auction house, bazaar order books, escrow, claim queues, taxes, anti-duplication checks, and audit logging remain future work.
 
 6. World Content
    - Hub and resource islands, Garden-like farming progression, Deep Caverns/Dwarven-style mining progression, combat islands, foraging islands, fishing content, seasonal events, and commissions.
@@ -97,4 +98,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, skill XP, collections, custom item metadata, collection-gated recipes, combat stat hooks, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops, skill XP, collections, custom item metadata, collection-gated recipes, combat stat hooks, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

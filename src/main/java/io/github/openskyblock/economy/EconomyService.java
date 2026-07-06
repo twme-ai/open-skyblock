@@ -98,4 +98,24 @@ public final class EconomyService {
     public boolean withdrawAll(Player player) {
         return withdraw(player, profiles.profile(player).bank());
     }
+
+    public boolean spendPurse(Player player, double amount) {
+        SkyBlockProfile profile = profiles.profile(player);
+        if (amount <= 0.0D) {
+            return true;
+        }
+        if (profile.purse() < amount) {
+            return false;
+        }
+        profile.purse(profile.purse() - amount);
+        return true;
+    }
+
+    public void addPurse(Player player, double amount) {
+        if (amount <= 0.0D) {
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        profile.purse(profile.purse() + amount);
+    }
 }

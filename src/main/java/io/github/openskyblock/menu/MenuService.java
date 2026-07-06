@@ -9,6 +9,8 @@ import io.github.openskyblock.recipe.SkyBlockRecipe;
 import io.github.openskyblock.service.CollectionDefinition;
 import io.github.openskyblock.service.CollectionTier;
 import io.github.openskyblock.service.MinionPlacement;
+import io.github.openskyblock.shop.ShopDefinition;
+import io.github.openskyblock.shop.ShopItemDefinition;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +24,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public final class MenuService {
+    private static final String BACK_ACTION = "__BACK__";
+
     private final OpenSkyBlockPlugin plugin;
     private final ConfigService configService;
     private final TextService text;
@@ -203,6 +207,80 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openShopSelector(Player player) {
+        if (!plugin.shops().enabled()) {
+            text.send(player, "commands.shop-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("shop-selector");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 3)));
+        Map<Integer, String> shopsBySlot = new HashMap<>();
+        ShopSelectorHolder holder = new ShopSelectorHolder(shopsBySlot);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>NPC Shops</dark_gray>"))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        List<Integer> slots = contentSlots(section);
+        List<ShopDefinition> shops = plugin.shops().shops();
+        for (int index = 0; index < slots.size() && index < shops.size(); index++) {
+            ShopDefinition shop = shops.get(index);
+            inventory.setItem(slots.get(index), shopSelectorItem(shop, section.getConfigurationSection("shop-item")));
+            shopsBySlot.put(slots.get(index), shop.id());
+        }
+        ConfigurationSection back = section.getConfigurationSection("back");
+        if (back != null) {
+            int slot = back.getInt("slot", -1);
+            if (slot >= 0 && slot < inventory.getSize()) {
+                inventory.setItem(slot, item(back, List.of()));
+                shopsBySlot.put(slot, BACK_ACTION);
+            }
+        }
+        player.openInventory(inventory);
+    }
+
+    public void openShop(Player player, ShopDefinition shop) {
+        if (!plugin.shops().enabled()) {
+            text.send(player, "commands.shop-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("shop");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, shop.rows()));
+        Map<Integer, String> itemsBySlot = new HashMap<>();
+        ShopMenuHolder holder = new ShopMenuHolder(shop.id(), itemsBySlot);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray><shop></dark_gray>"), shopPlaceholders(shop))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        for (ShopItemDefinition item : shop.items()) {
+            if (item.slot() < 0 || item.slot() >= inventory.getSize()) {
+                continue;
+            }
+            inventory.setItem(item.slot(), shopItem(player, shop, item));
+            itemsBySlot.put(item.slot(), item.id());
+        }
+        ConfigurationSection back = section.getConfigurationSection("back");
+        if (back != null) {
+            int slot = back.getInt("slot", -1);
+            if (slot >= 0 && slot < inventory.getSize()) {
+                inventory.setItem(slot, item(back, List.of()));
+                itemsBySlot.put(slot, BACK_ACTION);
+            }
+        }
+        player.openInventory(inventory);
+    }
+
     public void runAction(Player player, MenuAction action) {
         switch (action) {
             case PROFILE -> player.performCommand("skyblock profile");
@@ -211,10 +289,51 @@ public final class MenuService {
             case SKILLS -> player.performCommand("skyblock skills");
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
+            case SHOPS -> openShopSelector(player);
             case MINIONS -> player.performCommand("skyblock minion list");
             case NONE -> {
             }
         }
+    }
+
+    public void runShopSelectorClick(Player player, ShopSelectorHolder holder, int rawSlot) {
+        String shopId = holder.shopId(rawSlot);
+        if (shopId == null) {
+            return;
+        }
+        if (BACK_ACTION.equals(shopId)) {
+            openSkyBlockMenu(player);
+            return;
+        }
+        ShopDefinition shop = plugin.shops().shop(shopId).orElse(null);
+        if (shop == null) {
+            text.send(player, "commands.shop-unknown", List.of(TextService.raw("shop", shopId)));
+            return;
+        }
+        openShop(player, shop);
+    }
+
+    public void runShopMenuClick(Player player, ShopMenuHolder holder, int rawSlot, boolean sellClick) {
+        String itemId = holder.itemId(rawSlot);
+        if (itemId == null) {
+            return;
+        }
+        if (BACK_ACTION.equals(itemId)) {
+            openShopSelector(player);
+            return;
+        }
+        ShopDefinition shop = plugin.shops().shop(holder.shopId()).orElse(null);
+        ShopItemDefinition item = plugin.shops().item(holder.shopId(), itemId).orElse(null);
+        if (shop == null || item == null) {
+            text.send(player, "commands.shop-unknown", List.of(TextService.raw("shop", holder.shopId())));
+            return;
+        }
+        if (sellClick) {
+            plugin.shops().sellMatching(player, item);
+        } else {
+            plugin.shops().buy(player, shop, item);
+        }
+        openShop(player, shop);
     }
 
     public void runBankAction(Player player, BankMenuAction action) {
@@ -426,6 +545,30 @@ public final class MenuService {
         return itemStack;
     }
 
+    private ItemStack shopSelectorItem(ShopDefinition shop, ConfigurationSection section) {
+        ItemStack itemStack = new ItemStack(shop.material());
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = shopPlaceholders(shop);
+        meta.displayName(text.deserialize(section.getString("display-name", "<shop>"), placeholders));
+        meta.lore(section.getStringList("lore").stream()
+                .map(line -> text.deserialize(line, placeholders))
+                .toList());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack shopItem(Player player, ShopDefinition shop, ShopItemDefinition item) {
+        ItemStack itemStack = new ItemStack(item.material(), Math.max(1, item.amount()));
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = shopItemPlaceholders(player, shop, item);
+        meta.displayName(text.deserialize(item.displayName(), placeholders));
+        meta.lore(configService.messages().getStringList("menus.shop-item").stream()
+                .map(line -> text.deserialize(line, placeholders))
+                .toList());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
     private Material lockedRecipeMaterial(ConfigurationSection section) {
         Material material = Material.matchMaterial(section.getString("locked-material", "BARRIER"));
         return material == null ? Material.BARRIER : material;
@@ -469,6 +612,27 @@ public final class MenuService {
                 TextService.raw("purse", text.formatNumber(profile.purse())),
                 TextService.raw("bank", text.formatNumber(profile.bank())),
                 TextService.raw("capacity", text.formatNumber(plugin.economy().bankCapacity()))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> shopPlaceholders(ShopDefinition shop) {
+        return List.of(
+                TextService.raw("shop_id", shop.id()),
+                TextService.parsed("shop", shop.displayName())
+        );
+    }
+
+    private List<TextService.TextPlaceholder> shopItemPlaceholders(Player player, ShopDefinition shop, ShopItemDefinition item) {
+        return List.of(
+                TextService.raw("shop_id", shop.id()),
+                TextService.parsed("shop", shop.displayName()),
+                TextService.raw("item_id", item.id()),
+                TextService.parsed("item", item.displayName()),
+                TextService.raw("amount", Integer.toString(item.amount())),
+                TextService.raw("buy_price", text.formatNumber(item.buyPrice())),
+                TextService.raw("sell_price", text.formatNumber(item.sellPrice())),
+                TextService.raw("limit", item.dailyBuyLimit() <= 0 ? text.rawMessage("menus.shop-unlimited") : text.formatNumber(item.dailyBuyLimit())),
+                TextService.raw("limit_remaining", plugin.shops().limitText(player, shop, item))
         );
     }
 }

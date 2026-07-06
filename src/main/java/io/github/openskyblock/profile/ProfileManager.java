@@ -123,6 +123,13 @@ public final class ProfileManager {
                 profile.setCollectionAmount(key.toUpperCase(), collections.getLong(key, 0L));
             }
         }
+        profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
+        ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
+        if (shopPurchases != null) {
+            for (String key : shopPurchases.getKeys(false)) {
+                profile.setDailyShopPurchases(key.toUpperCase(), shopPurchases.getInt(key, 0));
+            }
+        }
         ConfigurationSection minions = section.getConfigurationSection("minions");
         if (minions != null) {
             for (String key : minions.getKeys(false)) {
@@ -154,6 +161,11 @@ public final class ProfileManager {
         }
         for (Map.Entry<String, Long> entry : profile.collections().entrySet()) {
             profileData.set(base + ".collections." + entry.getKey(), entry.getValue());
+        }
+        profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
+        profileData.set(base + ".shop-purchases.items", null);
+        for (Map.Entry<String, Integer> entry : profile.dailyShopPurchases().entrySet()) {
+            profileData.set(base + ".shop-purchases.items." + entry.getKey(), entry.getValue());
         }
         profileData.set(base + ".minions", null);
         for (int index = 0; index < profile.minions().size(); index++) {

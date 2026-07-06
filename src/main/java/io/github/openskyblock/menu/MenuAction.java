@@ -10,6 +10,7 @@ public enum MenuAction {
     SKILLS,
     COLLECTIONS,
     RECIPES,
+    SHOPS,
     MINIONS;
 
     public static MenuAction parse(String value) {

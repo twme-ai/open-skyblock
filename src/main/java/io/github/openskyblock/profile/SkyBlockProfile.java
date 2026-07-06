@@ -16,7 +16,9 @@ public final class SkyBlockProfile {
     private String islandWorldName;
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
+    private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
+    private String shopPurchaseDay;
 
     public SkyBlockProfile(UUID uniqueId, String playerName, double purse, double bank) {
         this.uniqueId = uniqueId;
@@ -91,6 +93,34 @@ public final class SkyBlockProfile {
 
     public Map<String, Long> collections() {
         return collections;
+    }
+
+    public String shopPurchaseDay() {
+        return shopPurchaseDay;
+    }
+
+    public void shopPurchaseDay(String shopPurchaseDay) {
+        this.shopPurchaseDay = shopPurchaseDay;
+    }
+
+    public int dailyShopPurchases(String key) {
+        return dailyShopPurchases.getOrDefault(key, 0);
+    }
+
+    public void setDailyShopPurchases(String key, int amount) {
+        dailyShopPurchases.put(key, Math.max(0, amount));
+    }
+
+    public void addDailyShopPurchases(String key, int amount) {
+        setDailyShopPurchases(key, dailyShopPurchases(key) + amount);
+    }
+
+    public void clearDailyShopPurchases() {
+        dailyShopPurchases.clear();
+    }
+
+    public Map<String, Integer> dailyShopPurchases() {
+        return dailyShopPurchases;
     }
 
     public List<PlacedMinion> minions() {

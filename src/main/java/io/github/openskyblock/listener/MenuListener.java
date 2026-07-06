@@ -8,6 +8,8 @@ import io.github.openskyblock.menu.BrowserMenuHolder;
 import io.github.openskyblock.menu.MenuAction;
 import io.github.openskyblock.menu.MinionMenuAction;
 import io.github.openskyblock.menu.MinionMenuHolder;
+import io.github.openskyblock.menu.ShopMenuHolder;
+import io.github.openskyblock.menu.ShopSelectorHolder;
 import io.github.openskyblock.menu.SkyBlockMenuHolder;
 import io.github.openskyblock.service.CustomItemDefinition;
 import org.bukkit.entity.Player;
@@ -39,6 +41,12 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof BankMenuHolder bankHolder) {
                 handleBankClick(event, player, bankHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof ShopSelectorHolder shopSelectorHolder) {
+                handleShopSelectorClick(event, player, shopSelectorHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof ShopMenuHolder shopMenuHolder) {
+                handleShopClick(event, player, shopMenuHolder);
             }
             return;
         }
@@ -76,6 +84,17 @@ public final class MenuListener implements Listener {
             return;
         }
         plugin.menus().runBankAction(player, action);
+    }
+
+    private void handleShopSelectorClick(InventoryClickEvent event, Player player, ShopSelectorHolder holder) {
+        event.setCancelled(true);
+        plugin.menus().runShopSelectorClick(player, holder, event.getRawSlot());
+    }
+
+    private void handleShopClick(InventoryClickEvent event, Player player, ShopMenuHolder holder) {
+        event.setCancelled(true);
+        boolean sellClick = event.getClick().isRightClick();
+        plugin.menus().runShopMenuClick(player, holder, event.getRawSlot(), sellClick);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
