@@ -65,6 +65,19 @@ public final class TextService {
         return NUMBER_FORMAT.format(value);
     }
 
+    public String statName(String stat) {
+        String normalized = stat == null ? "" : stat.toLowerCase().replace('-', '_');
+        String configured = messages.getString("items.stat-labels." + normalized);
+        if (configured != null && !configured.isBlank()) {
+            return configured;
+        }
+        String readable = normalized.replace('_', ' ');
+        if (readable.isBlank()) {
+            return stat == null ? "" : stat;
+        }
+        return Character.toUpperCase(readable.charAt(0)) + readable.substring(1);
+    }
+
     private String expandPrefix(String raw) {
         String prefix = messages.getString("prefix", "");
         return raw.replace("<prefix>", prefix);

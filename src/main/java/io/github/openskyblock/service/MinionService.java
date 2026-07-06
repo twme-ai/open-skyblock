@@ -5,6 +5,7 @@ import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.upgrade.UpgradeService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -34,14 +35,16 @@ public final class MinionService {
     private final TextService text;
     private final ProfileManager profiles;
     private final CollectionService collections;
+    private final UpgradeService upgrades;
     private final NamespacedKey minionIdKey;
     private final Map<String, MinionDefinition> definitions = new HashMap<>();
 
-    public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections) {
+    public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, UpgradeService upgrades) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.collections = collections;
+        this.upgrades = upgrades;
         this.minionIdKey = new NamespacedKey(plugin, "minion_id");
     }
 
@@ -279,7 +282,7 @@ public final class MinionService {
     }
 
     private boolean hasMinionCapacity(Player player, SkyBlockProfile profile) {
-        int limit = Math.max(1, configService.main().getInt("minions.max-per-profile", 5));
+        int limit = Math.max(1, configService.main().getInt("minions.max-per-profile", 5) + upgrades.capacityBonus(profile, "minion_slots"));
         if (profile.minions().size() < limit) {
             return true;
         }

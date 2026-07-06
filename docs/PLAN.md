@@ -45,6 +45,9 @@ Verified reference links:
 - Official God Potion reference: https://wiki.hypixel.net/God_Potion
 - Official potions reference: https://wiki.hypixel.net/Potions
 - Official Century Cakes reference: https://wiki.hypixel.net/Century_Cakes
+- Official Elizabeth and Community Shop reference: https://wiki.hypixel.net/Elizabeth
+- Official profile upgrades reference: https://wiki.hypixel.net/Profile
+- Community account/profile upgrade reference: https://hypixelskyblock.minecraft.wiki/w/Account_%26_Profile_Upgrades
 - Official reforging reference: https://wiki.hypixel.net/Reforging
 - Official auction house reference: https://wiki.hypixel.net/Auction_House
 - Official bazaar reference: https://wiki.hypixel.net/Bazaar
@@ -108,6 +111,7 @@ Planned additions when each subsystem needs them:
    - Configurable Quiver storage with automatic arrow pickup, selected arrow type, bow-shot proxy consumption, GUI controls, and command access is implemented.
    - Configurable Potion Effects and God Potion bundles with persistent online-only timers, private-island timer pause, vanilla effect refresh, item activation, stat bonuses, and command status are implemented.
    - Configurable Century Cakes with persistent placed cake locations, reusable right-click activation, visitor activation option, active buff timers, pickup flow, and stat aggregation are implemented.
+   - Configurable profile/account upgrades with persistent tier levels, purchase costs, stat bonuses, bank-capacity bonuses, accessory-bag slot bonuses, and minion-slot bonuses are implemented.
    - Configurable pet definitions, persistent owned pets, active pet selection, pet XP/levels, pet menu activation, and active pet stat aggregation are implemented.
    - Pet items, pet score, autopet rules, cosmetic summoned pet entities, advanced reforge stones, reforge anvil UI, vanilla/SkyBlock-specific enchantment effects, enchanting table/anvil UI, essence currencies, dungeon-only star scaling, gemstone slot unlocking, gemstone item consumption, advanced potion modifiers, and ability cooldowns remain future work.
    - Custom mobs, loot tables, spawn zones, boss bars, damage formula, aggro, and death rewards.
@@ -137,4 +141,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

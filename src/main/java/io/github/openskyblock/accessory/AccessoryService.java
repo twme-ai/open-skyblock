@@ -6,6 +6,7 @@ import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.CustomItemService;
+import io.github.openskyblock.upgrade.UpgradeService;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -17,12 +18,14 @@ public final class AccessoryService {
     private final TextService text;
     private final ProfileManager profiles;
     private final CustomItemService customItems;
+    private final UpgradeService upgrades;
 
-    public AccessoryService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems) {
+    public AccessoryService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, UpgradeService upgrades) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.customItems = customItems;
+        this.upgrades = upgrades;
     }
 
     public boolean enabled() {
@@ -31,6 +34,14 @@ public final class AccessoryService {
 
     public int capacity() {
         return Math.max(0, configService.main().getInt("accessory-bag.capacity", 18));
+    }
+
+    public int capacity(SkyBlockProfile profile) {
+        return Math.max(0, capacity() + upgrades.capacityBonus(profile, "accessory_bag_slots"));
+    }
+
+    public int capacity(Player player) {
+        return capacity(profiles.profile(player));
     }
 
     public boolean addHeld(Player player) {
@@ -49,7 +60,7 @@ public final class AccessoryService {
             text.send(player, "commands.accessory-bag-duplicate");
             return false;
         }
-        if (profile.accessoryBag().size() >= capacity()) {
+        if (profile.accessoryBag().size() >= capacity(profile)) {
             text.send(player, "commands.accessory-bag-full");
             return false;
         }
@@ -112,7 +123,7 @@ public final class AccessoryService {
         SkyBlockProfile profile = profiles.profile(player);
         text.send(player, "commands.accessory-bag-summary", List.of(
                 TextService.raw("count", Integer.toString(profile.accessoryBag().size())),
-                TextService.raw("capacity", Integer.toString(capacity())),
+                TextService.raw("capacity", Integer.toString(capacity(profile))),
                 TextService.raw("magical_power", Integer.toString(magicalPower(profile)))
         ));
     }

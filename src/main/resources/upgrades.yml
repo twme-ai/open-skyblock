@@ -1,0 +1,136 @@
+upgrades:
+  MINION_SLOTS:
+    display-name: "<yellow>Minion Slots</yellow>"
+    scope: PROFILE
+    material: HOPPER
+    tiers:
+      1:
+        cost: 0.0
+        capacities:
+          minion_slots: 1
+        stats: {}
+      2:
+        cost: 25000.0
+        capacities:
+          minion_slots: 2
+        stats: {}
+      3:
+        cost: 100000.0
+        capacities:
+          minion_slots: 3
+        stats: {}
+      4:
+        cost: 500000.0
+        capacities:
+          minion_slots: 4
+        stats: {}
+      5:
+        cost: 1000000.0
+        capacities:
+          minion_slots: 5
+        stats: {}
+  ACCESSORY_BAG:
+    display-name: "<light_purple>Accessory Bag</light_purple>"
+    scope: ACCOUNT
+    material: ENDER_CHEST
+    tiers:
+      1:
+        cost: 0.0
+        capacities:
+          accessory_bag_slots: 2
+        stats: {}
+      2:
+        cost: 10000.0
+        capacities:
+          accessory_bag_slots: 4
+        stats: {}
+      3:
+        cost: 50000.0
+        capacities:
+          accessory_bag_slots: 6
+        stats: {}
+      4:
+        cost: 250000.0
+        capacities:
+          accessory_bag_slots: 8
+        stats: {}
+      5:
+        cost: 750000.0
+        capacities:
+          accessory_bag_slots: 10
+        stats: {}
+      6:
+        cost: 1500000.0
+        capacities:
+          accessory_bag_slots: 12
+        stats: {}
+  BANK_CAPACITY:
+    display-name: "<gold>Bank Capacity</gold>"
+    scope: PROFILE
+    material: GOLD_INGOT
+    tiers:
+      1:
+        cost: 25000.0
+        capacities:
+          bank_capacity: 250000
+        stats: {}
+      2:
+        cost: 100000.0
+        capacities:
+          bank_capacity: 750000
+        stats: {}
+      3:
+        cost: 500000.0
+        capacities:
+          bank_capacity: 2000000
+        stats: {}
+  MAGIC_FIND:
+    display-name: "<aqua>Magic Find</aqua>"
+    scope: ACCOUNT
+    material: NETHER_STAR
+    tiers:
+      1:
+        cost: 0.0
+        capacities: {}
+        stats:
+          magic_find: 1.0
+      2:
+        cost: 250000.0
+        capacities: {}
+        stats:
+          magic_find: 2.0
+      3:
+        cost: 750000.0
+        capacities: {}
+        stats:
+          magic_find: 3.0
+      4:
+        cost: 1500000.0
+        capacities: {}
+        stats:
+          magic_find: 4.0
+      5:
+        cost: 2500000.0
+        capacities: {}
+        stats:
+          magic_find: 5.0
+  GARDEN_FARMING_FORTUNE:
+    display-name: "<green>Garden Farming Fortune</green>"
+    scope: ACCOUNT
+    material: WHEAT
+    tiers:
+      1:
+        cost: 50000.0
+        capacities: {}
+        stats:
+          farming_fortune: 5.0
+      2:
+        cost: 250000.0
+        capacities: {}
+        stats:
+          farming_fortune: 10.0
+      3:
+        cost: 1000000.0
+        capacities: {}
+        stats:
+          farming_fortune: 15.0

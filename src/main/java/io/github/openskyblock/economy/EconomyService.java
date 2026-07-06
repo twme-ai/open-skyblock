@@ -4,6 +4,7 @@ import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.upgrade.UpgradeService;
 import java.util.List;
 import org.bukkit.entity.Player;
 
@@ -11,11 +12,16 @@ public final class EconomyService {
     private final ConfigService configService;
     private final TextService text;
     private final ProfileManager profiles;
+    private UpgradeService upgrades;
 
     public EconomyService(ConfigService configService, TextService text, ProfileManager profiles) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
+    }
+
+    public void upgradeService(UpgradeService upgrades) {
+        this.upgrades = upgrades;
     }
 
     public boolean bankEnabled() {
@@ -26,12 +32,21 @@ public final class EconomyService {
         return Math.max(0.0D, configService.main().getDouble("bank.capacity", 1_000_000.0D));
     }
 
+    public double bankCapacity(SkyBlockProfile profile) {
+        double bonus = upgrades == null ? 0.0D : upgrades.capacityBonus(profile, "bank_capacity");
+        return Math.max(0.0D, bankCapacity() + bonus);
+    }
+
+    public double bankCapacity(Player player) {
+        return bankCapacity(profiles.profile(player));
+    }
+
     public void sendBalance(Player player) {
         SkyBlockProfile profile = profiles.profile(player);
         text.send(player, "commands.bank-summary", List.of(
                 TextService.raw("purse", text.formatNumber(profile.purse())),
                 TextService.raw("bank", text.formatNumber(profile.bank())),
-                TextService.raw("capacity", text.formatNumber(bankCapacity()))
+                TextService.raw("capacity", text.formatNumber(bankCapacity(profile)))
         ));
     }
 
@@ -45,7 +60,7 @@ public final class EconomyService {
             return false;
         }
         SkyBlockProfile profile = profiles.profile(player);
-        double capacity = bankCapacity();
+        double capacity = bankCapacity(profile);
         double space = Math.max(0.0D, capacity - profile.bank());
         if (space <= 0.0D) {
             text.send(player, "commands.bank-full");

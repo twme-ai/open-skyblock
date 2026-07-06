@@ -38,6 +38,7 @@ import io.github.openskyblock.shop.ShopNpcService;
 import io.github.openskyblock.stats.StatService;
 import io.github.openskyblock.stats.ArmorSetService;
 import io.github.openskyblock.star.StarService;
+import io.github.openskyblock.upgrade.UpgradeService;
 import io.github.openskyblock.wardrobe.WardrobeService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -72,6 +73,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private ShopService shopService;
     private ShopNpcService shopNpcService;
     private StatService statService;
+    private UpgradeService upgradeService;
     private BukkitTask autosaveTask;
     private BukkitTask minionTask;
     private BukkitTask shopNpcTask;
@@ -85,6 +87,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.profileManager = new ProfileManager(this, configService);
         this.profileManager.loadAll();
         this.economyService = new EconomyService(configService, textService, profileManager);
+        this.upgradeService = new UpgradeService(configService, textService, profileManager, economyService);
+        this.economyService.upgradeService(upgradeService);
         this.collectionService = new CollectionService(configService, textService, profileManager);
         this.skillService = new SkillService(configService, textService, profileManager, collectionService, economyService);
         this.customItemService = new CustomItemService(this, configService, textService);
@@ -101,13 +105,13 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.quiverService = new QuiverService(this, configService, textService, profileManager, customItemService, skillService);
         this.equipmentService = new EquipmentService(configService, textService, profileManager, customItemService);
         this.wardrobeService = new WardrobeService(configService, textService, profileManager);
-        this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService);
+        this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService, upgradeService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
         this.potionService = new PotionService(this, configService, textService, profileManager);
         this.petService = new PetService(configService, textService, profileManager);
-        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, petService, reforgeService, enchantmentService, starService, gemstoneService);
-        this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
+        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, reforgeService, enchantmentService, starService, gemstoneService);
+        this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
         this.recipeService = new RecipeService(this, configService, textService, profileManager, collectionService, customItemService, minionService);
@@ -160,6 +164,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         collectionService.reload();
         skillService.reload();
         customItemService.reload();
+        upgradeService.reload();
         sackService.reload();
         quiverService.reload();
         equipmentService.reload();
@@ -321,5 +326,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public StatService stats() {
         return statService;
+    }
+
+    public UpgradeService upgrades() {
+        return upgradeService;
     }
 }

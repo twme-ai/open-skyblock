@@ -1366,7 +1366,7 @@ public final class MenuService {
         return List.of(
                 TextService.raw("purse", text.formatNumber(profile.purse())),
                 TextService.raw("bank", text.formatNumber(profile.bank())),
-                TextService.raw("capacity", text.formatNumber(plugin.economy().bankCapacity()))
+                TextService.raw("capacity", text.formatNumber(plugin.economy().bankCapacity(profile)))
         );
     }
 
@@ -1374,7 +1374,7 @@ public final class MenuService {
         SkyBlockProfile profile = profiles.profile(player);
         return List.of(
                 TextService.raw("count", Integer.toString(profile.accessoryBag().size())),
-                TextService.raw("capacity", Integer.toString(plugin.accessories().capacity())),
+                TextService.raw("capacity", Integer.toString(plugin.accessories().capacity(profile))),
                 TextService.raw("magical_power", Integer.toString(plugin.accessories().magicalPower(profile)))
         );
     }

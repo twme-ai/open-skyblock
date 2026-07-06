@@ -26,6 +26,7 @@ public final class SkyBlockProfile {
     private final Map<String, Long> quiver = new HashMap<>();
     private final Map<String, Long> potionEffects = new HashMap<>();
     private final Map<String, Long> cakeBuffs = new HashMap<>();
+    private final Map<String, Integer> upgrades = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private final List<PlacedCake> placedCakes = new ArrayList<>();
@@ -187,6 +188,10 @@ public final class SkyBlockProfile {
 
     public Map<String, Long> cakeBuffs() {
         return cakeBuffs;
+    }
+
+    public Map<String, Integer> upgrades() {
+        return upgrades;
     }
 
     public List<String> accessoryBag() {

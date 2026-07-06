@@ -15,6 +15,7 @@ features:
   quiver: true
   potion-effects: true
   cakes: true
+  profile-upgrades: true
   reforges: true
   enchantments: true
   item-stars: true

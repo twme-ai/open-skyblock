@@ -18,6 +18,7 @@ import io.github.openskyblock.sack.SackItemDefinition;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionDefinition;
 import io.github.openskyblock.service.SkillDefinition;
+import io.github.openskyblock.upgrade.UpgradeDefinition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -50,6 +51,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "godpotion",
             "cakes",
             "cake",
+            "upgrades",
+            "upgrade",
             "reforges",
             "reforge",
             "enchants",
@@ -106,6 +109,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "quiver" -> quiver(sender, args);
             case "potions", "potion", "godpotion" -> potions(sender, args);
             case "cakes", "cake" -> cakes(sender, args);
+            case "upgrades", "upgrade" -> upgrades(sender, args);
             case "reforges" -> reforges(sender);
             case "reforge" -> reforge(sender, args);
             case "enchants", "enchantments" -> enchants(sender);
@@ -187,6 +191,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && isCakeCommand(args[0])) {
             return startsWith(List.of("status", "placed", "clear", "list"), args[1]);
+        }
+        if (args.length == 2 && isUpgradeCommand(args[0])) {
+            return startsWith(List.of("list", "buy", "info"), args[1]);
+        }
+        if (args.length == 3 && isUpgradeCommand(args[0]) && (args[1].equalsIgnoreCase("buy") || args[1].equalsIgnoreCase("info"))) {
+            return startsWith(plugin.upgrades().definitions().stream().map(UpgradeDefinition::id).toList(), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("reforge")) {
             List<String> values = new ArrayList<>();
@@ -310,6 +320,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " quiver deposit|withdraw|select", "commands.help.quiver-edit");
         helpLine(sender, label + " potions", "commands.help.potions");
         helpLine(sender, label + " cakes", "commands.help.cakes");
+        helpLine(sender, label + " upgrades", "commands.help.upgrades");
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge <id|remove>", "commands.help.reforge");
         helpLine(sender, label + " enchants", "commands.help.enchants");
@@ -601,6 +612,34 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 }
             }
             default -> plugin.text().send(player, "commands.cake-usage");
+        }
+    }
+
+    private void upgrades(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("list")) {
+            plugin.upgrades().sendSummary(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "buy" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.upgrade-usage");
+                    return;
+                }
+                plugin.upgrades().purchase(player, args[2]);
+            }
+            case "info" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.upgrade-usage");
+                    return;
+                }
+                plugin.upgrades().sendDetails(player, args[2]);
+            }
+            default -> plugin.text().send(player, "commands.upgrade-usage");
         }
     }
 
@@ -1234,6 +1273,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isCakeCommand(String value) {
         return value.equalsIgnoreCase("cake") || value.equalsIgnoreCase("cakes");
+    }
+
+    private boolean isUpgradeCommand(String value) {
+        return value.equalsIgnoreCase("upgrade") || value.equalsIgnoreCase("upgrades");
     }
 
     private List<String> numberRange(int max) {

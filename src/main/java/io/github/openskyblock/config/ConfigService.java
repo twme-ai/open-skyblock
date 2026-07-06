@@ -18,6 +18,7 @@ public final class ConfigService {
             "quiver.yml",
             "potions.yml",
             "cakes.yml",
+            "upgrades.yml",
             "equipment.yml",
             "wardrobe.yml",
             "armor_sets.yml",
@@ -85,6 +86,10 @@ public final class ConfigService {
 
     public FileConfiguration cakes() {
         return file("cakes.yml");
+    }
+
+    public FileConfiguration upgrades() {
+        return file("upgrades.yml");
     }
 
     public FileConfiguration equipment() {

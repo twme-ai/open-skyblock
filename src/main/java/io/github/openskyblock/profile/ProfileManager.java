@@ -237,6 +237,15 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection upgrades = section.getConfigurationSection("upgrades");
+        if (upgrades != null) {
+            for (String upgradeId : upgrades.getKeys(false)) {
+                int level = upgrades.getInt(upgradeId, 0);
+                if (level > 0) {
+                    profile.upgrades().put(upgradeId.toUpperCase(), level);
+                }
+            }
+        }
         profile.activePetInstanceId(section.getString("pets.active", null));
         ConfigurationSection pets = section.getConfigurationSection("pets.owned");
         if (pets != null) {
@@ -345,6 +354,12 @@ public final class ProfileManager {
             profileData.set(cakeBase + ".x", cake.x());
             profileData.set(cakeBase + ".y", cake.y());
             profileData.set(cakeBase + ".z", cake.z());
+        }
+        profileData.set(base + ".upgrades", null);
+        for (Map.Entry<String, Integer> entry : profile.upgrades().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".upgrades." + entry.getKey(), entry.getValue());
+            }
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());
         profileData.set(base + ".pets.owned", null);

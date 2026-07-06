@@ -34,6 +34,7 @@ commands:
     quiver-edit: "Deposit, withdraw, or select Quiver arrows."
     potions: "View active potion effects."
     cakes: "View active cake buffs and placed cakes."
+    upgrades: "View and purchase configurable account/profile upgrades."
     reforges: "List configured item reforges."
     reforge: "Apply or remove a reforge from your held custom item."
     enchants: "List configured custom enchantments."
@@ -142,6 +143,16 @@ commands:
   cake-placed-line: "<gray><slot>.</gray> <cake> <dark_gray>|</dark_gray> <location>"
   cake-list-header: "<prefix><aqua>Configured Cakes</aqua>"
   cake-list-line: "<gray><id>:</gray> <cake> <dark_gray>|</dark_gray> <yellow><duration></yellow>"
+  upgrade-disabled: "<prefix><red>Profile upgrades are disabled on this server.</red>"
+  upgrade-usage: "<prefix><red>Use <yellow>/skyblock upgrades</yellow>, <yellow>/skyblock upgrade info <id></yellow>, or <yellow>/skyblock upgrade buy <id></yellow>.</red>"
+  upgrade-unknown: "<prefix><red>Unknown upgrade: <yellow><upgrade></yellow>.</red>"
+  upgrade-maxed: "<prefix><red><upgrade> is already maxed.</red>"
+  upgrade-no-money: "<prefix><red>You need <gold><cost></gold> coins to purchase <upgrade><red>.</red></red>"
+  upgrade-purchased: "<prefix><green>Purchased <upgrade> <yellow>Level <level></yellow><green>.</green></green>"
+  upgrade-summary-header: "<prefix><aqua>Profile Upgrades</aqua>"
+  upgrade-summary-line: "<gray><id>:</gray> <upgrade> <dark_gray>|</dark_gray> <yellow><level></yellow><gray>/</gray><yellow><max_level></yellow> <dark_gray>|</dark_gray> <gray>Next:</gray> <yellow><next_level></yellow> <dark_gray>|</dark_gray> <gold><cost></gold>"
+  upgrade-detail-header: "<prefix><aqua><upgrade></aqua> <gray>Level</gray> <yellow><level></yellow><gray>/</gray><yellow><max_level></yellow>"
+  upgrade-detail-line: "<gray>Level <level>:</gray> <gold><cost></gold> <dark_gray>|</dark_gray> <gray>Stats:</gray> <yellow><stats></yellow> <dark_gray>|</dark_gray> <gray>Capacity:</gray> <yellow><capacities></yellow>"
   reforge-disabled: "<prefix><red>Reforges are disabled on this server.</red>"
   reforge-usage: "<prefix><red>Use <yellow>/skyblock reforges</yellow> or <yellow>/skyblock reforge <id|remove></yellow>.</red>"
   reforge-list-header: "<prefix><aqua>Reforges</aqua>"
@@ -369,6 +380,14 @@ cakes:
   duration-hours: "<hours>h <minutes>m"
   duration-minutes: "<minutes>m"
   location: "<yellow><world></yellow> <gray>(<x>, <y>, <z>)</gray>"
+
+upgrades:
+  maxed: "Maxed"
+  none: "None"
+  capacity-labels:
+    minion_slots: "Minion Slots"
+    accessory_bag_slots: "Accessory Bag Slots"
+    bank_capacity: "Bank Capacity"
 
 wardrobe:
   status-empty: "<dark_gray>Empty</dark_gray>"
