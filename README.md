@@ -37,7 +37,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Aggregated combat stats from configurable base stats, held/armor items, equipment slots, accessory-category custom items, and Slayer rewards.
 - Configurable item reforges with persistent item metadata, rarity-scaled stat tables, optional consumed Reforge Stones, purse costs, Reforge Anvil GUI, lore rendering, and stat aggregation.
 - Configurable item enchantments with persistent item metadata, max levels, ultimate-enchantment exclusivity, purse costs, Enchanting Table GUI, Anvil enchanted-book combining, lore rendering, and stat aggregation.
-- Configurable item stars with persistent item metadata, category limits, purse and Essence costs, display suffix/lore, and item stat scaling.
+- Configurable item stars with persistent item metadata, category limits, purse and Essence costs, held-item Essence salvage, display suffix/lore, and item stat scaling.
 - Configurable gemstone slots with persistent item metadata, item/category slot rules, locked-slot unlocking, gemstone item consumption, tiered gemstone stat bonuses, purse costs, lore rendering, and stat aggregation.
 - Configurable equipment slots with persistent equipped items, GUI equip/unequip flow, equipment-slot item metadata, and stat aggregation.
 - Configurable Wardrobe slots with persistent armor setup storage, GUI swap/withdraw flow, and command access.
@@ -161,6 +161,7 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock star clear`
 - `/skyblock essence`
 - `/skyblock essence give <type> <amount> [player]`
+- `/skyblock salvage`
 - `/skyblock gemstones`
 - `/skyblock gemstone slots`
 - `/skyblock gemstone apply <slot> <gemstone> <tier>`

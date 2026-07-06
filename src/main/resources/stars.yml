@@ -44,3 +44,32 @@ settings:
       3: 40.0
       4: 80.0
       5: 160.0
+    salvage:
+      enabled: true
+      include-stars: true
+      star-bonus-per-star: 2.0
+      allowed-categories:
+        - SWORD
+        - ARMOR
+      type-by-category:
+        SWORD: WITHER
+        ARMOR: WITHER
+      amount-by-rarity:
+        COMMON: 2.0
+        UNCOMMON: 5.0
+        RARE: 10.0
+        EPIC: 25.0
+        LEGENDARY: 50.0
+        MYTHIC: 100.0
+        SPECIAL: 0.0
+      amount-by-category:
+        SWORD: 10.0
+        ARMOR: 8.0
+      amount-by-item:
+        ROGUE_SWORD: 5.0
+        ASPECT_OF_THE_END: 25.0
+        HYPERION: 150.0
+        FARM_SUIT_HELMET: 6.0
+        FARM_SUIT_CHESTPLATE: 8.0
+        FARM_SUIT_LEGGINGS: 7.0
+        FARM_SUIT_BOOTS: 5.0

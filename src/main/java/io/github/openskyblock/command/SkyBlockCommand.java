@@ -79,6 +79,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "star",
             "essence",
             "essences",
+            "salvage",
             "gemstones",
             "gemstone",
             "equipment",
@@ -150,6 +151,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
+            case "salvage" -> salvage(sender);
             case "gemstones" -> gemstones(sender);
             case "gemstone" -> gemstone(sender, args);
             case "equipment" -> equipment(sender, args);
@@ -338,7 +340,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
         }
         if (args.length == 2 && isEssenceCommand(args[0])) {
-            List<String> values = new ArrayList<>(List.of("give"));
+            List<String> values = new ArrayList<>(List.of("give", "salvage"));
             values.addAll(plugin.stars().essenceTypes());
             return startsWith(values, args[1]);
         }
@@ -515,6 +517,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
+        helpLine(sender, label + " salvage", "commands.help.salvage");
         helpLine(sender, label + " gemstones", "commands.help.gemstones");
         helpLine(sender, label + " gemstone apply|remove|unlock", "commands.help.gemstone");
         helpLine(sender, label + " equipment", "commands.help.equipment");
@@ -1292,6 +1295,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
     }
 
     private void essence(CommandSender sender, String[] args) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("salvage")) {
+            salvage(sender);
+            return;
+        }
         if (args.length >= 2 && args[1].equalsIgnoreCase("give")) {
             essenceGive(sender, args);
             return;
@@ -1342,6 +1349,14 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 TextService.raw("player", target.getName()),
                 TextService.raw("balance", plugin.text().formatNumber(plugin.stars().essenceBalance(profile, essenceId)))
         ));
+    }
+
+    private void salvage(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.stars().salvageHeld(player);
     }
 
     private void gemstones(CommandSender sender) {

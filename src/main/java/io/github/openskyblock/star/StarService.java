@@ -231,6 +231,33 @@ public final class StarService {
         }
     }
 
+    public boolean salvageHeld(Player player) {
+        if (!enabled() || !salvageEnabled()) {
+            text.send(player, "commands.salvage-disabled");
+            return false;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        CustomItemDefinition definition = customItems.definition(held).orElse(null);
+        if (definition == null) {
+            text.send(player, "commands.salvage-held-missing");
+            return false;
+        }
+        SalvageReward reward = salvageReward(definition, held);
+        if (reward.amount() <= 0.0D || reward.essenceType().isBlank()) {
+            text.send(player, "commands.salvage-not-salvageable", salvagePlaceholders(definition, reward, profiles.profile(player)));
+            return false;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        profile.addEssence(reward.essenceType(), reward.amount());
+        if (held.getAmount() <= 1) {
+            player.getInventory().setItemInMainHand(null);
+        } else {
+            held.setAmount(held.getAmount() - 1);
+        }
+        text.send(player, "commands.salvage-success", salvagePlaceholders(definition, reward, profile));
+        return true;
+    }
+
     public List<Component> lore(ItemStack itemStack, CustomItemDefinition definition) {
         int stars = stars(itemStack);
         if (stars <= 0) {
@@ -327,6 +354,60 @@ public final class StarService {
         return total;
     }
 
+    private SalvageReward salvageReward(CustomItemDefinition definition, ItemStack itemStack) {
+        String itemId = definition.id().toUpperCase(Locale.ROOT);
+        String category = definition.category().toUpperCase(Locale.ROOT);
+        if (!salvageAllowed(category, itemId)) {
+            return new SalvageReward("", 0.0D, 0.0D, 0.0D, stars(itemStack));
+        }
+        String essenceType = salvageEssenceType(definition);
+        double baseAmount = salvageBaseAmount(definition);
+        int stars = stars(itemStack);
+        double starBonus = configService.stars().getBoolean("settings.essence.salvage.include-stars", true)
+                ? Math.max(0.0D, configService.stars().getDouble("settings.essence.salvage.star-bonus-per-star", 2.0D)) * stars
+                : 0.0D;
+        return new SalvageReward(essenceType, baseAmount + starBonus, baseAmount, starBonus, stars);
+    }
+
+    private boolean salvageAllowed(String category, String itemId) {
+        if (configService.stars().contains("settings.essence.salvage.amount-by-item." + itemId)) {
+            return true;
+        }
+        List<String> allowedCategories = configService.stars().getStringList("settings.essence.salvage.allowed-categories");
+        if (allowedCategories.isEmpty()) {
+            return true;
+        }
+        return allowedCategories.stream().anyMatch(allowed -> allowed.equalsIgnoreCase(category) || allowed.equalsIgnoreCase("ALL"));
+    }
+
+    private String salvageEssenceType(CustomItemDefinition definition) {
+        String itemId = definition.id().toUpperCase(Locale.ROOT);
+        String category = definition.category().toUpperCase(Locale.ROOT);
+        String configured = configService.stars().getString("settings.essence.salvage.type-by-item." + itemId, "");
+        if (configured == null || configured.isBlank()) {
+            configured = configService.stars().getString("settings.essence.salvage.type-by-category." + category, "");
+        }
+        if (configured == null || configured.isBlank()) {
+            configured = configService.stars().getString("settings.essence.type-by-category." + category, "");
+        }
+        if (configured == null || configured.isBlank()) {
+            configured = configService.stars().getString("settings.essence.default-type", "");
+        }
+        return normalizeEssence(configured);
+    }
+
+    private double salvageBaseAmount(CustomItemDefinition definition) {
+        String itemId = definition.id().toUpperCase(Locale.ROOT);
+        String category = definition.category().toUpperCase(Locale.ROOT);
+        if (configService.stars().contains("settings.essence.salvage.amount-by-item." + itemId)) {
+            return Math.max(0.0D, configService.stars().getDouble("settings.essence.salvage.amount-by-item." + itemId, 0.0D));
+        }
+        if (configService.stars().contains("settings.essence.salvage.amount-by-category." + category)) {
+            return Math.max(0.0D, configService.stars().getDouble("settings.essence.salvage.amount-by-category." + category, 0.0D));
+        }
+        return Math.max(0.0D, configService.stars().getDouble("settings.essence.salvage.amount-by-rarity." + definition.rarity().name(), 0.0D));
+    }
+
     private String essenceType(CustomItemDefinition definition) {
         if (!essenceEnabled()) {
             return "";
@@ -341,6 +422,10 @@ public final class StarService {
 
     private boolean essenceEnabled() {
         return configService.stars().getBoolean("settings.essence.enabled", true);
+    }
+
+    private boolean salvageEnabled() {
+        return essenceEnabled() && configService.stars().getBoolean("settings.essence.salvage.enabled", true);
     }
 
     private String essenceLine(String category) {
@@ -385,6 +470,19 @@ public final class StarService {
         );
     }
 
+    private List<TextService.TextPlaceholder> salvagePlaceholders(CustomItemDefinition definition, SalvageReward reward, SkyBlockProfile profile) {
+        String essenceDisplay = reward.essenceType().isBlank() ? text.rawMessage("stars.no-essence-cost") : essenceDisplayName(reward.essenceType());
+        return List.of(
+                TextService.parsed("item", definition.displayName()),
+                TextService.parsed("essence", essenceDisplay),
+                TextService.raw("amount", text.formatNumber(reward.amount())),
+                TextService.raw("base_amount", text.formatNumber(reward.baseAmount())),
+                TextService.raw("star_bonus", text.formatNumber(reward.starBonus())),
+                TextService.raw("stars", Integer.toString(reward.stars())),
+                TextService.raw("balance", text.formatNumber(profile.essence(reward.essenceType())))
+        );
+    }
+
     private boolean allowed(String category) {
         List<String> allowedCategories = configService.stars().getStringList("settings.allowed-categories");
         if (allowedCategories.isEmpty()) {
@@ -396,5 +494,8 @@ public final class StarService {
     private String symbols(int stars) {
         String symbol = configService.stars().getString("settings.star-symbol", "*");
         return symbol.repeat(Math.max(0, stars));
+    }
+
+    private record SalvageReward(String essenceType, double amount, double baseAmount, double starBonus, int stars) {
     }
 }
