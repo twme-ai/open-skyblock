@@ -64,6 +64,9 @@ commands:
     equipment-unequip: "Unequip an equipment slot."
     wardrobe: "Open your Wardrobe."
     wardrobe-slot: "Save, equip, or withdraw a Wardrobe slot."
+    calendar: "View the current SkyBlock date."
+    events: "View active and upcoming SkyBlock events."
+    event: "View details for a configured SkyBlock event."
     mobs: "List configured SkyBlock mobs."
     mob-spawn: "Spawn a configured SkyBlock mob."
     mob-zones: "List configured SkyBlock mob spawn zones."
@@ -465,6 +468,15 @@ commands:
   wardrobe-empty: "<prefix><red>Wardrobe slot <yellow><slot></yellow> is empty.</red>"
   wardrobe-summary-header: "<prefix><aqua>Wardrobe</aqua>"
   wardrobe-summary-line: "<gray>Slot <slot>:</gray> <status>"
+  calendar-disabled: "<prefix><red>The SkyBlock calendar is disabled on this server.</red>"
+  calendar-summary: "<prefix><aqua>SkyBlock Calendar</aqua> <dark_gray>|</dark_gray> <yellow><date></yellow> <dark_gray>|</dark_gray> <gray>Active:</gray> <yellow><active_count></yellow> <dark_gray>|</dark_gray> <gray>Next:</gray> <next_event>"
+  calendar-events-header: "<prefix><aqua>SkyBlock Events</aqua> <dark_gray>|</dark_gray> <yellow><date></yellow>"
+  calendar-active-empty: "<prefix><gray>No configured events are active right now.</gray>"
+  calendar-active-line: "<green>ACTIVE</green> <event> <dark_gray>|</dark_gray> <gray>Ends:</gray> <yellow><ends></yellow> <dark_gray>|</dark_gray> <gray>Remaining:</gray> <yellow><remaining></yellow>"
+  calendar-upcoming-line: "<yellow>UPCOMING</yellow> <event> <dark_gray>|</dark_gray> <gray>Starts:</gray> <yellow><starts></yellow> <dark_gray>|</dark_gray> <gray>In:</gray> <yellow><until_start></yellow>"
+  calendar-event-usage: "<prefix><red>Use <yellow>/skyblock event <id></yellow>.</red>"
+  calendar-event-unknown: "<prefix><red>Unknown calendar event: <yellow><event></yellow>.</red>"
+  calendar-event-detail: "<prefix><event> <dark_gray>|</dark_gray> <status> <dark_gray>|</dark_gray> <gray>Starts:</gray> <yellow><starts></yellow> <dark_gray>|</dark_gray> <gray>Ends:</gray> <yellow><ends></yellow> <dark_gray>|</dark_gray> <gray>Rewards:</gray> <rewards>"
   skills-header: "<prefix><aqua>Skills</aqua>"
   stats-header: "<prefix><aqua>Stats</aqua>"
   stats-line: "<gray><stat>:</gray> <green><value></green>"
@@ -679,6 +691,14 @@ quiver:
 bank:
   interest-disabled: "<red>Disabled</red>"
   interest-ready: "<green>Ready</green>"
+
+calendar:
+  status-active: "<green>Active</green>"
+  status-upcoming: "<yellow>Upcoming</yellow>"
+  no-event: "<dark_gray>None</dark_gray>"
+  no-rewards: "<dark_gray>No rewards</dark_gray>"
+  now: "<green>Now</green>"
+  next-event: "<event> <gray>in</gray> <yellow><until_start></yellow>"
 
 potions:
   duration-hours: "<hours>h <minutes>m"

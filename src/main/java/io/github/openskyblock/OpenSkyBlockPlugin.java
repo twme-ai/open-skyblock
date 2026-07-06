@@ -9,6 +9,7 @@ import io.github.openskyblock.backpack.BackpackService;
 import io.github.openskyblock.bestiary.BestiaryService;
 import io.github.openskyblock.bazaar.BazaarService;
 import io.github.openskyblock.cake.CakeService;
+import io.github.openskyblock.calendar.CalendarService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.EnchantmentService;
@@ -73,6 +74,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private EquipmentService equipmentService;
     private WardrobeService wardrobeService;
     private ArmorSetService armorSetService;
+    private CalendarService calendarService;
     private CakeService cakeService;
     private PotionService potionService;
     private ReforgeService reforgeService;
@@ -137,6 +139,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.quiverService = new QuiverService(this, configService, textService, profileManager, customItemService, skillService);
         this.equipmentService = new EquipmentService(configService, textService, profileManager, customItemService);
         this.wardrobeService = new WardrobeService(configService, textService, profileManager);
+        this.calendarService = new CalendarService(configService, textService);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService, upgradeService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
@@ -243,6 +246,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         quiverService.reload();
         equipmentService.reload();
         wardrobeService.reload();
+        calendarService.reload();
         armorSetService.reload();
         cakeService.reload();
         potionService.reload();
@@ -360,6 +364,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public ArmorSetService armorSets() {
         return armorSetService;
+    }
+
+    public CalendarService calendar() {
+        return calendarService;
     }
 
     public CakeService cakes() {

@@ -40,6 +40,7 @@ features:
   mob-spawn-zones: true
   bestiary: true
   museum: true
+  calendar: true
   slayers: true
 
 islands:

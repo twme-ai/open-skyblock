@@ -1,0 +1,62 @@
+settings:
+  epoch-millis: 0
+  day-seconds: 1200
+  days-per-month: 31
+  upcoming-limit: 5
+  months:
+    - "Early Spring"
+    - "Spring"
+    - "Late Spring"
+    - "Early Summer"
+    - "Summer"
+    - "Late Summer"
+    - "Early Autumn"
+    - "Autumn"
+    - "Late Autumn"
+    - "Early Winter"
+    - "Winter"
+    - "Late Winter"
+
+events:
+  JACOBS_CONTEST:
+    display-name: "<gold>Jacob's Farming Contest</gold>"
+    description: "A recurring farming contest window."
+    first-day: 2
+    recurrence-days: 3
+    duration-days: 1
+    rewards:
+      - "<gold>Farming medals</gold>"
+      - "<green>Jacob's Tickets</green>"
+  SPOOKY_FESTIVAL:
+    display-name: "<dark_purple>Spooky Festival</dark_purple>"
+    description: "Defeat mobs and collect candy during late Autumn."
+    month: 9
+    day: 29
+    duration-days: 3
+    rewards:
+      - "<light_purple>Candy score rewards</light_purple>"
+  SEASON_OF_JERRY:
+    display-name: "<aqua>Season of Jerry</aqua>"
+    description: "A winter event window with gifts and seasonal activities."
+    month: 12
+    day: 24
+    duration-days: 7
+    rewards:
+      - "<aqua>Gifts</aqua>"
+      - "<white>Winter rewards</white>"
+  NEW_YEAR_CELEBRATION:
+    display-name: "<yellow>New Year Celebration</yellow>"
+    description: "Claim a New Year Cake around the end of the SkyBlock year."
+    month: 12
+    day: 29
+    duration-days: 3
+    rewards:
+      - "<yellow>New Year Cake</yellow>"
+  TRAVELING_ZOO:
+    display-name: "<green>Traveling Zoo</green>"
+    description: "A pet-focused event inspired by Oringo's traveling shop."
+    month: 4
+    day: 1
+    duration-days: 3
+    rewards:
+      - "<green>Event pets</green>"

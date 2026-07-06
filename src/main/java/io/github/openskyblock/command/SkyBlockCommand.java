@@ -87,6 +87,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "gemstone",
             "equipment",
             "wardrobe",
+            "calendar",
+            "events",
+            "event",
             "mobs",
             "mob",
             "mobzones",
@@ -162,6 +165,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "gemstone" -> gemstone(sender, args);
             case "equipment" -> equipment(sender, args);
             case "wardrobe" -> wardrobe(sender, args);
+            case "calendar" -> calendar(sender);
+            case "events" -> events(sender);
+            case "event" -> event(sender, args);
             case "mobs", "mob" -> mobs(sender, args);
             case "mobzones", "mobzone" -> mobZones(sender, args);
             case "museum" -> museum(sender, args);
@@ -387,6 +393,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && args[0].equalsIgnoreCase("wardrobe") && (args[1].equalsIgnoreCase("save") || args[1].equalsIgnoreCase("equip") || args[1].equalsIgnoreCase("withdraw"))) {
             return startsWith(numberRange(plugin.wardrobe().slotCount()), args[2]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("event")) {
+            return startsWith(plugin.calendar().eventIds(), args[1]);
+        }
         if (args.length == 2 && isMobCommand(args[0])) {
             return startsWith(List.of("list", "spawn"), args[1]);
         }
@@ -543,6 +552,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " equipment unequip <slot>", "commands.help.equipment-unequip");
         helpLine(sender, label + " wardrobe", "commands.help.wardrobe");
         helpLine(sender, label + " wardrobe save|equip|withdraw <slot>", "commands.help.wardrobe-slot");
+        helpLine(sender, label + " calendar", "commands.help.calendar");
+        helpLine(sender, label + " events", "commands.help.events");
+        helpLine(sender, label + " event <id>", "commands.help.event");
         helpLine(sender, label + " mobs", "commands.help.mobs");
         helpLine(sender, label + " mobzones", "commands.help.mob-zones");
         helpLine(sender, label + " museum donate|list|milestones", "commands.help.museum");
@@ -1491,6 +1503,22 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "summary" -> plugin.wardrobe().sendSummary(player);
             default -> plugin.text().send(player, "commands.wardrobe-usage");
         }
+    }
+
+    private void calendar(CommandSender sender) {
+        plugin.calendar().sendCalendar(sender);
+    }
+
+    private void events(CommandSender sender) {
+        plugin.calendar().sendEvents(sender);
+    }
+
+    private void event(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            plugin.text().send(sender, "commands.calendar-event-usage");
+            return;
+        }
+        plugin.calendar().sendEvent(sender, args[1]);
     }
 
     private void mobs(CommandSender sender, String[] args) {
