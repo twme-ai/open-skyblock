@@ -164,6 +164,93 @@ items:
       - "<gray>A final Timecharm tied to the Mountaintop.</gray>"
     stats:
       rift_time: 180.0
+  BASIC_KUUDRA_KEY:
+    material: TRIPWIRE_HOOK
+    display-name: "<red>Basic Kuudra Key</red>"
+    category: ITEM
+    rarity: RARE
+    lore:
+      - "<gray>Opens the paid chest after a Basic Kuudra run.</gray>"
+    stats: {}
+  HOT_KUUDRA_KEY:
+    material: TRIPWIRE_HOOK
+    display-name: "<gold>Hot Kuudra Key</gold>"
+    category: ITEM
+    rarity: RARE
+    lore:
+      - "<gray>Opens the paid chest after a Hot Kuudra run.</gray>"
+    stats: {}
+  BURNING_KUUDRA_KEY:
+    material: TRIPWIRE_HOOK
+    display-name: "<red>Burning Kuudra Key</red>"
+    category: ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>Opens the paid chest after a Burning Kuudra run.</gray>"
+    stats: {}
+  FIERY_KUUDRA_KEY:
+    material: TRIPWIRE_HOOK
+    display-name: "<dark_red>Fiery Kuudra Key</dark_red>"
+    category: ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>Opens the paid chest after a Fiery Kuudra run.</gray>"
+    stats: {}
+  INFERNAL_KUUDRA_KEY:
+    material: TRIPWIRE_HOOK
+    display-name: "<dark_red><bold>Infernal Kuudra Key</bold></dark_red>"
+    category: ITEM
+    rarity: LEGENDARY
+    lore:
+      - "<gray>Opens the paid chest after an Infernal Kuudra run.</gray>"
+    stats: {}
+  KUUDRA_TEETH:
+    material: GHAST_TEAR
+    display-name: "<red>Kuudra Teeth</red>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>Currency and crafting material from Kuudra paid chests.</gray>"
+    stats: {}
+  AURORA_STAFF:
+    material: BLAZE_ROD
+    display-name: "<light_purple>Aurora Staff</light_purple>"
+    category: WEAPON
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A mage weapon recovered from Kuudra's hoard.</gray>"
+    stats:
+      damage: 120.0
+      intelligence: 250.0
+  CRIMSON_HELMET:
+    material: NETHERITE_HELMET
+    display-name: "<red>Crimson Helmet</red>"
+    category: ARMOR
+    armor-set: CRIMSON
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A Crimson Isle armor piece from Kuudra.</gray>"
+    stats:
+      health: 90.0
+      defense: 45.0
+      strength: 30.0
+      crit_damage: 20.0
+  ATTRIBUTE_SHARD:
+    material: PRISMARINE_SHARD
+    display-name: "<aqua>Attribute Shard</aqua>"
+    category: MATERIAL
+    rarity: EPIC
+    lore:
+      - "<gray>A configurable placeholder for Kuudra attribute loot.</gray>"
+    stats: {}
+  ENCHANTED_KUUDRA_CORE:
+    material: MAGMA_CREAM
+    display-name: "<gold>Enchanted Kuudra Core</gold>"
+    category: MATERIAL
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A rare core from high-tier Kuudra paid chests.</gray>"
+    stats: {}
   BONZO_STAFF:
     material: BLAZE_ROD
     display-name: "<blue>Bonzo's Staff</blue>"

@@ -1,0 +1,209 @@
+settings:
+  max-score: 100
+  essence-type: CRIMSON
+  tooth-item: KUUDRA_TEETH
+  skyblock-xp-per-unique-tier: 4.0
+  skyblock-xp-per-completion: 0.2
+
+tiers:
+  BASIC:
+    display-name: "<red>Basic Kuudra</red>"
+    tier-number: 1
+    required-combat-level: 22
+    required-tier: ""
+    required-tier-completions: 0
+    key-item: BASIC_KUUDRA_KEY
+    key-cost: 100000.0
+    chest-cost: 0.0
+    free-reward-rolls: 1
+    paid-reward-rolls: 2
+    combat-xp: 750.0
+    completion-coins: 10000.0
+    free-teeth: 0
+    paid-teeth: 1
+    crimson-essence: 20.0
+    skyblock-xp: 5.0
+    free-rewards:
+      - type: VANILLA
+        material: MAGMA_CREAM
+        amount: 16
+        weight: 60.0
+      - type: COINS
+        coins: 15000.0
+        weight: 25.0
+    paid-rewards:
+      - type: CUSTOM_ITEM
+        item: KUUDRA_TEETH
+        amount: 1
+        weight: 50.0
+      - type: CUSTOM_ITEM
+        item: AURORA_STAFF
+        amount: 1
+        weight: 5.0
+        min-score: 80
+      - type: ESSENCE
+        essence: CRIMSON
+        amount: 25.0
+        weight: 30.0
+  HOT:
+    display-name: "<gold>Hot Kuudra</gold>"
+    tier-number: 2
+    required-combat-level: 24
+    required-tier: BASIC
+    required-tier-completions: 1
+    key-item: HOT_KUUDRA_KEY
+    key-cost: 250000.0
+    chest-cost: 25000.0
+    free-reward-rolls: 1
+    paid-reward-rolls: 2
+    combat-xp: 1200.0
+    completion-coins: 20000.0
+    free-teeth: 0
+    paid-teeth: 2
+    crimson-essence: 35.0
+    skyblock-xp: 5.0
+    free-rewards:
+      - type: VANILLA
+        material: BLAZE_ROD
+        amount: 12
+        weight: 55.0
+      - type: COINS
+        coins: 25000.0
+        weight: 30.0
+    paid-rewards:
+      - type: CUSTOM_ITEM
+        item: KUUDRA_TEETH
+        amount: 2
+        weight: 45.0
+      - type: CUSTOM_ITEM
+        item: CRIMSON_HELMET
+        amount: 1
+        weight: 8.0
+        min-score: 80
+      - type: ESSENCE
+        essence: CRIMSON
+        amount: 40.0
+        weight: 30.0
+  BURNING:
+    display-name: "<red>Burning Kuudra</red>"
+    tier-number: 3
+    required-combat-level: 28
+    required-tier: HOT
+    required-tier-completions: 1
+    key-item: BURNING_KUUDRA_KEY
+    key-cost: 500000.0
+    chest-cost: 75000.0
+    free-reward-rolls: 1
+    paid-reward-rolls: 3
+    combat-xp: 1800.0
+    completion-coins: 35000.0
+    free-teeth: 1
+    paid-teeth: 3
+    crimson-essence: 55.0
+    skyblock-xp: 7.5
+    free-rewards:
+      - type: VANILLA
+        material: NETHER_BRICK
+        amount: 24
+        weight: 55.0
+      - type: ESSENCE
+        essence: CRIMSON
+        amount: 20.0
+        weight: 25.0
+    paid-rewards:
+      - type: CUSTOM_ITEM
+        item: KUUDRA_TEETH
+        amount: 3
+        weight: 45.0
+      - type: CUSTOM_ITEM
+        item: ATTRIBUTE_SHARD
+        amount: 1
+        weight: 12.0
+        min-score: 75
+      - type: CUSTOM_ITEM
+        item: CRIMSON_HELMET
+        amount: 1
+        weight: 8.0
+        min-score: 85
+  FIERY:
+    display-name: "<dark_red>Fiery Kuudra</dark_red>"
+    tier-number: 4
+    required-combat-level: 32
+    required-tier: BURNING
+    required-tier-completions: 1
+    key-item: FIERY_KUUDRA_KEY
+    key-cost: 1000000.0
+    chest-cost: 150000.0
+    free-reward-rolls: 1
+    paid-reward-rolls: 3
+    combat-xp: 2600.0
+    completion-coins: 60000.0
+    free-teeth: 1
+    paid-teeth: 4
+    crimson-essence: 80.0
+    skyblock-xp: 10.0
+    free-rewards:
+      - type: VANILLA
+        material: CRIMSON_FUNGUS
+        amount: 16
+        weight: 55.0
+      - type: ESSENCE
+        essence: CRIMSON
+        amount: 30.0
+        weight: 25.0
+    paid-rewards:
+      - type: CUSTOM_ITEM
+        item: KUUDRA_TEETH
+        amount: 4
+        weight: 45.0
+      - type: CUSTOM_ITEM
+        item: ATTRIBUTE_SHARD
+        amount: 2
+        weight: 14.0
+        min-score: 75
+      - type: CUSTOM_ITEM
+        item: ENCHANTED_KUUDRA_CORE
+        amount: 1
+        weight: 3.0
+        min-score: 90
+  INFERNAL:
+    display-name: "<dark_red><bold>Infernal Kuudra</bold></dark_red>"
+    tier-number: 5
+    required-combat-level: 36
+    required-tier: FIERY
+    required-tier-completions: 1
+    key-item: INFERNAL_KUUDRA_KEY
+    key-cost: 2500000.0
+    chest-cost: 300000.0
+    free-reward-rolls: 1
+    paid-reward-rolls: 4
+    combat-xp: 4000.0
+    completion-coins: 100000.0
+    free-teeth: 2
+    paid-teeth: 6
+    crimson-essence: 125.0
+    skyblock-xp: 15.0
+    free-rewards:
+      - type: VANILLA
+        material: WARPED_FUNGUS
+        amount: 16
+        weight: 55.0
+      - type: ESSENCE
+        essence: CRIMSON
+        amount: 50.0
+        weight: 25.0
+    paid-rewards:
+      - type: CUSTOM_ITEM
+        item: KUUDRA_TEETH
+        amount: 6
+        weight: 45.0
+      - type: CUSTOM_ITEM
+        item: ATTRIBUTE_SHARD
+        amount: 3
+        weight: 15.0
+        min-score: 75
+      - type: CUSTOM_ITEM
+        item: ENCHANTED_KUUDRA_CORE
+        amount: 1
+        weight: 5.0
+        min-score: 90

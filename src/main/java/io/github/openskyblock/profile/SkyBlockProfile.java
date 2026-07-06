@@ -34,6 +34,7 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> dragonKills = new HashMap<>();
     private final Set<String> riftTimecharms = new HashSet<>();
     private final Set<String> riftSouls = new HashSet<>();
+    private final Map<String, Integer> kuudraCompletions = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -83,6 +84,10 @@ public final class SkyBlockProfile {
     private long riftEntries;
     private long riftTimeSpentSeconds;
     private long riftOrbsCollected;
+    private long kuudraTeeth;
+    private long kuudraKeysCrafted;
+    private long kuudraKeysUsed;
+    private int bestKuudraScore;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -627,6 +632,79 @@ public final class SkyBlockProfile {
 
     public Set<String> riftSouls() {
         return riftSouls;
+    }
+
+    public int kuudraCompletions(String tierId) {
+        return kuudraCompletions.getOrDefault(tierId.toUpperCase(), 0);
+    }
+
+    public void setKuudraCompletions(String tierId, int amount) {
+        String normalized = tierId.toUpperCase();
+        if (amount <= 0) {
+            kuudraCompletions.remove(normalized);
+            return;
+        }
+        kuudraCompletions.put(normalized, amount);
+    }
+
+    public void addKuudraCompletion(String tierId, int amount) {
+        setKuudraCompletions(tierId, kuudraCompletions(tierId) + amount);
+    }
+
+    public long totalKuudraCompletions() {
+        return kuudraCompletions.values().stream().mapToLong(Integer::longValue).sum();
+    }
+
+    public Map<String, Integer> kuudraCompletions() {
+        return kuudraCompletions;
+    }
+
+    public long kuudraTeeth() {
+        return kuudraTeeth;
+    }
+
+    public void kuudraTeeth(long kuudraTeeth) {
+        this.kuudraTeeth = Math.max(0L, kuudraTeeth);
+    }
+
+    public void addKuudraTeeth(long amount) {
+        kuudraTeeth(kuudraTeeth + amount);
+    }
+
+    public long kuudraKeysCrafted() {
+        return kuudraKeysCrafted;
+    }
+
+    public void kuudraKeysCrafted(long kuudraKeysCrafted) {
+        this.kuudraKeysCrafted = Math.max(0L, kuudraKeysCrafted);
+    }
+
+    public void addKuudraKeysCrafted(long amount) {
+        kuudraKeysCrafted(kuudraKeysCrafted + amount);
+    }
+
+    public long kuudraKeysUsed() {
+        return kuudraKeysUsed;
+    }
+
+    public void kuudraKeysUsed(long kuudraKeysUsed) {
+        this.kuudraKeysUsed = Math.max(0L, kuudraKeysUsed);
+    }
+
+    public void addKuudraKeysUsed(long amount) {
+        kuudraKeysUsed(kuudraKeysUsed + amount);
+    }
+
+    public int bestKuudraScore() {
+        return bestKuudraScore;
+    }
+
+    public void bestKuudraScore(int bestKuudraScore) {
+        this.bestKuudraScore = Math.max(0, bestKuudraScore);
+    }
+
+    public void recordKuudraScore(int score) {
+        bestKuudraScore(Math.max(bestKuudraScore, score));
     }
 
     public String shopPurchaseDay() {

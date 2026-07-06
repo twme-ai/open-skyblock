@@ -34,6 +34,7 @@ public final class ConfigService {
             "garden.yml",
             "dragons.yml",
             "rift.yml",
+            "kuudra.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -175,6 +176,10 @@ public final class ConfigService {
 
     public FileConfiguration rift() {
         return file("rift.yml");
+    }
+
+    public FileConfiguration kuudra() {
+        return file("kuudra.yml");
     }
 
     public FileConfiguration mobSpawns() {

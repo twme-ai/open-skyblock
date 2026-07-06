@@ -96,6 +96,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "dragon",
             "enderdragon",
             "rift",
+            "kuudra",
+            "kuudras",
             "stars",
             "star",
             "essence",
@@ -199,6 +201,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "garden", "gardens" -> garden(sender, args);
             case "dragons", "dragon", "enderdragon" -> dragons(sender, args);
             case "rift" -> rift(sender, args);
+            case "kuudra", "kuudras" -> kuudra(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -480,6 +483,21 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isRiftCommand(args[0]) && args[1].equalsIgnoreCase("timecharm")) {
             return startsWith(plugin.rift().timecharmIds(), args[2]);
         }
+        if (args.length == 2 && isKuudraCommand(args[0])) {
+            return startsWith(List.of("status", "tiers", "keys", "key", "run"), args[1]);
+        }
+        if (args.length == 3 && isKuudraCommand(args[0]) && (args[1].equalsIgnoreCase("key") || args[1].equalsIgnoreCase("run"))) {
+            return startsWith(plugin.kuudra().tierIds(), args[2]);
+        }
+        if (args.length == 4 && isKuudraCommand(args[0]) && args[1].equalsIgnoreCase("key")) {
+            return startsWith(List.of("1", "2", "4", "8"), args[3]);
+        }
+        if (args.length == 4 && isKuudraCommand(args[0]) && args[1].equalsIgnoreCase("run")) {
+            return startsWith(List.of("70", "80", "90", "100"), args[3]);
+        }
+        if (args.length == 5 && isKuudraCommand(args[0]) && args[1].equalsIgnoreCase("run")) {
+            return startsWith(List.of("paid", "free"), args[4]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -718,6 +736,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " garden status|crops|plots|visitors", "commands.help.garden");
         helpLine(sender, label + " dragons status|list|place|fight", "commands.help.dragons");
         helpLine(sender, label + " rift status|guide|zones|souls", "commands.help.rift");
+        helpLine(sender, label + " kuudra status|tiers|keys|run", "commands.help.kuudra");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1696,6 +1715,56 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.rift().claimTimecharm(player, args[2]);
             }
             default -> plugin.text().send(player, "commands.rift-usage");
+        }
+    }
+
+    private void kuudra(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.kuudra().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "tiers", "tier", "list" -> plugin.kuudra().sendTiers(player);
+            case "keys" -> plugin.kuudra().sendKeys(player);
+            case "key" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.kuudra-usage");
+                    return;
+                }
+                int amount = args.length >= 4 ? parsePositiveInt(player, args[3]).orElse(-1) : 1;
+                if (amount > 0) {
+                    plugin.kuudra().buyKey(player, args[2], amount);
+                }
+            }
+            case "run" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.kuudra-usage");
+                    return;
+                }
+                int score = 100;
+                if (args.length >= 4) {
+                    Optional<Integer> parsed = parseNonNegativeInt(player, args[3]);
+                    if (parsed.isEmpty()) {
+                        return;
+                    }
+                    score = parsed.get();
+                }
+                boolean paid = true;
+                if (args.length >= 5) {
+                    if (args[4].equalsIgnoreCase("free")) {
+                        paid = false;
+                    } else if (!args[4].equalsIgnoreCase("paid")) {
+                        plugin.text().send(player, "commands.kuudra-usage");
+                        return;
+                    }
+                }
+                plugin.kuudra().run(player, args[2], score, paid);
+            }
+            default -> plugin.text().send(player, "commands.kuudra-usage");
         }
     }
 
@@ -2855,6 +2924,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isRiftCommand(String value) {
         return value.equalsIgnoreCase("rift");
+    }
+
+    private boolean isKuudraCommand(String value) {
+        return value.equalsIgnoreCase("kuudra") || value.equalsIgnoreCase("kuudras");
     }
 
     private boolean isUpgradeCommand(String value) {
