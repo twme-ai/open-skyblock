@@ -46,6 +46,8 @@ public final class SkyBlockProfile {
     private final Set<String> claimedSpookyRewards = new HashSet<>();
     private final Map<String, Integer> zooPurchases = new HashMap<>();
     private final Map<String, Integer> jerryGiftsOpened = new HashMap<>();
+    private final Set<Integer> claimedNewYearCakeYears = new HashSet<>();
+    private final Set<Integer> newYearCakeBagYears = new HashSet<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -113,6 +115,7 @@ public final class SkyBlockProfile {
     private int jerryStJerryClaimedYear;
     private int jerryGiftAttackWaves;
     private long jerryNorthStars;
+    private boolean newYearCakeBagOwned;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -1083,6 +1086,40 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> jerryGiftsOpened() {
         return jerryGiftsOpened;
+    }
+
+    public boolean hasClaimedNewYearCake(int year) {
+        return claimedNewYearCakeYears.contains(Math.max(0, year));
+    }
+
+    public boolean claimNewYearCake(int year) {
+        int normalized = Math.max(0, year);
+        return normalized > 0 && claimedNewYearCakeYears.add(normalized);
+    }
+
+    public Set<Integer> claimedNewYearCakeYears() {
+        return claimedNewYearCakeYears;
+    }
+
+    public boolean newYearCakeBagOwned() {
+        return newYearCakeBagOwned;
+    }
+
+    public void newYearCakeBagOwned(boolean newYearCakeBagOwned) {
+        this.newYearCakeBagOwned = newYearCakeBagOwned;
+    }
+
+    public boolean hasNewYearCakeInBag(int year) {
+        return newYearCakeBagYears.contains(Math.max(0, year));
+    }
+
+    public boolean storeNewYearCake(int year) {
+        int normalized = Math.max(0, year);
+        return normalized > 0 && newYearCakeBagYears.add(normalized);
+    }
+
+    public Set<Integer> newYearCakeBagYears() {
+        return newYearCakeBagYears;
     }
 
     public String shopPurchaseDay() {

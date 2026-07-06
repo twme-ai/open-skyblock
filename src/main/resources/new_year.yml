@@ -1,0 +1,9 @@
+settings:
+  require-calendar-event: true
+  event-id: NEW_YEAR_CELEBRATION
+  cake-item: NEW_YEAR_CAKE
+  cake-bag-item: NEW_YEAR_CAKE_BAG
+  cake-bag-cost: 250000.0
+  max-cakes-in-bag: 54
+  health-per-unique-cake: 1.0
+  skyblock-xp-per-unique-cake: 0.25

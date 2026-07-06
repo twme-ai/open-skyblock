@@ -515,6 +515,24 @@ items:
     lore:
       - "<gray>A valuable Season of Jerry gift.</gray>"
     stats: {}
+  NEW_YEAR_CAKE:
+    material: CAKE
+    display-name: "<yellow>New Year Cake</yellow>"
+    category: ITEM
+    rarity: SPECIAL
+    lore:
+      - "<gray>A yearly cake claimed from Baker during the New Year Celebration.</gray>"
+      - "<gray>Store unique years in the New Year Cake Bag for Health.</gray>"
+    stats: {}
+  NEW_YEAR_CAKE_BAG:
+    material: CHEST
+    display-name: "<yellow>New Year Cake Bag</yellow>"
+    category: ACCESSORY
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Stores unique New Year Cakes by SkyBlock year.</gray>"
+      - "<gray>Each stored unique cake grants configured Health.</gray>"
+    stats: {}
   NORTH_STAR:
     material: NETHER_STAR
     display-name: "<aqua>North Star</aqua>"

@@ -54,6 +54,7 @@ import io.github.openskyblock.mob.MobService;
 import io.github.openskyblock.mobspawn.MobSpawnService;
 import io.github.openskyblock.museum.MuseumService;
 import io.github.openskyblock.mythological.MythologicalService;
+import io.github.openskyblock.newyear.NewYearService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.potion.PotionService;
 import io.github.openskyblock.profile.ProfileManager;
@@ -115,6 +116,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private SpookyService spookyService;
     private TravelingZooService travelingZooService;
     private SeasonOfJerryService seasonOfJerryService;
+    private NewYearService newYearService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -222,10 +224,13 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.travelingZooService = new TravelingZooService(configService, textService, profileManager, economyService, petService, customItemService, calendarService);
         this.seasonOfJerryService = new SeasonOfJerryService(configService, textService, profileManager, economyService, skillService, customItemService, calendarService);
         this.skillService.seasonOfJerryService(seasonOfJerryService);
+        this.newYearService = new NewYearService(this, configService, textService, profileManager, economyService, customItemService, calendarService);
+        this.skillService.newYearService(newYearService);
         this.mythologicalService = new MythologicalService(configService, textService, profileManager, economyService, skillService, customItemService, mayorService, petService);
         this.skillService.mythologicalService(mythologicalService);
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
         this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, bestiaryService, reforgeService, enchantmentService, starService, gemstoneService);
+        this.statService.newYearService(newYearService);
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
         this.seaCreatureService = new SeaCreatureService(configService, textService, profileManager, skillService, statService, mobService, mayorService);
         this.trophyFishService = new TrophyFishService(this, configService, textService, profileManager, skillService, collectionService, statService);
@@ -369,6 +374,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         petService.reload();
         travelingZooService.reload();
         seasonOfJerryService.reload();
+        newYearService.reload();
         mythologicalService.reload();
         minionService.reload();
         menuService.reload();
@@ -593,6 +599,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public SeasonOfJerryService seasonOfJerry() {
         return seasonOfJerryService;
+    }
+
+    public NewYearService newYear() {
+        return newYearService;
     }
 
     public MinionService minions() {

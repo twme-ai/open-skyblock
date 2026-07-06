@@ -41,6 +41,7 @@ public final class ConfigService {
             "spooky.yml",
             "traveling_zoo.yml",
             "season_jerry.yml",
+            "new_year.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -210,6 +211,10 @@ public final class ConfigService {
 
     public FileConfiguration seasonJerry() {
         return file("season_jerry.yml");
+    }
+
+    public FileConfiguration newYear() {
+        return file("new_year.yml");
     }
 
     public FileConfiguration mobSpawns() {

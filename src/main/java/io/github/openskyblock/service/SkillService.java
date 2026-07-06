@@ -12,6 +12,7 @@ import io.github.openskyblock.jerry.SeasonOfJerryService;
 import io.github.openskyblock.kuudra.KuudraService;
 import io.github.openskyblock.museum.MuseumService;
 import io.github.openskyblock.mythological.MythologicalService;
+import io.github.openskyblock.newyear.NewYearService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
@@ -53,6 +54,7 @@ public final class SkillService {
     private SpookyService spookyService;
     private PetService petService;
     private SeasonOfJerryService seasonOfJerryService;
+    private NewYearService newYearService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -108,6 +110,10 @@ public final class SkillService {
 
     public void seasonOfJerryService(SeasonOfJerryService seasonOfJerryService) {
         this.seasonOfJerryService = seasonOfJerryService;
+    }
+
+    public void newYearService(NewYearService newYearService) {
+        this.newYearService = newYearService;
     }
 
     public void reload() {
@@ -274,6 +280,9 @@ public final class SkillService {
         }
         if (seasonOfJerryService != null) {
             xp += (int) Math.round(seasonOfJerryService.skyBlockXp(profile));
+        }
+        if (newYearService != null) {
+            xp += (int) Math.round(newYearService.skyBlockXp(profile));
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);

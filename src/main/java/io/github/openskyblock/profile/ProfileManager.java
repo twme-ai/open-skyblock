@@ -319,6 +319,13 @@ public final class ProfileManager {
                 profile.setJerryGiftsOpened(giftId.toUpperCase(), jerryGifts.getInt(giftId, 0));
             }
         }
+        for (Integer year : section.getIntegerList("new-year.claimed-cakes")) {
+            profile.claimNewYearCake(year);
+        }
+        profile.newYearCakeBagOwned(section.getBoolean("new-year.cake-bag-owned", false));
+        for (Integer year : section.getIntegerList("new-year.cake-bag-years")) {
+            profile.storeNewYearCake(year);
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -896,6 +903,10 @@ public final class ProfileManager {
                 profileData.set(base + ".season-jerry.gifts-opened." + entry.getKey(), entry.getValue());
             }
         }
+        profileData.set(base + ".new-year", null);
+        profileData.set(base + ".new-year.claimed-cakes", profile.claimedNewYearCakeYears().stream().sorted().toList());
+        profileData.set(base + ".new-year.cake-bag-owned", profile.newYearCakeBagOwned());
+        profileData.set(base + ".new-year.cake-bag-years", profile.newYearCakeBagYears().stream().sorted().toList());
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
         profileData.set(base + ".shop-purchases.items", null);
         for (Map.Entry<String, Integer> entry : profile.dailyShopPurchases().entrySet()) {

@@ -119,6 +119,11 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "seasonofjerry",
             "season-jerry",
             "winter",
+            "newyear",
+            "new-year",
+            "baker",
+            "newyearcake",
+            "newyearcakes",
             "stars",
             "star",
             "essence",
@@ -229,6 +234,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "spooky", "spookyfestival", "candy" -> spooky(sender, args);
             case "zoo", "travelingzoo", "traveling-zoo", "oringo" -> travelingZoo(sender, args);
             case "jerry", "seasonofjerry", "season-jerry", "winter" -> seasonOfJerry(sender, args);
+            case "newyear", "new-year", "baker", "newyearcake", "newyearcakes" -> newYear(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -595,6 +601,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isSeasonOfJerryCommand(args[0]) && args[1].equalsIgnoreCase("find")) {
             return startsWith(List.of("1", "5", "10", "20"), args[2]);
         }
+        if (args.length == 2 && isNewYearCommand(args[0])) {
+            return startsWith(List.of("status", "claim", "bag", "buybag", "store", "cakes"), args[1]);
+        }
+        if (args.length == 3 && isNewYearCommand(args[0]) && args[1].equalsIgnoreCase("bag")) {
+            return startsWith(List.of("status", "buy"), args[2]);
+        }
+        if (args.length == 3 && isNewYearCommand(args[0]) && args[1].equalsIgnoreCase("store") && sender instanceof Player player) {
+            return startsWith(plugin.newYear().inventoryCakeYears(player), args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -840,6 +855,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " spooky status|mobs|kill|claim", "commands.help.spooky");
         helpLine(sender, label + " zoo status|offers|buy", "commands.help.zoo");
         helpLine(sender, label + " jerry status|gifts|find|defend|open", "commands.help.jerry");
+        helpLine(sender, label + " newyear status|claim|bag|store|cakes", "commands.help.new-year");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -2061,6 +2077,45 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void newYear(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.newYear().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "claim", "cake" -> plugin.newYear().claimCake(player);
+            case "bag" -> {
+                if (args.length < 3 || args[2].equalsIgnoreCase("status")) {
+                    plugin.newYear().sendStatus(player);
+                    return;
+                }
+                if (args[2].equalsIgnoreCase("buy")) {
+                    plugin.newYear().buyBag(player);
+                    return;
+                }
+                plugin.text().send(player, "commands.new-year-usage");
+            }
+            case "buy", "buybag" -> plugin.newYear().buyBag(player);
+            case "store" -> {
+                Integer requestedYear = null;
+                if (args.length >= 3) {
+                    Optional<Integer> parsedYear = parsePositiveInt(player, args[2]);
+                    if (parsedYear.isEmpty()) {
+                        return;
+                    }
+                    requestedYear = parsedYear.get();
+                }
+                plugin.newYear().storeCake(player, requestedYear);
+            }
+            case "cakes", "list" -> plugin.newYear().sendCakes(player);
+            default -> plugin.text().send(player, "commands.new-year-usage");
+        }
+    }
+
     private void enchantBook(CommandSender sender, String[] args) {
         if (!sender.hasPermission("openskyblock.admin")) {
             plugin.text().send(sender, "errors.no-permission");
@@ -3241,6 +3296,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isSeasonOfJerryCommand(String value) {
         return value.equalsIgnoreCase("jerry") || value.equalsIgnoreCase("seasonofjerry") || value.equalsIgnoreCase("season-jerry") || value.equalsIgnoreCase("winter");
+    }
+
+    private boolean isNewYearCommand(String value) {
+        return value.equalsIgnoreCase("newyear") || value.equalsIgnoreCase("new-year") || value.equalsIgnoreCase("baker") || value.equalsIgnoreCase("newyearcake") || value.equalsIgnoreCase("newyearcakes");
     }
 
     private boolean isUpgradeCommand(String value) {
