@@ -44,6 +44,14 @@ skyblock:
       lore:
         - "<gray>View unlocked SkyBlock recipes.</gray>"
       action: RECIPES
+    bank:
+      slot: 22
+      material: GOLD_INGOT
+      display-name: "<gold>Bank</gold>"
+      lore:
+        - "<gray>Purse:</gray> <gold><purse></gold>"
+        - "<gray>Bank:</gray> <gold><bank></gold>"
+      action: BANK
     minions:
       slot: 24
       material: HAY_BLOCK
@@ -205,3 +213,35 @@ recipe-book:
     material: ARROW
     display-name: "<yellow>Next Page</yellow>"
     lore: []
+
+bank:
+  title: "<dark_gray>Bank</dark_gray>"
+  rows: 3
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  items:
+    summary:
+      slot: 11
+      material: GOLD_INGOT
+      display-name: "<gold>Bank Account</gold>"
+      lore:
+        - "<gray>Purse:</gray> <gold><purse></gold>"
+        - "<gray>Bank:</gray> <gold><bank></gold><gray>/</gray><gold><capacity></gold>"
+      action: NONE
+    deposit-all:
+      slot: 13
+      material: CHEST
+      display-name: "<green>Deposit Purse</green>"
+      lore:
+        - "<gray>Deposit as many purse coins as possible.</gray>"
+      action: DEPOSIT_ALL
+    withdraw-all:
+      slot: 15
+      material: MINECART
+      display-name: "<yellow>Withdraw Bank</yellow>"
+      lore:
+        - "<gray>Withdraw all banked coins.</gray>"
+      action: WITHDRAW_ALL

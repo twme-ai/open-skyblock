@@ -166,14 +166,67 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openBankMenu(Player player) {
+        if (!plugin.economy().bankEnabled()) {
+            text.send(player, "commands.bank-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("bank");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 3)));
+        Map<Integer, BankMenuAction> actions = new HashMap<>();
+        BankMenuHolder holder = new BankMenuHolder(actions);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Bank</dark_gray>"), bankPlaceholders(player))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        ConfigurationSection items = section.getConfigurationSection("items");
+        if (items != null) {
+            for (String key : items.getKeys(false)) {
+                ConfigurationSection item = items.getConfigurationSection(key);
+                if (item == null) {
+                    continue;
+                }
+                int slot = item.getInt("slot", -1);
+                if (slot < 0 || slot >= inventory.getSize()) {
+                    continue;
+                }
+                inventory.setItem(slot, item(item, bankPlaceholders(player)));
+                actions.put(slot, BankMenuAction.parse(item.getString("action", "NONE")));
+            }
+        }
+        player.openInventory(inventory);
+    }
+
     public void runAction(Player player, MenuAction action) {
         switch (action) {
             case PROFILE -> player.performCommand("skyblock profile");
             case ISLAND_HOME -> player.performCommand("skyblock island home");
+            case BANK -> openBankMenu(player);
             case SKILLS -> player.performCommand("skyblock skills");
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
             case MINIONS -> player.performCommand("skyblock minion list");
+            case NONE -> {
+            }
+        }
+    }
+
+    public void runBankAction(Player player, BankMenuAction action) {
+        switch (action) {
+            case DEPOSIT_ALL -> {
+                plugin.economy().depositAll(player);
+                openBankMenu(player);
+            }
+            case WITHDRAW_ALL -> {
+                plugin.economy().withdrawAll(player);
+                openBankMenu(player);
+            }
             case NONE -> {
             }
         }
@@ -407,6 +460,15 @@ public final class MenuService {
                 TextService.raw("level", Integer.toString(plugin.skills().skyBlockLevel(profile))),
                 TextService.raw("purse", text.formatNumber(profile.purse())),
                 TextService.raw("bank", text.formatNumber(profile.bank()))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> bankPlaceholders(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        return List.of(
+                TextService.raw("purse", text.formatNumber(profile.purse())),
+                TextService.raw("bank", text.formatNumber(profile.bank())),
+                TextService.raw("capacity", text.formatNumber(plugin.economy().bankCapacity()))
         );
     }
 }

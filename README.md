@@ -17,6 +17,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable skills, collection tiers, action rewards, custom items, and minion definitions.
 - Placeable minion items with island-only placement, generated storage, claim menu, pickup flow, and offline ticking from persisted timestamps.
 - Data-driven shaped recipes for vanilla, custom item, and minion outputs with collection-tier crafting gates.
+- Purse and bank economy with deposit, withdraw, deposit-all, withdraw-all, capacity limits, and a configurable bank menu.
 - `/skyblock` command with profile, purse, skills, collections, custom item, minion, and reload subcommands.
 - Listeners for block breaking, entity kills, item pickup, custom item combat bonuses, join, and quit persistence.
 
@@ -46,6 +47,9 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock island create`
 - `/skyblock island home`
 - `/skyblock island info`
+- `/skyblock bank`
+- `/skyblock bank deposit <amount|all>`
+- `/skyblock bank withdraw <amount|all>`
 - `/skyblock profile`
 - `/skyblock purse`
 - `/skyblock skills`

@@ -3,6 +3,7 @@ package io.github.openskyblock;
 import io.github.openskyblock.command.SkyBlockCommand;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.island.IslandService;
 import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.MenuListener;
@@ -32,6 +33,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private IslandService islandService;
     private MenuService menuService;
     private RecipeService recipeService;
+    private EconomyService economyService;
     private BukkitTask autosaveTask;
     private BukkitTask minionTask;
 
@@ -49,6 +51,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
         this.recipeService = new RecipeService(this, configService, textService, profileManager, collectionService, customItemService, minionService);
+        this.economyService = new EconomyService(configService, textService, profileManager);
 
         reloadServices();
         registerCommands();
@@ -155,5 +158,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public RecipeService recipes() {
         return recipeService;
+    }
+
+    public EconomyService economy() {
+        return economyService;
     }
 }

@@ -10,6 +10,7 @@ import io.github.openskyblock.service.SkillDefinition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -25,6 +26,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "help",
             "menu",
             "island",
+            "bank",
             "profile",
             "purse",
             "skills",
@@ -56,6 +58,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "profile" -> profile(sender);
             case "menu" -> menu(sender);
             case "island" -> island(sender, args);
+            case "bank" -> bank(sender, args);
             case "purse" -> purse(sender);
             case "skills" -> skills(sender);
             case "collections" -> collections(sender);
@@ -78,6 +81,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("island")) {
             return startsWith(List.of("create", "home", "info"), args[1]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("bank")) {
+            return startsWith(List.of("balance", "deposit", "withdraw"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("bank") && (args[1].equalsIgnoreCase("deposit") || args[1].equalsIgnoreCase("withdraw"))) {
+            return startsWith(List.of("all", "100", "1000", "10000"), args[2]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("giveitem")) {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
@@ -102,6 +111,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         text.send(sender, "commands.help-header");
         helpLine(sender, label + " menu", "commands.help.menu");
         helpLine(sender, label + " island create|home|info", "commands.help.island");
+        helpLine(sender, label + " bank [deposit|withdraw] [amount|all]", "commands.help.bank");
         helpLine(sender, label + " profile", "commands.help.profile");
         helpLine(sender, label + " purse", "commands.help.purse");
         helpLine(sender, label + " skills", "commands.help.skills");
@@ -161,6 +171,47 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "info" -> plugin.islands().sendInfo(player);
             default -> plugin.text().send(player, "errors.unknown-command");
         }
+    }
+
+    private void bank(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.menus().openBankMenu(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "balance" -> plugin.economy().sendBalance(player);
+            case "deposit" -> bankDeposit(player, args);
+            case "withdraw" -> bankWithdraw(player, args);
+            default -> plugin.text().send(player, "commands.bank-usage");
+        }
+    }
+
+    private void bankDeposit(Player player, String[] args) {
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.bank-usage");
+            return;
+        }
+        if (args[2].equalsIgnoreCase("all")) {
+            plugin.economy().depositAll(player);
+            return;
+        }
+        parsePositiveAmount(player, args[2]).ifPresent(amount -> plugin.economy().deposit(player, amount));
+    }
+
+    private void bankWithdraw(Player player, String[] args) {
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.bank-usage");
+            return;
+        }
+        if (args[2].equalsIgnoreCase("all")) {
+            plugin.economy().withdrawAll(player);
+            return;
+        }
+        parsePositiveAmount(player, args[2]).ifPresent(amount -> plugin.economy().withdraw(player, amount));
     }
 
     private void purse(CommandSender sender) {
@@ -366,6 +417,20 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         plugin.text().send(sender, "errors.players-only");
         return null;
+    }
+
+    private Optional<Double> parsePositiveAmount(Player player, String raw) {
+        try {
+            double amount = Double.parseDouble(raw);
+            if (amount <= 0.0D || Double.isNaN(amount) || Double.isInfinite(amount)) {
+                plugin.text().send(player, "errors.invalid-number");
+                return Optional.empty();
+            }
+            return Optional.of(amount);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(player, "errors.invalid-number");
+            return Optional.empty();
+        }
     }
 
     private List<String> startsWith(List<String> values, String prefix) {

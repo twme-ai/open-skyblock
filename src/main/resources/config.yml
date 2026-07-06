@@ -8,6 +8,7 @@ features:
   private-islands: true
   skyblock-menu: true
   starter-menu-item: true
+  bank: true
   skills: true
   collections: true
   custom-items: true
@@ -23,3 +24,6 @@ islands:
 
 minions:
   max-per-profile: 5
+
+bank:
+  capacity: 1000000.0

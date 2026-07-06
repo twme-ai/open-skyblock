@@ -2,17 +2,12 @@ package io.github.openskyblock.menu;
 
 import java.util.Locale;
 
-public enum MenuAction {
+public enum BankMenuAction {
     NONE,
-    PROFILE,
-    ISLAND_HOME,
-    BANK,
-    SKILLS,
-    COLLECTIONS,
-    RECIPES,
-    MINIONS;
+    DEPOSIT_ALL,
+    WITHDRAW_ALL;
 
-    public static MenuAction parse(String value) {
+    public static BankMenuAction parse(String value) {
         if (value == null || value.isBlank()) {
             return NONE;
         }
