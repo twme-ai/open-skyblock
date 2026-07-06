@@ -289,6 +289,19 @@ public final class ProfileManager {
                 profile.setMythologicalTreasures(treasureId.toUpperCase(), mythologicalTreasures.getInt(treasureId, 0));
             }
         }
+        profile.spookyGreenCandy(section.getLong("spooky.green-candy", 0L));
+        profile.spookyPurpleCandy(section.getLong("spooky.purple-candy", 0L));
+        ConfigurationSection spookyMobs = section.getConfigurationSection("spooky.mobs");
+        if (spookyMobs != null) {
+            for (String mobId : spookyMobs.getKeys(false)) {
+                profile.setSpookyMobKills(mobId.toUpperCase(), spookyMobs.getInt(mobId, 0));
+            }
+        }
+        for (String rewardId : section.getStringList("spooky.claimed-rewards")) {
+            if (rewardId != null && !rewardId.isBlank()) {
+                profile.claimSpookyReward(rewardId);
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -840,6 +853,15 @@ public final class ProfileManager {
                 profileData.set(base + ".mythological.treasures." + entry.getKey(), entry.getValue());
             }
         }
+        profileData.set(base + ".spooky", null);
+        profileData.set(base + ".spooky.green-candy", profile.spookyGreenCandy());
+        profileData.set(base + ".spooky.purple-candy", profile.spookyPurpleCandy());
+        for (Map.Entry<String, Integer> entry : profile.spookyMobKills().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".spooky.mobs." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".spooky.claimed-rewards", profile.claimedSpookyRewards().stream().sorted().toList());
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
         profileData.set(base + ".shop-purchases.items", null);
         for (Map.Entry<String, Integer> entry : profile.dailyShopPurchases().entrySet()) {

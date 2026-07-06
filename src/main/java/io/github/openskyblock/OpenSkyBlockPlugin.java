@@ -69,6 +69,7 @@ import io.github.openskyblock.service.SkillService;
 import io.github.openskyblock.shop.ShopService;
 import io.github.openskyblock.shop.ShopNpcService;
 import io.github.openskyblock.slayer.SlayerService;
+import io.github.openskyblock.spooky.SpookyService;
 import io.github.openskyblock.stats.StatService;
 import io.github.openskyblock.stats.ArmorSetService;
 import io.github.openskyblock.star.StarService;
@@ -109,6 +110,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private FactionService factionService;
     private DojoService dojoService;
     private MythologicalService mythologicalService;
+    private SpookyService spookyService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -203,8 +205,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.equipmentService = new EquipmentService(configService, textService, profileManager, customItemService);
         this.wardrobeService = new WardrobeService(configService, textService, profileManager);
         this.calendarService = new CalendarService(configService, textService);
+        this.spookyService = new SpookyService(configService, textService, profileManager, economyService, skillService, customItemService, calendarService);
         this.mayorService = new MayorService(configService, textService, profileManager);
         this.farmingContestService = new FarmingContestService(configService, textService, profileManager);
+        this.skillService.spookyService(spookyService);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService, upgradeService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
@@ -344,6 +348,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         equipmentService.reload();
         wardrobeService.reload();
         calendarService.reload();
+        spookyService.reload();
         mayorService.reload();
         farmingContestService.reload();
         armorSetService.reload();
@@ -526,6 +531,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public MythologicalService mythological() {
         return mythologicalService;
+    }
+
+    public SpookyService spooky() {
+        return spookyService;
     }
 
     public MayorService mayors() {

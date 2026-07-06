@@ -108,6 +108,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "diana",
             "burrow",
             "burrows",
+            "spooky",
+            "spookyfestival",
+            "candy",
             "stars",
             "star",
             "essence",
@@ -215,6 +218,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "faction", "factions", "reputation", "rep" -> factions(sender, args);
             case "dojo" -> dojo(sender, args);
             case "mythological", "ritual", "diana", "burrow", "burrows" -> mythological(sender, args);
+            case "spooky", "spookyfestival", "candy" -> spooky(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -543,6 +547,20 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isMythologicalCommand(args[0]) && args[1].equalsIgnoreCase("buy")) {
             return startsWith(List.of("griffin"), args[2]);
         }
+        if (args.length == 2 && isSpookyCommand(args[0])) {
+            return startsWith(List.of("status", "mobs", "rewards", "kill", "claim"), args[1]);
+        }
+        if (args.length == 3 && isSpookyCommand(args[0]) && args[1].equalsIgnoreCase("kill")) {
+            return startsWith(plugin.spooky().mobIds(), args[2]);
+        }
+        if (args.length == 4 && isSpookyCommand(args[0]) && args[1].equalsIgnoreCase("kill")) {
+            return startsWith(List.of("1", "5", "10", "25"), args[3]);
+        }
+        if (args.length == 3 && isSpookyCommand(args[0]) && args[1].equalsIgnoreCase("claim")) {
+            List<String> values = new ArrayList<>(List.of("all"));
+            values.addAll(plugin.spooky().scoreRewardIds());
+            return startsWith(values, args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -785,6 +803,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " faction status|choose|quests|ranks", "commands.help.faction");
         helpLine(sender, label + " dojo status|challenges|belts|run", "commands.help.dojo");
         helpLine(sender, label + " mythological status|dig|mobs|treasures", "commands.help.mythological");
+        helpLine(sender, label + " spooky status|mobs|kill|claim", "commands.help.spooky");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1903,6 +1922,33 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "dig", "burrow" -> plugin.mythological().dig(player);
             case "reset" -> plugin.mythological().resetChain(player);
             default -> plugin.text().send(player, "commands.mythological-usage");
+        }
+    }
+
+    private void spooky(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.spooky().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "mobs", "list" -> plugin.spooky().sendMobs(player);
+            case "rewards", "score" -> plugin.spooky().sendRewards(player);
+            case "kill", "defeat" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.spooky-usage");
+                    return;
+                }
+                int amount = args.length >= 4 ? parsePositiveInt(player, args[3]).orElse(-1) : 1;
+                if (amount > 0) {
+                    plugin.spooky().kill(player, args[2], amount);
+                }
+            }
+            case "claim" -> plugin.spooky().claimRewards(player, args.length >= 3 ? args[2] : "all");
+            default -> plugin.text().send(player, "commands.spooky-usage");
         }
     }
 
@@ -3074,6 +3120,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isMythologicalCommand(String value) {
         return value.equalsIgnoreCase("mythological") || value.equalsIgnoreCase("ritual") || value.equalsIgnoreCase("diana") || value.equalsIgnoreCase("burrow") || value.equalsIgnoreCase("burrows");
+    }
+
+    private boolean isSpookyCommand(String value) {
+        return value.equalsIgnoreCase("spooky") || value.equalsIgnoreCase("spookyfestival") || value.equalsIgnoreCase("candy");
     }
 
     private boolean isUpgradeCommand(String value) {

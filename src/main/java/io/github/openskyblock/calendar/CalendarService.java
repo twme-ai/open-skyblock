@@ -78,6 +78,12 @@ public final class CalendarService {
         return Optional.ofNullable(events.get(id.toUpperCase(Locale.ROOT)));
     }
 
+    public boolean eventActive(String id) {
+        return event(id)
+                .flatMap(definition -> activeOccurrence(definition, currentDay()))
+                .isPresent();
+    }
+
     public List<CalendarEventDefinition> events() {
         return events.values().stream()
                 .sorted(Comparator.comparing(CalendarEventDefinition::id))

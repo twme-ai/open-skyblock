@@ -42,6 +42,8 @@ public final class SkyBlockProfile {
     private final Set<String> claimedDojoBelts = new HashSet<>();
     private final Map<String, Integer> mythologicalMobKills = new HashMap<>();
     private final Map<String, Integer> mythologicalTreasures = new HashMap<>();
+    private final Map<String, Integer> spookyMobKills = new HashMap<>();
+    private final Set<String> claimedSpookyRewards = new HashSet<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -102,6 +104,8 @@ public final class SkyBlockProfile {
     private String mythologicalGriffinRarity;
     private int mythologicalBurrowChain;
     private long mythologicalBurrowsDug;
+    private long spookyGreenCandy;
+    private long spookyPurpleCandy;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -921,6 +925,63 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> mythologicalTreasures() {
         return mythologicalTreasures;
+    }
+
+    public long spookyGreenCandy() {
+        return spookyGreenCandy;
+    }
+
+    public void spookyGreenCandy(long spookyGreenCandy) {
+        this.spookyGreenCandy = Math.max(0L, spookyGreenCandy);
+    }
+
+    public void addSpookyGreenCandy(long amount) {
+        spookyGreenCandy(spookyGreenCandy + amount);
+    }
+
+    public long spookyPurpleCandy() {
+        return spookyPurpleCandy;
+    }
+
+    public void spookyPurpleCandy(long spookyPurpleCandy) {
+        this.spookyPurpleCandy = Math.max(0L, spookyPurpleCandy);
+    }
+
+    public void addSpookyPurpleCandy(long amount) {
+        spookyPurpleCandy(spookyPurpleCandy + amount);
+    }
+
+    public int spookyMobKills(String mobId) {
+        return spookyMobKills.getOrDefault(mobId.toUpperCase(), 0);
+    }
+
+    public void setSpookyMobKills(String mobId, int amount) {
+        String normalized = mobId.toUpperCase();
+        if (amount <= 0) {
+            spookyMobKills.remove(normalized);
+            return;
+        }
+        spookyMobKills.put(normalized, amount);
+    }
+
+    public void addSpookyMobKill(String mobId, int amount) {
+        setSpookyMobKills(mobId, spookyMobKills(mobId) + amount);
+    }
+
+    public Map<String, Integer> spookyMobKills() {
+        return spookyMobKills;
+    }
+
+    public boolean hasClaimedSpookyReward(String rewardId) {
+        return claimedSpookyRewards.contains(rewardId.toUpperCase());
+    }
+
+    public boolean claimSpookyReward(String rewardId) {
+        return claimedSpookyRewards.add(rewardId.toUpperCase());
+    }
+
+    public Set<String> claimedSpookyRewards() {
+        return claimedSpookyRewards;
     }
 
     public String shopPurchaseDay() {

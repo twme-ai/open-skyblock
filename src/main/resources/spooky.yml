@@ -1,0 +1,157 @@
+settings:
+  require-calendar-event: true
+  event-id: SPOOKY_FESTIVAL
+  green-candy-points: 1
+  purple-candy-points: 5
+  max-kill-amount: 100
+  skyblock-xp-per-score: 0.01
+
+mobs:
+  TRICK_OR_TREATER:
+    display-name: "<dark_purple>Trick or Treater</dark_purple>"
+    minimum-combat-level: 1
+    green-candy: 3
+    purple-candy: 0
+    combat-xp: 20.0
+    coins: 50.0
+    weight: 45.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GREEN_CANDY
+        amount: 2
+        weight: 70.0
+      - type: CUSTOM_ITEM
+        item: PURPLE_CANDY
+        amount: 1
+        weight: 10.0
+        minimum-score: 100
+  WRAITH:
+    display-name: "<gray>Wraith</gray>"
+    minimum-combat-level: 5
+    green-candy: 4
+    purple-candy: 1
+    combat-xp: 75.0
+    coins: 150.0
+    weight: 28.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GREEN_CANDY
+        amount: 4
+        weight: 65.0
+      - type: CUSTOM_ITEM
+        item: SPOOKY_SHARD
+        amount: 1
+        weight: 15.0
+        minimum-score: 250
+  BATTY_WITCH:
+    display-name: "<light_purple>Batty Witch</light_purple>"
+    minimum-combat-level: 8
+    green-candy: 5
+    purple-candy: 1
+    combat-xp: 120.0
+    coins: 250.0
+    weight: 22.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GREEN_CANDY
+        amount: 5
+        weight: 55.0
+      - type: VANILLA
+        material: BAT_SPAWN_EGG
+        amount: 1
+        weight: 8.0
+        minimum-score: 500
+  WITHER_GOURD:
+    display-name: "<gold>Wither Gourd</gold>"
+    minimum-combat-level: 12
+    green-candy: 6
+    purple-candy: 2
+    combat-xp: 180.0
+    coins: 400.0
+    weight: 16.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: SPOOKY_SHARD
+        amount: 1
+        weight: 30.0
+      - type: VANILLA
+        material: PUMPKIN
+        amount: 8
+        weight: 70.0
+  PHANTOM_SPIRIT:
+    display-name: "<aqua>Phantom Spirit</aqua>"
+    minimum-combat-level: 16
+    green-candy: 8
+    purple-candy: 3
+    combat-xp: 260.0
+    coins: 750.0
+    weight: 10.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: PURPLE_CANDY
+        amount: 2
+        weight: 50.0
+      - type: CUSTOM_ITEM
+        item: SPOOKY_PIE
+        amount: 1
+        weight: 5.0
+        minimum-score: 1000
+  SCARY_JERRY:
+    display-name: "<green>Scary Jerry</green>"
+    minimum-combat-level: 20
+    green-candy: 12
+    purple-candy: 5
+    combat-xp: 500.0
+    coins: 1500.0
+    weight: 4.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: PURPLE_CANDY
+        amount: 4
+        weight: 45.0
+      - type: CUSTOM_ITEM
+        item: BAT_PERSON_TALISMAN
+        amount: 1
+        weight: 4.0
+        minimum-score: 2500
+
+score-rewards:
+  NOVICE:
+    display-name: "<green>Spooky Novice</green>"
+    required-score: 100
+    skyblock-xp: 2.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GREEN_CANDY
+        amount: 16
+  HUNTER:
+    display-name: "<yellow>Spooky Hunter</yellow>"
+    required-score: 500
+    skyblock-xp: 3.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: PURPLE_CANDY
+        amount: 8
+      - type: COINS
+        coins: 5000.0
+  HORROR:
+    display-name: "<light_purple>Spooky Horror</light_purple>"
+    required-score: 1000
+    skyblock-xp: 5.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: SPOOKY_SHARD
+        amount: 8
+      - type: COINS
+        coins: 15000.0
+  LEGEND:
+    display-name: "<gold>Spooky Legend</gold>"
+    required-score: 2500
+    skyblock-xp: 10.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: SPOOKY_PIE
+        amount: 1
+      - type: CUSTOM_ITEM
+        item: BAT_PERSON_TALISMAN
+        amount: 1

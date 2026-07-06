@@ -38,6 +38,7 @@ public final class ConfigService {
             "factions.yml",
             "dojo.yml",
             "mythological.yml",
+            "spooky.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -195,6 +196,10 @@ public final class ConfigService {
 
     public FileConfiguration mythological() {
         return file("mythological.yml");
+    }
+
+    public FileConfiguration spooky() {
+        return file("spooky.yml");
     }
 
     public FileConfiguration mobSpawns() {

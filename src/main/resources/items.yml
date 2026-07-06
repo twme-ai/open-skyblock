@@ -448,6 +448,49 @@ items:
     lore:
       - "<gray>A rare Mythological Ritual crafting component.</gray>"
     stats: {}
+  GREEN_CANDY:
+    material: LIME_DYE
+    display-name: "<green>Green Candy</green>"
+    category: MATERIAL
+    rarity: UNCOMMON
+    lore:
+      - "<gray>A Spooky Festival candy worth 1 point.</gray>"
+    stats: {}
+  PURPLE_CANDY:
+    material: PURPLE_DYE
+    display-name: "<light_purple>Purple Candy</light_purple>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A Spooky Festival candy worth 5 points.</gray>"
+    stats: {}
+  SPOOKY_SHARD:
+    material: AMETHYST_SHARD
+    display-name: "<dark_purple>Spooky Shard</dark_purple>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A condensed shard of festival energy.</gray>"
+    stats: {}
+  SPOOKY_PIE:
+    material: PUMPKIN_PIE
+    display-name: "<gold>Spooky Pie</gold>"
+    category: ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>A trophy pie awarded for strong Spooky Festival scores.</gray>"
+    stats: {}
+  BAT_PERSON_TALISMAN:
+    material: NETHER_STAR
+    display-name: "<light_purple>Bat Person Talisman</light_purple>"
+    category: ACCESSORY
+    rarity: EPIC
+    lore:
+      - "<gray>A festival accessory from high Spooky scores.</gray>"
+      - "<gray>Carry it in your Accessory Bag for configured stat value.</gray>"
+    stats:
+      crit_chance: 1
+      speed: 2
   WASHED_UP_SOUVENIR:
     material: NAUTILUS_SHELL
     display-name: "<aqua>Washed-up Souvenir</aqua>"

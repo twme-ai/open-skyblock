@@ -14,6 +14,7 @@ import io.github.openskyblock.mythological.MythologicalService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.rift.RiftService;
+import io.github.openskyblock.spooky.SpookyService;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -47,6 +48,7 @@ public final class SkillService {
     private FactionService factionService;
     private DojoService dojoService;
     private MythologicalService mythologicalService;
+    private SpookyService spookyService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -90,6 +92,10 @@ public final class SkillService {
 
     public void mythologicalService(MythologicalService mythologicalService) {
         this.mythologicalService = mythologicalService;
+    }
+
+    public void spookyService(SpookyService spookyService) {
+        this.spookyService = spookyService;
     }
 
     public void reload() {
@@ -247,6 +253,9 @@ public final class SkillService {
         }
         if (mythologicalService != null) {
             xp += (int) Math.round(mythologicalService.skyBlockXp(profile));
+        }
+        if (spookyService != null) {
+            xp += (int) Math.round(spookyService.skyBlockXp(profile));
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);
