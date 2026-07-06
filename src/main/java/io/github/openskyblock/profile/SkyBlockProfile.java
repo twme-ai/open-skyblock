@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.bukkit.inventory.ItemStack;
 
 public final class SkyBlockProfile {
     private final UUID uniqueId;
@@ -18,6 +19,7 @@ public final class SkyBlockProfile {
     private final Map<String, Long> collections = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
+    private final Map<String, ItemStack> equipment = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private final List<OwnedPet> pets = new ArrayList<>();
@@ -145,6 +147,10 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> tuning() {
         return tuning;
+    }
+
+    public Map<String, ItemStack> equipment() {
+        return equipment;
     }
 
     public List<String> accessoryBag() {

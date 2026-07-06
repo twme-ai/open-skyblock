@@ -51,6 +51,13 @@ skyblock:
       lore:
         - "<gray>Spend tuning points from Magical Power.</gray>"
       action: TUNING
+    equipment:
+      slot: 19
+      material: CHAINMAIL_CHESTPLATE
+      display-name: "<yellow>Equipment</yellow>"
+      lore:
+        - "<gray>Equip necklaces, cloaks, belts, and gloves.</gray>"
+      action: EQUIPMENT
     collections:
       slot: 26
       material: CHEST
@@ -420,6 +427,41 @@ tuning:
       - "<gray>Remove all assigned tuning points.</gray>"
   back:
     slot: 32
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+
+equipment:
+  title: "<dark_gray>Equipment</dark_gray>"
+  rows: 4
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  slots:
+    NECKLACE:
+      slot: 10
+      material: NAME_TAG
+      display-name: "<yellow>Necklace</yellow>"
+      lore: []
+    CLOAK:
+      slot: 12
+      material: LEATHER_CHESTPLATE
+      display-name: "<dark_purple>Cloak</dark_purple>"
+      lore: []
+    BELT:
+      slot: 14
+      material: LEATHER_LEGGINGS
+      display-name: "<gold>Belt</gold>"
+      lore: []
+    GLOVES:
+      slot: 16
+      material: LEATHER_BOOTS
+      display-name: "<aqua>Gloves</aqua>"
+      lore: []
+  back:
+    slot: 31
     material: NETHER_STAR
     display-name: "<green>SkyBlock Menu</green>"
     lore: []

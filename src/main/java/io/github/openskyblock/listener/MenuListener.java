@@ -6,6 +6,7 @@ import io.github.openskyblock.menu.BankMenuAction;
 import io.github.openskyblock.menu.BankMenuHolder;
 import io.github.openskyblock.menu.BrowserMenuAction;
 import io.github.openskyblock.menu.BrowserMenuHolder;
+import io.github.openskyblock.menu.EquipmentHolder;
 import io.github.openskyblock.menu.MenuAction;
 import io.github.openskyblock.menu.MinionMenuAction;
 import io.github.openskyblock.menu.MinionMenuHolder;
@@ -56,6 +57,9 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof TuningHolder tuningHolder) {
                 handleTuningClick(event, player, tuningHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof EquipmentHolder equipmentHolder) {
+                handleEquipmentClick(event, player, equipmentHolder);
             }
             if (event.getView().getTopInventory().getHolder() instanceof PetMenuHolder petMenuHolder) {
                 handlePetClick(event, player, petMenuHolder);
@@ -117,6 +121,11 @@ public final class MenuListener implements Listener {
     private void handleTuningClick(InventoryClickEvent event, Player player, TuningHolder holder) {
         event.setCancelled(true);
         plugin.menus().runTuningClick(player, holder, event.getRawSlot(), event.getClick().isRightClick());
+    }
+
+    private void handleEquipmentClick(InventoryClickEvent event, Player player, EquipmentHolder holder) {
+        event.setCancelled(true);
+        plugin.menus().runEquipmentClick(player, holder, event.getRawSlot());
     }
 
     private void handlePetClick(InventoryClickEvent event, Player player, PetMenuHolder holder) {

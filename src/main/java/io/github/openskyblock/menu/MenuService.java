@@ -3,6 +3,7 @@ package io.github.openskyblock.menu;
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.equipment.EquipmentSlotDefinition;
 import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.OwnedPet;
 import io.github.openskyblock.profile.ProfileManager;
@@ -245,6 +246,47 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openEquipmentMenu(Player player) {
+        if (!plugin.equipment().enabled()) {
+            text.send(player, "commands.equipment-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("equipment");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 4)));
+        Map<Integer, String> slotsByInventorySlot = new HashMap<>();
+        Map<Integer, EquipmentAction> actions = new HashMap<>();
+        EquipmentHolder holder = new EquipmentHolder(slotsByInventorySlot, actions);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Equipment</dark_gray>"), equipmentPlaceholders(player))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        SkyBlockProfile profile = profiles.profile(player);
+        ConfigurationSection slotsSection = section.getConfigurationSection("slots");
+        if (slotsSection != null) {
+            for (EquipmentSlotDefinition slot : plugin.equipment().slots()) {
+                ConfigurationSection slotSection = slotsSection.getConfigurationSection(slot.id());
+                if (slotSection == null) {
+                    continue;
+                }
+                int inventorySlot = slotSection.getInt("slot", -1);
+                if (inventorySlot < 0 || inventorySlot >= inventory.getSize()) {
+                    continue;
+                }
+                ItemStack equipped = profile.equipment().get(slot.id());
+                inventory.setItem(inventorySlot, equipped == null ? emptyEquipmentItem(slot, slotSection) : equippedEquipmentItem(slot, equipped));
+                slotsByInventorySlot.put(inventorySlot, slot.id());
+            }
+        }
+        addEquipmentAction(inventory, section.getConfigurationSection("back"), EquipmentAction.BACK, actions);
+        player.openInventory(inventory);
+    }
+
     public void openTuningMenu(Player player) {
         if (!plugin.tuning().enabled()) {
             text.send(player, "commands.tuning-disabled");
@@ -406,6 +448,7 @@ public final class MenuService {
             case STATS -> player.performCommand("skyblock stats");
             case ACCESSORY_BAG -> openAccessoryBag(player);
             case TUNING -> openTuningMenu(player);
+            case EQUIPMENT -> openEquipmentMenu(player);
             case PETS -> openPetMenu(player);
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
@@ -508,6 +551,23 @@ public final class MenuService {
             case BACK -> openSkyBlockMenu(player);
             case NONE -> {
             }
+        }
+    }
+
+    public void runEquipmentClick(Player player, EquipmentHolder holder, int rawSlot) {
+        String slotId = holder.slotId(rawSlot);
+        if (slotId != null) {
+            SkyBlockProfile profile = profiles.profile(player);
+            if (profile.equipment().containsKey(slotId)) {
+                plugin.equipment().unequip(player, slotId);
+            } else {
+                plugin.equipment().equipHeld(player, slotId);
+            }
+            openEquipmentMenu(player);
+            return;
+        }
+        if (holder.action(rawSlot) == EquipmentAction.BACK) {
+            openSkyBlockMenu(player);
         }
     }
 
@@ -806,6 +866,46 @@ public final class MenuService {
         actions.put(slot, action);
     }
 
+    private void addEquipmentAction(Inventory inventory, ConfigurationSection section, EquipmentAction action, Map<Integer, EquipmentAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
+    private ItemStack emptyEquipmentItem(EquipmentSlotDefinition slot, ConfigurationSection section) {
+        ItemStack itemStack = item(section, equipmentSlotPlaceholders(slot));
+        ItemMeta meta = itemStack.getItemMeta();
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        for (String line : configService.messages().getStringList("menus.equipment-empty")) {
+            lore.add(text.deserialize(line, equipmentSlotPlaceholders(slot)));
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack equippedEquipmentItem(EquipmentSlotDefinition slot, ItemStack equipped) {
+        ItemStack itemStack = equipped.clone();
+        ItemMeta meta = itemStack.getItemMeta();
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        if (meta.lore() != null) {
+            lore.addAll(meta.lore());
+            lore.add(net.kyori.adventure.text.Component.empty());
+        }
+        for (String line : configService.messages().getStringList("menus.equipment-equipped")) {
+            lore.add(text.deserialize(line, equipmentSlotPlaceholders(slot)));
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
     private ItemStack petMenuItem(SkyBlockProfile profile, OwnedPet pet, PetDefinition definition, ConfigurationSection section) {
         ItemStack itemStack = new ItemStack(definition.material());
         ItemMeta meta = itemStack.getItemMeta();
@@ -952,6 +1052,21 @@ public final class MenuService {
         return List.of(
                 TextService.raw("count", Integer.toString(profile.pets().size())),
                 TextService.parsed("active_pet", activePet)
+        );
+    }
+
+    private List<TextService.TextPlaceholder> equipmentPlaceholders(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        return List.of(
+                TextService.raw("count", Integer.toString(plugin.equipment().equippedCount(profile))),
+                TextService.raw("slots", Integer.toString(plugin.equipment().slots().size()))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> equipmentSlotPlaceholders(EquipmentSlotDefinition slot) {
+        return List.of(
+                TextService.raw("slot_id", slot.id()),
+                TextService.parsed("slot", slot.displayName())
         );
     }
 

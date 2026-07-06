@@ -7,6 +7,7 @@ import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.economy.EconomyService;
+import io.github.openskyblock.equipment.EquipmentService;
 import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.island.IslandService;
 import io.github.openskyblock.listener.IslandProtectionListener;
@@ -43,6 +44,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private CustomItemService customItemService;
     private AccessoryService accessoryService;
     private TuningService tuningService;
+    private EquipmentService equipmentService;
     private ArmorSetService armorSetService;
     private ReforgeService reforgeService;
     private EnchantmentService enchantmentService;
@@ -81,10 +83,11 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.customItemService.enchantmentService(enchantmentService);
         this.customItemService.starService(starService);
         this.customItemService.gemstoneService(gemstoneService);
+        this.equipmentService = new EquipmentService(configService, textService, profileManager, customItemService);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
         this.petService = new PetService(configService, textService, profileManager);
-        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, armorSetService, petService, reforgeService, enchantmentService, starService, gemstoneService);
+        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, petService, reforgeService, enchantmentService, starService, gemstoneService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -135,6 +138,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         collectionService.reload();
         skillService.reload();
         customItemService.reload();
+        equipmentService.reload();
         armorSetService.reload();
         reforgeService.reload();
         enchantmentService.reload();
@@ -206,6 +210,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public TuningService tuning() {
         return tuningService;
+    }
+
+    public EquipmentService equipment() {
+        return equipmentService;
     }
 
     public ArmorSetService armorSets() {

@@ -10,6 +10,7 @@ public record CustomItemDefinition(
         String displayName,
         String category,
         String armorSet,
+        String equipmentSlot,
         Rarity rarity,
         List<String> lore,
         Map<String, Double> stats,

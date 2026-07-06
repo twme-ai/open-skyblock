@@ -5,6 +5,7 @@ import io.github.openskyblock.accessory.TuningService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.EnchantmentService;
+import io.github.openskyblock.equipment.EquipmentService;
 import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.profile.ProfileManager;
@@ -28,6 +29,7 @@ public final class StatService {
     private final CustomItemService customItems;
     private final AccessoryService accessories;
     private final TuningService tuning;
+    private final EquipmentService equipment;
     private final ArmorSetService armorSets;
     private final PetService pets;
     private final ReforgeService reforges;
@@ -35,13 +37,14 @@ public final class StatService {
     private final StarService stars;
     private final GemstoneService gemstones;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets, ReforgeService reforges, EnchantmentService enchantments, StarService stars, GemstoneService gemstones) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, EquipmentService equipment, ArmorSetService armorSets, PetService pets, ReforgeService reforges, EnchantmentService enchantments, StarService stars, GemstoneService gemstones) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.customItems = customItems;
         this.accessories = accessories;
         this.tuning = tuning;
+        this.equipment = equipment;
         this.armorSets = armorSets;
         this.pets = pets;
         this.reforges = reforges;
@@ -55,6 +58,7 @@ public final class StatService {
         SkyBlockProfile profile = profiles.profile(player);
         addEquipmentStats(stats, player);
         addArmorSetStats(stats, player);
+        addProfileEquipmentStats(stats, profile);
         addAccessoryStats(stats, profile);
         addTuningStats(stats, profile);
         addPetStats(stats, profile);
@@ -127,6 +131,23 @@ public final class StatService {
             for (Map.Entry<String, Double> stat : definition.stats().entrySet()) {
                 stats.put(stat.getKey(), stats.getOrDefault(stat.getKey(), 0.0D) + stat.getValue());
             }
+        }
+    }
+
+    private void addProfileEquipmentStats(Map<String, Double> stats, SkyBlockProfile profile) {
+        if (!equipment.enabled()) {
+            return;
+        }
+        for (Map.Entry<String, ItemStack> entry : profile.equipment().entrySet()) {
+            if (equipment.slot(entry.getKey()).isEmpty()) {
+                continue;
+            }
+            ItemStack itemStack = entry.getValue();
+            CustomItemDefinition definition = customItems.definition(itemStack).orElse(null);
+            if (definition == null || !equipment.isEquipment(definition)) {
+                continue;
+            }
+            addItemStats(stats, itemStack, false);
         }
     }
 

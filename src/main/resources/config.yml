@@ -15,6 +15,7 @@ features:
   enchantments: true
   item-stars: true
   gemstones: true
+  equipment: true
   pets: true
   accessory-bag: true
   accessory-tuning: true

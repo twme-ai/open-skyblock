@@ -3,6 +3,7 @@ package io.github.openskyblock.command;
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
+import io.github.openskyblock.equipment.EquipmentSlotDefinition;
 import io.github.openskyblock.gemstone.GemstoneDefinition;
 import io.github.openskyblock.gemstone.GemstoneSlotDefinition;
 import io.github.openskyblock.pet.PetDefinition;
@@ -45,6 +46,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "star",
             "gemstones",
             "gemstone",
+            "equipment",
             "accessorybag",
             "tuning",
             "pets",
@@ -94,6 +96,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "star" -> star(sender, args);
             case "gemstones" -> gemstones(sender);
             case "gemstone" -> gemstone(sender, args);
+            case "equipment" -> equipment(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
             case "pets" -> pets(sender);
@@ -169,6 +172,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 5 && args[0].equalsIgnoreCase("gemstone") && args[1].equalsIgnoreCase("apply")) {
             return startsWith(plugin.gemstones().tiers(args[3]), args[4]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("equipment")) {
+            return startsWith(List.of("open", "equip", "unequip", "summary"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("equipment") && (args[1].equalsIgnoreCase("equip") || args[1].equalsIgnoreCase("unequip"))) {
+            return startsWith(plugin.equipment().slots().stream().map(EquipmentSlotDefinition::id).toList(), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
@@ -246,6 +255,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " gemstones", "commands.help.gemstones");
         helpLine(sender, label + " gemstone apply|remove", "commands.help.gemstone");
+        helpLine(sender, label + " equipment", "commands.help.equipment");
+        helpLine(sender, label + " equipment equip [slot]", "commands.help.equipment-equip");
+        helpLine(sender, label + " equipment unequip <slot>", "commands.help.equipment-unequip");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
@@ -513,6 +525,29 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.gemstones().removeHeld(player, args[2]);
             }
             default -> plugin.text().send(player, "commands.gemstone-usage");
+        }
+    }
+
+    private void equipment(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("open")) {
+            plugin.menus().openEquipmentMenu(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "equip" -> plugin.equipment().equipHeld(player, args.length >= 3 ? args[2] : null);
+            case "unequip" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.equipment-usage");
+                    return;
+                }
+                plugin.equipment().unequip(player, args[2]);
+            }
+            case "summary" -> plugin.equipment().sendSummary(player);
+            default -> plugin.text().send(player, "commands.equipment-usage");
         }
     }
 

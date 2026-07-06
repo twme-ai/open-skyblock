@@ -36,6 +36,9 @@ commands:
     star: "Add, set, or clear stars on your held custom item."
     gemstones: "List configured gemstones."
     gemstone: "View slots or apply and remove gemstones on your held custom item."
+    equipment: "Open your Equipment menu."
+    equipment-equip: "Equip the held equipment item."
+    equipment-unequip: "Unequip an equipment slot."
     stats: "View your aggregated SkyBlock stats."
     accessory-bag: "Open your Accessory Bag."
     tuning: "Open or edit stat tuning."
@@ -128,6 +131,16 @@ commands:
   gemstone-applied: "<prefix><green>Applied <gemstone> <tier> to <item> <gray>(<slot>)</gray> for <gold><cost></gold> coins.</green>"
   gemstone-removed: "<prefix><green>Removed <gemstone> from <item> <gray>(<slot>)</gray>.</green>"
   gemstone-empty: "<prefix><red>The <slot> slot is empty.</red>"
+  equipment-disabled: "<prefix><red>Equipment is disabled on this server.</red>"
+  equipment-usage: "<prefix><red>Use <yellow>/skyblock equipment</yellow>, <yellow>/skyblock equipment equip [slot]</yellow>, or <yellow>/skyblock equipment unequip <slot></yellow>.</red>"
+  equipment-held-missing: "<prefix><red>You must hold a configured equipment item.</red>"
+  equipment-unknown-slot: "<prefix><red>Unknown equipment slot: <yellow><slot></yellow>.</red>"
+  equipment-wrong-slot: "<prefix><red><item> can only be equipped in the <slot> slot.</red>"
+  equipment-equipped: "<prefix><green>Equipped <item><green> in the <slot> slot.</green></green>"
+  equipment-unequipped: "<prefix><green>Unequipped the <slot> slot.</green>"
+  equipment-empty: "<prefix><red>The <slot> slot is empty.</red>"
+  equipment-summary-header: "<prefix><aqua>Equipment</aqua>"
+  equipment-summary-line: "<gray><slot>:</gray> <item>"
   skills-header: "<prefix><aqua>Skills</aqua>"
   stats-header: "<prefix><aqua>Stats</aqua>"
   stats-line: "<gray><stat>:</gray> <green><value></green>"
@@ -206,6 +219,7 @@ items:
   star-line: "<gold><star_symbols></gold> <gray>Stars:</gray> <yellow><stars></yellow><gray>/</gray><yellow><max_stars></yellow> <dark_gray>|</dark_gray> <green>+<bonus>% item stats</green>"
   gemstone-line: "<gray>[<slot_symbol>]</gray> <slot><gray>:</gray> <gemstone> <yellow><tier></yellow>"
   gemstone-empty-line: "<dark_gray>[<slot_symbol>]</dark_gray> <slot><gray>:</gray> <dark_gray>Empty</dark_gray>"
+  equipment-slot-line: "<dark_gray>Equipment Slot: <slot></dark_gray>"
   ability-header: "<gold>Item Ability: <ability></gold> <yellow><type></yellow>"
   ability-line: "<gray><line></gray>"
   rarity-line: "<rarity_color><bold><rarity> <category></bold></rarity_color>"
@@ -251,6 +265,9 @@ stars:
 gemstones:
   empty-slot: "<dark_gray>Empty</dark_gray>"
 
+equipment:
+  empty-slot: "<dark_gray>Empty</dark_gray>"
+
 menus:
   collection-next-tier: "<yellow>Tier <tier></yellow> <gray>at</gray> <white><amount></white>"
   collection-maxed: "<gold>Maxed</gold>"
@@ -276,3 +293,11 @@ menus:
     - ""
     - "<yellow>Left-click to add.</yellow>"
     - "<yellow>Right-click to remove.</yellow>"
+  equipment-empty:
+    - "<gray>Slot:</gray> <slot>"
+    - ""
+    - "<yellow>Click with matching equipment in hand to equip it.</yellow>"
+  equipment-equipped:
+    - "<gray>Slot:</gray> <slot>"
+    - ""
+    - "<yellow>Click to unequip this item.</yellow>"

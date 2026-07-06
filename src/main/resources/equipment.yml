@@ -1,0 +1,13 @@
+slots:
+  NECKLACE:
+    display-name: "<yellow>Necklace</yellow>"
+    material: NAME_TAG
+  CLOAK:
+    display-name: "<dark_purple>Cloak</dark_purple>"
+    material: LEATHER_CHESTPLATE
+  BELT:
+    display-name: "<gold>Belt</gold>"
+    material: LEATHER_LEGGINGS
+  GLOVES:
+    display-name: "<aqua>Gloves</aqua>"
+    material: LEATHER_BOOTS

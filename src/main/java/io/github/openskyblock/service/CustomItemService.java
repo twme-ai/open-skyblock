@@ -91,6 +91,7 @@ public final class CustomItemService {
                     itemSection.getString("display-name", id),
                     itemSection.getString("category", "ITEM"),
                     itemSection.getString("armor-set", ""),
+                    itemSection.getString("equipment-slot", ""),
                     Rarity.parse(itemSection.getString("rarity", "COMMON")),
                     itemSection.getStringList("lore"),
                     stats,
@@ -203,6 +204,9 @@ public final class CustomItemService {
         }
         if (definition.armorSet() != null && !definition.armorSet().isBlank()) {
             lines.add(text.message("items.armor-set-line", List.of(TextService.raw("set", definition.armorSet()))));
+        }
+        if (definition.equipmentSlot() != null && !definition.equipmentSlot().isBlank()) {
+            lines.add(text.message("items.equipment-slot-line", List.of(TextService.raw("slot", definition.equipmentSlot()))));
         }
         AbilityDefinition ability = definition.ability();
         if (ability != null && !ability.name().isBlank()) {

@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ProfileManager {
@@ -141,6 +142,15 @@ public final class ProfileManager {
                 profile.setTuning(key.toLowerCase(), tuning.getInt(key, 0));
             }
         }
+        ConfigurationSection equipment = section.getConfigurationSection("equipment");
+        if (equipment != null) {
+            for (String key : equipment.getKeys(false)) {
+                ItemStack itemStack = equipment.getItemStack(key);
+                if (itemStack != null) {
+                    profile.equipment().put(key.toUpperCase(), itemStack);
+                }
+            }
+        }
         profile.activePetInstanceId(section.getString("pets.active", null));
         ConfigurationSection pets = section.getConfigurationSection("pets.owned");
         if (pets != null) {
@@ -196,6 +206,10 @@ public final class ProfileManager {
         profileData.set(base + ".tuning", null);
         for (Map.Entry<String, Integer> entry : profile.tuning().entrySet()) {
             profileData.set(base + ".tuning." + entry.getKey(), entry.getValue());
+        }
+        profileData.set(base + ".equipment", null);
+        for (Map.Entry<String, ItemStack> entry : profile.equipment().entrySet()) {
+            profileData.set(base + ".equipment." + entry.getKey(), entry.getValue());
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());
         profileData.set(base + ".pets.owned", null);
