@@ -32,6 +32,7 @@ import io.github.openskyblock.listener.ShopNpcListener;
 import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.mob.MobService;
 import io.github.openskyblock.mobspawn.MobSpawnService;
+import io.github.openskyblock.museum.MuseumService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.potion.PotionService;
 import io.github.openskyblock.profile.ProfileManager;
@@ -93,6 +94,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BackpackService backpackService;
     private MobService mobService;
     private MobSpawnService mobSpawnService;
+    private MuseumService museumService;
     private BestiaryService bestiaryService;
     private SlayerService slayerService;
     private StatService statService;
@@ -119,6 +121,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.collectionService = new CollectionService(configService, textService, profileManager);
         this.skillService = new SkillService(configService, textService, profileManager, collectionService, economyService);
         this.customItemService = new CustomItemService(this, configService, textService);
+        this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
+        this.skillService.museumService(museumService);
         this.armorSetService = new ArmorSetService(configService);
         this.reforgeService = new ReforgeService(this, configService, textService, economyService, customItemService);
         this.enchantmentService = new EnchantmentService(this, configService, textService, economyService, customItemService);
@@ -231,6 +235,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         collectionService.reload();
         skillService.reload();
         customItemService.reload();
+        museumService.reload();
         itemAbilityService.reload();
         upgradeService.reload();
         sackService.reload();
@@ -438,6 +443,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public MobSpawnService mobSpawns() {
         return mobSpawnService;
+    }
+
+    public MuseumService museum() {
+        return museumService;
     }
 
     public BestiaryService bestiary() {

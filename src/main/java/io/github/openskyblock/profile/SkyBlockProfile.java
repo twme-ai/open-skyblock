@@ -33,6 +33,7 @@ public final class SkyBlockProfile {
     private final Map<String, Double> essence = new HashMap<>();
     private final Map<String, Long> bestiaryKills = new HashMap<>();
     private final Map<String, Integer> bestiaryTiers = new HashMap<>();
+    private final Map<String, Long> museumDonations = new HashMap<>();
     private final Map<String, Double> slayerXp = new HashMap<>();
     private final Map<String, Integer> slayerLevels = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
@@ -238,6 +239,18 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> bestiaryTiers() {
         return bestiaryTiers;
+    }
+
+    public Map<String, Long> museumDonations() {
+        return museumDonations;
+    }
+
+    public boolean hasMuseumDonation(String donationId) {
+        return museumDonations.containsKey(donationId.toUpperCase());
+    }
+
+    public void addMuseumDonation(String donationId, long donatedAtMillis) {
+        museumDonations.put(donationId.toUpperCase(), Math.max(0L, donatedAtMillis));
     }
 
     public Map<String, Double> slayerXp() {

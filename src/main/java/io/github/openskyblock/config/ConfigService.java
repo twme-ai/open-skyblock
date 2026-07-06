@@ -27,6 +27,7 @@ public final class ConfigService {
             "mobs.yml",
             "mob_spawns.yml",
             "bestiary.yml",
+            "museum.yml",
             "slayers.yml",
             "equipment.yml",
             "wardrobe.yml",
@@ -131,6 +132,10 @@ public final class ConfigService {
 
     public FileConfiguration bestiary() {
         return file("bestiary.yml");
+    }
+
+    public FileConfiguration museum() {
+        return file("museum.yml");
     }
 
     public FileConfiguration slayers() {

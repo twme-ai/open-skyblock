@@ -1,0 +1,86 @@
+settings:
+  soulbind-on-donate: true
+  soulbind-type: COOP
+
+donations:
+  ROGUE_SWORD:
+    category: WEAPONS
+    skyblock-xp: 5
+    appraisal: 500
+  ASPECT_OF_THE_END:
+    category: WEAPONS
+    skyblock-xp: 10
+    appraisal: 25000
+  HYPERION:
+    category: WEAPONS
+    skyblock-xp: 50
+    appraisal: 1000000000
+  FARM_SUIT_HELMET:
+    category: ARMOR
+    skyblock-xp: 5
+    appraisal: 1000
+  FARM_SUIT_CHESTPLATE:
+    category: ARMOR
+    skyblock-xp: 5
+    appraisal: 1500
+  FARM_SUIT_LEGGINGS:
+    category: ARMOR
+    skyblock-xp: 5
+    appraisal: 1250
+  FARM_SUIT_BOOTS:
+    category: ARMOR
+    skyblock-xp: 5
+    appraisal: 750
+  SPEED_TALISMAN:
+    category: ACCESSORIES
+    skyblock-xp: 5
+    appraisal: 2500
+  UNDEAD_CHARM:
+    category: ACCESSORIES
+    skyblock-xp: 5
+    appraisal: 5000
+  BEGINNER_NECKLACE:
+    category: EQUIPMENT
+    skyblock-xp: 5
+    appraisal: 1000
+  BEGINNER_CLOAK:
+    category: EQUIPMENT
+    skyblock-xp: 5
+    appraisal: 1000
+  BEGINNER_BELT:
+    category: EQUIPMENT
+    skyblock-xp: 5
+    appraisal: 1000
+  BEGINNER_GLOVES:
+    category: EQUIPMENT
+    skyblock-xp: 5
+    appraisal: 1000
+
+milestones:
+  1:
+    required-skyblock-xp: 10
+    bank-interest-bonus: 0.01
+    bits-multiplier: 0.0
+    rewards:
+      - "<gold>+1% Bank interest</gold>"
+  2:
+    required-skyblock-xp: 25
+    bank-interest-bonus: 0.01
+    bits-multiplier: 0.01
+    rewards:
+      - "<gold>+1% Bank interest</gold>"
+      - "<light_purple>+1% Bits multiplier</light_purple>"
+  3:
+    required-skyblock-xp: 50
+    bank-interest-bonus: 0.02
+    bits-multiplier: 0.02
+    rewards:
+      - "<gold>+2% Bank interest</gold>"
+      - "<light_purple>+2% Bits multiplier</light_purple>"
+  4:
+    required-skyblock-xp: 100
+    bank-interest-bonus: 0.03
+    bits-multiplier: 0.03
+    rewards:
+      - "<gold>+3% Bank interest</gold>"
+      - "<light_purple>+3% Bits multiplier</light_purple>"

@@ -3,6 +3,7 @@ package io.github.openskyblock.service;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.economy.EconomyService;
+import io.github.openskyblock.museum.MuseumService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public final class SkillService {
     private final Map<Material, ActionReward> blockRewards = new HashMap<>();
     private final Map<EntityType, ActionReward> entityRewards = new HashMap<>();
     private final Map<Material, ActionReward> pickupRewards = new HashMap<>();
+    private MuseumService museumService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -36,6 +38,10 @@ public final class SkillService {
         this.profiles = profiles;
         this.collections = collections;
         this.economy = economy;
+    }
+
+    public void museumService(MuseumService museumService) {
+        this.museumService = museumService;
     }
 
     public void reload() {
@@ -167,6 +173,9 @@ public final class SkillService {
             xp += level(type, profile.skillXp(type)) * 5;
         }
         xp += profile.collections().values().stream().mapToInt(value -> (int) Math.min(25L, value / 100L)).sum();
+        if (museumService != null) {
+            xp += (int) Math.round(museumService.skyBlockXp(profile));
+        }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);
     }

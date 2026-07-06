@@ -39,6 +39,7 @@ features:
   custom-mobs: true
   mob-spawn-zones: true
   bestiary: true
+  museum: true
   slayers: true
 
 islands:

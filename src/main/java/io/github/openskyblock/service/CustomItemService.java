@@ -299,6 +299,20 @@ public final class CustomItemService {
         return true;
     }
 
+    public boolean applySoulbound(ItemStack itemStack, Player owner, String rawType) {
+        if (definition(itemStack).isEmpty() || owner == null) {
+            return false;
+        }
+        String type = normalizeSoulboundType(rawType == null || rawType.isBlank() ? soulboundDefaultType() : rawType);
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.getPersistentDataContainer().set(soulboundTypeKey, PersistentDataType.STRING, type);
+        meta.getPersistentDataContainer().set(soulboundOwnerKey, PersistentDataType.STRING, owner.getUniqueId().toString());
+        meta.getPersistentDataContainer().set(soulboundOwnerNameKey, PersistentDataType.STRING, owner.getName());
+        itemStack.setItemMeta(meta);
+        refreshItem(itemStack);
+        return true;
+    }
+
     private Component displayName(CustomItemDefinition definition, ItemStack itemStack) {
         ReforgeDefinition reforge = reforge(itemStack);
         String suffix = starService == null ? "" : starService.suffix(itemStack);

@@ -345,6 +345,13 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection museumDonations = section.getConfigurationSection("museum.donations");
+        if (museumDonations != null) {
+            for (String donationId : museumDonations.getKeys(false)) {
+                long donatedAtMillis = museumDonations.getLong(donationId, 0L);
+                profile.addMuseumDonation(donationId, donatedAtMillis);
+            }
+        }
         ConfigurationSection slayerXp = section.getConfigurationSection("slayers.xp");
         if (slayerXp != null) {
             for (String slayerId : slayerXp.getKeys(false)) {
@@ -552,6 +559,10 @@ public final class ProfileManager {
             if (entry.getValue() > 0) {
                 profileData.set(base + ".bestiary.tiers." + entry.getKey(), entry.getValue());
             }
+        }
+        profileData.set(base + ".museum", null);
+        for (Map.Entry<String, Long> entry : profile.museumDonations().entrySet()) {
+            profileData.set(base + ".museum.donations." + entry.getKey(), entry.getValue());
         }
         profileData.set(base + ".slayers", null);
         for (Map.Entry<String, Double> entry : profile.slayerXp().entrySet()) {

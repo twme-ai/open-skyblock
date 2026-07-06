@@ -91,6 +91,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "mob",
             "mobzones",
             "mobzone",
+            "museum",
             "bestiary",
             "slayers",
             "slayer",
@@ -163,6 +164,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "wardrobe" -> wardrobe(sender, args);
             case "mobs", "mob" -> mobs(sender, args);
             case "mobzones", "mobzone" -> mobZones(sender, args);
+            case "museum" -> museum(sender, args);
             case "bestiary" -> bestiary(sender, args);
             case "slayers", "slayer" -> slayers(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
@@ -405,6 +407,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 4 && isMobZoneCommand(args[0]) && args[1].equalsIgnoreCase("spawn")) {
             return startsWith(List.of("1", "5", "10"), args[3]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("museum")) {
+            return startsWith(List.of("summary", "donate", "list", "milestones"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("museum") && args[1].equalsIgnoreCase("list")) {
+            return startsWith(plugin.museum().categories(), args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("bestiary")) {
             return startsWith(plugin.bestiary().families().stream().map(BestiaryFamilyDefinition::id).toList(), args[1]);
         }
@@ -537,6 +545,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " wardrobe save|equip|withdraw <slot>", "commands.help.wardrobe-slot");
         helpLine(sender, label + " mobs", "commands.help.mobs");
         helpLine(sender, label + " mobzones", "commands.help.mob-zones");
+        helpLine(sender, label + " museum donate|list|milestones", "commands.help.museum");
         helpLine(sender, label + " bestiary [family]", "commands.help.bestiary");
         helpLine(sender, label + " slayer start|status|cancel", "commands.help.slayer");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
@@ -1581,6 +1590,23 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                     TextService.raw("amount", Integer.toString(spawned)),
                     TextService.parsed("zone", zone.displayName())
             ));
+        }
+    }
+
+    private void museum(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("summary")) {
+            plugin.museum().sendSummary(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "donate" -> plugin.museum().donateHeld(player);
+            case "list" -> plugin.museum().sendDonations(player, args.length >= 3 ? args[2] : "ALL");
+            case "milestones" -> plugin.museum().sendMilestones(player);
+            default -> plugin.text().send(player, "commands.museum-usage");
         }
     }
 
