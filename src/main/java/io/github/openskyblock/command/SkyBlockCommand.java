@@ -43,6 +43,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "shop",
             "auctions",
             "auction",
+            "bazaar",
+            "bz",
             "shopnpcs",
             "sell",
             "sacks",
@@ -106,6 +108,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "shops" -> shops(sender);
             case "shop" -> shop(sender, args);
             case "auctions", "auction" -> auctions(sender, args);
+            case "bazaar", "bz" -> bazaar(sender, args);
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
             case "sacks", "sack" -> sacks(sender, args);
@@ -165,6 +168,24 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && isAuctionCommand(args[0]) && (args[1].equalsIgnoreCase("buy") || args[1].equalsIgnoreCase("cancel"))) {
             return startsWith(plugin.auctions().listingIds(), args[2]);
+        }
+        if (args.length == 2 && isBazaarCommand(args[0])) {
+            return startsWith(List.of("products", "info", "instabuy", "instasell", "buyorder", "selloffer", "claim", "cancel", "orders"), args[1]);
+        }
+        if (args.length == 3 && isBazaarCommand(args[0]) && (args[1].equalsIgnoreCase("info") || args[1].equalsIgnoreCase("instabuy") || args[1].equalsIgnoreCase("instasell") || args[1].equalsIgnoreCase("buyorder") || args[1].equalsIgnoreCase("selloffer"))) {
+            return startsWith(plugin.bazaar().productIds(), args[2]);
+        }
+        if (args.length == 3 && isBazaarCommand(args[0]) && args[1].equalsIgnoreCase("cancel") && sender instanceof Player player) {
+            return startsWith(plugin.bazaar().orderIds(player), args[2]);
+        }
+        if (args.length == 4 && isBazaarCommand(args[0]) && (args[1].equalsIgnoreCase("instabuy") || args[1].equalsIgnoreCase("buyorder"))) {
+            return startsWith(List.of("64", "160", "1024", "71680"), args[3]);
+        }
+        if (args.length == 4 && isBazaarCommand(args[0]) && (args[1].equalsIgnoreCase("instasell") || args[1].equalsIgnoreCase("selloffer"))) {
+            return startsWith(List.of("all", "64", "160", "1024"), args[3]);
+        }
+        if (args.length == 5 && isBazaarCommand(args[0]) && (args[1].equalsIgnoreCase("buyorder") || args[1].equalsIgnoreCase("selloffer"))) {
+            return startsWith(List.of("1", "2.5", "10", "100"), args[4]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("shopnpcs")) {
             return startsWith(List.of("refresh", "remove"), args[1]);
@@ -327,6 +348,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " shop <id>", "commands.help.shop");
         helpLine(sender, label + " auctions", "commands.help.auctions");
         helpLine(sender, label + " auction create|buy|cancel|claim", "commands.help.auction");
+        helpLine(sender, label + " bazaar", "commands.help.bazaar");
+        helpLine(sender, label + " bazaar instabuy|instasell|buyorder|selloffer", "commands.help.bazaar-order");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
         helpLine(sender, label + " sacks", "commands.help.sacks");
         helpLine(sender, label + " sack deposit|withdraw", "commands.help.sack");
@@ -526,6 +549,84 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "claim" -> plugin.auctions().claim(player);
             case "mine" -> plugin.auctions().sendMine(player);
             default -> plugin.text().send(player, "commands.auction-usage");
+        }
+    }
+
+    private void bazaar(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.bazaar().sendProducts(player, 1);
+            return;
+        }
+        if (numeric(args[1])) {
+            parsePositiveInt(player, args[1]).ifPresent(page -> plugin.bazaar().sendProducts(player, page));
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "products", "list" -> {
+                if (args.length >= 3) {
+                    parsePositiveInt(player, args[2]).ifPresent(page -> plugin.bazaar().sendProducts(player, page));
+                    return;
+                }
+                plugin.bazaar().sendProducts(player, 1);
+            }
+            case "info" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.bazaar-usage");
+                    return;
+                }
+                plugin.bazaar().sendInfo(player, args[2]);
+            }
+            case "instabuy" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.bazaar-usage");
+                    return;
+                }
+                parsePositiveLong(player, args[3]).ifPresent(amount -> plugin.bazaar().instantBuy(player, args[2], amount));
+            }
+            case "instasell" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.bazaar-usage");
+                    return;
+                }
+                Optional<Long> amount = parseBazaarAmount(player, args[3]);
+                amount.ifPresent(value -> plugin.bazaar().instantSell(player, args[2], value));
+            }
+            case "buyorder" -> {
+                if (args.length < 5) {
+                    plugin.text().send(player, "commands.bazaar-usage");
+                    return;
+                }
+                Optional<Long> amount = parsePositiveLong(player, args[3]);
+                Optional<Double> price = parsePositiveAmount(player, args[4]);
+                if (amount.isPresent() && price.isPresent()) {
+                    plugin.bazaar().createBuyOrder(player, args[2], amount.get(), price.get());
+                }
+            }
+            case "selloffer" -> {
+                if (args.length < 5) {
+                    plugin.text().send(player, "commands.bazaar-usage");
+                    return;
+                }
+                Optional<Long> amount = parseBazaarAmount(player, args[3]);
+                Optional<Double> price = parsePositiveAmount(player, args[4]);
+                if (amount.isPresent() && price.isPresent()) {
+                    plugin.bazaar().createSellOffer(player, args[2], amount.get(), price.get());
+                }
+            }
+            case "claim" -> plugin.bazaar().claim(player);
+            case "cancel" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.bazaar-usage");
+                    return;
+                }
+                plugin.bazaar().cancel(player, args[2]);
+            }
+            case "orders", "mine" -> plugin.bazaar().sendOrders(player);
+            default -> plugin.text().send(player, "commands.bazaar-usage");
         }
     }
 
@@ -1300,6 +1401,27 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private Optional<Long> parsePositiveLong(CommandSender sender, String raw) {
+        try {
+            long value = Long.parseLong(raw);
+            if (value <= 0L) {
+                plugin.text().send(sender, "errors.invalid-number");
+                return Optional.empty();
+            }
+            return Optional.of(value);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(sender, "errors.invalid-number");
+            return Optional.empty();
+        }
+    }
+
+    private Optional<Long> parseBazaarAmount(CommandSender sender, String raw) {
+        if (raw.equalsIgnoreCase("all")) {
+            return Optional.of(0L);
+        }
+        return parsePositiveLong(sender, raw);
+    }
+
     private Optional<Integer> parseNonNegativeInt(CommandSender sender, String raw) {
         try {
             int value = Integer.parseInt(raw);
@@ -1331,6 +1453,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isAuctionCommand(String value) {
         return value.equalsIgnoreCase("auction") || value.equalsIgnoreCase("auctions");
+    }
+
+    private boolean isBazaarCommand(String value) {
+        return value.equalsIgnoreCase("bazaar") || value.equalsIgnoreCase("bz");
     }
 
     private boolean isPotionCommand(String value) {

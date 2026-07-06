@@ -20,6 +20,7 @@ public final class ConfigService {
             "cakes.yml",
             "upgrades.yml",
             "auctions.yml",
+            "bazaar.yml",
             "equipment.yml",
             "wardrobe.yml",
             "armor_sets.yml",
@@ -95,6 +96,10 @@ public final class ConfigService {
 
     public FileConfiguration auctions() {
         return file("auctions.yml");
+    }
+
+    public FileConfiguration bazaar() {
+        return file("bazaar.yml");
     }
 
     public FileConfiguration equipment() {

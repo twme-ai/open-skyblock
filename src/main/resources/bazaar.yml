@@ -1,0 +1,52 @@
+settings:
+  page-size: 8
+  max-active-orders-per-player: 14
+  max-instant-amount: 71680
+  max-sell-offer-price-multiplier: 1.5
+
+products:
+  WHEAT:
+    category: FARMING
+    material: WHEAT
+    display-name: "<yellow>Wheat</yellow>"
+    stack-size: 64
+  CARROT:
+    category: FARMING
+    material: CARROT
+    display-name: "<gold>Carrot</gold>"
+    stack-size: 64
+  POTATO:
+    category: FARMING
+    material: POTATO
+    display-name: "<yellow>Potato</yellow>"
+    stack-size: 64
+  WHEAT_SEEDS:
+    category: FARMING
+    material: WHEAT_SEEDS
+    display-name: "<green>Wheat Seeds</green>"
+    stack-size: 64
+  COBBLESTONE:
+    category: MINING
+    material: COBBLESTONE
+    display-name: "<gray>Cobblestone</gray>"
+    stack-size: 64
+  COAL:
+    category: MINING
+    material: COAL
+    display-name: "<dark_gray>Coal</dark_gray>"
+    stack-size: 64
+  IRON_INGOT:
+    category: MINING
+    material: IRON_INGOT
+    display-name: "<white>Iron Ingot</white>"
+    stack-size: 64
+  OAK_LOG:
+    category: FORAGING
+    material: OAK_LOG
+    display-name: "<green>Oak Log</green>"
+    stack-size: 64
+  BIRCH_LOG:
+    category: FORAGING
+    material: BIRCH_LOG
+    display-name: "<white>Birch Log</white>"
+    stack-size: 64

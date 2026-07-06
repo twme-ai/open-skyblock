@@ -4,6 +4,7 @@ import io.github.openskyblock.command.SkyBlockCommand;
 import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.accessory.TuningService;
 import io.github.openskyblock.auction.AuctionService;
+import io.github.openskyblock.bazaar.BazaarService;
 import io.github.openskyblock.cake.CakeService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
@@ -74,6 +75,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private ShopService shopService;
     private ShopNpcService shopNpcService;
     private AuctionService auctionService;
+    private BazaarService bazaarService;
     private StatService statService;
     private UpgradeService upgradeService;
     private BukkitTask autosaveTask;
@@ -121,6 +123,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.shopNpcService = new ShopNpcService(this, configService, textService, shopService);
         this.auctionService = new AuctionService(this, configService, textService, economyService, customItemService);
         this.auctionService.load();
+        this.bazaarService = new BazaarService(this, configService, textService, economyService, customItemService);
+        this.bazaarService.load();
 
         reloadServices();
         registerCommands();
@@ -149,6 +153,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         }
         if (auctionService != null) {
             auctionService.save();
+        }
+        if (bazaarService != null) {
+            bazaarService.save();
         }
         if (profileManager != null) {
             profileManager.saveAll();
@@ -190,6 +197,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         shopService.reload();
         shopNpcService.reload();
         auctionService.reload();
+        bazaarService.reload();
     }
 
     private void registerCommands() {
@@ -334,6 +342,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public AuctionService auctions() {
         return auctionService;
+    }
+
+    public BazaarService bazaar() {
+        return bazaarService;
     }
 
     public StatService stats() {
