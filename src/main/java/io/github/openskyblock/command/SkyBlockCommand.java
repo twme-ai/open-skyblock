@@ -92,6 +92,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "catacombs",
             "garden",
             "gardens",
+            "dragons",
+            "dragon",
+            "enderdragon",
             "stars",
             "star",
             "essence",
@@ -193,6 +196,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "experiments", "experiment", "etable" -> experiments(sender, args);
             case "dungeons", "dungeon", "catacombs" -> dungeons(sender, args);
             case "garden", "gardens" -> garden(sender, args);
+            case "dragons", "dragon", "enderdragon" -> dragons(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -444,6 +448,18 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 4 && isGardenCommand(args[0]) && (args[1].equalsIgnoreCase("harvest") || args[1].equalsIgnoreCase("compost"))) {
             return startsWith(List.of("64", "160", "1000", "10000"), args[3]);
         }
+        if (args.length == 2 && isDragonCommand(args[0])) {
+            return startsWith(List.of("status", "list", "place", "fight"), args[1]);
+        }
+        if (args.length == 3 && isDragonCommand(args[0]) && args[1].equalsIgnoreCase("place")) {
+            return startsWith(List.of("1", "2", "4", "8"), args[2]);
+        }
+        if (args.length == 3 && isDragonCommand(args[0]) && args[1].equalsIgnoreCase("fight")) {
+            return startsWith(List.of("100000", "500000", "1000000"), args[2]);
+        }
+        if (args.length == 4 && isDragonCommand(args[0]) && args[1].equalsIgnoreCase("fight")) {
+            return startsWith(plugin.dragons().dragonIds(), args[3]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -680,6 +696,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " experiments status|list|run", "commands.help.experiments");
         helpLine(sender, label + " dungeons status|floors|classes|run", "commands.help.dungeons");
         helpLine(sender, label + " garden status|crops|plots|visitors", "commands.help.garden");
+        helpLine(sender, label + " dragons status|list|place|fight", "commands.help.dragons");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1580,6 +1597,35 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.garden().serveVisitor(player, args[2]);
             }
             default -> plugin.text().send(player, "commands.garden-usage");
+        }
+    }
+
+    private void dragons(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.dragons().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "list" -> plugin.dragons().sendList(player);
+            case "place" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.dragon-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(amount -> plugin.dragons().placeEyes(player, amount));
+            }
+            case "fight" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.dragon-usage");
+                    return;
+                }
+                parsePositiveAmount(player, args[2]).ifPresent(damage -> plugin.dragons().fight(player, damage, args.length >= 4 ? args[3] : ""));
+            }
+            default -> plugin.text().send(player, "commands.dragon-usage");
         }
     }
 
@@ -2731,6 +2777,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isGardenCommand(String value) {
         return value.equalsIgnoreCase("garden") || value.equalsIgnoreCase("gardens");
+    }
+
+    private boolean isDragonCommand(String value) {
+        return value.equalsIgnoreCase("dragon") || value.equalsIgnoreCase("dragons") || value.equalsIgnoreCase("enderdragon");
     }
 
     private boolean isUpgradeCommand(String value) {

@@ -42,6 +42,7 @@ features:
   custom-mobs: true
   dungeons: true
   garden: true
+  dragons: true
   fairy-souls: true
   sea-creatures: true
   trophy-fishing: true

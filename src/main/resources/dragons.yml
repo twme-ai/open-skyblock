@@ -1,0 +1,169 @@
+settings:
+  eyes-required: 8
+  max-placed-eyes: 8
+  summoning-eye-item: SUMMONING_EYE
+  base-coin-reward: 5000.0
+  skyblock-xp-per-kill: 0.25
+  skyblock-xp-per-unique-dragon: 2.0
+  damage-ranks:
+    first: 1000000.0
+    second: 500000.0
+    third: 100000.0
+
+dragons:
+  PROTECTOR:
+    display-name: "<green>Protector Dragon</green>"
+    spawn-weight: 16.0
+    health: 9000000.0
+    combat-xp: 500.0
+    fragment-item: PROTECTOR_DRAGON_FRAGMENT
+    base-fragments: 3
+    fragments-per-eye: 2
+    fragments-per-rank: 2
+    rewards:
+      - type: CUSTOM_ITEM
+        item: DRAGON_CLAW
+        amount: 1
+        weight: 2.0
+        min-eyes: 2
+        min-damage: 100000.0
+      - type: VANILLA
+        material: ENDER_PEARL
+        amount: 16
+        weight: 40.0
+  OLD:
+    display-name: "<gray>Old Dragon</gray>"
+    spawn-weight: 16.0
+    health: 10000000.0
+    combat-xp: 500.0
+    fragment-item: OLD_DRAGON_FRAGMENT
+    base-fragments: 3
+    fragments-per-eye: 2
+    fragments-per-rank: 2
+    rewards:
+      - type: CUSTOM_ITEM
+        item: DRAGON_CLAW
+        amount: 1
+        weight: 2.0
+        min-eyes: 2
+        min-damage: 100000.0
+      - type: VANILLA
+        material: ENDER_PEARL
+        amount: 16
+        weight: 40.0
+  WISE:
+    display-name: "<aqua>Wise Dragon</aqua>"
+    spawn-weight: 16.0
+    health: 9000000.0
+    combat-xp: 500.0
+    fragment-item: WISE_DRAGON_FRAGMENT
+    base-fragments: 3
+    fragments-per-eye: 2
+    fragments-per-rank: 2
+    rewards:
+      - type: CUSTOM_ITEM
+        item: DRAGON_CLAW
+        amount: 1
+        weight: 2.0
+        min-eyes: 2
+        min-damage: 100000.0
+      - type: CUSTOM_ITEM
+        item: ASPECT_OF_THE_DRAGONS
+        amount: 1
+        weight: 1.0
+        min-eyes: 4
+        min-damage: 450000.0
+  UNSTABLE:
+    display-name: "<dark_purple>Unstable Dragon</dark_purple>"
+    spawn-weight: 16.0
+    health: 9000000.0
+    combat-xp: 500.0
+    fragment-item: UNSTABLE_DRAGON_FRAGMENT
+    base-fragments: 3
+    fragments-per-eye: 2
+    fragments-per-rank: 2
+    rewards:
+      - type: CUSTOM_ITEM
+        item: DRAGON_CLAW
+        amount: 1
+        weight: 2.0
+        min-eyes: 2
+        min-damage: 100000.0
+      - type: CUSTOM_ITEM
+        item: ASPECT_OF_THE_DRAGONS
+        amount: 1
+        weight: 1.0
+        min-eyes: 4
+        min-damage: 450000.0
+  YOUNG:
+    display-name: "<white>Young Dragon</white>"
+    spawn-weight: 16.0
+    health: 7500000.0
+    combat-xp: 500.0
+    fragment-item: YOUNG_DRAGON_FRAGMENT
+    base-fragments: 3
+    fragments-per-eye: 2
+    fragments-per-rank: 2
+    rewards:
+      - type: CUSTOM_ITEM
+        item: DRAGON_CLAW
+        amount: 1
+        weight: 2.0
+        min-eyes: 2
+        min-damage: 100000.0
+      - type: CUSTOM_ITEM
+        item: ASPECT_OF_THE_DRAGONS
+        amount: 1
+        weight: 1.0
+        min-eyes: 4
+        min-damage: 450000.0
+  STRONG:
+    display-name: "<red>Strong Dragon</red>"
+    spawn-weight: 16.0
+    health: 9000000.0
+    combat-xp: 500.0
+    fragment-item: STRONG_DRAGON_FRAGMENT
+    base-fragments: 3
+    fragments-per-eye: 2
+    fragments-per-rank: 2
+    rewards:
+      - type: CUSTOM_ITEM
+        item: DRAGON_CLAW
+        amount: 1
+        weight: 2.0
+        min-eyes: 2
+        min-damage: 100000.0
+      - type: CUSTOM_ITEM
+        item: ASPECT_OF_THE_DRAGONS
+        amount: 1
+        weight: 1.0
+        min-eyes: 4
+        min-damage: 450000.0
+  SUPERIOR:
+    display-name: "<gold>Superior Dragon</gold>"
+    spawn-weight: 4.0
+    health: 12000000.0
+    combat-xp: 750.0
+    fragment-item: SUPERIOR_DRAGON_FRAGMENT
+    base-fragments: 4
+    fragments-per-eye: 2
+    fragments-per-rank: 3
+    rewards:
+      - type: CUSTOM_ITEM
+        item: DRAGON_CLAW
+        amount: 1
+        weight: 3.0
+        min-eyes: 2
+        min-damage: 100000.0
+      - type: CUSTOM_ITEM
+        item: ASPECT_OF_THE_DRAGONS
+        amount: 1
+        weight: 2.0
+        min-eyes: 4
+        min-damage: 450000.0
+      - type: CUSTOM_ITEM
+        item: SUPERIOR_DRAGON_FRAGMENT
+        amount: 8
+        weight: 8.0
+        min-eyes: 2
+        min-damage: 100000.0

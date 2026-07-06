@@ -2,6 +2,7 @@ package io.github.openskyblock.service;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.dragon.DragonService;
 import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.fairysoul.FairySoulService;
 import io.github.openskyblock.garden.GardenService;
@@ -35,6 +36,7 @@ public final class SkillService {
     private MuseumService museumService;
     private FairySoulService fairySoulService;
     private GardenService gardenService;
+    private DragonService dragonService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -54,6 +56,10 @@ public final class SkillService {
 
     public void gardenService(GardenService gardenService) {
         this.gardenService = gardenService;
+    }
+
+    public void dragonService(DragonService dragonService) {
+        this.dragonService = dragonService;
     }
 
     public void reload() {
@@ -193,6 +199,9 @@ public final class SkillService {
         }
         if (gardenService != null) {
             xp += (int) Math.round(gardenService.skyBlockXp(profile));
+        }
+        if (dragonService != null) {
+            xp += (int) Math.round(dragonService.skyBlockXp(profile));
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);

@@ -31,6 +31,7 @@ public final class SkyBlockProfile {
     private final Map<String, Long> gardenCropStorage = new HashMap<>();
     private final Set<String> gardenPlots = new HashSet<>();
     private final Map<String, Integer> gardenVisitorsServed = new HashMap<>();
+    private final Map<String, Integer> dragonKills = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -72,6 +73,9 @@ public final class SkyBlockProfile {
     private long gardenCopper;
     private long gardenCompost;
     private long gardenVisitorOffers;
+    private int placedDragonEyes;
+    private long summoningEyesUsed;
+    private double bestDragonDamage;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -475,6 +479,63 @@ public final class SkyBlockProfile {
 
     public void gardenVisitorOffers(long gardenVisitorOffers) {
         this.gardenVisitorOffers = Math.max(0L, gardenVisitorOffers);
+    }
+
+    public int placedDragonEyes() {
+        return placedDragonEyes;
+    }
+
+    public void placedDragonEyes(int placedDragonEyes) {
+        this.placedDragonEyes = Math.max(0, placedDragonEyes);
+    }
+
+    public long summoningEyesUsed() {
+        return summoningEyesUsed;
+    }
+
+    public void summoningEyesUsed(long summoningEyesUsed) {
+        this.summoningEyesUsed = Math.max(0L, summoningEyesUsed);
+    }
+
+    public void addSummoningEyesUsed(long amount) {
+        summoningEyesUsed(summoningEyesUsed + amount);
+    }
+
+    public double bestDragonDamage() {
+        return bestDragonDamage;
+    }
+
+    public void bestDragonDamage(double bestDragonDamage) {
+        this.bestDragonDamage = Math.max(0.0D, bestDragonDamage);
+    }
+
+    public void recordDragonDamage(double damage) {
+        bestDragonDamage(Math.max(bestDragonDamage, damage));
+    }
+
+    public int dragonKills(String dragonId) {
+        return dragonKills.getOrDefault(dragonId.toUpperCase(), 0);
+    }
+
+    public void setDragonKills(String dragonId, int amount) {
+        String normalized = dragonId.toUpperCase();
+        if (amount <= 0) {
+            dragonKills.remove(normalized);
+            return;
+        }
+        dragonKills.put(normalized, amount);
+    }
+
+    public void addDragonKill(String dragonId, int amount) {
+        setDragonKills(dragonId, dragonKills(dragonId) + amount);
+    }
+
+    public long totalDragonKills() {
+        return dragonKills.values().stream().mapToLong(Integer::longValue).sum();
+    }
+
+    public Map<String, Integer> dragonKills() {
+        return dragonKills;
     }
 
     public String shopPurchaseDay() {

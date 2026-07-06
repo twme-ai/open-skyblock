@@ -26,6 +26,81 @@ items:
       - "<gray>Consumed to permanently increase the rarity of one compatible item.</gray>"
       - "<gray>Use <yellow>/skyblock recombobulate</yellow> while holding the target item.</gray>"
     stats: {}
+  SUMMONING_EYE:
+    material: ENDER_EYE
+    display-name: "<light_purple>Summoning Eye</light_purple>"
+    category: ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>Place eight in the Dragon Altar to summon an Ender Dragon.</gray>"
+      - "<gray>Use <yellow>/skyblock dragons place <amount></yellow>.</gray>"
+    stats: {}
+  ASPECT_OF_THE_DRAGONS:
+    material: DIAMOND_SWORD
+    display-name: "<gold>Aspect of the Dragons</gold>"
+    category: WEAPON
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A legendary blade from Ender Dragon fights.</gray>"
+    stats:
+      damage: 225.0
+      strength: 100.0
+  PROTECTOR_DRAGON_FRAGMENT:
+    material: PRISMARINE_SHARD
+    display-name: "<green>Protector Dragon Fragment</green>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A fragment from a Protector Dragon.</gray>"
+    stats: {}
+  OLD_DRAGON_FRAGMENT:
+    material: CLAY_BALL
+    display-name: "<gray>Old Dragon Fragment</gray>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A fragment from an Old Dragon.</gray>"
+    stats: {}
+  WISE_DRAGON_FRAGMENT:
+    material: PRISMARINE_CRYSTALS
+    display-name: "<aqua>Wise Dragon Fragment</aqua>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A fragment from a Wise Dragon.</gray>"
+    stats: {}
+  UNSTABLE_DRAGON_FRAGMENT:
+    material: AMETHYST_SHARD
+    display-name: "<dark_purple>Unstable Dragon Fragment</dark_purple>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A fragment from an Unstable Dragon.</gray>"
+    stats: {}
+  YOUNG_DRAGON_FRAGMENT:
+    material: QUARTZ
+    display-name: "<white>Young Dragon Fragment</white>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A fragment from a Young Dragon.</gray>"
+    stats: {}
+  STRONG_DRAGON_FRAGMENT:
+    material: REDSTONE
+    display-name: "<red>Strong Dragon Fragment</red>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A fragment from a Strong Dragon.</gray>"
+    stats: {}
+  SUPERIOR_DRAGON_FRAGMENT:
+    material: GOLD_NUGGET
+    display-name: "<gold>Superior Dragon Fragment</gold>"
+    category: MATERIAL
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A fragment from a Superior Dragon.</gray>"
+    stats: {}
   BONZO_STAFF:
     material: BLAZE_ROD
     display-name: "<blue>Bonzo's Staff</blue>"

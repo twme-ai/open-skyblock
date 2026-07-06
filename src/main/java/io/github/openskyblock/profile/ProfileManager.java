@@ -207,6 +207,15 @@ public final class ProfileManager {
                 profile.setGardenVisitorServed(visitorId.toUpperCase(), gardenVisitors.getInt(visitorId, 0));
             }
         }
+        profile.placedDragonEyes(section.getInt("dragons.placed-eyes", 0));
+        profile.summoningEyesUsed(section.getLong("dragons.summoning-eyes-used", 0L));
+        profile.bestDragonDamage(section.getDouble("dragons.best-damage", 0.0D));
+        ConfigurationSection dragonKills = section.getConfigurationSection("dragons.kills");
+        if (dragonKills != null) {
+            for (String dragonId : dragonKills.getKeys(false)) {
+                profile.setDragonKills(dragonId.toUpperCase(), dragonKills.getInt(dragonId, 0));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -688,6 +697,15 @@ public final class ProfileManager {
         for (Map.Entry<String, Integer> entry : profile.gardenVisitorsServed().entrySet()) {
             if (entry.getValue() > 0) {
                 profileData.set(base + ".garden.visitors." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".dragons", null);
+        profileData.set(base + ".dragons.placed-eyes", profile.placedDragonEyes());
+        profileData.set(base + ".dragons.summoning-eyes-used", profile.summoningEyesUsed());
+        profileData.set(base + ".dragons.best-damage", profile.bestDragonDamage());
+        for (Map.Entry<String, Integer> entry : profile.dragonKills().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".dragons.kills." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());

@@ -32,6 +32,7 @@ public final class ConfigService {
             "experiments.yml",
             "dungeons.yml",
             "garden.yml",
+            "dragons.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -165,6 +166,10 @@ public final class ConfigService {
 
     public FileConfiguration garden() {
         return file("garden.yml");
+    }
+
+    public FileConfiguration dragons() {
+        return file("dragons.yml");
     }
 
     public FileConfiguration mobSpawns() {

@@ -15,6 +15,7 @@ import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.cookie.CookieService;
 import io.github.openskyblock.darkauction.DarkAuctionService;
+import io.github.openskyblock.dragon.DragonService;
 import io.github.openskyblock.dungeon.DungeonService;
 import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.economy.EconomyService;
@@ -97,6 +98,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private ExperimentService experimentService;
     private DungeonService dungeonService;
     private GardenService gardenService;
+    private DragonService dragonService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -159,11 +161,13 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.experimentService = new ExperimentService(configService, textService, profileManager, economyService, skillService, customItemService);
         this.dungeonService = new DungeonService(configService, textService, profileManager, economyService, skillService, customItemService);
         this.gardenService = new GardenService(configService, textService, profileManager, economyService, skillService, collectionService, customItemService);
+        this.dragonService = new DragonService(configService, textService, profileManager, economyService, skillService, customItemService);
         this.forgeService = new ForgeService(configService, textService, profileManager, economyService, customItemService);
         this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
         this.skillService.museumService(museumService);
         this.skillService.fairySoulService(fairySoulService);
         this.skillService.gardenService(gardenService);
+        this.skillService.dragonService(dragonService);
         this.economyService.museumService(museumService);
         this.cookieService = new CookieService(configService, textService, profileManager, customItemService);
         this.cookieService.museumService(museumService);
@@ -305,6 +309,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         experimentService.reload();
         dungeonService.reload();
         gardenService.reload();
+        dragonService.reload();
         forgeService.reload();
         museumService.reload();
         cookieService.reload();
@@ -472,6 +477,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public GardenService garden() {
         return gardenService;
+    }
+
+    public DragonService dragons() {
+        return dragonService;
     }
 
     public MayorService mayors() {
