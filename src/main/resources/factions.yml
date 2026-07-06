@@ -1,0 +1,144 @@
+settings:
+  reputation-cap: 12000
+  daily-quest-limit: 5
+  daily-miniboss-limit: 5
+  skyblock-xp-per-reputation: 0.002
+
+factions:
+  MAGE:
+    display-name: "<aqua>Mage Association</aqua>"
+    description: "<gray>Scholars and strategists serving Queen Nyx.</gray>"
+  BARBARIAN:
+    display-name: "<red>Barbarian Faction</red>"
+    description: "<gray>Warriors loyal to Chief Scorn and the blazing wastes.</gray>"
+
+ranks:
+  OUTSIDER:
+    display-name: "<gray>Outsider</gray>"
+    required-reputation: 0
+    skyblock-xp: 0.0
+  FRIENDLY:
+    display-name: "<green>Friendly</green>"
+    required-reputation: 1000
+    skyblock-xp: 5.0
+  TRUSTED:
+    display-name: "<aqua>Trusted</aqua>"
+    required-reputation: 3000
+    skyblock-xp: 10.0
+  HONORED:
+    display-name: "<gold>Honored</gold>"
+    required-reputation: 7000
+    skyblock-xp: 15.0
+  HERO:
+    display-name: "<red>Hero</red>"
+    required-reputation: 12000
+    skyblock-xp: 25.0
+
+quests:
+  DOJO_SUPPLIES:
+    display-name: "<yellow>Dojo Supply Run</yellow>"
+    tier: D
+    reputation: 25
+    combat-xp: 500.0
+    coins: 500.0
+    required-reputation: 0
+    rewards:
+      - type: VANILLA
+        material: NETHER_WART
+        amount: 12
+        weight: 70.0
+      - type: COINS
+        coins: 1500.0
+        weight: 30.0
+  RESCUE_MISSION:
+    display-name: "<green>Rescue Mission</green>"
+    tier: C
+    reputation: 50
+    combat-xp: 1000.0
+    coins: 1000.0
+    required-reputation: 250
+    rewards:
+      - type: VANILLA
+        material: MAGMA_CREAM
+        amount: 8
+        weight: 70.0
+      - type: COINS
+        coins: 3000.0
+        weight: 30.0
+  NETHER_WARTS:
+    display-name: "<dark_red>Nether Wart Harvest</dark_red>"
+    tier: B
+    reputation: 75
+    combat-xp: 2000.0
+    coins: 2500.0
+    required-reputation: 1000
+    rewards:
+      - type: VANILLA
+        material: NETHER_WART
+        amount: 32
+        weight: 65.0
+      - type: VANILLA
+        material: GLOWSTONE_DUST
+        amount: 16
+        weight: 35.0
+  BLAZE_SLAYER:
+    display-name: "<gold>Blaze Patrol</gold>"
+    tier: A
+    reputation: 100
+    combat-xp: 4000.0
+    coins: 5000.0
+    required-reputation: 3000
+    rewards:
+      - type: VANILLA
+        material: BLAZE_ROD
+        amount: 16
+        weight: 70.0
+      - type: VANILLA
+        material: FIRE_CHARGE
+        amount: 8
+        weight: 30.0
+  KUUDRA_SCOUTING:
+    display-name: "<red>Kuudra Scouting</red>"
+    tier: S
+    reputation: 125
+    combat-xp: 8000.0
+    coins: 10000.0
+    required-reputation: 7000
+    rewards:
+      - type: VANILLA
+        material: CRIMSON_FUNGUS
+        amount: 24
+        weight: 45.0
+      - type: VANILLA
+        material: WARPED_FUNGUS
+        amount: 24
+        weight: 45.0
+      - type: COINS
+        coins: 15000.0
+        weight: 10.0
+
+minibosses:
+  MAGE_OUTLAW:
+    display-name: "<aqua>Mage Outlaw</aqua>"
+    reputation: 20
+    combat-xp: 1200.0
+    coins: 2500.0
+    required-reputation: 0
+  BARBARIAN_DUKE_X:
+    display-name: "<red>Barbarian Duke X</red>"
+    reputation: 20
+    combat-xp: 1200.0
+    coins: 2500.0
+    required-reputation: 0
+  BLADESOUL:
+    display-name: "<gold>Bladesoul</gold>"
+    reputation: 35
+    combat-xp: 2000.0
+    coins: 5000.0
+    required-reputation: 1000
+  ASHFANG:
+    display-name: "<dark_red>Ashfang</dark_red>"
+    reputation: 50
+    combat-xp: 3500.0
+    coins: 10000.0
+    required-reputation: 3000

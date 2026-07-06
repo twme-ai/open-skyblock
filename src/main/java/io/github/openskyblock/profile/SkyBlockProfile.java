@@ -35,6 +35,9 @@ public final class SkyBlockProfile {
     private final Set<String> riftTimecharms = new HashSet<>();
     private final Set<String> riftSouls = new HashSet<>();
     private final Map<String, Integer> kuudraCompletions = new HashMap<>();
+    private final Map<String, Long> factionReputation = new HashMap<>();
+    private final Map<String, Integer> factionQuestCompletions = new HashMap<>();
+    private final Map<String, Integer> factionMinibossKills = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -88,6 +91,10 @@ public final class SkyBlockProfile {
     private long kuudraKeysCrafted;
     private long kuudraKeysUsed;
     private int bestKuudraScore;
+    private String selectedFaction;
+    private String factionDay;
+    private int dailyFactionQuests;
+    private int dailyFactionMinibosses;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -705,6 +712,109 @@ public final class SkyBlockProfile {
 
     public void recordKuudraScore(int score) {
         bestKuudraScore(Math.max(bestKuudraScore, score));
+    }
+
+    public String selectedFaction() {
+        return selectedFaction;
+    }
+
+    public void selectedFaction(String selectedFaction) {
+        this.selectedFaction = selectedFaction == null || selectedFaction.isBlank() ? null : selectedFaction.toUpperCase();
+    }
+
+    public long factionReputation(String factionId) {
+        return factionReputation.getOrDefault(factionId.toUpperCase(), 0L);
+    }
+
+    public void setFactionReputation(String factionId, long amount) {
+        String normalized = factionId.toUpperCase();
+        if (amount <= 0L) {
+            factionReputation.remove(normalized);
+            return;
+        }
+        factionReputation.put(normalized, amount);
+    }
+
+    public void addFactionReputation(String factionId, long amount) {
+        setFactionReputation(factionId, factionReputation(factionId) + amount);
+    }
+
+    public Map<String, Long> factionReputation() {
+        return factionReputation;
+    }
+
+    public int factionQuestCompletions(String questId) {
+        return factionQuestCompletions.getOrDefault(questId.toUpperCase(), 0);
+    }
+
+    public void setFactionQuestCompletions(String questId, int amount) {
+        String normalized = questId.toUpperCase();
+        if (amount <= 0) {
+            factionQuestCompletions.remove(normalized);
+            return;
+        }
+        factionQuestCompletions.put(normalized, amount);
+    }
+
+    public void addFactionQuestCompletion(String questId, int amount) {
+        setFactionQuestCompletions(questId, factionQuestCompletions(questId) + amount);
+    }
+
+    public Map<String, Integer> factionQuestCompletions() {
+        return factionQuestCompletions;
+    }
+
+    public int factionMinibossKills(String minibossId) {
+        return factionMinibossKills.getOrDefault(minibossId.toUpperCase(), 0);
+    }
+
+    public void setFactionMinibossKills(String minibossId, int amount) {
+        String normalized = minibossId.toUpperCase();
+        if (amount <= 0) {
+            factionMinibossKills.remove(normalized);
+            return;
+        }
+        factionMinibossKills.put(normalized, amount);
+    }
+
+    public void addFactionMinibossKill(String minibossId, int amount) {
+        setFactionMinibossKills(minibossId, factionMinibossKills(minibossId) + amount);
+    }
+
+    public Map<String, Integer> factionMinibossKills() {
+        return factionMinibossKills;
+    }
+
+    public String factionDay() {
+        return factionDay;
+    }
+
+    public void factionDay(String factionDay) {
+        this.factionDay = factionDay;
+    }
+
+    public int dailyFactionQuests() {
+        return dailyFactionQuests;
+    }
+
+    public void dailyFactionQuests(int dailyFactionQuests) {
+        this.dailyFactionQuests = Math.max(0, dailyFactionQuests);
+    }
+
+    public void addDailyFactionQuest() {
+        dailyFactionQuests(dailyFactionQuests + 1);
+    }
+
+    public int dailyFactionMinibosses() {
+        return dailyFactionMinibosses;
+    }
+
+    public void dailyFactionMinibosses(int dailyFactionMinibosses) {
+        this.dailyFactionMinibosses = Math.max(0, dailyFactionMinibosses);
+    }
+
+    public void addDailyFactionMiniboss() {
+        dailyFactionMinibosses(dailyFactionMinibosses + 1);
     }
 
     public String shopPurchaseDay() {

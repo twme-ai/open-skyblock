@@ -241,6 +241,28 @@ public final class ProfileManager {
                 profile.setKuudraCompletions(tierId.toUpperCase(), kuudraCompletions.getInt(tierId, 0));
             }
         }
+        profile.selectedFaction(section.getString("factions.selected", null));
+        profile.factionDay(section.getString("factions.daily.day", null));
+        profile.dailyFactionQuests(section.getInt("factions.daily.quests", 0));
+        profile.dailyFactionMinibosses(section.getInt("factions.daily.minibosses", 0));
+        ConfigurationSection factionReputation = section.getConfigurationSection("factions.reputation");
+        if (factionReputation != null) {
+            for (String factionId : factionReputation.getKeys(false)) {
+                profile.setFactionReputation(factionId.toUpperCase(), factionReputation.getLong(factionId, 0L));
+            }
+        }
+        ConfigurationSection factionQuests = section.getConfigurationSection("factions.quests");
+        if (factionQuests != null) {
+            for (String questId : factionQuests.getKeys(false)) {
+                profile.setFactionQuestCompletions(questId.toUpperCase(), factionQuests.getInt(questId, 0));
+            }
+        }
+        ConfigurationSection factionMinibosses = section.getConfigurationSection("factions.minibosses");
+        if (factionMinibosses != null) {
+            for (String minibossId : factionMinibosses.getKeys(false)) {
+                profile.setFactionMinibossKills(minibossId.toUpperCase(), factionMinibosses.getInt(minibossId, 0));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -749,6 +771,26 @@ public final class ProfileManager {
         for (Map.Entry<String, Integer> entry : profile.kuudraCompletions().entrySet()) {
             if (entry.getValue() > 0) {
                 profileData.set(base + ".kuudra.completions." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".factions", null);
+        profileData.set(base + ".factions.selected", profile.selectedFaction());
+        profileData.set(base + ".factions.daily.day", profile.factionDay());
+        profileData.set(base + ".factions.daily.quests", profile.dailyFactionQuests());
+        profileData.set(base + ".factions.daily.minibosses", profile.dailyFactionMinibosses());
+        for (Map.Entry<String, Long> entry : profile.factionReputation().entrySet()) {
+            if (entry.getValue() > 0L) {
+                profileData.set(base + ".factions.reputation." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Integer> entry : profile.factionQuestCompletions().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".factions.quests." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Integer> entry : profile.factionMinibossKills().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".factions.minibosses." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());

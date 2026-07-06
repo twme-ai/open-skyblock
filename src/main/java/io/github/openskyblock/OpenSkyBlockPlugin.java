@@ -22,6 +22,7 @@ import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.equipment.EquipmentService;
 import io.github.openskyblock.experiment.ExperimentService;
 import io.github.openskyblock.fairysoul.FairySoulService;
+import io.github.openskyblock.faction.FactionService;
 import io.github.openskyblock.farmingcontest.FarmingContestService;
 import io.github.openskyblock.forge.ForgeService;
 import io.github.openskyblock.garden.GardenService;
@@ -103,6 +104,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private DragonService dragonService;
     private RiftService riftService;
     private KuudraService kuudraService;
+    private FactionService factionService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -182,8 +184,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.enchantmentService = new EnchantmentService(this, configService, textService, economyService, customItemService);
         this.starService = new StarService(this, configService, textService, economyService, profileManager, customItemService);
         this.kuudraService = new KuudraService(configService, textService, profileManager, economyService, skillService, customItemService, starService);
+        this.factionService = new FactionService(configService, textService, profileManager, economyService, skillService, customItemService);
         this.gemstoneService = new GemstoneService(this, configService, textService, economyService, customItemService);
         this.skillService.kuudraService(kuudraService);
+        this.skillService.factionService(factionService);
         this.customItemService.reforgeService(reforgeService);
         this.customItemService.enchantmentService(enchantmentService);
         this.customItemService.starService(starService);
@@ -320,6 +324,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         dragonService.reload();
         riftService.reload();
         kuudraService.reload();
+        factionService.reload();
         forgeService.reload();
         museumService.reload();
         cookieService.reload();
@@ -499,6 +504,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public KuudraService kuudra() {
         return kuudraService;
+    }
+
+    public FactionService factions() {
+        return factionService;
     }
 
     public MayorService mayors() {

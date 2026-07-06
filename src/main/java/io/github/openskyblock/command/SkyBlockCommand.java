@@ -98,6 +98,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "rift",
             "kuudra",
             "kuudras",
+            "faction",
+            "factions",
+            "reputation",
+            "rep",
             "stars",
             "star",
             "essence",
@@ -202,6 +206,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "dragons", "dragon", "enderdragon" -> dragons(sender, args);
             case "rift" -> rift(sender, args);
             case "kuudra", "kuudras" -> kuudra(sender, args);
+            case "faction", "factions", "reputation", "rep" -> factions(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -498,6 +503,18 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 5 && isKuudraCommand(args[0]) && args[1].equalsIgnoreCase("run")) {
             return startsWith(List.of("paid", "free"), args[4]);
         }
+        if (args.length == 2 && isFactionCommand(args[0])) {
+            return startsWith(List.of("status", "choose", "factions", "ranks", "quests", "complete", "minibosses", "miniboss"), args[1]);
+        }
+        if (args.length == 3 && isFactionCommand(args[0]) && args[1].equalsIgnoreCase("choose")) {
+            return startsWith(plugin.factions().factionIds(), args[2]);
+        }
+        if (args.length == 3 && isFactionCommand(args[0]) && args[1].equalsIgnoreCase("complete")) {
+            return startsWith(plugin.factions().questIds(), args[2]);
+        }
+        if (args.length == 3 && isFactionCommand(args[0]) && args[1].equalsIgnoreCase("miniboss")) {
+            return startsWith(plugin.factions().minibossIds(), args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -737,6 +754,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " dragons status|list|place|fight", "commands.help.dragons");
         helpLine(sender, label + " rift status|guide|zones|souls", "commands.help.rift");
         helpLine(sender, label + " kuudra status|tiers|keys|run", "commands.help.kuudra");
+        helpLine(sender, label + " faction status|choose|quests|ranks", "commands.help.faction");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1765,6 +1783,45 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.kuudra().run(player, args[2], score, paid);
             }
             default -> plugin.text().send(player, "commands.kuudra-usage");
+        }
+    }
+
+    private void factions(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.factions().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "factions", "list" -> plugin.factions().sendFactions(player);
+            case "ranks", "rank" -> plugin.factions().sendRanks(player);
+            case "quests", "quest" -> plugin.factions().sendQuests(player);
+            case "minibosses", "bosses" -> plugin.factions().sendMinibosses(player);
+            case "choose", "join", "select" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.faction-usage");
+                    return;
+                }
+                plugin.factions().chooseFaction(player, args[2]);
+            }
+            case "complete", "claim" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.faction-usage");
+                    return;
+                }
+                plugin.factions().completeQuest(player, args[2]);
+            }
+            case "miniboss", "boss" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.faction-usage");
+                    return;
+                }
+                plugin.factions().defeatMiniboss(player, args[2]);
+            }
+            default -> plugin.text().send(player, "commands.faction-usage");
         }
     }
 
@@ -2928,6 +2985,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isKuudraCommand(String value) {
         return value.equalsIgnoreCase("kuudra") || value.equalsIgnoreCase("kuudras");
+    }
+
+    private boolean isFactionCommand(String value) {
+        return value.equalsIgnoreCase("faction") || value.equalsIgnoreCase("factions") || value.equalsIgnoreCase("reputation") || value.equalsIgnoreCase("rep");
     }
 
     private boolean isUpgradeCommand(String value) {
