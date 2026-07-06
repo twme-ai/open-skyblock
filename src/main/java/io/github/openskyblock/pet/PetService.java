@@ -22,12 +22,19 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 
 public final class PetService {
+    private static final double TWO_PI = Math.PI * 2.0D;
+
+    private final JavaPlugin plugin;
     private final ConfigService configService;
     private final TextService text;
     private final ProfileManager profiles;
@@ -37,10 +44,12 @@ public final class PetService {
     private final Map<String, PetItemDefinition> petItemsByItem = new HashMap<>();
     private final Map<Rarity, Integer> petScoreByRarity = new EnumMap<>(Rarity.class);
     private final TreeMap<Integer, PetScoreReward> petScoreRewards = new TreeMap<>();
+    private final Map<UUID, CosmeticPetEntity> cosmeticPets = new HashMap<>();
     private int maxLevelScoreBonus = 1;
     private double skyBlockXpPerPetScore = 1.0D;
 
-    public PetService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems) {
+    public PetService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems) {
+        this.plugin = plugin;
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
@@ -56,28 +65,32 @@ public final class PetService {
         readPetScore(configService.pets().getConfigurationSection("pet-score"));
         readPetItems(configService.pets().getConfigurationSection("pet-items"));
         ConfigurationSection section = configService.pets().getConfigurationSection("pets");
-        if (section == null) {
+        if (section != null) {
+            for (String id : section.getKeys(false)) {
+                ConfigurationSection petSection = section.getConfigurationSection(id);
+                if (petSection == null) {
+                    continue;
+                }
+                Material material = Material.matchMaterial(petSection.getString("material", "BONE"));
+                String normalizedId = id.toUpperCase(Locale.ROOT);
+                definitions.put(normalizedId, new PetDefinition(
+                        normalizedId,
+                        material == null ? Material.BONE : material,
+                        petSection.getString("display-name", normalizedId),
+                        Rarity.parse(petSection.getString("rarity", "COMMON")),
+                        Math.max(1, petSection.getInt("max-level", 100)),
+                        Math.max(1.0D, petSection.getDouble("xp-per-level", 100.0D)),
+                        petSection.getStringList("lore"),
+                        stats(petSection.getConfigurationSection("base-stats")),
+                        stats(petSection.getConfigurationSection("stats-per-level"))
+                ));
+            }
+        }
+        if (!cosmeticPetsEnabled()) {
+            removeAllCosmeticPets();
             return;
         }
-        for (String id : section.getKeys(false)) {
-            ConfigurationSection petSection = section.getConfigurationSection(id);
-            if (petSection == null) {
-                continue;
-            }
-            Material material = Material.matchMaterial(petSection.getString("material", "BONE"));
-            String normalizedId = id.toUpperCase(Locale.ROOT);
-            definitions.put(normalizedId, new PetDefinition(
-                    normalizedId,
-                    material == null ? Material.BONE : material,
-                    petSection.getString("display-name", normalizedId),
-                    Rarity.parse(petSection.getString("rarity", "COMMON")),
-                    Math.max(1, petSection.getInt("max-level", 100)),
-                    Math.max(1.0D, petSection.getDouble("xp-per-level", 100.0D)),
-                    petSection.getStringList("lore"),
-                    stats(petSection.getConfigurationSection("base-stats")),
-                    stats(petSection.getConfigurationSection("stats-per-level"))
-            ));
-        }
+        plugin.getServer().getOnlinePlayers().forEach(this::refreshCosmeticPet);
     }
 
     public boolean enabled() {
@@ -144,6 +157,7 @@ public final class PetService {
         }
         profile.activePetInstanceId(pet.instanceId());
         profiles.save(player);
+        refreshCosmeticPet(player);
         text.send(player, "commands.pet-activated", placeholders(pet, definition, true));
         return true;
     }
@@ -290,12 +304,53 @@ public final class PetService {
             }
             profile.activePetInstanceId(pet.instanceId());
             profiles.save(player);
+            refreshCosmeticPet(player);
             if (configService.pets().getBoolean("autopet.announce", true)) {
                 text.send(player, "commands.autopet-activated", autoPetPlaceholders(0, rule, definition.displayName()));
             }
             return true;
         }
         return false;
+    }
+
+    public long cosmeticUpdateTicks() {
+        return Math.max(1L, configService.pets().getLong("cosmetic-pets.update-ticks", 5L));
+    }
+
+    public void tickCosmeticPets() {
+        if (!enabled() || !cosmeticPetsEnabled()) {
+            removeAllCosmeticPets();
+            return;
+        }
+        for (UUID owner : new HashSet<>(cosmeticPets.keySet())) {
+            Player player = plugin.getServer().getPlayer(owner);
+            if (player == null || !player.isOnline()) {
+                removeCosmeticPet(owner);
+            }
+        }
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            syncCosmeticPet(player);
+        }
+    }
+
+    public void refreshCosmeticPet(Player player) {
+        removeCosmeticPet(player.getUniqueId());
+        if (player.isOnline()) {
+            syncCosmeticPet(player);
+        }
+    }
+
+    public void playerQuit(Player player) {
+        removeCosmeticPet(player.getUniqueId());
+    }
+
+    public void removeAllCosmeticPets() {
+        for (CosmeticPetEntity cosmeticPet : cosmeticPets.values()) {
+            if (cosmeticPet.entity.isValid()) {
+                cosmeticPet.entity.remove();
+            }
+        }
+        cosmeticPets.clear();
     }
 
     public boolean attachItem(Player player, int petIndex, ItemStack itemStack) {
@@ -478,6 +533,7 @@ public final class PetService {
                     TextService.raw("level", Integer.toString(afterLevel))
             ));
         }
+        syncCosmeticPet(player);
         return true;
     }
 
@@ -595,6 +651,122 @@ public final class PetService {
         return configService.pets().getBoolean("autopet.enabled", true);
     }
 
+    private boolean cosmeticPetsEnabled() {
+        return configService.pets().getBoolean("cosmetic-pets.enabled", true);
+    }
+
+    private void syncCosmeticPet(Player player) {
+        if (!enabled() || !cosmeticPetsEnabled() || !player.isOnline() || player.isDead()) {
+            removeCosmeticPet(player.getUniqueId());
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        OwnedPet pet = activePet(profile).orElse(null);
+        PetDefinition definition = pet == null ? null : definition(pet.petId()).orElse(null);
+        if (pet == null || definition == null) {
+            removeCosmeticPet(player.getUniqueId());
+            return;
+        }
+        CosmeticPetEntity cosmeticPet = cosmeticPets.get(player.getUniqueId());
+        if (cosmeticPet == null || !cosmeticPet.entity.isValid() || !cosmeticPet.instanceId.equals(pet.instanceId())) {
+            removeCosmeticPet(player.getUniqueId());
+            cosmeticPet = spawnCosmeticPet(player, pet, definition);
+            cosmeticPets.put(player.getUniqueId(), cosmeticPet);
+        }
+        updateCosmeticPet(player, pet, definition, cosmeticPet);
+    }
+
+    private CosmeticPetEntity spawnCosmeticPet(Player player, OwnedPet pet, PetDefinition definition) {
+        ArmorStand entity = player.getWorld().spawn(cosmeticLocation(player, 0.0D), ArmorStand.class, armorStand -> {
+            armorStand.setVisible(false);
+            armorStand.setSmall(true);
+            armorStand.setMarker(true);
+            armorStand.setGravity(false);
+            armorStand.setInvulnerable(true);
+            armorStand.setSilent(true);
+            armorStand.setPersistent(false);
+            armorStand.setCollidable(false);
+            armorStand.setCanPickupItems(false);
+            armorStand.customName(cosmeticName(pet, definition));
+            armorStand.setCustomNameVisible(cosmeticNameTags());
+            if (armorStand.getEquipment() != null) {
+                armorStand.getEquipment().setHelmet(new ItemStack(definition.material()));
+            }
+        });
+        return new CosmeticPetEntity(pet.instanceId(), entity);
+    }
+
+    private void updateCosmeticPet(Player player, OwnedPet pet, PetDefinition definition, CosmeticPetEntity cosmeticPet) {
+        cosmeticPet.bobPhase = (cosmeticPet.bobPhase + cosmeticBobSpeed()) % TWO_PI;
+        ArmorStand entity = cosmeticPet.entity;
+        entity.customName(cosmeticName(pet, definition));
+        entity.setCustomNameVisible(cosmeticNameTags());
+        Location target = cosmeticLocation(player, cosmeticPet.bobPhase);
+        Location next = target;
+        if (entity.getWorld().equals(target.getWorld())) {
+            double threshold = Math.max(0.0D, configService.pets().getDouble("cosmetic-pets.teleport-threshold", 12.0D));
+            if (threshold <= 0.0D || entity.getLocation().distanceSquared(target) <= threshold * threshold) {
+                Location current = entity.getLocation();
+                Vector movement = target.toVector().subtract(current.toVector()).multiply(cosmeticMoveSmoothing());
+                next = current.add(movement);
+                next.setYaw(target.getYaw());
+                next.setPitch(target.getPitch());
+            }
+        }
+        entity.teleport(next);
+    }
+
+    private Location cosmeticLocation(Player player, double bobPhase) {
+        Location base = player.getLocation();
+        Vector forward = base.getDirection();
+        forward.setY(0.0D);
+        if (forward.lengthSquared() < 0.0001D) {
+            forward = new Vector(0.0D, 0.0D, 1.0D);
+        } else {
+            forward.normalize();
+        }
+        Vector side = new Vector(-forward.getZ(), 0.0D, forward.getX());
+        if (side.lengthSquared() > 0.0001D) {
+            side.normalize();
+        }
+        Location location = base.clone()
+                .add(forward.multiply(-Math.max(0.0D, configService.pets().getDouble("cosmetic-pets.follow-distance", 1.35D))))
+                .add(side.multiply(configService.pets().getDouble("cosmetic-pets.side-offset", 0.85D)))
+                .add(0.0D, configService.pets().getDouble("cosmetic-pets.height-offset", 1.25D) + Math.sin(bobPhase) * cosmeticBobHeight(), 0.0D);
+        location.setYaw(base.getYaw());
+        location.setPitch(0.0F);
+        return location;
+    }
+
+    private Component cosmeticName(OwnedPet pet, PetDefinition definition) {
+        String format = configService.pets().getString("cosmetic-pets.name-format", "<rarity_colored>[Lvl <level>] <pet>");
+        return text.deserialize(format == null ? "" : format, placeholders(pet, definition, true));
+    }
+
+    private boolean cosmeticNameTags() {
+        return configService.pets().getBoolean("cosmetic-pets.name-tags", true);
+    }
+
+    private double cosmeticBobHeight() {
+        return Math.max(0.0D, configService.pets().getDouble("cosmetic-pets.bob-height", 0.16D));
+    }
+
+    private double cosmeticBobSpeed() {
+        return Math.max(0.0D, configService.pets().getDouble("cosmetic-pets.bob-speed", 0.35D));
+    }
+
+    private double cosmeticMoveSmoothing() {
+        double smoothing = configService.pets().getDouble("cosmetic-pets.move-smoothing", 0.35D);
+        return Math.max(0.05D, Math.min(1.0D, smoothing));
+    }
+
+    private void removeCosmeticPet(UUID owner) {
+        CosmeticPetEntity cosmeticPet = cosmeticPets.remove(owner);
+        if (cosmeticPet != null && cosmeticPet.entity.isValid()) {
+            cosmeticPet.entity.remove();
+        }
+    }
+
     private boolean ownsPet(SkyBlockProfile profile, String petId) {
         return firstOwnedPet(profile, petId).isPresent();
     }
@@ -621,6 +793,17 @@ public final class PetService {
                 .map(AutoPetTrigger::key)
                 .reduce((first, second) -> first + ", " + second)
                 .orElse("");
+    }
+
+    private static final class CosmeticPetEntity {
+        private final String instanceId;
+        private final ArmorStand entity;
+        private double bobPhase;
+
+        private CosmeticPetEntity(String instanceId, ArmorStand entity) {
+            this.instanceId = instanceId;
+            this.entity = entity;
+        }
     }
 
     private void readPetScore(ConfigurationSection section) {

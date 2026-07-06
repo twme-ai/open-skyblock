@@ -30,6 +30,7 @@ public final class PlayerLifecycleListener implements Listener {
         plugin.potions().playerQuit(event.getPlayer());
         plugin.trades().playerQuit(event.getPlayer());
         plugin.slayers().playerQuit(event.getPlayer());
+        plugin.pets().playerQuit(event.getPlayer());
         plugin.profiles().save(event.getPlayer());
     }
 

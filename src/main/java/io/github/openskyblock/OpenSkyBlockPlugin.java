@@ -104,6 +104,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BukkitTask mobSpawnTask;
     private BukkitTask slayerTask;
     private BukkitTask itemAbilityTask;
+    private BukkitTask petCosmeticTask;
 
     @Override
     public void onEnable() {
@@ -135,7 +136,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
         this.potionService = new PotionService(this, configService, textService, profileManager);
-        this.petService = new PetService(configService, textService, profileManager, customItemService);
+        this.petService = new PetService(this, configService, textService, profileManager, customItemService);
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
         this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, bestiaryService, reforgeService, enchantmentService, starService, gemstoneService);
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
@@ -187,6 +188,12 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         }
         if (itemAbilityTask != null) {
             itemAbilityTask.cancel();
+        }
+        if (petCosmeticTask != null) {
+            petCosmeticTask.cancel();
+        }
+        if (petService != null) {
+            petService.removeAllCosmeticPets();
         }
         if (slayerService != null) {
             slayerService.shutdown();
@@ -290,6 +297,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.mobSpawnTask = getServer().getScheduler().runTaskTimer(this, mobSpawnService::tick, 20L, mobSpawnService.tickIntervalTicks());
         this.slayerTask = getServer().getScheduler().runTaskTimer(this, slayerService::tickBosses, 20L, 20L);
         this.itemAbilityTask = getServer().getScheduler().runTaskTimer(this, itemAbilityService::tickMana, 20L, 20L);
+        this.petCosmeticTask = getServer().getScheduler().runTaskTimer(this, petService::tickCosmeticPets, 20L, petService.cosmeticUpdateTicks());
     }
 
     public ConfigService configService() {

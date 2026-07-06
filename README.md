@@ -44,7 +44,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Accessory Bag with unique accessory storage, Magical Power, GUI add/remove flow, and stat aggregation from bagged accessories.
 - Accessory tuning with Magical Power-derived tuning points, configurable per-stat values, commands, GUI controls, and stat aggregation.
 - Configurable armor set IDs and full-set stat bonuses, with a starter Farm Suit set.
-- Configurable pets with persistent ownership, active pet selection, XP/level tracking, GUI activation, attachable pet items, Pet Score rewards, Autopet rules, and active pet stat aggregation.
+- Configurable pets with persistent ownership, active pet selection, XP/level tracking, GUI activation, attachable pet items, Pet Score rewards, Autopet rules, cosmetic companion entities, and active pet stat aggregation.
 - `/skyblock` command with profile, purse, skills, collections, custom item, minion, and reload subcommands.
 - Listeners for block breaking, entity kills, item pickup, custom item combat bonuses, join, and quit persistence.
 

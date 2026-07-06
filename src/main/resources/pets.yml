@@ -3,6 +3,19 @@ autopet:
   max-rules: 8
   announce: true
 
+cosmetic-pets:
+  enabled: true
+  update-ticks: 5
+  follow-distance: 1.35
+  side-offset: 0.85
+  height-offset: 1.25
+  bob-height: 0.16
+  bob-speed: 0.35
+  move-smoothing: 0.35
+  teleport-threshold: 12.0
+  name-tags: true
+  name-format: "<rarity_colored>[Lvl <level>] <pet>"
+
 pet-items:
   IRON_CLAWS:
     display-name: "<green>Iron Claws</green>"
