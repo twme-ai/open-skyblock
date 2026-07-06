@@ -78,6 +78,7 @@ import io.github.openskyblock.trade.TradeService;
 import io.github.openskyblock.trophyfish.TrophyFishService;
 import io.github.openskyblock.upgrade.UpgradeService;
 import io.github.openskyblock.wardrobe.WardrobeService;
+import io.github.openskyblock.zoo.TravelingZooService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -111,6 +112,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private DojoService dojoService;
     private MythologicalService mythologicalService;
     private SpookyService spookyService;
+    private TravelingZooService travelingZooService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -214,6 +216,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
         this.potionService = new PotionService(this, configService, textService, profileManager);
         this.petService = new PetService(this, configService, textService, profileManager, customItemService);
+        this.skillService.petService(petService);
+        this.travelingZooService = new TravelingZooService(configService, textService, profileManager, economyService, petService, customItemService, calendarService);
         this.mythologicalService = new MythologicalService(configService, textService, profileManager, economyService, skillService, customItemService, mayorService, petService);
         this.skillService.mythologicalService(mythologicalService);
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
@@ -359,6 +363,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         starService.reload();
         gemstoneService.reload();
         petService.reload();
+        travelingZooService.reload();
         mythologicalService.reload();
         minionService.reload();
         menuService.reload();
@@ -575,6 +580,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public PetService pets() {
         return petService;
+    }
+
+    public TravelingZooService travelingZoo() {
+        return travelingZooService;
     }
 
     public MinionService minions() {

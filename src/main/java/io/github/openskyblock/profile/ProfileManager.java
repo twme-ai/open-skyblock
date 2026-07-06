@@ -302,6 +302,12 @@ public final class ProfileManager {
                 profile.claimSpookyReward(rewardId);
             }
         }
+        ConfigurationSection zooPurchases = section.getConfigurationSection("traveling-zoo.purchases");
+        if (zooPurchases != null) {
+            for (String petId : zooPurchases.getKeys(false)) {
+                profile.setZooPurchases(petId.toUpperCase(), zooPurchases.getInt(petId, 0));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -862,6 +868,12 @@ public final class ProfileManager {
             }
         }
         profileData.set(base + ".spooky.claimed-rewards", profile.claimedSpookyRewards().stream().sorted().toList());
+        profileData.set(base + ".traveling-zoo", null);
+        for (Map.Entry<String, Integer> entry : profile.zooPurchases().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".traveling-zoo.purchases." + entry.getKey(), entry.getValue());
+            }
+        }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
         profileData.set(base + ".shop-purchases.items", null);
         for (Map.Entry<String, Integer> entry : profile.dailyShopPurchases().entrySet()) {

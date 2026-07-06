@@ -74,6 +74,7 @@ commands:
     dojo: "Run Dojo tests, earn points, and claim belt rewards."
     mythological: "Follow Griffin Burrows during Diana's Mythological Ritual."
     spooky: "Collect candy from Spooky mobs and claim score rewards."
+    zoo: "Visit Oringo's Traveling Zoo and buy rotating event pets."
     enchant-book: "Give a configured enchanted book."
     stars: "View item star upgrade settings."
     star: "Add, set, or clear stars on your held custom item."
@@ -887,6 +888,19 @@ commands:
   pet-given: "<prefix><green>Gave <pet> <green>to <yellow><player></yellow>.</green></green>"
   pet-xp: "<prefix><gray>+<xp> Pet XP for <pet> <dark_gray>(</dark_gray><yellow>Level <level></yellow><dark_gray>)</dark_gray></gray>"
   pet-level-up: "<prefix><gold><pet> reached Level <level>!</gold>"
+  zoo-disabled: "<prefix><red>The Traveling Zoo is disabled on this server.</red>"
+  zoo-usage: "<prefix><red>Use <yellow>/skyblock zoo</yellow>, <yellow>/skyblock zoo offers</yellow>, or <yellow>/skyblock zoo buy <offer></yellow>.</red>"
+  zoo-inactive: "<prefix><red>Oringo is not visiting right now.</red> <gray>Configured event:</gray> <yellow><event></yellow>"
+  zoo-empty: "<prefix><gray>There are no configured Traveling Zoo offers.</gray>"
+  zoo-status: "<prefix><gold>Traveling Zoo</gold> <dark_gray>|</dark_gray> <gray>Event:</gray> <active> <dark_gray>|</dark_gray> <gray>Offers:</gray> <yellow><offers></yellow> <dark_gray>|</dark_gray> <gray>Purchases:</gray> <yellow><purchases></yellow> <dark_gray>|</dark_gray> <gray>Pet Score:</gray> <yellow><pet_score></yellow> <dark_gray>|</dark_gray> <gray>Pet SkyBlock XP:</gray> <aqua><skyblock_xp></aqua>"
+  zoo-offer-header: "<prefix><gold>Oringo's Pet Offers</gold>"
+  zoo-offer-line: "<gray><id>:</gray> <pet> <dark_gray>|</dark_gray> <gray>Rarity:</gray> <yellow><rarity></yellow> <dark_gray>|</dark_gray> <gray>Coins:</gray> <gold><coins></gold> <dark_gray>|</dark_gray> <gray>Items:</gray> <costs> <dark_gray>|</dark_gray> <gray>Bought:</gray> <yellow><purchases></yellow>"
+  zoo-unknown-offer: "<prefix><red>Unknown Traveling Zoo offer: <yellow><offer></yellow>.</red>"
+  zoo-not-offered: "<prefix><red><display> is not in Oringo's active offer rotation right now.</red>"
+  zoo-missing-pet: "<prefix><red>The configured pet <yellow><pet_id></yellow> for <display> does not exist.</red>"
+  zoo-no-money: "<prefix><red>You need <gold><coins></gold> coins to buy <pet><red>.</red></red>"
+  zoo-missing-items: "<prefix><red>You are missing items for <pet><red>:</red></red> <missing_items>"
+  zoo-purchased: "<prefix><green>Bought</green> <pet><green> from Oringo.</green> <gray>Coins:</gray> <gold><coins></gold> <dark_gray>|</dark_gray> <gray>Item Costs:</gray> <costs> <dark_gray>|</dark_gray> <gray>Total Bought:</gray> <yellow><purchases></yellow>"
   skill-line: "<gray><skill>:</gray> <yellow>Level <level></yellow> <dark_gray>(</dark_gray><white><xp></white><gray> XP</gray><dark_gray>)</dark_gray>"
   collections-header: "<prefix><aqua>Collections</aqua>"
   collection-line: "<gray><collection>:</gray> <white><amount></white> <dark_gray>|</dark_gray> <yellow>Tier <tier></yellow>"
@@ -1094,6 +1108,9 @@ upgrades:
     minion_slots: "Minion Slots"
     accessory_bag_slots: "Accessory Bag Slots"
     bank_capacity: "Bank Capacity"
+
+zoo:
+  no-item-costs: "<gray>none</gray>"
 
 auctions:
   status-active: "<green>Active</green>"

@@ -39,6 +39,7 @@ public final class ConfigService {
             "dojo.yml",
             "mythological.yml",
             "spooky.yml",
+            "traveling_zoo.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -200,6 +201,10 @@ public final class ConfigService {
 
     public FileConfiguration spooky() {
         return file("spooky.yml");
+    }
+
+    public FileConfiguration travelingZoo() {
+        return file("traveling_zoo.yml");
     }
 
     public FileConfiguration mobSpawns() {

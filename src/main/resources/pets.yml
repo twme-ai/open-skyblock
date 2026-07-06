@@ -101,3 +101,90 @@ pets:
     stats-per-level:
       crit_damage: 0.3
       speed: 0.08
+  BLUE_WHALE:
+    material: BLUE_WOOL
+    display-name: "<aqua>Blue Whale Pet</aqua>"
+    rarity: LEGENDARY
+    max-level: 100
+    xp-per-level: 100.0
+    lore:
+      - "<gray>An Oringo pet focused on health and defense.</gray>"
+    base-stats:
+      health: 50.0
+      defense: 5.0
+    stats-per-level:
+      health: 2.0
+      defense: 0.25
+  TIGER:
+    material: ORANGE_WOOL
+    display-name: "<gold>Tiger Pet</gold>"
+    rarity: LEGENDARY
+    max-level: 100
+    xp-per-level: 100.0
+    lore:
+      - "<gray>An Oringo combat pet for aggressive melee builds.</gray>"
+    base-stats:
+      strength: 5.0
+      crit_damage: 10.0
+    stats-per-level:
+      strength: 0.3
+      crit_damage: 0.5
+      ferocity: 0.05
+  LION:
+    material: GOLD_BLOCK
+    display-name: "<yellow>Lion Pet</yellow>"
+    rarity: LEGENDARY
+    max-level: 100
+    xp-per-level: 100.0
+    lore:
+      - "<gray>An Oringo combat pet that rewards heavy hits.</gray>"
+    base-stats:
+      damage: 5.0
+      strength: 5.0
+    stats-per-level:
+      damage: 0.3
+      strength: 0.35
+      crit_damage: 0.35
+  MONKEY:
+    material: JUNGLE_SAPLING
+    display-name: "<green>Monkey Pet</green>"
+    rarity: LEGENDARY
+    max-level: 100
+    xp-per-level: 100.0
+    lore:
+      - "<gray>An Oringo foraging pet for speed and gathering.</gray>"
+    base-stats:
+      speed: 5.0
+      foraging_fortune: 5.0
+    stats-per-level:
+      speed: 0.1
+      foraging_fortune: 0.5
+  ELEPHANT:
+    material: GRAY_WOOL
+    display-name: "<gray>Elephant Pet</gray>"
+    rarity: LEGENDARY
+    max-level: 100
+    xp-per-level: 100.0
+    lore:
+      - "<gray>An Oringo farming pet for crop fortune.</gray>"
+    base-stats:
+      health: 25.0
+      farming_fortune: 10.0
+    stats-per-level:
+      health: 1.0
+      farming_fortune: 1.0
+  GIRAFFE:
+    material: ACACIA_SAPLING
+    display-name: "<gold>Giraffe Pet</gold>"
+    rarity: LEGENDARY
+    max-level: 100
+    xp-per-level: 100.0
+    lore:
+      - "<gray>An Oringo pet with reach and defensive utility.</gray>"
+    base-stats:
+      health: 25.0
+      crit_chance: 2.0
+    stats-per-level:
+      health: 1.0
+      crit_chance: 0.05
+      crit_damage: 0.25

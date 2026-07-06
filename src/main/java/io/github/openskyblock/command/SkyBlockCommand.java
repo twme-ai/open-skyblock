@@ -111,6 +111,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "spooky",
             "spookyfestival",
             "candy",
+            "zoo",
+            "travelingzoo",
+            "traveling-zoo",
+            "oringo",
             "stars",
             "star",
             "essence",
@@ -219,6 +223,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "dojo" -> dojo(sender, args);
             case "mythological", "ritual", "diana", "burrow", "burrows" -> mythological(sender, args);
             case "spooky", "spookyfestival", "candy" -> spooky(sender, args);
+            case "zoo", "travelingzoo", "traveling-zoo", "oringo" -> travelingZoo(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -561,6 +566,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             values.addAll(plugin.spooky().scoreRewardIds());
             return startsWith(values, args[2]);
         }
+        if (args.length == 2 && isZooCommand(args[0])) {
+            return startsWith(List.of("status", "offers", "buy"), args[1]);
+        }
+        if (args.length == 3 && isZooCommand(args[0]) && args[1].equalsIgnoreCase("buy")) {
+            return startsWith(plugin.travelingZoo().activeOfferIds(), args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -804,6 +815,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " dojo status|challenges|belts|run", "commands.help.dojo");
         helpLine(sender, label + " mythological status|dig|mobs|treasures", "commands.help.mythological");
         helpLine(sender, label + " spooky status|mobs|kill|claim", "commands.help.spooky");
+        helpLine(sender, label + " zoo status|offers|buy", "commands.help.zoo");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1949,6 +1961,28 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             }
             case "claim" -> plugin.spooky().claimRewards(player, args.length >= 3 ? args[2] : "all");
             default -> plugin.text().send(player, "commands.spooky-usage");
+        }
+    }
+
+    private void travelingZoo(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.travelingZoo().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "offers", "pets", "list" -> plugin.travelingZoo().sendOffers(player);
+            case "buy" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.zoo-usage");
+                    return;
+                }
+                plugin.travelingZoo().buy(player, args[2]);
+            }
+            default -> plugin.text().send(player, "commands.zoo-usage");
         }
     }
 
@@ -3124,6 +3158,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isSpookyCommand(String value) {
         return value.equalsIgnoreCase("spooky") || value.equalsIgnoreCase("spookyfestival") || value.equalsIgnoreCase("candy");
+    }
+
+    private boolean isZooCommand(String value) {
+        return value.equalsIgnoreCase("zoo") || value.equalsIgnoreCase("travelingzoo") || value.equalsIgnoreCase("traveling-zoo") || value.equalsIgnoreCase("oringo");
     }
 
     private boolean isUpgradeCommand(String value) {

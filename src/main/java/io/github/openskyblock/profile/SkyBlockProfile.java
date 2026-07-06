@@ -44,6 +44,7 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> mythologicalTreasures = new HashMap<>();
     private final Map<String, Integer> spookyMobKills = new HashMap<>();
     private final Set<String> claimedSpookyRewards = new HashSet<>();
+    private final Map<String, Integer> zooPurchases = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -982,6 +983,27 @@ public final class SkyBlockProfile {
 
     public Set<String> claimedSpookyRewards() {
         return claimedSpookyRewards;
+    }
+
+    public int zooPurchases(String petId) {
+        return zooPurchases.getOrDefault(petId.toUpperCase(), 0);
+    }
+
+    public void setZooPurchases(String petId, int amount) {
+        String normalized = petId.toUpperCase();
+        if (amount <= 0) {
+            zooPurchases.remove(normalized);
+            return;
+        }
+        zooPurchases.put(normalized, amount);
+    }
+
+    public void addZooPurchase(String petId, int amount) {
+        setZooPurchases(petId, zooPurchases(petId) + amount);
+    }
+
+    public Map<String, Integer> zooPurchases() {
+        return zooPurchases;
     }
 
     public String shopPurchaseDay() {

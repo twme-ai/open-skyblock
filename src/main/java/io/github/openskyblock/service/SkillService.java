@@ -11,6 +11,7 @@ import io.github.openskyblock.garden.GardenService;
 import io.github.openskyblock.kuudra.KuudraService;
 import io.github.openskyblock.museum.MuseumService;
 import io.github.openskyblock.mythological.MythologicalService;
+import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.rift.RiftService;
@@ -49,6 +50,7 @@ public final class SkillService {
     private DojoService dojoService;
     private MythologicalService mythologicalService;
     private SpookyService spookyService;
+    private PetService petService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -96,6 +98,10 @@ public final class SkillService {
 
     public void spookyService(SpookyService spookyService) {
         this.spookyService = spookyService;
+    }
+
+    public void petService(PetService petService) {
+        this.petService = petService;
     }
 
     public void reload() {
@@ -256,6 +262,9 @@ public final class SkillService {
         }
         if (spookyService != null) {
             xp += (int) Math.round(spookyService.skyBlockXp(profile));
+        }
+        if (petService != null) {
+            xp += (int) Math.round(petService.scoreSkyBlockXp(profile));
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);

@@ -1,0 +1,37 @@
+settings:
+  require-calendar-event: true
+  event-id: TRAVELING_ZOO
+  offer-count: 3
+  rotation-stride: 1
+
+offers:
+  BLUE_WHALE:
+    display-name: "<aqua>Blue Whale Offer</aqua>"
+    pet: BLUE_WHALE
+    coins: 15000000.0
+    required-items: []
+  TIGER:
+    display-name: "<gold>Tiger Offer</gold>"
+    pet: TIGER
+    coins: 15000000.0
+    required-items: []
+  LION:
+    display-name: "<yellow>Lion Offer</yellow>"
+    pet: LION
+    coins: 15000000.0
+    required-items: []
+  MONKEY:
+    display-name: "<green>Monkey Offer</green>"
+    pet: MONKEY
+    coins: 18000000.0
+    required-items: []
+  ELEPHANT:
+    display-name: "<gray>Elephant Offer</gray>"
+    pet: ELEPHANT
+    coins: 18000000.0
+    required-items: []
+  GIRAFFE:
+    display-name: "<gold>Giraffe Offer</gold>"
+    pet: GIRAFFE
+    coins: 12000000.0
+    required-items: []
