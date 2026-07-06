@@ -3,6 +3,8 @@ package io.github.openskyblock.command;
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
+import io.github.openskyblock.gemstone.GemstoneDefinition;
+import io.github.openskyblock.gemstone.GemstoneSlotDefinition;
 import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.SkyBlockProfile;
@@ -41,6 +43,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "enchant",
             "stars",
             "star",
+            "gemstones",
+            "gemstone",
             "accessorybag",
             "tuning",
             "pets",
@@ -88,6 +92,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "enchant" -> enchant(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
+            case "gemstones" -> gemstones(sender);
+            case "gemstone" -> gemstone(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
             case "pets" -> pets(sender);
@@ -151,6 +157,18 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("star") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set"))) {
             return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("gemstone")) {
+            return startsWith(List.of("slots", "apply", "remove"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("gemstone") && (args[1].equalsIgnoreCase("apply") || args[1].equalsIgnoreCase("remove"))) {
+            return startsWith(plugin.gemstones().slots().stream().map(GemstoneSlotDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("gemstone") && args[1].equalsIgnoreCase("apply")) {
+            return startsWith(plugin.gemstones().gemstones().stream().map(GemstoneDefinition::id).toList(), args[3]);
+        }
+        if (args.length == 5 && args[0].equalsIgnoreCase("gemstone") && args[1].equalsIgnoreCase("apply")) {
+            return startsWith(plugin.gemstones().tiers(args[3]), args[4]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
@@ -226,6 +244,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " enchant <id> <level>", "commands.help.enchant");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
+        helpLine(sender, label + " gemstones", "commands.help.gemstones");
+        helpLine(sender, label + " gemstone apply|remove", "commands.help.gemstone");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
@@ -461,6 +481,38 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             }
             case "clear" -> plugin.stars().clearHeld(player);
             default -> plugin.text().send(player, "commands.star-usage");
+        }
+    }
+
+    private void gemstones(CommandSender sender) {
+        plugin.gemstones().sendInfo(sender);
+    }
+
+    private void gemstone(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("slots")) {
+            plugin.gemstones().sendHeldSlots(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "apply" -> {
+                if (args.length < 5) {
+                    plugin.text().send(player, "commands.gemstone-usage");
+                    return;
+                }
+                plugin.gemstones().applyHeld(player, args[2], args[3], args[4]);
+            }
+            case "remove" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.gemstone-usage");
+                    return;
+                }
+                plugin.gemstones().removeHeld(player, args[2]);
+            }
+            default -> plugin.text().send(player, "commands.gemstone-usage");
         }
     }
 

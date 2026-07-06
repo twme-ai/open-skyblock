@@ -3,6 +3,7 @@ package io.github.openskyblock.service;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.EnchantmentService;
+import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.reforge.ReforgeDefinition;
 import io.github.openskyblock.reforge.ReforgeService;
 import io.github.openskyblock.star.StarService;
@@ -30,6 +31,7 @@ public final class CustomItemService {
     private ReforgeService reforgeService;
     private EnchantmentService enchantmentService;
     private StarService starService;
+    private GemstoneService gemstoneService;
 
     public CustomItemService(JavaPlugin plugin, ConfigService configService, TextService text) {
         this.configService = configService;
@@ -47,6 +49,10 @@ public final class CustomItemService {
 
     public void starService(StarService starService) {
         this.starService = starService;
+    }
+
+    public void gemstoneService(GemstoneService gemstoneService) {
+        this.gemstoneService = gemstoneService;
     }
 
     public void reload() {
@@ -156,6 +162,13 @@ public final class CustomItemService {
             if (!starLore.isEmpty()) {
                 lines.add(Component.empty());
                 lines.addAll(starLore);
+            }
+        }
+        if (gemstoneService != null) {
+            List<Component> gemstoneLore = gemstoneService.lore(itemStack, definition);
+            if (!gemstoneLore.isEmpty()) {
+                lines.add(Component.empty());
+                lines.addAll(gemstoneLore);
             }
         }
         if (enchantmentService != null) {

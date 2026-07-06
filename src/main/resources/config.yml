@@ -14,6 +14,7 @@ features:
   reforges: true
   enchantments: true
   item-stars: true
+  gemstones: true
   pets: true
   accessory-bag: true
   accessory-tuning: true

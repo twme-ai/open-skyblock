@@ -18,6 +18,7 @@ public final class ConfigService {
             "reforges.yml",
             "enchantments.yml",
             "stars.yml",
+            "gemstones.yml",
             "pets.yml",
             "minions.yml",
             "menus.yml",
@@ -78,6 +79,10 @@ public final class ConfigService {
 
     public FileConfiguration stars() {
         return file("stars.yml");
+    }
+
+    public FileConfiguration gemstones() {
+        return file("gemstones.yml");
     }
 
     public FileConfiguration pets() {

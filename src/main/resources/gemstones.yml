@@ -1,0 +1,110 @@
+settings:
+  tier-order:
+    - ROUGH
+    - FLAWED
+    - FINE
+    - FLAWLESS
+    - PERFECT
+  remove-cost: 0.0
+  apply-costs:
+    ROUGH: 250.0
+    FLAWED: 1000.0
+    FINE: 5000.0
+    FLAWLESS: 25000.0
+    PERFECT: 100000.0
+
+slots:
+  COMBAT:
+    display-name: "<red>Combat Slot</red>"
+    symbol: "⚔"
+    allowed-gemstones:
+      - RUBY
+      - AMETHYST
+      - SAPPHIRE
+      - JASPER
+  DEFENSIVE:
+    display-name: "<green>Defensive Slot</green>"
+    symbol: "◆"
+    allowed-gemstones:
+      - RUBY
+      - AMETHYST
+      - SAPPHIRE
+  SAPPHIRE:
+    display-name: "<aqua>Sapphire Slot</aqua>"
+    symbol: "✎"
+    allowed-gemstones:
+      - SAPPHIRE
+  JASPER:
+    display-name: "<light_purple>Jasper Slot</light_purple>"
+    symbol: "❁"
+    allowed-gemstones:
+      - JASPER
+
+category-slots:
+  SWORD:
+    - COMBAT
+  ARMOR:
+    - DEFENSIVE
+
+item-slots:
+  HYPERION:
+    - COMBAT
+    - SAPPHIRE
+    - JASPER
+  ASPECT_OF_THE_END:
+    - COMBAT
+    - SAPPHIRE
+
+gemstones:
+  RUBY:
+    display-name: "<red>Ruby Gemstone</red>"
+    tiers:
+      ROUGH:
+        health: 5.0
+      FLAWED:
+        health: 10.0
+      FINE:
+        health: 20.0
+      FLAWLESS:
+        health: 35.0
+      PERFECT:
+        health: 50.0
+  AMETHYST:
+    display-name: "<dark_purple>Amethyst Gemstone</dark_purple>"
+    tiers:
+      ROUGH:
+        defense: 2.0
+      FLAWED:
+        defense: 4.0
+      FINE:
+        defense: 8.0
+      FLAWLESS:
+        defense: 14.0
+      PERFECT:
+        defense: 20.0
+  SAPPHIRE:
+    display-name: "<aqua>Sapphire Gemstone</aqua>"
+    tiers:
+      ROUGH:
+        intelligence: 5.0
+      FLAWED:
+        intelligence: 10.0
+      FINE:
+        intelligence: 20.0
+      FLAWLESS:
+        intelligence: 35.0
+      PERFECT:
+        intelligence: 50.0
+  JASPER:
+    display-name: "<light_purple>Jasper Gemstone</light_purple>"
+    tiers:
+      ROUGH:
+        strength: 2.0
+      FLAWED:
+        strength: 4.0
+      FINE:
+        strength: 8.0
+      FLAWLESS:
+        strength: 14.0
+      PERFECT:
+        strength: 20.0

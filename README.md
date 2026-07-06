@@ -24,6 +24,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable item reforges with persistent item metadata, rarity-scaled stat tables, purse costs, lore rendering, and stat aggregation.
 - Configurable item enchantments with persistent item metadata, max levels, ultimate-enchantment exclusivity, purse costs, lore rendering, and stat aggregation.
 - Configurable item stars with persistent item metadata, category limits, purse costs, display suffix/lore, and item stat scaling.
+- Configurable gemstone slots with persistent item metadata, item/category slot rules, tiered gemstone stat bonuses, purse costs, lore rendering, and stat aggregation.
 - Accessory Bag with unique accessory storage, Magical Power, GUI add/remove flow, and stat aggregation from bagged accessories.
 - Accessory tuning with Magical Power-derived tuning points, configurable per-stat values, commands, GUI controls, and stat aggregation.
 - Configurable armor set IDs and full-set stat bonuses, with a starter Farm Suit set.
@@ -74,6 +75,10 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock star add [amount]`
 - `/skyblock star set <amount>`
 - `/skyblock star clear`
+- `/skyblock gemstones`
+- `/skyblock gemstone slots`
+- `/skyblock gemstone apply <slot> <gemstone> <tier>`
+- `/skyblock gemstone remove <slot>`
 - `/skyblock profile`
 - `/skyblock purse`
 - `/skyblock skills`

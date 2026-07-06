@@ -5,6 +5,7 @@ import io.github.openskyblock.accessory.TuningService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.EnchantmentService;
+import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
@@ -32,8 +33,9 @@ public final class StatService {
     private final ReforgeService reforges;
     private final EnchantmentService enchantments;
     private final StarService stars;
+    private final GemstoneService gemstones;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets, ReforgeService reforges, EnchantmentService enchantments, StarService stars) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets, ReforgeService reforges, EnchantmentService enchantments, StarService stars, GemstoneService gemstones) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
@@ -45,6 +47,7 @@ public final class StatService {
         this.reforges = reforges;
         this.enchantments = enchantments;
         this.stars = stars;
+        this.gemstones = gemstones;
     }
 
     public StatSnapshot snapshot(Player player) {
@@ -168,6 +171,10 @@ public final class StatService {
             itemStats.put(stat, itemStats.getOrDefault(stat, 0.0D) + entry.getValue());
         }
         for (Map.Entry<String, Double> entry : enchantments.stats(itemStack, definition).entrySet()) {
+            String stat = StatSnapshot.normalize(entry.getKey());
+            itemStats.put(stat, itemStats.getOrDefault(stat, 0.0D) + entry.getValue());
+        }
+        for (Map.Entry<String, Double> entry : gemstones.stats(itemStack, definition).entrySet()) {
             String stat = StatSnapshot.normalize(entry.getKey());
             itemStats.put(stat, itemStats.getOrDefault(stat, 0.0D) + entry.getValue());
         }

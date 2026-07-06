@@ -15,6 +15,7 @@ errors:
   unknown-pet: "<prefix><red>Unknown pet: <yellow><pet></yellow>.</red>"
   unknown-reforge: "<prefix><red>Unknown reforge: <yellow><reforge></yellow>.</red>"
   unknown-enchantment: "<prefix><red>Unknown enchantment: <yellow><enchantment></yellow>.</red>"
+  unknown-gemstone: "<prefix><red>Unknown gemstone: <yellow><gemstone></yellow>.</red>"
   invalid-number: "<prefix><red>That number is invalid.</red>"
 
 commands:
@@ -33,6 +34,8 @@ commands:
     enchant: "Apply or remove an enchantment from your held custom item."
     stars: "View item star upgrade settings."
     star: "Add, set, or clear stars on your held custom item."
+    gemstones: "List configured gemstones."
+    gemstone: "View slots or apply and remove gemstones on your held custom item."
     stats: "View your aggregated SkyBlock stats."
     accessory-bag: "Open your Accessory Bag."
     tuning: "Open or edit stat tuning."
@@ -109,6 +112,22 @@ commands:
   star-set: "<prefix><green>Set <item> to <star_symbols> <dark_gray>(</dark_gray><yellow><stars></yellow><dark_gray>/</dark_gray><yellow><max_stars></yellow><dark_gray>)</dark_gray> for <gold><cost></gold> coins.</green>"
   star-cleared: "<prefix><green>Cleared stars from <item>.</green>"
   star-none: "<prefix><red>Your held item does not have stars.</red>"
+  gemstone-disabled: "<prefix><red>Gemstones are disabled on this server.</red>"
+  gemstone-usage: "<prefix><red>Use <yellow>/skyblock gemstones</yellow>, <yellow>/skyblock gemstone slots</yellow>, <yellow>/skyblock gemstone apply <slot> <gemstone> <tier></yellow>, or <yellow>/skyblock gemstone remove <slot></yellow>.</red>"
+  gemstone-list-header: "<prefix><aqua>Gemstones</aqua>"
+  gemstone-list-line: "<gray><id>:</gray> <gemstone> <dark_gray>|</dark_gray> <gray>Tiers:</gray> <yellow><tiers></yellow>"
+  gemstone-held-missing: "<prefix><red>You must hold a configured custom item.</red>"
+  gemstone-no-slots: "<prefix><red><item> does not have gemstone slots.</red>"
+  gemstone-slots-header: "<prefix><aqua>Gemstone slots for <item></aqua>"
+  gemstone-slots-line: "<gray><slot_id>:</gray> <slot> <dark_gray>|</dark_gray> <gemstone>"
+  gemstone-unknown-slot: "<prefix><red>Unknown gemstone slot: <yellow><slot></yellow>.</red>"
+  gemstone-unknown-tier: "<prefix><red>Unknown gemstone tier: <yellow><tier></yellow>.</red>"
+  gemstone-not-applicable: "<prefix><red><gemstone> cannot be applied to the <slot> slot.</red>"
+  gemstone-already: "<prefix><red><item> already has <gemstone> <tier> in the <slot> slot.</red>"
+  gemstone-no-money: "<prefix><red>You need <gold><cost></gold> coins in your purse.</red>"
+  gemstone-applied: "<prefix><green>Applied <gemstone> <tier> to <item> <gray>(<slot>)</gray> for <gold><cost></gold> coins.</green>"
+  gemstone-removed: "<prefix><green>Removed <gemstone> from <item> <gray>(<slot>)</gray>.</green>"
+  gemstone-empty: "<prefix><red>The <slot> slot is empty.</red>"
   skills-header: "<prefix><aqua>Skills</aqua>"
   stats-header: "<prefix><aqua>Stats</aqua>"
   stats-line: "<gray><stat>:</gray> <green><value></green>"
@@ -185,6 +204,8 @@ items:
   enchantment-line: "<blue><enchantment> <level></blue>"
   ultimate-enchantment-line: "<light_purple><bold><enchantment> <level></bold></light_purple>"
   star-line: "<gold><star_symbols></gold> <gray>Stars:</gray> <yellow><stars></yellow><gray>/</gray><yellow><max_stars></yellow> <dark_gray>|</dark_gray> <green>+<bonus>% item stats</green>"
+  gemstone-line: "<gray>[<slot_symbol>]</gray> <slot><gray>:</gray> <gemstone> <yellow><tier></yellow>"
+  gemstone-empty-line: "<dark_gray>[<slot_symbol>]</dark_gray> <slot><gray>:</gray> <dark_gray>Empty</dark_gray>"
   ability-header: "<gold>Item Ability: <ability></gold> <yellow><type></yellow>"
   ability-line: "<gray><line></gray>"
   rarity-line: "<rarity_color><bold><rarity> <category></bold></rarity_color>"
@@ -226,6 +247,9 @@ enchantments:
 
 stars:
   display-suffix: " <gold><star_symbols></gold>"
+
+gemstones:
+  empty-slot: "<dark_gray>Empty</dark_gray>"
 
 menus:
   collection-next-tier: "<yellow>Tier <tier></yellow> <gray>at</gray> <white><amount></white>"
