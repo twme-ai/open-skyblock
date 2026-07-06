@@ -27,6 +27,10 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> experimentCompletions = new HashMap<>();
     private final Map<String, Integer> dungeonCompletions = new HashMap<>();
     private final Map<String, Double> dungeonClassXp = new HashMap<>();
+    private final Map<String, Long> gardenCropHarvests = new HashMap<>();
+    private final Map<String, Long> gardenCropStorage = new HashMap<>();
+    private final Set<String> gardenPlots = new HashSet<>();
+    private final Map<String, Integer> gardenVisitorsServed = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -64,6 +68,10 @@ public final class SkyBlockProfile {
     private String selectedDungeonClass;
     private String dungeonRunDay;
     private int dailyDungeonRuns;
+    private double gardenXp;
+    private long gardenCopper;
+    private long gardenCompost;
+    private long gardenVisitorOffers;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -347,6 +355,126 @@ public final class SkyBlockProfile {
 
     public void addDailyDungeonRun() {
         dailyDungeonRuns(dailyDungeonRuns + 1);
+    }
+
+    public double gardenXp() {
+        return gardenXp;
+    }
+
+    public void gardenXp(double gardenXp) {
+        this.gardenXp = Math.max(0.0D, gardenXp);
+    }
+
+    public void addGardenXp(double amount) {
+        gardenXp(gardenXp + amount);
+    }
+
+    public long gardenCopper() {
+        return gardenCopper;
+    }
+
+    public void gardenCopper(long gardenCopper) {
+        this.gardenCopper = Math.max(0L, gardenCopper);
+    }
+
+    public void addGardenCopper(long amount) {
+        gardenCopper(gardenCopper + amount);
+    }
+
+    public long gardenCompost() {
+        return gardenCompost;
+    }
+
+    public void gardenCompost(long gardenCompost) {
+        this.gardenCompost = Math.max(0L, gardenCompost);
+    }
+
+    public void addGardenCompost(long amount) {
+        gardenCompost(gardenCompost + amount);
+    }
+
+    public long gardenCropHarvests(String cropId) {
+        return gardenCropHarvests.getOrDefault(cropId.toUpperCase(), 0L);
+    }
+
+    public void setGardenCropHarvests(String cropId, long amount) {
+        String normalized = cropId.toUpperCase();
+        if (amount <= 0L) {
+            gardenCropHarvests.remove(normalized);
+            return;
+        }
+        gardenCropHarvests.put(normalized, amount);
+    }
+
+    public void addGardenCropHarvests(String cropId, long amount) {
+        setGardenCropHarvests(cropId, gardenCropHarvests(cropId) + amount);
+    }
+
+    public Map<String, Long> gardenCropHarvests() {
+        return gardenCropHarvests;
+    }
+
+    public long gardenCropStorage(String cropId) {
+        return gardenCropStorage.getOrDefault(cropId.toUpperCase(), 0L);
+    }
+
+    public void setGardenCropStorage(String cropId, long amount) {
+        String normalized = cropId.toUpperCase();
+        if (amount <= 0L) {
+            gardenCropStorage.remove(normalized);
+            return;
+        }
+        gardenCropStorage.put(normalized, amount);
+    }
+
+    public void addGardenCropStorage(String cropId, long amount) {
+        setGardenCropStorage(cropId, gardenCropStorage(cropId) + amount);
+    }
+
+    public Map<String, Long> gardenCropStorage() {
+        return gardenCropStorage;
+    }
+
+    public boolean hasGardenPlot(String plotId) {
+        return gardenPlots.contains(plotId.toUpperCase());
+    }
+
+    public boolean addGardenPlot(String plotId) {
+        return gardenPlots.add(plotId.toUpperCase());
+    }
+
+    public Set<String> gardenPlots() {
+        return gardenPlots;
+    }
+
+    public int gardenVisitorServed(String visitorId) {
+        return gardenVisitorsServed.getOrDefault(visitorId.toUpperCase(), 0);
+    }
+
+    public void setGardenVisitorServed(String visitorId, int amount) {
+        String normalized = visitorId.toUpperCase();
+        if (amount <= 0) {
+            gardenVisitorsServed.remove(normalized);
+            return;
+        }
+        gardenVisitorsServed.put(normalized, amount);
+    }
+
+    public void addGardenVisitorServed(String visitorId, int amount) {
+        setGardenVisitorServed(visitorId, gardenVisitorServed(visitorId) + amount);
+        gardenVisitorOffers(gardenVisitorOffers + Math.max(0, amount));
+    }
+
+    public Map<String, Integer> gardenVisitorsServed() {
+        return gardenVisitorsServed;
+    }
+
+    public long gardenVisitorOffers() {
+        return gardenVisitorOffers;
+    }
+
+    public void gardenVisitorOffers(long gardenVisitorOffers) {
+        this.gardenVisitorOffers = Math.max(0L, gardenVisitorOffers);
     }
 
     public String shopPurchaseDay() {

@@ -90,6 +90,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "dungeons",
             "dungeon",
             "catacombs",
+            "garden",
+            "gardens",
             "stars",
             "star",
             "essence",
@@ -190,6 +192,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "anvil" -> anvil(sender);
             case "experiments", "experiment", "etable" -> experiments(sender, args);
             case "dungeons", "dungeon", "catacombs" -> dungeons(sender, args);
+            case "garden", "gardens" -> garden(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -426,6 +429,21 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 4 && isDungeonCommand(args[0]) && args[1].equalsIgnoreCase("run")) {
             return startsWith(List.of("100", "230", "270", "300"), args[3]);
         }
+        if (args.length == 2 && isGardenCommand(args[0])) {
+            return startsWith(List.of("status", "crops", "plots", "visitors", "harvest", "compost", "unlock", "serve"), args[1]);
+        }
+        if (args.length == 3 && isGardenCommand(args[0]) && (args[1].equalsIgnoreCase("harvest") || args[1].equalsIgnoreCase("compost"))) {
+            return startsWith(plugin.garden().cropIds(), args[2]);
+        }
+        if (args.length == 3 && isGardenCommand(args[0]) && args[1].equalsIgnoreCase("unlock")) {
+            return startsWith(plugin.garden().plotIds(), args[2]);
+        }
+        if (args.length == 3 && isGardenCommand(args[0]) && args[1].equalsIgnoreCase("serve")) {
+            return startsWith(plugin.garden().visitorIds(), args[2]);
+        }
+        if (args.length == 4 && isGardenCommand(args[0]) && (args[1].equalsIgnoreCase("harvest") || args[1].equalsIgnoreCase("compost"))) {
+            return startsWith(List.of("64", "160", "1000", "10000"), args[3]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -661,6 +679,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " anvil", "commands.help.anvil");
         helpLine(sender, label + " experiments status|list|run", "commands.help.experiments");
         helpLine(sender, label + " dungeons status|floors|classes|run", "commands.help.dungeons");
+        helpLine(sender, label + " garden status|crops|plots|visitors", "commands.help.garden");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1516,6 +1535,51 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.dungeons().run(player, args[2], score);
             }
             default -> plugin.text().send(player, "commands.dungeon-usage");
+        }
+    }
+
+    private void garden(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.garden().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "crops" -> plugin.garden().sendCrops(player);
+            case "plots" -> plugin.garden().sendPlots(player);
+            case "visitors" -> plugin.garden().sendVisitors(player);
+            case "harvest" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.garden-usage");
+                    return;
+                }
+                parsePositiveLong(player, args[3]).ifPresent(amount -> plugin.garden().harvest(player, args[2], amount));
+            }
+            case "compost" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.garden-usage");
+                    return;
+                }
+                parsePositiveLong(player, args[3]).ifPresent(amount -> plugin.garden().compost(player, args[2], amount));
+            }
+            case "unlock" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.garden-usage");
+                    return;
+                }
+                plugin.garden().unlockPlot(player, args[2]);
+            }
+            case "serve" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.garden-usage");
+                    return;
+                }
+                plugin.garden().serveVisitor(player, args[2]);
+            }
+            default -> plugin.text().send(player, "commands.garden-usage");
         }
     }
 
@@ -2663,6 +2727,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isDungeonCommand(String value) {
         return value.equalsIgnoreCase("dungeon") || value.equalsIgnoreCase("dungeons") || value.equalsIgnoreCase("catacombs");
+    }
+
+    private boolean isGardenCommand(String value) {
+        return value.equalsIgnoreCase("garden") || value.equalsIgnoreCase("gardens");
     }
 
     private boolean isUpgradeCommand(String value) {

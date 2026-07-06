@@ -180,6 +180,33 @@ public final class ProfileManager {
                 profile.setDungeonClassXp(classId.toUpperCase(), dungeonClassXp.getDouble(classId, 0.0D));
             }
         }
+        profile.gardenXp(section.getDouble("garden.xp", 0.0D));
+        profile.gardenCopper(section.getLong("garden.copper", 0L));
+        profile.gardenCompost(section.getLong("garden.compost", 0L));
+        profile.gardenVisitorOffers(section.getLong("garden.visitor-offers", 0L));
+        for (String plotId : section.getStringList("garden.plots")) {
+            if (plotId != null && !plotId.isBlank()) {
+                profile.addGardenPlot(plotId);
+            }
+        }
+        ConfigurationSection gardenHarvests = section.getConfigurationSection("garden.crops.harvests");
+        if (gardenHarvests != null) {
+            for (String cropId : gardenHarvests.getKeys(false)) {
+                profile.setGardenCropHarvests(cropId.toUpperCase(), gardenHarvests.getLong(cropId, 0L));
+            }
+        }
+        ConfigurationSection gardenStorage = section.getConfigurationSection("garden.crops.storage");
+        if (gardenStorage != null) {
+            for (String cropId : gardenStorage.getKeys(false)) {
+                profile.setGardenCropStorage(cropId.toUpperCase(), gardenStorage.getLong(cropId, 0L));
+            }
+        }
+        ConfigurationSection gardenVisitors = section.getConfigurationSection("garden.visitors");
+        if (gardenVisitors != null) {
+            for (String visitorId : gardenVisitors.getKeys(false)) {
+                profile.setGardenVisitorServed(visitorId.toUpperCase(), gardenVisitors.getInt(visitorId, 0));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -640,6 +667,27 @@ public final class ProfileManager {
         for (Map.Entry<String, Double> entry : profile.dungeonClassXp().entrySet()) {
             if (entry.getValue() > 0.0D) {
                 profileData.set(base + ".dungeons.class-xp." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".garden", null);
+        profileData.set(base + ".garden.xp", profile.gardenXp());
+        profileData.set(base + ".garden.copper", profile.gardenCopper());
+        profileData.set(base + ".garden.compost", profile.gardenCompost());
+        profileData.set(base + ".garden.visitor-offers", profile.gardenVisitorOffers());
+        profileData.set(base + ".garden.plots", profile.gardenPlots().stream().sorted().toList());
+        for (Map.Entry<String, Long> entry : profile.gardenCropHarvests().entrySet()) {
+            if (entry.getValue() > 0L) {
+                profileData.set(base + ".garden.crops.harvests." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Long> entry : profile.gardenCropStorage().entrySet()) {
+            if (entry.getValue() > 0L) {
+                profileData.set(base + ".garden.crops.storage." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Integer> entry : profile.gardenVisitorsServed().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".garden.visitors." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());

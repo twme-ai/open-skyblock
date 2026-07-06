@@ -35,6 +35,38 @@ collections:
         amount: 100
         rewards:
           - "<gray>Speed Talisman Recipe</gray>"
+  PUMPKIN:
+    display-name: "<gold>Pumpkin</gold>"
+    material: PUMPKIN
+    tiers:
+      1:
+        amount: 100
+        rewards:
+          - "<gray>Pumpkin Minion I Recipe</gray>"
+  MELON:
+    display-name: "<green>Melon</green>"
+    material: MELON_SLICE
+    tiers:
+      1:
+        amount: 100
+        rewards:
+          - "<gray>Melon Minion I Recipe</gray>"
+  NETHER_WART:
+    display-name: "<red>Nether Wart</red>"
+    material: NETHER_WART
+    tiers:
+      1:
+        amount: 100
+        rewards:
+          - "<gray>Nether Wart Minion I Recipe</gray>"
+  CACTUS:
+    display-name: "<green>Cactus</green>"
+    material: CACTUS
+    tiers:
+      1:
+        amount: 100
+        rewards:
+          - "<gray>Cactus Minion I Recipe</gray>"
   COBBLESTONE:
     display-name: "<gray>Cobblestone</gray>"
     material: COBBLESTONE

@@ -31,6 +31,7 @@ public final class ConfigService {
             "trophy_fish.yml",
             "experiments.yml",
             "dungeons.yml",
+            "garden.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -160,6 +161,10 @@ public final class ConfigService {
 
     public FileConfiguration dungeons() {
         return file("dungeons.yml");
+    }
+
+    public FileConfiguration garden() {
+        return file("garden.yml");
     }
 
     public FileConfiguration mobSpawns() {
