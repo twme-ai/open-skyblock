@@ -15,6 +15,7 @@ public final class ConfigService {
             "collections.yml",
             "items.yml",
             "armor_sets.yml",
+            "reforges.yml",
             "pets.yml",
             "minions.yml",
             "menus.yml",
@@ -63,6 +64,10 @@ public final class ConfigService {
 
     public FileConfiguration armorSets() {
         return file("armor_sets.yml");
+    }
+
+    public FileConfiguration reforges() {
+        return file("reforges.yml");
     }
 
     public FileConfiguration pets() {

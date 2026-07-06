@@ -1,0 +1,118 @@
+settings:
+  remove-cost: 0.0
+  base-costs:
+    COMMON: 250.0
+    UNCOMMON: 500.0
+    RARE: 1000.0
+    EPIC: 2500.0
+    LEGENDARY: 5000.0
+    MYTHIC: 10000.0
+    SPECIAL: 1000.0
+
+reforges:
+  SHARP:
+    display-name: "<red>Sharp</red>"
+    prefix: "<red>Sharp</red>"
+    allowed-categories:
+      - SWORD
+    cost-multiplier: 1.0
+    stats:
+      COMMON:
+        crit_chance: 2.0
+        crit_damage: 10.0
+      UNCOMMON:
+        crit_chance: 3.0
+        crit_damage: 15.0
+      RARE:
+        crit_chance: 4.0
+        crit_damage: 25.0
+      EPIC:
+        crit_chance: 5.0
+        crit_damage: 35.0
+      LEGENDARY:
+        crit_chance: 6.0
+        crit_damage: 45.0
+      MYTHIC:
+        crit_chance: 7.0
+        crit_damage: 55.0
+  HEROIC:
+    display-name: "<aqua>Heroic</aqua>"
+    prefix: "<aqua>Heroic</aqua>"
+    allowed-categories:
+      - SWORD
+    cost-multiplier: 1.25
+    stats:
+      COMMON:
+        strength: 5.0
+        intelligence: 15.0
+      UNCOMMON:
+        strength: 7.0
+        intelligence: 25.0
+      RARE:
+        strength: 10.0
+        intelligence: 40.0
+      EPIC:
+        strength: 15.0
+        intelligence: 60.0
+      LEGENDARY:
+        strength: 20.0
+        intelligence: 80.0
+      MYTHIC:
+        strength: 25.0
+        intelligence: 100.0
+  FIERCE:
+    display-name: "<red>Fierce</red>"
+    prefix: "<red>Fierce</red>"
+    allowed-categories:
+      - ARMOR
+    cost-multiplier: 1.0
+    stats:
+      COMMON:
+        strength: 2.0
+        crit_damage: 4.0
+      UNCOMMON:
+        strength: 3.0
+        crit_damage: 6.0
+      RARE:
+        strength: 4.0
+        crit_damage: 8.0
+      EPIC:
+        strength: 6.0
+        crit_damage: 12.0
+      LEGENDARY:
+        strength: 8.0
+        crit_damage: 16.0
+      MYTHIC:
+        strength: 10.0
+        crit_damage: 20.0
+  PURE:
+    display-name: "<white>Pure</white>"
+    prefix: "<white>Pure</white>"
+    allowed-categories:
+      - ARMOR
+    cost-multiplier: 1.0
+    stats:
+      COMMON:
+        health: 4.0
+        defense: 2.0
+        crit_chance: 1.0
+      UNCOMMON:
+        health: 6.0
+        defense: 3.0
+        crit_chance: 2.0
+      RARE:
+        health: 8.0
+        defense: 4.0
+        crit_chance: 3.0
+      EPIC:
+        health: 12.0
+        defense: 6.0
+        crit_chance: 4.0
+      LEGENDARY:
+        health: 16.0
+        defense: 8.0
+        crit_chance: 5.0
+      MYTHIC:
+        health: 20.0
+        defense: 10.0
+        crit_chance: 6.0

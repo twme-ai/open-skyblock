@@ -7,6 +7,7 @@ import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.reforge.ReforgeService;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.CustomItemService;
 import java.util.LinkedHashMap;
@@ -25,8 +26,9 @@ public final class StatService {
     private final TuningService tuning;
     private final ArmorSetService armorSets;
     private final PetService pets;
+    private final ReforgeService reforges;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets, ReforgeService reforges) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
@@ -35,6 +37,7 @@ public final class StatService {
         this.tuning = tuning;
         this.armorSets = armorSets;
         this.pets = pets;
+        this.reforges = reforges;
     }
 
     public StatSnapshot snapshot(Player player) {
@@ -149,6 +152,10 @@ public final class StatService {
             return;
         }
         for (Map.Entry<String, Double> entry : definition.stats().entrySet()) {
+            String stat = StatSnapshot.normalize(entry.getKey());
+            stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
+        }
+        for (Map.Entry<String, Double> entry : reforges.stats(itemStack, definition).entrySet()) {
             String stat = StatSnapshot.normalize(entry.getKey());
             stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
         }

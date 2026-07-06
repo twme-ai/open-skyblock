@@ -5,6 +5,7 @@ import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.reforge.ReforgeDefinition;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionDefinition;
 import io.github.openskyblock.service.SkillDefinition;
@@ -32,6 +33,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "shop",
             "shopnpcs",
             "sell",
+            "reforges",
+            "reforge",
             "accessorybag",
             "tuning",
             "pets",
@@ -73,6 +76,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "shop" -> shop(sender, args);
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
+            case "reforges" -> reforges(sender);
+            case "reforge" -> reforge(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
             case "pets" -> pets(sender);
@@ -112,6 +117,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("sell")) {
             return startsWith(List.of("hand", "all"), args[1]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("reforge")) {
+            List<String> values = new ArrayList<>();
+            values.add("remove");
+            values.addAll(plugin.reforges().definitions().stream().map(ReforgeDefinition::id).toList());
+            return startsWith(values, args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
@@ -181,6 +192,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " shops", "commands.help.shop");
         helpLine(sender, label + " shop <id>", "commands.help.shop");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
+        helpLine(sender, label + " reforges", "commands.help.reforges");
+        helpLine(sender, label + " reforge <id|remove>", "commands.help.reforge");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
@@ -328,6 +341,26 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "all" -> plugin.shops().sellAll(player);
             default -> plugin.text().send(player, "commands.shop-usage");
         }
+    }
+
+    private void reforges(CommandSender sender) {
+        plugin.reforges().sendList(sender);
+    }
+
+    private void reforge(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.text().send(player, "commands.reforge-usage");
+            return;
+        }
+        if (args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("clear")) {
+            plugin.reforges().removeHeld(player);
+            return;
+        }
+        plugin.reforges().applyHeld(player, args[1]);
     }
 
     private void accessoryBag(CommandSender sender, String[] args) {
