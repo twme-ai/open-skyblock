@@ -8,6 +8,7 @@ public enum MenuAction {
     ISLAND_HOME,
     SKILLS,
     COLLECTIONS,
+    RECIPES,
     MINIONS;
 
     public static MenuAction parse(String value) {

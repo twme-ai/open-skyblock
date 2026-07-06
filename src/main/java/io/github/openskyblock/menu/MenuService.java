@@ -113,6 +113,7 @@ public final class MenuService {
             case ISLAND_HOME -> player.performCommand("skyblock island home");
             case SKILLS -> player.performCommand("skyblock skills");
             case COLLECTIONS -> player.performCommand("skyblock collections");
+            case RECIPES -> player.performCommand("skyblock recipes");
             case MINIONS -> player.performCommand("skyblock minion list");
             case NONE -> {
             }

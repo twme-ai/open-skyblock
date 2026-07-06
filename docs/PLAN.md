@@ -68,7 +68,8 @@ Planned additions when each subsystem needs them:
 
 3. Menus and Recipes
    - SkyBlock menu, recipe book, collection menu, skill menu, bank menu, profile viewer, and minion UI.
-   - Recipe registration, shaped recipes, forge-style timers, crafting requirements, and unlock checks.
+   - Recipe registration, shaped recipes, crafting requirements, and unlock checks.
+   - Forge-style timers and advanced recipe categories remain future work.
 
 4. Stats and Combat
    - Complete custom stat model, item stat aggregation, armor set bonuses, accessory power, pets, potion modifiers, enchantments, reforges, gemstones, and ability cooldowns.
@@ -95,4 +96,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, starter menu item flow, skill XP, collections, custom item metadata, combat stat hooks, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, starter menu item flow, skill XP, collections, custom item metadata, collection-gated recipes, combat stat hooks, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

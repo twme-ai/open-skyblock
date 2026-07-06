@@ -1,0 +1,62 @@
+recipes:
+  WHEAT_MINION:
+    display-name: "<yellow>Wheat Minion Recipe</yellow>"
+    result:
+      type: MINION
+      id: WHEAT_MINION
+      amount: 1
+    shape:
+      - "WWW"
+      - "W W"
+      - "WWW"
+    ingredients:
+      W: WHEAT
+    requirement:
+      collection: WHEAT
+      tier: 1
+  COBBLESTONE_MINION:
+    display-name: "<gray>Cobblestone Minion Recipe</gray>"
+    result:
+      type: MINION
+      id: COBBLESTONE_MINION
+      amount: 1
+    shape:
+      - "CCC"
+      - "C C"
+      - "CCC"
+    ingredients:
+      C: COBBLESTONE
+    requirement:
+      collection: COBBLESTONE
+      tier: 1
+  ZOMBIE_MINION:
+    display-name: "<dark_green>Zombie Minion Recipe</dark_green>"
+    result:
+      type: MINION
+      id: ZOMBIE_MINION
+      amount: 1
+    shape:
+      - "RRR"
+      - "R R"
+      - "RRR"
+    ingredients:
+      R: ROTTEN_FLESH
+    requirement:
+      collection: ROTTEN_FLESH
+      tier: 1
+  ROGUE_SWORD:
+    display-name: "<green>Rogue Sword Recipe</green>"
+    result:
+      type: CUSTOM_ITEM
+      id: ROGUE_SWORD
+      amount: 1
+    shape:
+      - " G "
+      - " G "
+      - " S "
+    ingredients:
+      G: GOLD_INGOT
+      S: STICK
+    requirement:
+      collection: WHEAT
+      tier: 0

@@ -37,8 +37,15 @@ skyblock:
       lore:
         - "<gray>View your collection tiers.</gray>"
       action: COLLECTIONS
+    recipes:
+      slot: 20
+      material: CRAFTING_TABLE
+      display-name: "<green>Recipes</green>"
+      lore:
+        - "<gray>View unlocked SkyBlock recipes.</gray>"
+      action: RECIPES
     minions:
-      slot: 22
+      slot: 24
       material: HAY_BLOCK
       display-name: "<yellow>Minions</yellow>"
       lore:

@@ -15,7 +15,8 @@ public final class ConfigService {
             "collections.yml",
             "items.yml",
             "minions.yml",
-            "menus.yml"
+            "menus.yml",
+            "recipes.yml"
     );
 
     private final JavaPlugin plugin;
@@ -63,6 +64,10 @@ public final class ConfigService {
 
     public FileConfiguration menus() {
         return file("menus.yml");
+    }
+
+    public FileConfiguration recipes() {
+        return file("recipes.yml");
     }
 
     private FileConfiguration file(String name) {

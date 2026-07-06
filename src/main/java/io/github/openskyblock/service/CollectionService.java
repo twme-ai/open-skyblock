@@ -113,4 +113,12 @@ public final class CollectionService {
         }
         return tier;
     }
+
+    public int tier(SkyBlockProfile profile, String collectionId) {
+        CollectionDefinition definition = definition(collectionId).orElse(null);
+        if (definition == null) {
+            return 0;
+        }
+        return tier(definition, profile.collectionAmount(definition.id()));
+    }
 }

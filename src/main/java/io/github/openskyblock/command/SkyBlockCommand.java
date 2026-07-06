@@ -30,6 +30,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "purse",
             "skills",
             "collections",
+            "recipes",
             "giveitem",
             "minion",
             "reload"
@@ -59,6 +60,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "purse" -> purse(sender);
             case "skills" -> skills(sender);
             case "collections" -> collections(sender);
+            case "recipes" -> recipes(sender);
             case "giveitem" -> giveItem(sender, args);
             case "minion" -> minion(sender, args);
             case "reload" -> reload(sender);
@@ -105,6 +107,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " purse", "commands.help.purse");
         helpLine(sender, label + " skills", "commands.help.skills");
         helpLine(sender, label + " collections", "commands.help.collections");
+        helpLine(sender, label + " recipes", "commands.help.recipes");
         if (sender.hasPermission("openskyblock.admin")) {
             helpLine(sender, label + " giveitem <id> [player]", "commands.help.giveitem");
             helpLine(sender, label + " minion give <id> [player]", "commands.help.minion-give");
@@ -205,6 +208,14 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                     TextService.raw("tier", Integer.toString(plugin.collections().tier(definition, amount)))
             ));
         }
+    }
+
+    private void recipes(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.recipes().sendRecipes(player);
     }
 
     private void giveItem(CommandSender sender, String[] args) {

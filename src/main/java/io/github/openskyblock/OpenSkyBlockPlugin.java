@@ -8,9 +8,11 @@ import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.MenuListener;
 import io.github.openskyblock.listener.MinionListener;
 import io.github.openskyblock.listener.PlayerLifecycleListener;
-import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.listener.ProgressionListener;
+import io.github.openskyblock.listener.RecipeListener;
+import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.profile.ProfileManager;
+import io.github.openskyblock.recipe.RecipeService;
 import io.github.openskyblock.service.CollectionService;
 import io.github.openskyblock.service.CustomItemService;
 import io.github.openskyblock.service.MinionService;
@@ -29,6 +31,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private MinionService minionService;
     private IslandService islandService;
     private MenuService menuService;
+    private RecipeService recipeService;
     private BukkitTask autosaveTask;
     private BukkitTask minionTask;
 
@@ -45,6 +48,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
+        this.recipeService = new RecipeService(this, configService, textService, profileManager, collectionService, customItemService, minionService);
 
         reloadServices();
         registerCommands();
@@ -65,6 +69,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         if (profileManager != null) {
             profileManager.saveAll();
         }
+        if (recipeService != null) {
+            recipeService.unregister();
+        }
         if (textService != null) {
             getServer().getConsoleSender().sendMessage(textService.message("startup.disabled"));
         }
@@ -82,6 +89,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         customItemService.reload();
         minionService.reload();
         menuService.reload();
+        recipeService.reload();
     }
 
     private void registerCommands() {
@@ -100,6 +108,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new MinionListener(this), this);
+        getServer().getPluginManager().registerEvents(new RecipeListener(this), this);
     }
 
     private void startTasks() {
@@ -142,5 +151,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public MenuService menus() {
         return menuService;
+    }
+
+    public RecipeService recipes() {
+        return recipeService;
     }
 }
