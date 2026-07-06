@@ -57,6 +57,7 @@ Verified reference links:
 - Official NPC reference: https://wiki.hypixel.net/NPCs
 - Official mobs reference: https://wiki.hypixel.net/Mobs
 - Official Bestiary reference: https://wiki.hypixel.net/Bestiary
+- Official slayer reference: https://wiki.hypixel.net/Slayer
 - Open-source Bazaar plugin reference: https://github.com/MatejLorinc/bazaar
 - Paper ItemStack API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/inventory/ItemStack.html
 - Paper YamlConfiguration API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/configuration/file/YamlConfiguration.html
@@ -134,6 +135,7 @@ Planned additions when each subsystem needs them:
    - Configurable custom mobs with level/health nameplates, stat-based damage and defense, admin spawning, kill rewards, and configurable loot rolls are implemented.
    - Configurable mob spawn zones with runtime caps, player activation checks, weighted mob selection, and periodic spawning are implemented.
    - Configurable Bestiary families with persistent kill counts, tier rewards, and stat aggregation are implemented.
+   - Configurable Slayer quests with coin start costs, Combat XP progress, boss spawning, completion rewards, and persistent Slayer XP are implemented.
    - Boss bars, aggro rules, advanced mob AI, rare drop announcements, Bestiary GUI polish, and boss encounters remain future work.
 
 5. Economy
@@ -149,7 +151,7 @@ Planned additions when each subsystem needs them:
    - Hub and resource islands, Garden-like farming progression, Deep Caverns/Dwarven-style mining progression, combat islands, foraging islands, fishing content, seasonal events, and commissions.
 
 7. Advanced Activities
-   - Slayers, dragons, dungeons, party finder, class XP, dungeon item stars, boss loot chests, Kuudra-style waves, Rift-like alternate rules, experiments, contests, races, and event scheduling.
+   - Advanced Slayer boss mechanics, dragons, dungeons, party finder, class XP, dungeon item stars, boss loot chests, Kuudra-style waves, Rift-like alternate rules, experiments, contests, races, and event scheduling.
 
 8. Production Readiness
    - Database migrations, cross-server synchronization, backups, rate limits, exploit prevention, permissions, diagnostics, metrics, integration tests, load tests, and release automation.
@@ -164,4 +166,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, secure player trading, configurable Storage pages, configurable installed Backpacks, configurable SkyBlock mobs and loot rolls, configurable mob spawn zones, configurable Bestiary progression, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, secure player trading, configurable Storage pages, configurable installed Backpacks, configurable SkyBlock mobs and loot rolls, configurable mob spawn zones, configurable Bestiary progression, configurable Slayer quests, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

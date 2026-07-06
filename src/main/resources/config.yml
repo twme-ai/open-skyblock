@@ -38,6 +38,7 @@ features:
   custom-mobs: true
   mob-spawn-zones: true
   bestiary: true
+  slayers: true
 
 islands:
   world-prefix: "openskyblock_island_"

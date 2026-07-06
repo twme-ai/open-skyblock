@@ -82,3 +82,50 @@ mobs:
         chance: 35
         min-amount: 1
         max-amount: 1
+  REVENANT_HORROR_T1:
+    entity-type: ZOMBIE
+    display-name: "<dark_green>Revenant Horror I</dark_green>"
+    level: 10
+    health: 500
+    damage: 55
+    defense: 20
+    skill: COMBAT
+    xp: 20
+    coins: 10
+    collection: ROTTEN_FLESH
+    collection-amount: 2
+    vanilla-drops: false
+    drops:
+      ROTTEN_FLESH:
+        type: VANILLA
+        material: ROTTEN_FLESH
+        chance: 100
+        min-amount: 4
+        max-amount: 8
+  REVENANT_HORROR_T2:
+    entity-type: ZOMBIE
+    display-name: "<dark_green>Revenant Horror II</dark_green>"
+    level: 25
+    health: 2500
+    damage: 130
+    defense: 45
+    skill: COMBAT
+    xp: 50
+    coins: 25
+    collection: ROTTEN_FLESH
+    collection-amount: 4
+    vanilla-drops: false
+    drops:
+      ROTTEN_FLESH:
+        type: VANILLA
+        material: ROTTEN_FLESH
+        chance: 100
+        min-amount: 8
+        max-amount: 16
+      UNDEAD_CHARM:
+        type: CUSTOM_ITEM
+        custom-item: UNDEAD_CHARM
+        chance: 2
+        min-amount: 1
+        max-amount: 1
+        magic-find: true

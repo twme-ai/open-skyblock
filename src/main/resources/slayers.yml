@@ -1,0 +1,23 @@
+slayers:
+  REVENANT:
+    display-name: "<dark_green>Revenant Horror</dark_green>"
+    boss-name: "<dark_green>Revenant Horror</dark_green>"
+    mobs:
+      - GRAVEYARD_ZOMBIE
+    tiers:
+      1:
+        cost: 100
+        required-xp: 30
+        boss-mob: REVENANT_HORROR_T1
+        slayer-xp: 5
+        reward-skill: COMBAT
+        reward-skill-xp: 25
+        coins: 10
+      2:
+        cost: 500
+        required-xp: 75
+        boss-mob: REVENANT_HORROR_T2
+        slayer-xp: 25
+        reward-skill: COMBAT
+        reward-skill-xp: 100
+        coins: 50

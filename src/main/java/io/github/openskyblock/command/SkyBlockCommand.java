@@ -22,6 +22,7 @@ import io.github.openskyblock.sack.SackItemDefinition;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionDefinition;
 import io.github.openskyblock.service.SkillDefinition;
+import io.github.openskyblock.slayer.SlayerDefinition;
 import io.github.openskyblock.upgrade.UpgradeDefinition;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +84,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "mobzones",
             "mobzone",
             "bestiary",
+            "slayers",
+            "slayer",
             "accessorybag",
             "tuning",
             "pets",
@@ -147,6 +150,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "mobs", "mob" -> mobs(sender, args);
             case "mobzones", "mobzone" -> mobZones(sender, args);
             case "bestiary" -> bestiary(sender, args);
+            case "slayers", "slayer" -> slayers(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
             case "pets" -> pets(sender);
@@ -354,6 +358,17 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("bestiary")) {
             return startsWith(plugin.bestiary().families().stream().map(BestiaryFamilyDefinition::id).toList(), args[1]);
         }
+        if (args.length == 2 && isSlayerCommand(args[0])) {
+            return startsWith(List.of("list", "start", "status", "cancel"), args[1]);
+        }
+        if (args.length == 3 && isSlayerCommand(args[0]) && args[1].equalsIgnoreCase("start")) {
+            return startsWith(plugin.slayers().definitions().stream().map(SlayerDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 4 && isSlayerCommand(args[0]) && args[1].equalsIgnoreCase("start")) {
+            return plugin.slayers().definition(args[2])
+                    .map(definition -> startsWith(definition.sortedTierNumbers().stream().map(Object::toString).toList(), args[3]))
+                    .orElseGet(List::of);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
         }
@@ -453,6 +468,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " mobs", "commands.help.mobs");
         helpLine(sender, label + " mobzones", "commands.help.mob-zones");
         helpLine(sender, label + " bestiary [family]", "commands.help.bestiary");
+        helpLine(sender, label + " slayer start|status|cancel", "commands.help.slayer");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
@@ -1337,6 +1353,29 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         plugin.bestiary().sendDetail(player, args[1]);
     }
 
+    private void slayers(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("list")) {
+            plugin.slayers().sendList(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "start" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.slayer-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[3]).ifPresent(tier -> plugin.slayers().start(player, args[2], tier));
+            }
+            case "status" -> plugin.slayers().status(player);
+            case "cancel" -> plugin.slayers().cancel(player);
+            default -> plugin.text().send(player, "commands.slayer-usage");
+        }
+    }
+
     private void accessoryBag(CommandSender sender, String[] args) {
         Player player = requirePlayer(sender);
         if (player == null) {
@@ -1824,6 +1863,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isMobZoneCommand(String value) {
         return value.equalsIgnoreCase("mobzone") || value.equalsIgnoreCase("mobzones");
+    }
+
+    private boolean isSlayerCommand(String value) {
+        return value.equalsIgnoreCase("slayer") || value.equalsIgnoreCase("slayers");
     }
 
     private boolean isPotionCommand(String value) {

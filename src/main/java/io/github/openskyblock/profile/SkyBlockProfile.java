@@ -31,6 +31,7 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> upgrades = new HashMap<>();
     private final Map<String, Long> bestiaryKills = new HashMap<>();
     private final Map<String, Integer> bestiaryTiers = new HashMap<>();
+    private final Map<String, Double> slayerXp = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private final List<PlacedCake> placedCakes = new ArrayList<>();
@@ -38,6 +39,7 @@ public final class SkyBlockProfile {
     private String shopPurchaseDay;
     private String activePetInstanceId;
     private String selectedQuiverItem;
+    private ActiveSlayerQuest activeSlayer;
 
     public SkyBlockProfile(UUID uniqueId, String playerName, double purse, double bank) {
         this.uniqueId = uniqueId;
@@ -212,6 +214,18 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> bestiaryTiers() {
         return bestiaryTiers;
+    }
+
+    public Map<String, Double> slayerXp() {
+        return slayerXp;
+    }
+
+    public ActiveSlayerQuest activeSlayer() {
+        return activeSlayer;
+    }
+
+    public void activeSlayer(ActiveSlayerQuest activeSlayer) {
+        this.activeSlayer = activeSlayer;
     }
 
     public List<String> accessoryBag() {

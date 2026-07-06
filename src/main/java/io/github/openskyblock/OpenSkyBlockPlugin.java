@@ -42,6 +42,7 @@ import io.github.openskyblock.service.MinionService;
 import io.github.openskyblock.service.SkillService;
 import io.github.openskyblock.shop.ShopService;
 import io.github.openskyblock.shop.ShopNpcService;
+import io.github.openskyblock.slayer.SlayerService;
 import io.github.openskyblock.stats.StatService;
 import io.github.openskyblock.stats.ArmorSetService;
 import io.github.openskyblock.star.StarService;
@@ -89,6 +90,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private MobService mobService;
     private MobSpawnService mobSpawnService;
     private BestiaryService bestiaryService;
+    private SlayerService slayerService;
     private StatService statService;
     private UpgradeService upgradeService;
     private BukkitTask autosaveTask;
@@ -131,6 +133,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
         this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, bestiaryService, reforgeService, enchantmentService, starService, gemstoneService);
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
+        this.slayerService = new SlayerService(configService, textService, profileManager, economyService, skillService, mobService);
         this.mobSpawnService = new MobSpawnService(this, configService, textService, mobService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService);
         this.islandService = new IslandService(configService, textService, profileManager);
@@ -229,6 +232,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         backpackService.reload();
         bestiaryService.reload();
         mobService.reload();
+        slayerService.reload();
         mobSpawnService.reload();
     }
 
@@ -404,6 +408,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public BestiaryService bestiary() {
         return bestiaryService;
+    }
+
+    public SlayerService slayers() {
+        return slayerService;
     }
 
     public StatService stats() {

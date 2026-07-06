@@ -25,7 +25,12 @@ public final class MobListener implements Listener {
         if (!plugin.mobs().enabled()) {
             return;
         }
+        Player killer = event.getEntity().getKiller();
+        SkyBlockMobDefinition definition = plugin.mobs().definition(event.getEntity()).orElse(null);
         plugin.mobs().handleDeath(event);
+        if (killer != null && definition != null) {
+            plugin.slayers().handleKill(killer, definition, event.getEntity().getLocation());
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

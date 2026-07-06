@@ -323,6 +323,28 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection slayerXp = section.getConfigurationSection("slayers.xp");
+        if (slayerXp != null) {
+            for (String slayerId : slayerXp.getKeys(false)) {
+                double xp = slayerXp.getDouble(slayerId, 0.0D);
+                if (xp > 0.0D) {
+                    profile.slayerXp().put(slayerId.toUpperCase(), xp);
+                }
+            }
+        }
+        ConfigurationSection activeSlayer = section.getConfigurationSection("slayers.active");
+        if (activeSlayer != null) {
+            String id = activeSlayer.getString("id", "");
+            int tier = activeSlayer.getInt("tier", 0);
+            if (!id.isBlank() && tier > 0) {
+                profile.activeSlayer(new ActiveSlayerQuest(
+                        id.toUpperCase(),
+                        tier,
+                        activeSlayer.getDouble("progress-xp", 0.0D),
+                        activeSlayer.getBoolean("boss-spawned", false)
+                ));
+            }
+        }
         profile.activePetInstanceId(section.getString("pets.active", null));
         ConfigurationSection pets = section.getConfigurationSection("pets.owned");
         if (pets != null) {
@@ -477,6 +499,19 @@ public final class ProfileManager {
             if (entry.getValue() > 0) {
                 profileData.set(base + ".bestiary.tiers." + entry.getKey(), entry.getValue());
             }
+        }
+        profileData.set(base + ".slayers", null);
+        for (Map.Entry<String, Double> entry : profile.slayerXp().entrySet()) {
+            if (entry.getValue() > 0.0D) {
+                profileData.set(base + ".slayers.xp." + entry.getKey(), entry.getValue());
+            }
+        }
+        ActiveSlayerQuest activeSlayer = profile.activeSlayer();
+        if (activeSlayer != null) {
+            profileData.set(base + ".slayers.active.id", activeSlayer.slayerId());
+            profileData.set(base + ".slayers.active.tier", activeSlayer.tier());
+            profileData.set(base + ".slayers.active.progress-xp", activeSlayer.progressXp());
+            profileData.set(base + ".slayers.active.boss-spawned", activeSlayer.bossSpawned());
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());
         profileData.set(base + ".pets.owned", null);
