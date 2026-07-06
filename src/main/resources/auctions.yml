@@ -1,0 +1,8 @@
+settings:
+  listing-duration-seconds: 172800
+  max-active-per-player: 14
+  page-size: 8
+  min-price: 1.0
+  max-price: 1000000000.0
+  cancel-grace-seconds: 60
+  listing-fee-percent: 0.01

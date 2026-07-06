@@ -3,6 +3,7 @@ package io.github.openskyblock;
 import io.github.openskyblock.command.SkyBlockCommand;
 import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.accessory.TuningService;
+import io.github.openskyblock.auction.AuctionService;
 import io.github.openskyblock.cake.CakeService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
@@ -72,6 +73,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private EconomyService economyService;
     private ShopService shopService;
     private ShopNpcService shopNpcService;
+    private AuctionService auctionService;
     private StatService statService;
     private UpgradeService upgradeService;
     private BukkitTask autosaveTask;
@@ -117,6 +119,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.recipeService = new RecipeService(this, configService, textService, profileManager, collectionService, customItemService, minionService);
         this.shopService = new ShopService(configService, textService, profileManager, economyService);
         this.shopNpcService = new ShopNpcService(this, configService, textService, shopService);
+        this.auctionService = new AuctionService(this, configService, textService, economyService, customItemService);
+        this.auctionService.load();
 
         reloadServices();
         registerCommands();
@@ -142,6 +146,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         }
         if (shopNpcService != null) {
             shopNpcService.removeLoadedNpcs();
+        }
+        if (auctionService != null) {
+            auctionService.save();
         }
         if (profileManager != null) {
             profileManager.saveAll();
@@ -182,6 +189,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         recipeService.reload();
         shopService.reload();
         shopNpcService.reload();
+        auctionService.reload();
     }
 
     private void registerCommands() {
@@ -322,6 +330,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public ShopNpcService shopNpcs() {
         return shopNpcService;
+    }
+
+    public AuctionService auctions() {
+        return auctionService;
     }
 
     public StatService stats() {

@@ -20,6 +20,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Purse and bank economy with deposit, withdraw, deposit-all, withdraw-all, capacity limits, and a configurable bank menu.
 - Configurable NPC shops with buy menus, right-click sell flow, daily buy limits, and `/skyblock sell`.
 - Optional physical shop NPCs spawned from `shops.yml` with persistent shop tags and right-click shop opening.
+- Configurable Auction House BIN-style listings with persistent item storage, listing fees, cancellation grace, buy flow, expired item returns, and seller claim flow.
 - Configurable Sacks with persistent material storage, carry-item access checks, automatic pickup routing, GUI deposit/withdraw flow, and command access.
 - Configurable Quiver with persistent arrow storage, pickup routing, arrow selection, bow-shot proxy consumption, GUI access, and command access.
 - Configurable Potion Effects and God Potion bundles with persistent online-only timers, private-island timer pause, vanilla effect refresh, stat bonuses, item activation, and command status.
@@ -73,6 +74,13 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock shopnpcs refresh`
 - `/skyblock shopnpcs remove`
 - `/skyblock sell <hand|all>`
+- `/skyblock auctions`
+- `/skyblock auction list [page]`
+- `/skyblock auction create <price>`
+- `/skyblock auction buy <id>`
+- `/skyblock auction cancel <id>`
+- `/skyblock auction claim`
+- `/skyblock auction mine`
 - `/skyblock sacks`
 - `/skyblock sack deposit <id>`
 - `/skyblock sack withdraw <id> <item> <amount|all>`

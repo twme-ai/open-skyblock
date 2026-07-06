@@ -52,6 +52,8 @@ Verified reference links:
 - Official auction house reference: https://wiki.hypixel.net/Auction_House
 - Official bazaar reference: https://wiki.hypixel.net/Bazaar
 - Official NPC reference: https://wiki.hypixel.net/NPCs
+- Paper ItemStack API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/inventory/ItemStack.html
+- Paper YamlConfiguration API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/configuration/file/YamlConfiguration.html
 - Paper custom inventory holder reference: https://docs.papermc.io/paper/dev/custom-inventory-holder/
 - Paper EntityPickupItemEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityPickupItemEvent.html
 - Paper EntityShootBowEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityShootBowEvent.html
@@ -120,7 +122,8 @@ Planned additions when each subsystem needs them:
    - Base purse/bank deposit and withdraw flow is implemented.
    - Configurable NPC shop buy/sell flow with daily buy limits is implemented.
    - Optional physical shop NPC spawning and click interaction is implemented.
-   - Bank upgrades, trading, auction house, bazaar order books, escrow, claim queues, taxes, anti-duplication checks, and audit logging remain future work.
+   - Configurable persistent Auction House BIN-style listings with listing fees, cancellation grace, direct buy flow, expired item returns, and seller claim flow are implemented.
+   - Bidding auctions, Auction House GUI browsing, trading, bazaar order books, deeper escrow/claim queues, taxes, anti-duplication checks, and audit logging remain future work.
 
 6. World Content
    - Hub and resource islands, Garden-like farming progression, Deep Caverns/Dwarven-style mining progression, combat islands, foraging islands, fishing content, seasonal events, and commissions.
@@ -141,4 +144,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

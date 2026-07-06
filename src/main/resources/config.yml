@@ -11,6 +11,7 @@ features:
   bank: true
   npc-shops: true
   physical-shop-npcs: true
+  auction-house: true
   sacks: true
   quiver: true
   potion-effects: true

@@ -41,6 +41,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "bank",
             "shops",
             "shop",
+            "auctions",
+            "auction",
             "shopnpcs",
             "sell",
             "sacks",
@@ -103,6 +105,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "bank" -> bank(sender, args);
             case "shops" -> shops(sender);
             case "shop" -> shop(sender, args);
+            case "auctions", "auction" -> auctions(sender, args);
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
             case "sacks", "sack" -> sacks(sender, args);
@@ -153,6 +156,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("shop")) {
             return startsWith(plugin.shops().shops().stream().map(shop -> shop.id()).toList(), args[1]);
+        }
+        if (args.length == 2 && isAuctionCommand(args[0])) {
+            return startsWith(List.of("list", "create", "buy", "cancel", "claim", "mine"), args[1]);
+        }
+        if (args.length == 3 && isAuctionCommand(args[0]) && args[1].equalsIgnoreCase("create")) {
+            return startsWith(List.of("1000", "10000", "100000"), args[2]);
+        }
+        if (args.length == 3 && isAuctionCommand(args[0]) && (args[1].equalsIgnoreCase("buy") || args[1].equalsIgnoreCase("cancel"))) {
+            return startsWith(plugin.auctions().listingIds(), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("shopnpcs")) {
             return startsWith(List.of("refresh", "remove"), args[1]);
@@ -313,6 +325,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " bank [deposit|withdraw] [amount|all]", "commands.help.bank");
         helpLine(sender, label + " shops", "commands.help.shop");
         helpLine(sender, label + " shop <id>", "commands.help.shop");
+        helpLine(sender, label + " auctions", "commands.help.auctions");
+        helpLine(sender, label + " auction create|buy|cancel|claim", "commands.help.auction");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
         helpLine(sender, label + " sacks", "commands.help.sacks");
         helpLine(sender, label + " sack deposit|withdraw", "commands.help.sack");
@@ -465,6 +479,54 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 shop -> plugin.menus().openShop(player, shop),
                 () -> plugin.text().send(player, "commands.shop-unknown", List.of(TextService.raw("shop", args[1])))
         );
+    }
+
+    private void auctions(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.auctions().sendListings(player, 1);
+            return;
+        }
+        if (args[0].equalsIgnoreCase("auctions") && numeric(args[1])) {
+            parsePositiveInt(player, args[1]).ifPresent(page -> plugin.auctions().sendListings(player, page));
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "list" -> {
+                if (args.length >= 3) {
+                    parsePositiveInt(player, args[2]).ifPresent(page -> plugin.auctions().sendListings(player, page));
+                    return;
+                }
+                plugin.auctions().sendListings(player, 1);
+            }
+            case "create" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.auction-usage");
+                    return;
+                }
+                parsePositiveAmount(player, args[2]).ifPresent(price -> plugin.auctions().create(player, price));
+            }
+            case "buy" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.auction-usage");
+                    return;
+                }
+                plugin.auctions().buy(player, args[2]);
+            }
+            case "cancel" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.auction-usage");
+                    return;
+                }
+                plugin.auctions().cancel(player, args[2]);
+            }
+            case "claim" -> plugin.auctions().claim(player);
+            case "mine" -> plugin.auctions().sendMine(player);
+            default -> plugin.text().send(player, "commands.auction-usage");
+        }
     }
 
     private void sell(CommandSender sender, String[] args) {
@@ -1267,6 +1329,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         return value.equalsIgnoreCase("sack") || value.equalsIgnoreCase("sacks");
     }
 
+    private boolean isAuctionCommand(String value) {
+        return value.equalsIgnoreCase("auction") || value.equalsIgnoreCase("auctions");
+    }
+
     private boolean isPotionCommand(String value) {
         return value.equalsIgnoreCase("potion") || value.equalsIgnoreCase("potions") || value.equalsIgnoreCase("godpotion");
     }
@@ -1277,6 +1343,18 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isUpgradeCommand(String value) {
         return value.equalsIgnoreCase("upgrade") || value.equalsIgnoreCase("upgrades");
+    }
+
+    private boolean numeric(String value) {
+        if (value == null || value.isBlank()) {
+            return false;
+        }
+        for (int index = 0; index < value.length(); index++) {
+            if (!Character.isDigit(value.charAt(index))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private List<String> numberRange(int max) {
