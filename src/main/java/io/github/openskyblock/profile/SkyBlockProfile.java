@@ -16,6 +16,7 @@ public final class SkyBlockProfile {
     private String playerName;
     private double purse;
     private double bank;
+    private long bankInterestLastMillis = System.currentTimeMillis();
     private String islandWorldName;
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
@@ -79,6 +80,14 @@ public final class SkyBlockProfile {
 
     public void bank(double bank) {
         this.bank = Math.max(0.0D, bank);
+    }
+
+    public long bankInterestLastMillis() {
+        return bankInterestLastMillis;
+    }
+
+    public void bankInterestLastMillis(long bankInterestLastMillis) {
+        this.bankInterestLastMillis = Math.max(0L, bankInterestLastMillis);
     }
 
     public String islandWorldName() {

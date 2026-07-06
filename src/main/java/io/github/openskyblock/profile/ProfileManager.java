@@ -125,6 +125,7 @@ public final class ProfileManager {
                 section.getDouble("purse", 0.0D),
                 section.getDouble("bank", 0.0D)
         );
+        profile.bankInterestLastMillis(section.getLong("bank-interest.last-millis", System.currentTimeMillis()));
         profile.islandWorldName(section.getString("island-world", null));
         ConfigurationSection skills = section.getConfigurationSection("skills");
         if (skills != null) {
@@ -438,6 +439,7 @@ public final class ProfileManager {
         profileData.set(base + ".name", profile.playerName());
         profileData.set(base + ".purse", profile.purse());
         profileData.set(base + ".bank", profile.bank());
+        profileData.set(base + ".bank-interest.last-millis", profile.bankInterestLastMillis());
         profileData.set(base + ".island-world", profile.islandWorldName());
         for (Map.Entry<SkillType, Double> entry : profile.skillXp().entrySet()) {
             profileData.set(base + ".skills." + entry.getKey().key() + ".xp", entry.getValue());

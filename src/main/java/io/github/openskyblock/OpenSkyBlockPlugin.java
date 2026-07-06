@@ -123,6 +123,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.customItemService = new CustomItemService(this, configService, textService);
         this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
         this.skillService.museumService(museumService);
+        this.economyService.museumService(museumService);
         this.armorSetService = new ArmorSetService(configService);
         this.reforgeService = new ReforgeService(this, configService, textService, economyService, customItemService);
         this.enchantmentService = new EnchantmentService(this, configService, textService, economyService, customItemService);

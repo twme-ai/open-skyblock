@@ -197,7 +197,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(List.of("create", "home", "info"), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("bank")) {
-            return startsWith(List.of("balance", "deposit", "withdraw"), args[1]);
+            return startsWith(List.of("balance", "deposit", "withdraw", "interest"), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("shop")) {
             return startsWith(plugin.shops().shops().stream().map(shop -> shop.id()).toList(), args[1]);
@@ -635,6 +635,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         switch (args[1].toLowerCase(Locale.ROOT)) {
             case "balance" -> plugin.economy().sendBalance(player);
+            case "interest" -> plugin.economy().sendInterestInfo(player);
             case "deposit" -> bankDeposit(player, args);
             case "withdraw" -> bankWithdraw(player, args);
             default -> plugin.text().send(player, "commands.bank-usage");

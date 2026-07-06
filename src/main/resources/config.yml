@@ -54,6 +54,21 @@ minions:
 
 bank:
   capacity: 1000000.0
+  interest:
+    enabled: true
+    interval-seconds: 111600
+    max-accruals: 2
+    max-payout: 300000.0
+    brackets:
+      starter:
+        up-to: 10000000.0
+        rate: 0.02
+      gold:
+        up-to: 15000000.0
+        rate: 0.01
+      platinum:
+        up-to: 30000000.0
+        rate: 0.005
 
 shop-npcs:
   respawn-ticks: 200

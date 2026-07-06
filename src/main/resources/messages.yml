@@ -24,7 +24,7 @@ commands:
   help:
     menu: "Open the SkyBlock menu."
     island: "Create or travel to your private island."
-    bank: "Open the bank or move coins."
+    bank: "Open the bank, move coins, or view interest."
     shop: "Open a configured NPC shop."
     shop-npcs: "Refresh or remove configured physical shop NPCs."
     auctions: "Browse active Auction House BIN listings."
@@ -93,14 +93,16 @@ commands:
     reload: "Reload configuration files."
   profile-summary: "<prefix><aqua><player></aqua> <gray>Level</gray> <yellow><level></yellow> <gray>| Purse</gray> <gold><purse></gold> <gray>| Bank</gray> <gold><bank></gold>"
   purse-summary: "<prefix><gray>Purse:</gray> <gold><purse></gold> <dark_gray>|</dark_gray> <gray>Bank:</gray> <gold><bank></gold>"
-  bank-summary: "<prefix><gray>Purse:</gray> <gold><purse></gold> <dark_gray>|</dark_gray> <gray>Bank:</gray> <gold><bank></gold><gray>/</gray><gold><capacity></gold>"
+  bank-summary: "<prefix><gray>Purse:</gray> <gold><purse></gold> <dark_gray>|</dark_gray> <gray>Bank:</gray> <gold><bank></gold><gray>/</gray><gold><capacity></gold> <dark_gray>|</dark_gray> <gray>Next Interest:</gray> <yellow><next_interest></yellow> <dark_gray>|</dark_gray> <gray>Estimate:</gray> <gold><interest></gold>"
   bank-disabled: "<prefix><red>The bank is disabled on this server.</red>"
   bank-deposit: "<prefix><green>Deposited <gold><amount></gold> coins.</green>"
   bank-withdraw: "<prefix><green>Withdrew <gold><amount></gold> coins.</green>"
+  bank-interest-paid: "<prefix><gold>Bank interest:</gold> <green>+<amount> coins</green> <gray>(<accruals> payout(s))</gray> <dark_gray>|</dark_gray> <gray>Next:</gray> <yellow><next_interest></yellow>"
+  bank-interest-info: "<prefix><aqua>Bank Interest</aqua> <dark_gray>|</dark_gray> <gray>Next:</gray> <yellow><next_interest></yellow> <dark_gray>|</dark_gray> <gray>Estimate:</gray> <gold><interest></gold> <dark_gray>|</dark_gray> <gray>Museum Bonus:</gray> <yellow><interest_bonus></yellow>"
   bank-no-purse: "<prefix><red>You do not have enough coins in your purse.</red>"
   bank-no-bank: "<prefix><red>You do not have enough coins in your bank.</red>"
   bank-full: "<prefix><red>Your bank is full.</red>"
-  bank-usage: "<prefix><red>Use <yellow>/skyblock bank deposit <amount|all></yellow> or <yellow>/skyblock bank withdraw <amount|all></yellow>.</red>"
+  bank-usage: "<prefix><red>Use <yellow>/skyblock bank balance</yellow>, <yellow>/skyblock bank interest</yellow>, <yellow>/skyblock bank deposit <amount|all></yellow>, or <yellow>/skyblock bank withdraw <amount|all></yellow>.</red>"
   shop-disabled: "<prefix><red>NPC shops are disabled on this server.</red>"
   shop-unknown: "<prefix><red>Unknown shop: <yellow><shop></yellow>.</red>"
   shop-buy: "<prefix><green>Bought <white><amount>x</white> <item><green> for <gold><price></gold> coins.</green></green>"
@@ -673,6 +675,10 @@ quiver:
   selected-active: "<green>Selected</green>"
   selected-inactive: "<gray>Stored</gray>"
   selected-none: "<dark_gray>None</dark_gray>"
+
+bank:
+  interest-disabled: "<red>Disabled</red>"
+  interest-ready: "<green>Ready</green>"
 
 potions:
   duration-hours: "<hours>h <minutes>m"
