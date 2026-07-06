@@ -40,6 +40,8 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> factionMinibossKills = new HashMap<>();
     private final Map<String, Integer> dojoChallengeScores = new HashMap<>();
     private final Set<String> claimedDojoBelts = new HashSet<>();
+    private final Map<String, Integer> mythologicalMobKills = new HashMap<>();
+    private final Map<String, Integer> mythologicalTreasures = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -97,6 +99,9 @@ public final class SkyBlockProfile {
     private String factionDay;
     private int dailyFactionQuests;
     private int dailyFactionMinibosses;
+    private String mythologicalGriffinRarity;
+    private int mythologicalBurrowChain;
+    private long mythologicalBurrowsDug;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -846,6 +851,76 @@ public final class SkyBlockProfile {
 
     public Set<String> claimedDojoBelts() {
         return claimedDojoBelts;
+    }
+
+    public String mythologicalGriffinRarity() {
+        return mythologicalGriffinRarity;
+    }
+
+    public void mythologicalGriffinRarity(String mythologicalGriffinRarity) {
+        this.mythologicalGriffinRarity = mythologicalGriffinRarity == null || mythologicalGriffinRarity.isBlank() ? null : mythologicalGriffinRarity.toUpperCase();
+    }
+
+    public int mythologicalBurrowChain() {
+        return mythologicalBurrowChain;
+    }
+
+    public void mythologicalBurrowChain(int mythologicalBurrowChain) {
+        this.mythologicalBurrowChain = Math.max(0, mythologicalBurrowChain);
+    }
+
+    public long mythologicalBurrowsDug() {
+        return mythologicalBurrowsDug;
+    }
+
+    public void mythologicalBurrowsDug(long mythologicalBurrowsDug) {
+        this.mythologicalBurrowsDug = Math.max(0L, mythologicalBurrowsDug);
+    }
+
+    public void addMythologicalBurrow() {
+        mythologicalBurrowsDug(mythologicalBurrowsDug + 1L);
+    }
+
+    public int mythologicalMobKills(String mobId) {
+        return mythologicalMobKills.getOrDefault(mobId.toUpperCase(), 0);
+    }
+
+    public void setMythologicalMobKills(String mobId, int amount) {
+        String normalized = mobId.toUpperCase();
+        if (amount <= 0) {
+            mythologicalMobKills.remove(normalized);
+            return;
+        }
+        mythologicalMobKills.put(normalized, amount);
+    }
+
+    public void addMythologicalMobKill(String mobId, int amount) {
+        setMythologicalMobKills(mobId, mythologicalMobKills(mobId) + amount);
+    }
+
+    public Map<String, Integer> mythologicalMobKills() {
+        return mythologicalMobKills;
+    }
+
+    public int mythologicalTreasures(String treasureId) {
+        return mythologicalTreasures.getOrDefault(treasureId.toUpperCase(), 0);
+    }
+
+    public void setMythologicalTreasures(String treasureId, int amount) {
+        String normalized = treasureId.toUpperCase();
+        if (amount <= 0) {
+            mythologicalTreasures.remove(normalized);
+            return;
+        }
+        mythologicalTreasures.put(normalized, amount);
+    }
+
+    public void addMythologicalTreasure(String treasureId, int amount) {
+        setMythologicalTreasures(treasureId, mythologicalTreasures(treasureId) + amount);
+    }
+
+    public Map<String, Integer> mythologicalTreasures() {
+        return mythologicalTreasures;
     }
 
     public String shopPurchaseDay() {

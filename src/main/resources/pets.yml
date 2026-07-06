@@ -47,6 +47,20 @@ pet-score:
         magic_find: 1.0
 
 pets:
+  GRIFFIN:
+    material: FEATHER
+    display-name: "<gold>Griffin Pet</gold>"
+    rarity: COMMON
+    max-level: 100
+    xp-per-level: 100.0
+    lore:
+      - "<gray>Unlocks configured Mythological Ritual burrows.</gray>"
+    base-stats:
+      magic_find: 1.0
+      strength: 2.0
+    stats-per-level:
+      magic_find: 0.02
+      strength: 0.12
   ROCK:
     material: COBBLESTONE
     display-name: "<gray>Rock Pet</gray>"

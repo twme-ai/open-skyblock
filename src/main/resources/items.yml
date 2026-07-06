@@ -415,6 +415,57 @@ items:
       - "<gray>Attach this to a pet from the Pets menu.</gray>"
       - "<gray>Grants the configured combat stat bonuses.</gray>"
     stats: {}
+  ANCESTRAL_SPADE:
+    material: GOLDEN_SHOVEL
+    display-name: "<gold>Ancestral Spade</gold>"
+    category: TOOL
+    rarity: RARE
+    lore:
+      - "<gray>Used to track and dig Griffin Burrows during Diana's ritual.</gray>"
+    stats:
+      magic_find: 1
+  GRIFFIN_FEATHER:
+    material: FEATHER
+    display-name: "<gold>Griffin Feather</gold>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A Mythological Ritual material from Griffin Burrows.</gray>"
+    stats: {}
+  ANCIENT_CLAW:
+    material: PRISMARINE_SHARD
+    display-name: "<gold>Ancient Claw</gold>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A claw from a mythological creature.</gray>"
+    stats: {}
+  DAEDALUS_STICK:
+    material: STICK
+    display-name: "<gold>Daedalus Stick</gold>"
+    category: MATERIAL
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A rare Mythological Ritual crafting component.</gray>"
+    stats: {}
+  WASHED_UP_SOUVENIR:
+    material: NAUTILUS_SHELL
+    display-name: "<aqua>Washed-up Souvenir</aqua>"
+    category: PET_ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>A configured Mythological Ritual pet item reward.</gray>"
+    stats:
+      sea_creature_chance: 2
+  CROCHET_TIGER_PLUSHIE:
+    material: ORANGE_WOOL
+    display-name: "<gold>Crochet Tiger Plushie</gold>"
+    category: PET_ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>A configured Mythological Ritual pet item reward.</gray>"
+    stats:
+      attack_speed: 35
   DRAGON_CLAW:
     material: FLINT
     display-name: "<gold>Dragon Claw</gold>"

@@ -10,6 +10,7 @@ import io.github.openskyblock.fairysoul.FairySoulService;
 import io.github.openskyblock.garden.GardenService;
 import io.github.openskyblock.kuudra.KuudraService;
 import io.github.openskyblock.museum.MuseumService;
+import io.github.openskyblock.mythological.MythologicalService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.rift.RiftService;
@@ -45,6 +46,7 @@ public final class SkillService {
     private KuudraService kuudraService;
     private FactionService factionService;
     private DojoService dojoService;
+    private MythologicalService mythologicalService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -84,6 +86,10 @@ public final class SkillService {
 
     public void dojoService(DojoService dojoService) {
         this.dojoService = dojoService;
+    }
+
+    public void mythologicalService(MythologicalService mythologicalService) {
+        this.mythologicalService = mythologicalService;
     }
 
     public void reload() {
@@ -238,6 +244,9 @@ public final class SkillService {
         }
         if (dojoService != null) {
             xp += (int) Math.round(dojoService.skyBlockXp(profile));
+        }
+        if (mythologicalService != null) {
+            xp += (int) Math.round(mythologicalService.skyBlockXp(profile));
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);

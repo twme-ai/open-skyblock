@@ -274,6 +274,21 @@ public final class ProfileManager {
                 profile.claimDojoBelt(beltId);
             }
         }
+        profile.mythologicalGriffinRarity(section.getString("mythological.griffin-rarity", null));
+        profile.mythologicalBurrowChain(section.getInt("mythological.burrow-chain", 0));
+        profile.mythologicalBurrowsDug(section.getLong("mythological.burrows-dug", 0L));
+        ConfigurationSection mythologicalMobs = section.getConfigurationSection("mythological.mobs");
+        if (mythologicalMobs != null) {
+            for (String mobId : mythologicalMobs.getKeys(false)) {
+                profile.setMythologicalMobKills(mobId.toUpperCase(), mythologicalMobs.getInt(mobId, 0));
+            }
+        }
+        ConfigurationSection mythologicalTreasures = section.getConfigurationSection("mythological.treasures");
+        if (mythologicalTreasures != null) {
+            for (String treasureId : mythologicalTreasures.getKeys(false)) {
+                profile.setMythologicalTreasures(treasureId.toUpperCase(), mythologicalTreasures.getInt(treasureId, 0));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -811,6 +826,20 @@ public final class ProfileManager {
             }
         }
         profileData.set(base + ".dojo.claimed-belts", profile.claimedDojoBelts().stream().sorted().toList());
+        profileData.set(base + ".mythological", null);
+        profileData.set(base + ".mythological.griffin-rarity", profile.mythologicalGriffinRarity());
+        profileData.set(base + ".mythological.burrow-chain", profile.mythologicalBurrowChain());
+        profileData.set(base + ".mythological.burrows-dug", profile.mythologicalBurrowsDug());
+        for (Map.Entry<String, Integer> entry : profile.mythologicalMobKills().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".mythological.mobs." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Integer> entry : profile.mythologicalTreasures().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".mythological.treasures." + entry.getKey(), entry.getValue());
+            }
+        }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
         profileData.set(base + ".shop-purchases.items", null);
         for (Map.Entry<String, Integer> entry : profile.dailyShopPurchases().entrySet()) {

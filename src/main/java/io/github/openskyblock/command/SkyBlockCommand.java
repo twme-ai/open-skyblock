@@ -103,6 +103,11 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "reputation",
             "rep",
             "dojo",
+            "mythological",
+            "ritual",
+            "diana",
+            "burrow",
+            "burrows",
             "stars",
             "star",
             "essence",
@@ -209,6 +214,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "kuudra", "kuudras" -> kuudra(sender, args);
             case "faction", "factions", "reputation", "rep" -> factions(sender, args);
             case "dojo" -> dojo(sender, args);
+            case "mythological", "ritual", "diana", "burrow", "burrows" -> mythological(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -531,6 +537,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             values.addAll(plugin.dojo().beltIds());
             return startsWith(values, args[2]);
         }
+        if (args.length == 2 && isMythologicalCommand(args[0])) {
+            return startsWith(List.of("status", "shop", "buy", "upgrade", "dig", "reset", "mobs", "treasures"), args[1]);
+        }
+        if (args.length == 3 && isMythologicalCommand(args[0]) && args[1].equalsIgnoreCase("buy")) {
+            return startsWith(List.of("griffin"), args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -772,6 +784,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " kuudra status|tiers|keys|run", "commands.help.kuudra");
         helpLine(sender, label + " faction status|choose|quests|ranks", "commands.help.faction");
         helpLine(sender, label + " dojo status|challenges|belts|run", "commands.help.dojo");
+        helpLine(sender, label + " mythological status|dig|mobs|treasures", "commands.help.mythological");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1863,6 +1876,33 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             }
             case "claim" -> plugin.dojo().claimBelts(player, args.length >= 3 ? args[2] : "all");
             default -> plugin.text().send(player, "commands.dojo-usage");
+        }
+    }
+
+    private void mythological(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.mythological().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "shop" -> plugin.mythological().sendShop(player);
+            case "mobs" -> plugin.mythological().sendMobs(player);
+            case "treasures", "loot" -> plugin.mythological().sendTreasures(player);
+            case "buy" -> {
+                if (args.length < 3 || !args[2].equalsIgnoreCase("griffin")) {
+                    plugin.text().send(player, "commands.mythological-usage");
+                    return;
+                }
+                plugin.mythological().buyGriffin(player);
+            }
+            case "upgrade" -> plugin.mythological().upgradeGriffin(player);
+            case "dig", "burrow" -> plugin.mythological().dig(player);
+            case "reset" -> plugin.mythological().resetChain(player);
+            default -> plugin.text().send(player, "commands.mythological-usage");
         }
     }
 
@@ -3030,6 +3070,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isFactionCommand(String value) {
         return value.equalsIgnoreCase("faction") || value.equalsIgnoreCase("factions") || value.equalsIgnoreCase("reputation") || value.equalsIgnoreCase("rep");
+    }
+
+    private boolean isMythologicalCommand(String value) {
+        return value.equalsIgnoreCase("mythological") || value.equalsIgnoreCase("ritual") || value.equalsIgnoreCase("diana") || value.equalsIgnoreCase("burrow") || value.equalsIgnoreCase("burrows");
     }
 
     private boolean isUpgradeCommand(String value) {

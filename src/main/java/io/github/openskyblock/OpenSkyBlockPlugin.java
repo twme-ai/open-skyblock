@@ -52,6 +52,7 @@ import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.mob.MobService;
 import io.github.openskyblock.mobspawn.MobSpawnService;
 import io.github.openskyblock.museum.MuseumService;
+import io.github.openskyblock.mythological.MythologicalService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.potion.PotionService;
 import io.github.openskyblock.profile.ProfileManager;
@@ -107,6 +108,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private KuudraService kuudraService;
     private FactionService factionService;
     private DojoService dojoService;
+    private MythologicalService mythologicalService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -208,6 +210,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
         this.potionService = new PotionService(this, configService, textService, profileManager);
         this.petService = new PetService(this, configService, textService, profileManager, customItemService);
+        this.mythologicalService = new MythologicalService(configService, textService, profileManager, economyService, skillService, customItemService, mayorService, petService);
+        this.skillService.mythologicalService(mythologicalService);
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
         this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, bestiaryService, reforgeService, enchantmentService, starService, gemstoneService);
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
@@ -350,6 +354,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         starService.reload();
         gemstoneService.reload();
         petService.reload();
+        mythologicalService.reload();
         minionService.reload();
         menuService.reload();
         recipeService.reload();
@@ -517,6 +522,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public DojoService dojo() {
         return dojoService;
+    }
+
+    public MythologicalService mythological() {
+        return mythologicalService;
     }
 
     public MayorService mayors() {

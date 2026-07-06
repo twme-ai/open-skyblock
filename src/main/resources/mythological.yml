@@ -1,0 +1,173 @@
+settings:
+  require-diana: true
+  burrows-per-chain: 4
+  griffin-pet: GRIFFIN
+  griffin-cost: 25000.0
+  feather-item: GRIFFIN_FEATHER
+  mob-chance: 0.55
+  skyblock-xp-per-burrow: 0.02
+  skyblock-xp-per-unique-mob: 1.0
+  skyblock-xp-per-unique-treasure: 0.75
+
+griffin-upgrades:
+  UNCOMMON: 50000.0
+  RARE: 250000.0
+  EPIC: 1000000.0
+  LEGENDARY: 5000000.0
+
+mobs:
+  MINOS_HUNTER:
+    display-name: "<gold>Minos Hunter</gold>"
+    minimum-griffin-rarity: COMMON
+    weight: 45.0
+    combat-xp: 250.0
+    coins: 1000.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GRIFFIN_FEATHER
+        amount: 1
+        weight: 70.0
+      - type: COINS
+        coins: 2500.0
+        weight: 30.0
+  SIAMESE_LYNX:
+    display-name: "<yellow>Siamese Lynx</yellow>"
+    minimum-griffin-rarity: UNCOMMON
+    weight: 30.0
+    combat-xp: 500.0
+    coins: 2500.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GRIFFIN_FEATHER
+        amount: 2
+        weight: 65.0
+      - type: VANILLA
+        material: RABBIT_FOOT
+        amount: 4
+        weight: 35.0
+  MINOTAUR:
+    display-name: "<red>Minotaur</red>"
+    minimum-griffin-rarity: RARE
+    weight: 18.0
+    combat-xp: 1200.0
+    coins: 6000.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GRIFFIN_FEATHER
+        amount: 3
+        weight: 60.0
+      - type: CUSTOM_ITEM
+        item: ANCIENT_CLAW
+        amount: 1
+        weight: 30.0
+      - type: CUSTOM_ITEM
+        item: DAEDALUS_STICK
+        amount: 1
+        weight: 4.0
+        minimum-griffin-rarity: LEGENDARY
+  GAIA_CONSTRUCT:
+    display-name: "<aqua>Gaia Construct</aqua>"
+    minimum-griffin-rarity: EPIC
+    weight: 12.0
+    combat-xp: 2000.0
+    coins: 10000.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GRIFFIN_FEATHER
+        amount: 4
+        weight: 60.0
+      - type: CUSTOM_ITEM
+        item: ANCIENT_CLAW
+        amount: 2
+        weight: 30.0
+  MINOS_CHAMPION:
+    display-name: "<dark_purple>Minos Champion</dark_purple>"
+    minimum-griffin-rarity: LEGENDARY
+    weight: 7.0
+    combat-xp: 4000.0
+    coins: 25000.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GRIFFIN_FEATHER
+        amount: 6
+        weight: 55.0
+      - type: CUSTOM_ITEM
+        item: ANCIENT_CLAW
+        amount: 3
+        weight: 30.0
+      - type: CUSTOM_ITEM
+        item: CROCHET_TIGER_PLUSHIE
+        amount: 1
+        weight: 8.0
+  MINOS_INQUISITOR:
+    display-name: "<dark_red>Minos Inquisitor</dark_red>"
+    minimum-griffin-rarity: LEGENDARY
+    weight: 2.0
+    combat-xp: 8000.0
+    coins: 75000.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GRIFFIN_FEATHER
+        amount: 8
+        weight: 45.0
+      - type: CUSTOM_ITEM
+        item: DAEDALUS_STICK
+        amount: 1
+        weight: 10.0
+      - type: CUSTOM_ITEM
+        item: CROCHET_TIGER_PLUSHIE
+        amount: 1
+        weight: 12.0
+
+treasures:
+  COINS_CACHE:
+    display-name: "<gold>Coins Cache</gold>"
+    minimum-griffin-rarity: COMMON
+    weight: 50.0
+    coins: 5000.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GRIFFIN_FEATHER
+        amount: 1
+        weight: 60.0
+      - type: COINS
+        coins: 7500.0
+        weight: 40.0
+  FEATHER_CACHE:
+    display-name: "<yellow>Feather Cache</yellow>"
+    minimum-griffin-rarity: COMMON
+    weight: 35.0
+    coins: 1000.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GRIFFIN_FEATHER
+        amount: 2
+        weight: 100.0
+  ANCIENT_RELIC:
+    display-name: "<aqua>Ancient Relic</aqua>"
+    minimum-griffin-rarity: RARE
+    weight: 15.0
+    coins: 10000.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: ANCIENT_CLAW
+        amount: 2
+        weight: 60.0
+      - type: CUSTOM_ITEM
+        item: WASHED_UP_SOUVENIR
+        amount: 1
+        weight: 15.0
+  LEGENDARY_RELIC:
+    display-name: "<gold>Legendary Relic</gold>"
+    minimum-griffin-rarity: LEGENDARY
+    weight: 5.0
+    coins: 50000.0
+    rewards:
+      - type: CUSTOM_ITEM
+        item: GRIFFIN_FEATHER
+        amount: 8
+        weight: 50.0
+      - type: CUSTOM_ITEM
+        item: CROCHET_TIGER_PLUSHIE
+        amount: 1
+        weight: 15.0

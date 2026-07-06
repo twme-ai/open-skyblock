@@ -37,6 +37,7 @@ public final class ConfigService {
             "kuudra.yml",
             "factions.yml",
             "dojo.yml",
+            "mythological.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -190,6 +191,10 @@ public final class ConfigService {
 
     public FileConfiguration dojo() {
         return file("dojo.yml");
+    }
+
+    public FileConfiguration mythological() {
+        return file("mythological.yml");
     }
 
     public FileConfiguration mobSpawns() {
