@@ -1,0 +1,62 @@
+settings:
+  epoch-millis: 0
+  interval-seconds: 3600
+  duration-seconds: 1200
+  tick-interval-ticks: 100
+  crops-per-contest: 3
+  minimum-score: 100
+  leaderboard-size: 10
+
+crops:
+  WHEAT:
+    display-name: "<yellow>Wheat</yellow>"
+    material: WHEAT
+    collection: WHEAT
+    weight: 1.0
+  CARROT:
+    display-name: "<gold>Carrot</gold>"
+    material: CARROTS
+    collection: CARROT
+    weight: 1.0
+  POTATO:
+    display-name: "<yellow>Potato</yellow>"
+    material: POTATOES
+    collection: POTATO
+    weight: 1.0
+  SUGAR_CANE:
+    display-name: "<green>Sugar Cane</green>"
+    material: SUGAR_CANE
+    collection: SUGAR_CANE
+    weight: 1.0
+
+rewards:
+  DIAMOND:
+    display-name: "<aqua>Diamond Medal</aqua>"
+    percentile: 0.005
+    medal: DIAMOND
+    medals: 1
+    tickets: 35
+  PLATINUM:
+    display-name: "<white>Platinum Medal</white>"
+    percentile: 0.02
+    medal: PLATINUM
+    medals: 1
+    tickets: 30
+  GOLD:
+    display-name: "<gold>Gold Medal</gold>"
+    percentile: 0.05
+    medal: GOLD
+    medals: 1
+    tickets: 25
+  SILVER:
+    display-name: "<gray>Silver Medal</gray>"
+    percentile: 0.30
+    medal: SILVER
+    medals: 1
+    tickets: 15
+  BRONZE:
+    display-name: "<#cd7f32>Bronze Medal</#cd7f32>"
+    percentile: 0.60
+    medal: BRONZE
+    medals: 1
+    tickets: 10

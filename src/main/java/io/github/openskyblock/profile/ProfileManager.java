@@ -380,6 +380,37 @@ public final class ProfileManager {
                 }
             }
         }
+        profile.jacobsTickets(section.getLong("farming-contests.jacobs-tickets", 0L));
+        ConfigurationSection farmingMedals = section.getConfigurationSection("farming-contests.medals");
+        if (farmingMedals != null) {
+            for (String medalId : farmingMedals.getKeys(false)) {
+                long amount = farmingMedals.getLong(medalId, 0L);
+                if (amount > 0L) {
+                    profile.setFarmingContestMedal(medalId.toUpperCase(), amount);
+                }
+            }
+        }
+        ConfigurationSection farmingScores = section.getConfigurationSection("farming-contests.scores");
+        if (farmingScores != null) {
+            for (String contestId : farmingScores.getKeys(false)) {
+                ConfigurationSection contest = farmingScores.getConfigurationSection(contestId);
+                if (contest == null) {
+                    continue;
+                }
+                for (String cropId : contest.getKeys(false)) {
+                    long amount = contest.getLong(cropId, 0L);
+                    if (amount > 0L) {
+                        profile.addFarmingContestScore(contestId.toUpperCase(), cropId.toUpperCase(), amount);
+                    }
+                }
+            }
+        }
+        ConfigurationSection farmingRewards = section.getConfigurationSection("farming-contests.rewards");
+        if (farmingRewards != null) {
+            for (String contestId : farmingRewards.getKeys(false)) {
+                profile.setFarmingContestReward(contestId.toUpperCase(), farmingRewards.getString(contestId, "NONE"));
+            }
+        }
         ConfigurationSection slayerXp = section.getConfigurationSection("slayers.xp");
         if (slayerXp != null) {
             for (String slayerId : slayerXp.getKeys(false)) {
@@ -610,6 +641,23 @@ public final class ProfileManager {
             if (entry.getValue() != null && !entry.getValue().isBlank()) {
                 profileData.set(base + ".mayors.votes." + entry.getKey(), entry.getValue());
             }
+        }
+        profileData.set(base + ".farming-contests", null);
+        profileData.set(base + ".farming-contests.jacobs-tickets", profile.jacobsTickets());
+        for (Map.Entry<String, Long> entry : profile.farmingContestMedals().entrySet()) {
+            if (entry.getValue() > 0L) {
+                profileData.set(base + ".farming-contests.medals." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Map<String, Long>> contestEntry : profile.farmingContestScores().entrySet()) {
+            for (Map.Entry<String, Long> scoreEntry : contestEntry.getValue().entrySet()) {
+                if (scoreEntry.getValue() > 0L) {
+                    profileData.set(base + ".farming-contests.scores." + contestEntry.getKey() + "." + scoreEntry.getKey(), scoreEntry.getValue());
+                }
+            }
+        }
+        for (Map.Entry<String, String> entry : profile.farmingContestRewards().entrySet()) {
+            profileData.set(base + ".farming-contests.rewards." + entry.getKey(), entry.getValue());
         }
         profileData.set(base + ".slayers", null);
         for (Map.Entry<String, Double> entry : profile.slayerXp().entrySet()) {

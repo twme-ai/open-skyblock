@@ -37,6 +37,9 @@ public final class SkyBlockProfile {
     private final Map<String, Long> museumDonations = new HashMap<>();
     private final Map<String, Integer> darkAuctionPurchases = new HashMap<>();
     private final Map<String, String> mayorVotes = new HashMap<>();
+    private final Map<String, Long> farmingContestMedals = new HashMap<>();
+    private final Map<String, Map<String, Long>> farmingContestScores = new HashMap<>();
+    private final Map<String, String> farmingContestRewards = new HashMap<>();
     private final Map<String, Double> slayerXp = new HashMap<>();
     private final Map<String, Integer> slayerLevels = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
@@ -49,6 +52,7 @@ public final class SkyBlockProfile {
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
+    private long jacobsTickets;
 
     public SkyBlockProfile(UUID uniqueId, String playerName, double purse, double bank) {
         this.uniqueId = uniqueId;
@@ -299,6 +303,68 @@ public final class SkyBlockProfile {
             return;
         }
         mayorVotes.put(electionId.toUpperCase(), candidateId.toUpperCase());
+    }
+
+    public long jacobsTickets() {
+        return jacobsTickets;
+    }
+
+    public void jacobsTickets(long jacobsTickets) {
+        this.jacobsTickets = Math.max(0L, jacobsTickets);
+    }
+
+    public void addJacobsTickets(long amount) {
+        jacobsTickets(jacobsTickets + amount);
+    }
+
+    public long farmingContestMedal(String medalId) {
+        return farmingContestMedals.getOrDefault(medalId.toUpperCase(), 0L);
+    }
+
+    public void setFarmingContestMedal(String medalId, long amount) {
+        if (amount <= 0L) {
+            farmingContestMedals.remove(medalId.toUpperCase());
+            return;
+        }
+        farmingContestMedals.put(medalId.toUpperCase(), amount);
+    }
+
+    public void addFarmingContestMedal(String medalId, long amount) {
+        setFarmingContestMedal(medalId, farmingContestMedal(medalId) + amount);
+    }
+
+    public Map<String, Long> farmingContestMedals() {
+        return farmingContestMedals;
+    }
+
+    public long farmingContestScore(String contestId, String cropId) {
+        Map<String, Long> scores = farmingContestScores.get(contestId.toUpperCase());
+        return scores == null ? 0L : scores.getOrDefault(cropId.toUpperCase(), 0L);
+    }
+
+    public void addFarmingContestScore(String contestId, String cropId, long amount) {
+        if (amount <= 0L) {
+            return;
+        }
+        Map<String, Long> scores = farmingContestScores.computeIfAbsent(contestId.toUpperCase(), ignored -> new HashMap<>());
+        String crop = cropId.toUpperCase();
+        scores.put(crop, scores.getOrDefault(crop, 0L) + amount);
+    }
+
+    public Map<String, Map<String, Long>> farmingContestScores() {
+        return farmingContestScores;
+    }
+
+    public Map<String, String> farmingContestRewards() {
+        return farmingContestRewards;
+    }
+
+    public boolean hasFarmingContestReward(String contestId) {
+        return farmingContestRewards.containsKey(contestId.toUpperCase());
+    }
+
+    public void setFarmingContestReward(String contestId, String rewardId) {
+        farmingContestRewards.put(contestId.toUpperCase(), rewardId == null || rewardId.isBlank() ? "NONE" : rewardId.toUpperCase());
     }
 
     public Map<String, Double> slayerXp() {

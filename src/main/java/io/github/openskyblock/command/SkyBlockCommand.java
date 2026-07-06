@@ -94,6 +94,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "event",
             "mayor",
             "mayors",
+            "jacob",
+            "farmingcontest",
+            "farmingcontests",
             "mobs",
             "mob",
             "mobzones",
@@ -174,6 +177,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "events" -> events(sender);
             case "event" -> event(sender, args);
             case "mayor", "mayors" -> mayors(sender, args);
+            case "jacob", "farmingcontest", "farmingcontests" -> farmingContests(sender, args);
             case "mobs", "mob" -> mobs(sender, args);
             case "mobzones", "mobzone" -> mobZones(sender, args);
             case "museum" -> museum(sender, args);
@@ -417,6 +421,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isMayorCommand(args[0]) && args[1].equalsIgnoreCase("vote")) {
             return startsWith(plugin.mayors().candidateIds(), args[2]);
         }
+        if (args.length == 2 && isFarmingContestCommand(args[0])) {
+            return startsWith(List.of("status", "crops", "rewards", "medals", "leaderboard"), args[1]);
+        }
+        if (args.length == 3 && isFarmingContestCommand(args[0]) && args[1].equalsIgnoreCase("leaderboard")) {
+            return startsWith(plugin.farmingContests().cropIds(), args[2]);
+        }
         if (args.length == 2 && isMobCommand(args[0])) {
             return startsWith(List.of("list", "spawn"), args[1]);
         }
@@ -580,6 +590,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " event <id>", "commands.help.event");
         helpLine(sender, label + " mayor [status|candidates|results|perks]", "commands.help.mayor");
         helpLine(sender, label + " mayor vote <id>", "commands.help.mayor-vote");
+        helpLine(sender, label + " jacob [status|crops|rewards|medals|leaderboard]", "commands.help.farming-contest");
         helpLine(sender, label + " mobs", "commands.help.mobs");
         helpLine(sender, label + " mobzones", "commands.help.mob-zones");
         helpLine(sender, label + " museum donate|list|milestones", "commands.help.museum");
@@ -1600,6 +1611,24 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void farmingContests(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.farmingContests().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "crops", "list" -> plugin.farmingContests().sendCrops(player);
+            case "rewards" -> plugin.farmingContests().sendRewards(player);
+            case "medals", "tickets" -> plugin.farmingContests().sendMedals(player);
+            case "leaderboard", "top" -> plugin.farmingContests().sendLeaderboard(player, args.length >= 3 ? args[2] : null);
+            default -> plugin.text().send(player, "commands.farming-contest-usage");
+        }
+    }
+
     private void mobs(CommandSender sender, String[] args) {
         if (args.length < 2 || args[1].equalsIgnoreCase("list")) {
             Player player = requirePlayer(sender);
@@ -2282,6 +2311,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isMayorCommand(String value) {
         return value.equalsIgnoreCase("mayor") || value.equalsIgnoreCase("mayors");
+    }
+
+    private boolean isFarmingContestCommand(String value) {
+        return value.equalsIgnoreCase("jacob") || value.equalsIgnoreCase("farmingcontest") || value.equalsIgnoreCase("farmingcontests");
     }
 
     private boolean isMobZoneCommand(String value) {

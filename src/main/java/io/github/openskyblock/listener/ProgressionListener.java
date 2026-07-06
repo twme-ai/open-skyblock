@@ -32,6 +32,7 @@ public final class ProgressionListener implements Listener {
         plugin.skills()
                 .blockReward(event.getBlock().getType())
                 .ifPresent(reward -> plugin.skills().grantActionReward(event.getPlayer(), reward));
+        plugin.farmingContests().recordCrop(event.getPlayer(), event.getBlock().getType(), 1L);
         plugin.pets().triggerAutoPet(event.getPlayer(), AutoPetTrigger.BLOCK_BREAK);
     }
 

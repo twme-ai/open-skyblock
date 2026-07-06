@@ -30,6 +30,7 @@ public final class ConfigService {
             "museum.yml",
             "calendar.yml",
             "mayors.yml",
+            "farming_contests.yml",
             "dark_auction.yml",
             "slayers.yml",
             "equipment.yml",
@@ -147,6 +148,10 @@ public final class ConfigService {
 
     public FileConfiguration mayors() {
         return file("mayors.yml");
+    }
+
+    public FileConfiguration farmingContests() {
+        return file("farming_contests.yml");
     }
 
     public FileConfiguration darkAuction() {

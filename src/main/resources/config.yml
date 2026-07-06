@@ -43,6 +43,7 @@ features:
   museum: true
   calendar: true
   mayors: true
+  farming-contests: true
   slayers: true
 
 islands:

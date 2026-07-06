@@ -16,6 +16,7 @@ import io.github.openskyblock.darkauction.DarkAuctionService;
 import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.equipment.EquipmentService;
+import io.github.openskyblock.farmingcontest.FarmingContestService;
 import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.island.IslandService;
 import io.github.openskyblock.listener.AutoPetListener;
@@ -77,6 +78,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private WardrobeService wardrobeService;
     private ArmorSetService armorSetService;
     private CalendarService calendarService;
+    private FarmingContestService farmingContestService;
     private CakeService cakeService;
     private PotionService potionService;
     private ReforgeService reforgeService;
@@ -114,6 +116,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BukkitTask itemAbilityTask;
     private BukkitTask petCosmeticTask;
     private BukkitTask darkAuctionTask;
+    private BukkitTask farmingContestTask;
 
     @Override
     public void onEnable() {
@@ -146,6 +149,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.wardrobeService = new WardrobeService(configService, textService, profileManager);
         this.calendarService = new CalendarService(configService, textService);
         this.mayorService = new MayorService(configService, textService, profileManager);
+        this.farmingContestService = new FarmingContestService(configService, textService, profileManager);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService, upgradeService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
@@ -212,6 +216,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         if (darkAuctionTask != null) {
             darkAuctionTask.cancel();
         }
+        if (farmingContestTask != null) {
+            farmingContestTask.cancel();
+        }
         if (petService != null) {
             petService.removeAllCosmeticPets();
         }
@@ -263,6 +270,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         wardrobeService.reload();
         calendarService.reload();
         mayorService.reload();
+        farmingContestService.reload();
         armorSetService.reload();
         cakeService.reload();
         potionService.reload();
@@ -326,6 +334,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.itemAbilityTask = getServer().getScheduler().runTaskTimer(this, itemAbilityService::tickMana, 20L, 20L);
         this.petCosmeticTask = getServer().getScheduler().runTaskTimer(this, petService::tickCosmeticPets, 20L, petService.cosmeticUpdateTicks());
         this.darkAuctionTask = getServer().getScheduler().runTaskTimer(this, darkAuctionService::tick, 20L, darkAuctionService.tickIntervalTicks());
+        this.farmingContestTask = getServer().getScheduler().runTaskTimer(this, farmingContestService::tick, 20L, farmingContestService.tickIntervalTicks());
     }
 
     public ConfigService configService() {
@@ -390,6 +399,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public MayorService mayors() {
         return mayorService;
+    }
+
+    public FarmingContestService farmingContests() {
+        return farmingContestService;
     }
 
     public CakeService cakes() {
