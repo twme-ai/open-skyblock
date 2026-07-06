@@ -15,12 +15,14 @@ import io.github.openskyblock.listener.MenuListener;
 import io.github.openskyblock.listener.MinionListener;
 import io.github.openskyblock.listener.PlayerLifecycleListener;
 import io.github.openskyblock.listener.ProgressionListener;
+import io.github.openskyblock.listener.QuiverListener;
 import io.github.openskyblock.listener.RecipeListener;
 import io.github.openskyblock.listener.SackListener;
 import io.github.openskyblock.listener.ShopNpcListener;
 import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.profile.ProfileManager;
+import io.github.openskyblock.quiver.QuiverService;
 import io.github.openskyblock.reforge.ReforgeService;
 import io.github.openskyblock.recipe.RecipeService;
 import io.github.openskyblock.sack.SackService;
@@ -46,6 +48,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private CollectionService collectionService;
     private CustomItemService customItemService;
     private SackService sackService;
+    private QuiverService quiverService;
     private AccessoryService accessoryService;
     private TuningService tuningService;
     private EquipmentService equipmentService;
@@ -89,6 +92,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.customItemService.starService(starService);
         this.customItemService.gemstoneService(gemstoneService);
         this.sackService = new SackService(configService, textService, profileManager, customItemService, skillService);
+        this.quiverService = new QuiverService(this, configService, textService, profileManager, customItemService, skillService);
         this.equipmentService = new EquipmentService(configService, textService, profileManager, customItemService);
         this.wardrobeService = new WardrobeService(configService, textService, profileManager);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService);
@@ -146,6 +150,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         skillService.reload();
         customItemService.reload();
         sackService.reload();
+        quiverService.reload();
         equipmentService.reload();
         wardrobeService.reload();
         armorSetService.reload();
@@ -175,6 +180,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerLifecycleListener(this), this);
         getServer().getPluginManager().registerEvents(new ProgressionListener(this), this);
         getServer().getPluginManager().registerEvents(new SackListener(this), this);
+        getServer().getPluginManager().registerEvents(new QuiverListener(this), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new MinionListener(this), this);
@@ -216,6 +222,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public SackService sacks() {
         return sackService;
+    }
+
+    public QuiverService quiver() {
+        return quiverService;
     }
 
     public AccessoryService accessories() {

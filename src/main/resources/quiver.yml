@@ -1,0 +1,18 @@
+settings:
+  slots: 27
+  stack-size: 64
+  auto-pickup: true
+
+items:
+  ARROW:
+    material: ARROW
+    display-name: "<white>Arrow</white>"
+    priority: 1
+  SPECTRAL_ARROW:
+    material: SPECTRAL_ARROW
+    display-name: "<yellow>Spectral Arrow</yellow>"
+    priority: 2
+  TIPPED_ARROW:
+    material: TIPPED_ARROW
+    display-name: "<light_purple>Tipped Arrow</light_purple>"
+    priority: 3

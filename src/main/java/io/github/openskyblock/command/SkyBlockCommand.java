@@ -9,6 +9,7 @@ import io.github.openskyblock.gemstone.GemstoneSlotDefinition;
 import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.quiver.QuiverItemDefinition;
 import io.github.openskyblock.reforge.ReforgeDefinition;
 import io.github.openskyblock.sack.SackDefinition;
 import io.github.openskyblock.sack.SackItemDefinition;
@@ -41,6 +42,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "sell",
             "sacks",
             "sack",
+            "quiver",
             "reforges",
             "reforge",
             "enchants",
@@ -94,6 +96,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
             case "sacks", "sack" -> sacks(sender, args);
+            case "quiver" -> quiver(sender, args);
             case "reforges" -> reforges(sender);
             case "reforge" -> reforge(sender, args);
             case "enchants", "enchantments" -> enchants(sender);
@@ -157,6 +160,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 5 && isSackCommand(args[0]) && args[1].equalsIgnoreCase("withdraw")) {
             return startsWith(List.of("all", "64", "128", "512"), args[4]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("quiver")) {
+            return startsWith(List.of("open", "deposit", "withdraw", "select", "summary"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("quiver") && (args[1].equalsIgnoreCase("withdraw") || args[1].equalsIgnoreCase("select"))) {
+            return startsWith(plugin.quiver().definitions().stream().map(QuiverItemDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("quiver") && args[1].equalsIgnoreCase("withdraw")) {
+            return startsWith(List.of("all", "64", "128", "512"), args[3]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("reforge")) {
             List<String> values = new ArrayList<>();
@@ -276,6 +288,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
         helpLine(sender, label + " sacks", "commands.help.sacks");
         helpLine(sender, label + " sack deposit|withdraw", "commands.help.sack");
+        helpLine(sender, label + " quiver", "commands.help.quiver");
+        helpLine(sender, label + " quiver deposit|withdraw|select", "commands.help.quiver-edit");
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge <id|remove>", "commands.help.reforge");
         helpLine(sender, label + " enchants", "commands.help.enchants");
@@ -478,6 +492,43 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             }
             case "summary" -> plugin.sacks().sendSummary(player, args.length >= 3 ? args[2] : null);
             default -> plugin.text().send(player, "commands.sack-usage");
+        }
+    }
+
+    private void quiver(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("open")) {
+            plugin.menus().openQuiverMenu(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "deposit" -> plugin.quiver().depositInventory(player);
+            case "withdraw" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.quiver-usage");
+                    return;
+                }
+                if (args.length >= 4 && args[3].equalsIgnoreCase("all")) {
+                    plugin.quiver().withdraw(player, args[2], 0);
+                    return;
+                }
+                int amount = args.length >= 4 ? parsePositiveInt(player, args[3]).orElse(-1) : 64;
+                if (amount > 0) {
+                    plugin.quiver().withdraw(player, args[2], amount);
+                }
+            }
+            case "select" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.quiver-usage");
+                    return;
+                }
+                plugin.quiver().select(player, args[2]);
+            }
+            case "summary" -> plugin.quiver().sendSummary(player);
+            default -> plugin.text().send(player, "commands.quiver-usage");
         }
     }
 

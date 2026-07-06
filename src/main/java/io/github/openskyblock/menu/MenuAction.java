@@ -10,6 +10,7 @@ public enum MenuAction {
     SKILLS,
     STATS,
     SACKS,
+    QUIVER,
     ACCESSORY_BAG,
     TUNING,
     EQUIPMENT,

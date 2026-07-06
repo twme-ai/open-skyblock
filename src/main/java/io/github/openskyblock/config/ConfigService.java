@@ -15,6 +15,7 @@ public final class ConfigService {
             "collections.yml",
             "items.yml",
             "sacks.yml",
+            "quiver.yml",
             "equipment.yml",
             "wardrobe.yml",
             "armor_sets.yml",
@@ -70,6 +71,10 @@ public final class ConfigService {
 
     public FileConfiguration sacks() {
         return file("sacks.yml");
+    }
+
+    public FileConfiguration quiver() {
+        return file("quiver.yml");
     }
 
     public FileConfiguration equipment() {

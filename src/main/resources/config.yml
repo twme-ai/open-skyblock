@@ -12,6 +12,7 @@ features:
   npc-shops: true
   physical-shop-npcs: true
   sacks: true
+  quiver: true
   reforges: true
   enchantments: true
   item-stars: true

@@ -40,6 +40,14 @@ items:
     lore:
       - "<gray>Stores common fishing drops.</gray>"
     stats: {}
+  ARROW_SWAPPER:
+    material: ARROW
+    display-name: "<green>Arrow Swapper</green>"
+    category: ITEM
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Open your Quiver and select the arrow type to fire.</gray>"
+    stats: {}
   ROGUE_SWORD:
     material: GOLDEN_SWORD
     display-name: "<green>Rogue Sword</green>"

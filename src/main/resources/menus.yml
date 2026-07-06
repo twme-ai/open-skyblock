@@ -30,6 +30,13 @@ skyblock:
       lore:
         - "<gray>Store matching materials automatically.</gray>"
       action: SACKS
+    quiver:
+      slot: 11
+      material: ARROW
+      display-name: "<green>Quiver</green>"
+      lore:
+        - "<gray>Store arrows and select your firing arrow.</gray>"
+      action: QUIVER
     skills:
       slot: 14
       material: DIAMOND_PICKAXE
@@ -410,6 +417,44 @@ sack:
     slot: 41
     material: BUNDLE
     display-name: "<green>Sacks</green>"
+    lore: []
+
+quiver:
+  title: "<dark_gray>Quiver</dark_gray>"
+  rows: 5
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  arrow-item:
+    display-name: "<item>"
+    lore: []
+  deposit:
+    slot: 39
+    material: HOPPER
+    display-name: "<green>Deposit Arrows</green>"
+    lore:
+      - "<gray>Move matching arrows into your Quiver.</gray>"
+  back:
+    slot: 41
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
     lore: []
 
 accessory-bag:

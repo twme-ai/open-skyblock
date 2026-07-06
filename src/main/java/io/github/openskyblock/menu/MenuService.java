@@ -8,6 +8,7 @@ import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.OwnedPet;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.quiver.QuiverItemDefinition;
 import io.github.openskyblock.recipe.SkyBlockRecipe;
 import io.github.openskyblock.sack.SackDefinition;
 import io.github.openskyblock.sack.SackItemDefinition;
@@ -522,6 +523,42 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openQuiverMenu(Player player) {
+        if (!plugin.quiver().enabled()) {
+            text.send(player, "commands.quiver-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("quiver");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 5)));
+        Map<Integer, String> itemsBySlot = new HashMap<>();
+        Map<Integer, QuiverAction> actions = new HashMap<>();
+        QuiverHolder holder = new QuiverHolder(itemsBySlot, actions);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Quiver</dark_gray>"), quiverPlaceholders(player))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        List<Integer> slots = contentSlots(section);
+        List<QuiverItemDefinition> items = plugin.quiver().definitions();
+        for (int index = 0; index < slots.size() && index < items.size(); index++) {
+            int slot = slots.get(index);
+            if (slot < 0 || slot >= inventory.getSize()) {
+                continue;
+            }
+            QuiverItemDefinition item = items.get(index);
+            inventory.setItem(slot, quiverItem(player, item, section.getConfigurationSection("arrow-item")));
+            itemsBySlot.put(slot, item.id());
+        }
+        addQuiverAction(inventory, section.getConfigurationSection("deposit"), QuiverAction.DEPOSIT, actions);
+        addQuiverAction(inventory, section.getConfigurationSection("back"), QuiverAction.BACK, actions);
+        player.openInventory(inventory);
+    }
+
     public void openShop(Player player, ShopDefinition shop) {
         if (!plugin.shops().enabled()) {
             text.send(player, "commands.shop-disabled");
@@ -567,6 +604,7 @@ public final class MenuService {
             case SKILLS -> player.performCommand("skyblock skills");
             case STATS -> player.performCommand("skyblock stats");
             case SACKS -> openSacksMenu(player);
+            case QUIVER -> openQuiverMenu(player);
             case ACCESSORY_BAG -> openAccessoryBag(player);
             case TUNING -> openTuningMenu(player);
             case EQUIPMENT -> openEquipmentMenu(player);
@@ -657,6 +695,28 @@ public final class MenuService {
                 openSackMenu(player, sack);
             }
             case BACK -> openSacksMenu(player);
+            case NONE -> {
+            }
+        }
+    }
+
+    public void runQuiverClick(Player player, QuiverHolder holder, int rawSlot, boolean withdrawClick) {
+        String itemId = holder.itemId(rawSlot);
+        if (itemId != null) {
+            if (withdrawClick) {
+                plugin.quiver().withdraw(player, itemId, 64);
+            } else {
+                plugin.quiver().select(player, itemId);
+            }
+            openQuiverMenu(player);
+            return;
+        }
+        switch (holder.action(rawSlot)) {
+            case DEPOSIT -> {
+                plugin.quiver().depositInventory(player);
+                openQuiverMenu(player);
+            }
+            case BACK -> openSkyBlockMenu(player);
             case NONE -> {
             }
         }
@@ -1081,6 +1141,18 @@ public final class MenuService {
         actions.put(slot, action);
     }
 
+    private void addQuiverAction(Inventory inventory, ConfigurationSection section, QuiverAction action, Map<Integer, QuiverAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
     private ItemStack emptyEquipmentItem(EquipmentSlotDefinition slot, ConfigurationSection section) {
         ItemStack itemStack = item(section, equipmentSlotPlaceholders(slot));
         ItemMeta meta = itemStack.getItemMeta();
@@ -1103,6 +1175,20 @@ public final class MenuService {
         }
         for (String line : configService.messages().getStringList("menus.equipment-equipped")) {
             lore.add(text.deserialize(line, equipmentSlotPlaceholders(slot)));
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack quiverItem(Player player, QuiverItemDefinition item, ConfigurationSection section) {
+        ItemStack itemStack = new ItemStack(item.material());
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = quiverItemPlaceholders(player, item);
+        meta.displayName(text.deserialize(section == null ? "<item>" : section.getString("display-name", "<item>"), placeholders));
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        for (String line : configService.messages().getStringList("menus.quiver-item")) {
+            lore.add(text.deserialize(line, placeholders));
         }
         meta.lore(lore);
         itemStack.setItemMeta(meta);
@@ -1369,6 +1455,32 @@ public final class MenuService {
                 TextService.parsed("item", item.displayName()),
                 TextService.raw("stored", text.formatNumber(plugin.sacks().stored(profile, sack, item))),
                 TextService.raw("capacity", text.formatNumber(sack.capacity(item)))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> quiverPlaceholders(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        String selected = plugin.quiver().selectedDefinition(profile)
+                .map(QuiverItemDefinition::displayName)
+                .orElse(text.rawMessage("quiver.selected-none"));
+        return List.of(
+                TextService.raw("stored", text.formatNumber(plugin.quiver().totalStored(profile))),
+                TextService.raw("capacity", text.formatNumber(plugin.quiver().capacity())),
+                TextService.parsed("selected", selected)
+        );
+    }
+
+    private List<TextService.TextPlaceholder> quiverItemPlaceholders(Player player, QuiverItemDefinition item) {
+        SkyBlockProfile profile = profiles.profile(player);
+        boolean selected = plugin.quiver().selectedDefinition(profile)
+                .map(selectedItem -> selectedItem.id().equals(item.id()))
+                .orElse(false);
+        return List.of(
+                TextService.raw("item_id", item.id()),
+                TextService.parsed("item", item.displayName()),
+                TextService.raw("stored", text.formatNumber(plugin.quiver().stored(profile, item))),
+                TextService.raw("capacity", text.formatNumber(plugin.quiver().capacity())),
+                TextService.parsed("selected", text.rawMessage(selected ? "quiver.selected-active" : "quiver.selected-inactive"))
         );
     }
 

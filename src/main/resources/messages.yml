@@ -30,6 +30,8 @@ commands:
     sell: "Sell held items or matching inventory items to NPC shops."
     sacks: "Open your Sacks menu."
     sack: "Deposit or withdraw materials from configured Sacks."
+    quiver: "Open your Quiver."
+    quiver-edit: "Deposit, withdraw, or select Quiver arrows."
     reforges: "List configured item reforges."
     reforge: "Apply or remove a reforge from your held custom item."
     enchants: "List configured custom enchantments."
@@ -99,6 +101,18 @@ commands:
   sack-summary-line: "<gray><sack_id>:</gray> <sack> <dark_gray>|</dark_gray> <yellow><stored></yellow><gray>/</gray><yellow><capacity></yellow> <dark_gray>|</dark_gray> <access>"
   sack-detail-header: "<prefix><aqua><sack></aqua>"
   sack-detail-line: "<gray><item_id>:</gray> <item> <dark_gray>|</dark_gray> <yellow><stored></yellow><gray>/</gray><yellow><capacity></yellow>"
+  quiver-disabled: "<prefix><red>The Quiver is disabled on this server.</red>"
+  quiver-usage: "<prefix><red>Use <yellow>/skyblock quiver</yellow>, <yellow>/skyblock quiver deposit</yellow>, <yellow>/skyblock quiver withdraw <item> <amount|all></yellow>, <yellow>/skyblock quiver select <item></yellow>, or <yellow>/skyblock quiver summary</yellow>.</red>"
+  quiver-unknown-item: "<prefix><red>Unknown Quiver item: <yellow><item></yellow>.</red>"
+  quiver-no-arrows: "<prefix><red>You do not have matching arrows for your Quiver.</red>"
+  quiver-deposited: "<prefix><green>Deposited <yellow><amount></yellow> arrows into your Quiver.</green>"
+  quiver-withdrawn: "<prefix><green>Withdrew <yellow><amount></yellow> <item> from your Quiver.</green>"
+  quiver-empty: "<prefix><red>Your Quiver does not contain <item>.</red>"
+  quiver-empty-shot: "<prefix><red>Your selected Quiver arrow is empty.</red>"
+  quiver-auto-stored: "<prefix><gray>Stored <yellow><amount></yellow> arrows in your Quiver.</gray>"
+  quiver-selected: "<prefix><green>Selected</green> <item> <green>for your Quiver.</green>"
+  quiver-summary: "<prefix><gray>Quiver:</gray> <yellow><stored></yellow><gray>/</gray><yellow><capacity></yellow> <dark_gray>|</dark_gray> <gray>Selected:</gray> <selected>"
+  quiver-line: "<gray><item_id>:</gray> <item> <dark_gray>|</dark_gray> <yellow><stored></yellow>"
   reforge-disabled: "<prefix><red>Reforges are disabled on this server.</red>"
   reforge-usage: "<prefix><red>Use <yellow>/skyblock reforges</yellow> or <yellow>/skyblock reforge <id|remove></yellow>.</red>"
   reforge-list-header: "<prefix><aqua>Reforges</aqua>"
@@ -300,6 +314,12 @@ sacks:
   access-available: "<green>Available</green>"
   access-missing: "<red>Missing sack item</red>"
 
+quiver:
+  proxy-arrow-name: "<dark_gray>Quiver Arrow</dark_gray>"
+  selected-active: "<green>Selected</green>"
+  selected-inactive: "<gray>Stored</gray>"
+  selected-none: "<dark_gray>None</dark_gray>"
+
 wardrobe:
   status-empty: "<dark_gray>Empty</dark_gray>"
   status-stored: "<green><pieces>/4 armor pieces</green>"
@@ -327,6 +347,12 @@ menus:
     - ""
     - "<yellow>Left-click to withdraw a stack.</yellow>"
     - "<yellow>Right-click to withdraw all.</yellow>"
+  quiver-item:
+    - "<gray>Stored:</gray> <yellow><stored></yellow><gray>/</gray><yellow><capacity></yellow>"
+    - "<gray>Status:</gray> <selected>"
+    - ""
+    - "<yellow>Left-click to select.</yellow>"
+    - "<yellow>Right-click to withdraw a stack.</yellow>"
   accessory-bag-item:
     - "<gray>Rarity:</gray> <rarity>"
     - "<gray>Magical Power:</gray> <light_purple><magical_power></light_purple>"

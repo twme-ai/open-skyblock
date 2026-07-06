@@ -23,11 +23,13 @@ public final class SkyBlockProfile {
     private final Map<String, ItemStack> equipment = new HashMap<>();
     private final Map<Integer, WardrobeSet> wardrobe = new HashMap<>();
     private final Map<String, Map<String, Long>> sacks = new HashMap<>();
+    private final Map<String, Long> quiver = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private final List<OwnedPet> pets = new ArrayList<>();
     private String shopPurchaseDay;
     private String activePetInstanceId;
+    private String selectedQuiverItem;
 
     public SkyBlockProfile(UUID uniqueId, String playerName, double purse, double bank) {
         this.uniqueId = uniqueId;
@@ -162,6 +164,18 @@ public final class SkyBlockProfile {
 
     public Map<String, Map<String, Long>> sacks() {
         return sacks;
+    }
+
+    public Map<String, Long> quiver() {
+        return quiver;
+    }
+
+    public String selectedQuiverItem() {
+        return selectedQuiverItem;
+    }
+
+    public void selectedQuiverItem(String selectedQuiverItem) {
+        this.selectedQuiverItem = selectedQuiverItem;
     }
 
     public List<String> accessoryBag() {

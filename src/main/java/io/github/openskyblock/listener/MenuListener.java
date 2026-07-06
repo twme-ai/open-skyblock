@@ -11,6 +11,7 @@ import io.github.openskyblock.menu.MenuAction;
 import io.github.openskyblock.menu.MinionMenuAction;
 import io.github.openskyblock.menu.MinionMenuHolder;
 import io.github.openskyblock.menu.PetMenuHolder;
+import io.github.openskyblock.menu.QuiverHolder;
 import io.github.openskyblock.menu.SackMenuAction;
 import io.github.openskyblock.menu.SackMenuHolder;
 import io.github.openskyblock.menu.SackSelectorHolder;
@@ -61,6 +62,9 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof SackMenuHolder sackMenuHolder) {
                 handleSackMenuClick(event, player, sackMenuHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof QuiverHolder quiverHolder) {
+                handleQuiverClick(event, player, quiverHolder);
             }
             if (event.getView().getTopInventory().getHolder() instanceof AccessoryBagHolder accessoryBagHolder) {
                 handleAccessoryBagClick(event, player, accessoryBagHolder);
@@ -137,6 +141,12 @@ public final class MenuListener implements Listener {
         plugin.menus().runSackMenuClick(player, holder, event.getRawSlot(), withdrawAll);
     }
 
+    private void handleQuiverClick(InventoryClickEvent event, Player player, QuiverHolder holder) {
+        event.setCancelled(true);
+        boolean withdrawClick = event.getClick().isRightClick();
+        plugin.menus().runQuiverClick(player, holder, event.getRawSlot(), withdrawClick);
+    }
+
     private void handleAccessoryBagClick(InventoryClickEvent event, Player player, AccessoryBagHolder holder) {
         event.setCancelled(true);
         plugin.menus().runAccessoryBagClick(player, holder, event.getRawSlot());
@@ -168,15 +178,24 @@ public final class MenuListener implements Listener {
         if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
-        boolean isMenuItem = plugin.customItems()
+        String itemId = plugin.customItems()
                 .definition(event.getItem())
                 .map(CustomItemDefinition::id)
-                .filter("SKYBLOCK_MENU"::equals)
-                .isPresent();
-        if (!isMenuItem) {
+                .orElse("");
+        if (itemId.isBlank()) {
             return;
         }
-        event.setCancelled(true);
-        plugin.menus().openSkyBlockMenu(event.getPlayer());
+        switch (itemId) {
+            case "SKYBLOCK_MENU" -> {
+                event.setCancelled(true);
+                plugin.menus().openSkyBlockMenu(event.getPlayer());
+            }
+            case "ARROW_SWAPPER" -> {
+                event.setCancelled(true);
+                plugin.menus().openQuiverMenu(event.getPlayer());
+            }
+            default -> {
+            }
+        }
     }
 }

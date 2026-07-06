@@ -194,6 +194,16 @@ public final class ProfileManager {
                 }
             }
         }
+        profile.selectedQuiverItem(section.getString("quiver.selected", null));
+        ConfigurationSection quiver = section.getConfigurationSection("quiver.items");
+        if (quiver != null) {
+            for (String itemId : quiver.getKeys(false)) {
+                long amount = quiver.getLong(itemId, 0L);
+                if (amount > 0L) {
+                    profile.quiver().put(itemId.toUpperCase(), amount);
+                }
+            }
+        }
         profile.activePetInstanceId(section.getString("pets.active", null));
         ConfigurationSection pets = section.getConfigurationSection("pets.owned");
         if (pets != null) {
@@ -272,6 +282,13 @@ public final class ProfileManager {
                 if (itemEntry.getValue() > 0L) {
                     profileData.set(base + ".sacks." + sackEntry.getKey() + "." + itemEntry.getKey(), itemEntry.getValue());
                 }
+            }
+        }
+        profileData.set(base + ".quiver.selected", profile.selectedQuiverItem());
+        profileData.set(base + ".quiver.items", null);
+        for (Map.Entry<String, Long> entry : profile.quiver().entrySet()) {
+            if (entry.getValue() > 0L) {
+                profileData.set(base + ".quiver.items." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());
