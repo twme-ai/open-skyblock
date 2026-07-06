@@ -40,6 +40,9 @@ public final class RecipeListener implements Listener {
             return;
         }
         event.setCancelled(true);
-        plugin.text().send(player, "commands.recipe-blocked", List.of(TextService.parsed("recipe", recipe.displayName())));
+        plugin.text().send(player, "commands.recipe-blocked", List.of(
+                TextService.parsed("recipe", recipe.displayName()),
+                TextService.parsed("requirement", plugin.recipes().requirementText(recipe))
+        ));
     }
 }

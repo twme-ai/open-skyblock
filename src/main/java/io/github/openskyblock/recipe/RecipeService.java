@@ -10,6 +10,9 @@ import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.CustomItemService;
 import io.github.openskyblock.service.MinionDefinition;
 import io.github.openskyblock.service.MinionService;
+import io.github.openskyblock.slayer.SlayerDefinition;
+import io.github.openskyblock.slayer.SlayerService;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +38,7 @@ public final class RecipeService {
     private final CollectionService collections;
     private final CustomItemService customItems;
     private final MinionService minions;
+    private final SlayerService slayers;
     private final Map<NamespacedKey, SkyBlockRecipe> recipesByKey = new HashMap<>();
     private final Map<String, SkyBlockRecipe> recipesById = new HashMap<>();
 
@@ -45,7 +49,8 @@ public final class RecipeService {
             ProfileManager profiles,
             CollectionService collections,
             CustomItemService customItems,
-            MinionService minions
+            MinionService minions,
+            SlayerService slayers
     ) {
         this.plugin = plugin;
         this.configService = configService;
@@ -54,6 +59,7 @@ public final class RecipeService {
         this.collections = collections;
         this.customItems = customItems;
         this.minions = minions;
+        this.slayers = slayers;
     }
 
     public void reload() {
@@ -97,7 +103,15 @@ public final class RecipeService {
             return true;
         }
         SkyBlockProfile profile = profiles.profile(player);
-        return collections.tier(profile, recipe.requiredCollection()) >= recipe.requiredTier();
+        if (recipe.hasCollectionRequirement() && collections.tier(profile, recipe.requiredCollection()) < recipe.requiredTier()) {
+            return false;
+        }
+        for (Map.Entry<String, Integer> entry : recipe.requiredSlayers().entrySet()) {
+            if (profile.slayerLevels().getOrDefault(entry.getKey(), 0) < entry.getValue()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void sendRecipes(Player player) {
@@ -116,12 +130,24 @@ public final class RecipeService {
         if (!recipe.hasRequirement()) {
             return text.rawMessage("commands.recipe-no-requirement");
         }
-        String collection = collections.definition(recipe.requiredCollection())
-                .map(CollectionDefinition::displayName)
-                .orElse("<white>" + recipe.requiredCollection() + "</white>");
-        return text.rawMessage("commands.recipe-requirement")
-                .replace("<collection>", collection)
-                .replace("<tier>", Integer.toString(recipe.requiredTier()));
+        List<String> requirements = new ArrayList<>();
+        if (recipe.hasCollectionRequirement()) {
+            String collection = collections.definition(recipe.requiredCollection())
+                    .map(CollectionDefinition::displayName)
+                    .orElse("<white>" + recipe.requiredCollection() + "</white>");
+            requirements.add(text.rawMessage("commands.recipe-requirement")
+                    .replace("<collection>", collection)
+                    .replace("<tier>", Integer.toString(recipe.requiredTier())));
+        }
+        for (Map.Entry<String, Integer> entry : recipe.requiredSlayers().entrySet()) {
+            String slayer = slayers.definition(entry.getKey())
+                    .map(SlayerDefinition::displayName)
+                    .orElse("<white>" + entry.getKey() + "</white>");
+            requirements.add(text.rawMessage("commands.recipe-slayer-requirement")
+                    .replace("<slayer>", slayer)
+                    .replace("<level>", Integer.toString(entry.getValue())));
+        }
+        return String.join(text.rawMessage("commands.recipe-requirement-separator"), requirements);
     }
 
     private void register(String id, ConfigurationSection section) {
@@ -159,10 +185,25 @@ public final class RecipeService {
                 key,
                 result,
                 section.getString("requirement.collection", ""),
-                section.getInt("requirement.tier", 0)
+                section.getInt("requirement.tier", 0),
+                readSlayerRequirements(section.getConfigurationSection("requirement.slayers"))
         );
         recipesByKey.put(key, skyBlockRecipe);
         recipesById.put(id, skyBlockRecipe);
+    }
+
+    private Map<String, Integer> readSlayerRequirements(ConfigurationSection section) {
+        if (section == null) {
+            return Map.of();
+        }
+        Map<String, Integer> requirements = new HashMap<>();
+        for (String slayerId : section.getKeys(false)) {
+            int level = section.getInt(slayerId, 0);
+            if (level > 0) {
+                requirements.put(slayerId.toUpperCase(Locale.ROOT), level);
+            }
+        }
+        return Map.copyOf(requirements);
     }
 
     private ItemStack result(ConfigurationSection section) {

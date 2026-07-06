@@ -16,7 +16,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable MiniMessage messages in `messages.yml`.
 - Configurable skills, collection tiers, action XP, coin rewards, custom items, and minion definitions.
 - Placeable minion items with island-only placement, generated storage, claim menu, pickup flow, and offline ticking from persisted timestamps.
-- Data-driven shaped recipes for vanilla, custom item, and minion outputs with collection-tier crafting gates.
+- Data-driven shaped recipes for vanilla, custom item, and minion outputs with collection-tier and Slayer-level crafting gates.
 - Purse and bank economy with deposit, withdraw, deposit-all, withdraw-all, capacity limits, and a configurable bank menu.
 - Configurable NPC shops with buy menus, right-click sell flow, daily buy limits, and `/skyblock sell`.
 - Optional physical shop NPCs spawned from `shops.yml` with persistent shop tags and right-click shop opening.

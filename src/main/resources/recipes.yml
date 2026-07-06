@@ -135,3 +135,19 @@ recipes:
     requirement:
       collection: WHEAT
       tier: 2
+  UNDEAD_CHARM:
+    display-name: "<green>Undead Charm Recipe</green>"
+    result:
+      type: CUSTOM_ITEM
+      id: UNDEAD_CHARM
+      amount: 1
+    shape:
+      - " B "
+      - "RRR"
+      - " B "
+    ingredients:
+      B: BONE
+      R: ROTTEN_FLESH
+    requirement:
+      slayers:
+        REVENANT: 1
