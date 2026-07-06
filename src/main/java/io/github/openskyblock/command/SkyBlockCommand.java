@@ -10,6 +10,7 @@ import io.github.openskyblock.equipment.EquipmentSlotDefinition;
 import io.github.openskyblock.gemstone.GemstoneDefinition;
 import io.github.openskyblock.gemstone.GemstoneSlotDefinition;
 import io.github.openskyblock.mob.SkyBlockMobDefinition;
+import io.github.openskyblock.mobspawn.MobSpawnZoneDefinition;
 import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.potion.PotionBundleDefinition;
 import io.github.openskyblock.profile.PlacedMinion;
@@ -79,6 +80,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "wardrobe",
             "mobs",
             "mob",
+            "mobzones",
+            "mobzone",
             "bestiary",
             "accessorybag",
             "tuning",
@@ -142,6 +145,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "equipment" -> equipment(sender, args);
             case "wardrobe" -> wardrobe(sender, args);
             case "mobs", "mob" -> mobs(sender, args);
+            case "mobzones", "mobzone" -> mobZones(sender, args);
             case "bestiary" -> bestiary(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
@@ -336,6 +340,17 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 4 && isMobCommand(args[0]) && args[1].equalsIgnoreCase("spawn")) {
             return startsWith(List.of("1", "5", "10", Integer.toString(plugin.mobs().spawnLimitPerCommand())), args[3]);
         }
+        if (args.length == 2 && isMobZoneCommand(args[0])) {
+            List<String> values = new ArrayList<>(List.of("list", "spawn"));
+            values.addAll(plugin.mobSpawns().zoneIds());
+            return startsWith(values, args[1]);
+        }
+        if (args.length == 3 && isMobZoneCommand(args[0]) && args[1].equalsIgnoreCase("spawn")) {
+            return startsWith(plugin.mobSpawns().zones().stream().map(MobSpawnZoneDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 4 && isMobZoneCommand(args[0]) && args[1].equalsIgnoreCase("spawn")) {
+            return startsWith(List.of("1", "5", "10"), args[3]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("bestiary")) {
             return startsWith(plugin.bestiary().families().stream().map(BestiaryFamilyDefinition::id).toList(), args[1]);
         }
@@ -436,6 +451,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " wardrobe", "commands.help.wardrobe");
         helpLine(sender, label + " wardrobe save|equip|withdraw <slot>", "commands.help.wardrobe-slot");
         helpLine(sender, label + " mobs", "commands.help.mobs");
+        helpLine(sender, label + " mobzones", "commands.help.mob-zones");
         helpLine(sender, label + " bestiary [family]", "commands.help.bestiary");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
@@ -453,6 +469,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             helpLine(sender, label + " pet xp <amount> [player]", "commands.help.pet-xp");
             helpLine(sender, label + " minion give <id> [player]", "commands.help.minion-give");
             helpLine(sender, label + " mob spawn <id> [amount]", "commands.help.mob-spawn");
+            helpLine(sender, label + " mobzone spawn <id> [amount]", "commands.help.mob-zone-spawn");
             helpLine(sender, label + " backpack give <id> [player]", "commands.help.backpack-give");
             helpLine(sender, label + " shopnpcs refresh|remove", "commands.help.shop-npcs");
             helpLine(sender, label + " reload", "commands.help.reload");
@@ -1257,6 +1274,57 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void mobZones(CommandSender sender, String[] args) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("spawn")) {
+            mobZoneSpawn(sender, args);
+            return;
+        }
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("list")) {
+            plugin.mobSpawns().sendList(player);
+            return;
+        }
+        plugin.mobSpawns().sendDetail(player, args[1]);
+    }
+
+    private void mobZoneSpawn(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("openskyblock.admin")) {
+            plugin.text().send(sender, "errors.no-permission");
+            return;
+        }
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.mob-zone-usage");
+            return;
+        }
+        MobSpawnZoneDefinition zone = plugin.mobSpawns().zone(args[2]).orElse(null);
+        if (zone == null) {
+            plugin.text().send(player, "commands.mob-zone-unknown", List.of(TextService.raw("zone", args[2])));
+            return;
+        }
+        int amount = 1;
+        if (args.length >= 4) {
+            Optional<Integer> parsed = parsePositiveInt(player, args[3]);
+            if (parsed.isEmpty()) {
+                return;
+            }
+            amount = parsed.get();
+        }
+        int spawned = plugin.mobSpawns().spawn(player, zone, amount);
+        if (spawned > 0) {
+            plugin.text().send(player, "commands.mob-zone-spawned", List.of(
+                    TextService.raw("amount", Integer.toString(spawned)),
+                    TextService.parsed("zone", zone.displayName())
+            ));
+        }
+    }
+
     private void bestiary(CommandSender sender, String[] args) {
         Player player = requirePlayer(sender);
         if (player == null) {
@@ -1752,6 +1820,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isMobCommand(String value) {
         return value.equalsIgnoreCase("mob") || value.equalsIgnoreCase("mobs");
+    }
+
+    private boolean isMobZoneCommand(String value) {
+        return value.equalsIgnoreCase("mobzone") || value.equalsIgnoreCase("mobzones");
     }
 
     private boolean isPotionCommand(String value) {

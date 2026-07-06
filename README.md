@@ -26,6 +26,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Persistent configurable Storage pages with command and SkyBlock menu access, saved back to profiles on inventory close.
 - Configurable installed Backpacks with admin-granted backpack items, right-click install flow, profile-backed contents, open/list/remove commands, and inventory-close saving.
 - Configurable SkyBlock mobs with level/health nameplates, admin spawn commands, stat-based damage/defense, custom loot rolls, and kill rewards.
+- Configurable mob spawn zones with runtime caps, player activation checks, weighted mob selection, and force-spawn commands.
 - Configurable Bestiary families with persistent kill counts, milestone rewards, and stat aggregation.
 - Configurable Sacks with persistent material storage, carry-item access checks, automatic pickup routing, GUI deposit/withdraw flow, and command access.
 - Configurable Quiver with persistent arrow storage, pickup routing, arrow selection, bow-shot proxy consumption, GUI access, and command access.
@@ -117,6 +118,9 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock backpack give <id> [player]`
 - `/skyblock mobs`
 - `/skyblock mob spawn <id> [amount]`
+- `/skyblock mobzones`
+- `/skyblock mobzone <id>`
+- `/skyblock mobzone spawn <id> [amount]`
 - `/skyblock bestiary [family]`
 - `/skyblock sacks`
 - `/skyblock sack deposit <id>`

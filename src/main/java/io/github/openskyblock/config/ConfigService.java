@@ -25,6 +25,7 @@ public final class ConfigService {
             "storage.yml",
             "backpacks.yml",
             "mobs.yml",
+            "mob_spawns.yml",
             "bestiary.yml",
             "equipment.yml",
             "wardrobe.yml",
@@ -121,6 +122,10 @@ public final class ConfigService {
 
     public FileConfiguration mobs() {
         return file("mobs.yml");
+    }
+
+    public FileConfiguration mobSpawns() {
+        return file("mob_spawns.yml");
     }
 
     public FileConfiguration bestiary() {

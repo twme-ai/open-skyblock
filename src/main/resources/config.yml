@@ -36,6 +36,7 @@ features:
   minions: true
   combat-stats: true
   custom-mobs: true
+  mob-spawn-zones: true
   bestiary: true
 
 islands:

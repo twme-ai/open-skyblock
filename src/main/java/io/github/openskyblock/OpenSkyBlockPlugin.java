@@ -28,6 +28,7 @@ import io.github.openskyblock.listener.SackListener;
 import io.github.openskyblock.listener.ShopNpcListener;
 import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.mob.MobService;
+import io.github.openskyblock.mobspawn.MobSpawnService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.potion.PotionService;
 import io.github.openskyblock.profile.ProfileManager;
@@ -86,6 +87,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private StorageService storageService;
     private BackpackService backpackService;
     private MobService mobService;
+    private MobSpawnService mobSpawnService;
     private BestiaryService bestiaryService;
     private StatService statService;
     private UpgradeService upgradeService;
@@ -93,6 +95,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BukkitTask minionTask;
     private BukkitTask shopNpcTask;
     private BukkitTask potionTask;
+    private BukkitTask mobSpawnTask;
 
     @Override
     public void onEnable() {
@@ -128,6 +131,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
         this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, bestiaryService, reforgeService, enchantmentService, starService, gemstoneService);
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
+        this.mobSpawnService = new MobSpawnService(this, configService, textService, mobService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -163,6 +167,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         }
         if (potionTask != null) {
             potionTask.cancel();
+        }
+        if (mobSpawnTask != null) {
+            mobSpawnTask.cancel();
         }
         if (shopNpcService != null) {
             shopNpcService.removeLoadedNpcs();
@@ -222,6 +229,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         backpackService.reload();
         bestiaryService.reload();
         mobService.reload();
+        mobSpawnService.reload();
     }
 
     private void registerCommands() {
@@ -255,6 +263,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         long shopNpcTicks = Math.max(100L, getConfig().getLong("shop-npcs.respawn-ticks", 200L));
         this.shopNpcTask = getServer().getScheduler().runTaskTimer(this, shopNpcService::spawnConfiguredNpcs, shopNpcTicks, shopNpcTicks);
         this.potionTask = getServer().getScheduler().runTaskTimer(this, potionService::tickOnlinePlayers, 20L, potionService.refreshTicks());
+        this.mobSpawnTask = getServer().getScheduler().runTaskTimer(this, mobSpawnService::tick, 20L, mobSpawnService.tickIntervalTicks());
     }
 
     public ConfigService configService() {
@@ -387,6 +396,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public MobService mobs() {
         return mobService;
+    }
+
+    public MobSpawnService mobSpawns() {
+        return mobSpawnService;
     }
 
     public BestiaryService bestiary() {

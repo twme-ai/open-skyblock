@@ -1,0 +1,48 @@
+settings:
+  tick-interval-ticks: 100
+
+zones:
+  GRAVEYARD:
+    display-name: "<dark_green>Graveyard</dark_green>"
+    world: "world"
+    center:
+      x: 0
+      y: 80
+      z: 0
+    radius:
+      x: 12
+      y: 0
+      z: 12
+    use-highest-block: false
+    load-chunks: false
+    activation-radius: 80
+    min-players: 1
+    max-alive: 12
+    batch-size: 3
+    interval-ticks: 200
+    mobs:
+      GRAVEYARD_ZOMBIE:
+        weight: 3
+      GRAVEYARD_SKELETON:
+        weight: 1
+  SPIDER_DEN:
+    display-name: "<dark_gray>Spider's Den</dark_gray>"
+    world: "world"
+    center:
+      x: 24
+      y: 80
+      z: 0
+    radius:
+      x: 10
+      y: 0
+      z: 10
+    use-highest-block: false
+    load-chunks: false
+    activation-radius: 80
+    min-players: 1
+    max-alive: 10
+    batch-size: 2
+    interval-ticks: 200
+    mobs:
+      SPIDER_DEN_SPIDER:
+        weight: 1
