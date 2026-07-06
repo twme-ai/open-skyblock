@@ -153,7 +153,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.bazaarService = new BazaarService(this, configService, textService, economyService, customItemService);
         this.bazaarService.load();
         this.tradeService = new TradeService(configService, textService, economyService, customItemService);
-        this.storageService = new StorageService(configService, textService, profileManager);
+        this.storageService = new StorageService(configService, textService, profileManager, customItemService);
         this.backpackService = new BackpackService(this, configService, textService, profileManager);
 
         reloadServices();

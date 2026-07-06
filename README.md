@@ -23,7 +23,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable Auction House BIN-style listings with persistent item storage, listing fees, cancellation grace, buy flow, expired item returns, and seller claim flow.
 - Configurable Bazaar products with persistent buy orders, sell offers, instant buy/sell matching, escrow refunds, cancellation, and claim flow.
 - Secure player trading with request/accept flow, item and coin escrow, review/confirm steps, cancellation, and disconnect cleanup.
-- Persistent configurable Storage pages with command and SkyBlock menu access, saved back to profiles on inventory close.
+- Persistent configurable Storage pages with command and SkyBlock menu access, search, sorting, and inventory-close saving.
 - Configurable installed Backpacks with admin-granted backpack items, right-click install flow, profile-backed contents, open/list/remove commands, and inventory-close saving.
 - Configurable SkyBlock mobs with level/health nameplates, admin spawn commands, stat-based damage/defense, custom loot rolls, rare drop announcements, and kill rewards.
 - Configurable mob spawn zones with runtime caps, player activation checks, weighted mob selection, and force-spawn commands.
@@ -110,6 +110,8 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock trade status`
 - `/skyblock trade cancel`
 - `/skyblock storage [page]`
+- `/skyblock storage search <query>`
+- `/skyblock storage sort [page|all]`
 - `/skyblock enderchest [page]`
 - `/skyblock ec [page]`
 - `/skyblock backpack [slot]`

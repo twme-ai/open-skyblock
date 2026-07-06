@@ -2,3 +2,5 @@ settings:
   pages: 3
   rows: 6
   title: "<dark_gray>Storage Page <page>/<pages></dark_gray>"
+  sort-mode: NAME
+  search-results: 10

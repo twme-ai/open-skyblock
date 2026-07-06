@@ -227,7 +227,14 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
         }
         if (args.length == 2 && isStorageCommand(args[0])) {
-            return startsWith(numberRange(plugin.storage().pages()), args[1]);
+            List<String> values = new ArrayList<>(List.of("search", "sort"));
+            values.addAll(numberRange(plugin.storage().pages()));
+            return startsWith(values, args[1]);
+        }
+        if (args.length == 3 && isStorageCommand(args[0]) && args[1].equalsIgnoreCase("sort")) {
+            List<String> values = new ArrayList<>(List.of("all"));
+            values.addAll(numberRange(plugin.storage().pages()));
+            return startsWith(values, args[2]);
         }
         if (args.length == 2 && isBackpackCommand(args[0])) {
             List<String> values = new ArrayList<>(List.of("list", "install", "open", "remove", "give"));
@@ -800,6 +807,18 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
     private void storage(CommandSender sender, String[] args) {
         Player player = requirePlayer(sender);
         if (player == null) {
+            return;
+        }
+        if (args.length >= 2 && args[1].equalsIgnoreCase("search")) {
+            if (args.length < 3) {
+                plugin.text().send(player, "commands.storage-usage");
+                return;
+            }
+            plugin.storage().search(player, String.join(" ", java.util.Arrays.copyOfRange(args, 2, args.length)));
+            return;
+        }
+        if (args.length >= 2 && args[1].equalsIgnoreCase("sort")) {
+            plugin.storage().sort(player, args.length >= 3 ? args[2] : "all");
             return;
         }
         int page = 1;
