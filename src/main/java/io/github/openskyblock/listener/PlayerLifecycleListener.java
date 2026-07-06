@@ -20,12 +20,14 @@ public final class PlayerLifecycleListener implements Listener {
         plugin.profiles().profile(event.getPlayer());
         giveStarterMenuItem(event.getPlayer());
         plugin.potions().playerJoined(event.getPlayer());
+        plugin.slayers().playerJoined(event.getPlayer());
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         plugin.potions().playerQuit(event.getPlayer());
         plugin.trades().playerQuit(event.getPlayer());
+        plugin.slayers().playerQuit(event.getPlayer());
         plugin.profiles().save(event.getPlayer());
     }
 

@@ -102,6 +102,17 @@ public final class ProfileManager {
         return new SkyBlockProfile(uniqueId, playerName, purse, bank);
     }
 
+    private UUID parseUuid(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return UUID.fromString(raw);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
     private SkyBlockProfile loadProfile(UUID uniqueId, ConfigurationSection section) {
         if (section == null) {
             return newProfile(uniqueId, "Unknown");
@@ -341,7 +352,9 @@ public final class ProfileManager {
                         id.toUpperCase(),
                         tier,
                         activeSlayer.getDouble("progress-xp", 0.0D),
-                        activeSlayer.getBoolean("boss-spawned", false)
+                        activeSlayer.getBoolean("boss-spawned", false),
+                        parseUuid(activeSlayer.getString("boss-entity-id", "")),
+                        activeSlayer.getLong("boss-expires-at", 0L)
                 ));
             }
         }
@@ -512,6 +525,12 @@ public final class ProfileManager {
             profileData.set(base + ".slayers.active.tier", activeSlayer.tier());
             profileData.set(base + ".slayers.active.progress-xp", activeSlayer.progressXp());
             profileData.set(base + ".slayers.active.boss-spawned", activeSlayer.bossSpawned());
+            if (activeSlayer.bossEntityId() != null) {
+                profileData.set(base + ".slayers.active.boss-entity-id", activeSlayer.bossEntityId().toString());
+            }
+            if (activeSlayer.bossExpiresAtMillis() > 0L) {
+                profileData.set(base + ".slayers.active.boss-expires-at", activeSlayer.bossExpiresAtMillis());
+            }
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());
         profileData.set(base + ".pets.owned", null);

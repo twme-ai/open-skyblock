@@ -1,3 +1,9 @@
+settings:
+  boss-timeout-seconds: 300
+  boss-bar-enabled: true
+  boss-bar-color: RED
+  boss-bar-overlay: PROGRESS
+
 slayers:
   REVENANT:
     display-name: "<dark_green>Revenant Horror</dark_green>"

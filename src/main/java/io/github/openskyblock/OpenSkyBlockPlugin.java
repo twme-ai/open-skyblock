@@ -98,6 +98,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BukkitTask shopNpcTask;
     private BukkitTask potionTask;
     private BukkitTask mobSpawnTask;
+    private BukkitTask slayerTask;
 
     @Override
     public void onEnable() {
@@ -133,7 +134,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
         this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, bestiaryService, reforgeService, enchantmentService, starService, gemstoneService);
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
-        this.slayerService = new SlayerService(configService, textService, profileManager, economyService, skillService, mobService);
+        this.slayerService = new SlayerService(this, configService, textService, profileManager, economyService, skillService, mobService);
         this.mobSpawnService = new MobSpawnService(this, configService, textService, mobService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService);
         this.islandService = new IslandService(configService, textService, profileManager);
@@ -173,6 +174,12 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         }
         if (mobSpawnTask != null) {
             mobSpawnTask.cancel();
+        }
+        if (slayerTask != null) {
+            slayerTask.cancel();
+        }
+        if (slayerService != null) {
+            slayerService.shutdown();
         }
         if (shopNpcService != null) {
             shopNpcService.removeLoadedNpcs();
@@ -268,6 +275,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.shopNpcTask = getServer().getScheduler().runTaskTimer(this, shopNpcService::spawnConfiguredNpcs, shopNpcTicks, shopNpcTicks);
         this.potionTask = getServer().getScheduler().runTaskTimer(this, potionService::tickOnlinePlayers, 20L, potionService.refreshTicks());
         this.mobSpawnTask = getServer().getScheduler().runTaskTimer(this, mobSpawnService::tick, 20L, mobSpawnService.tickIntervalTicks());
+        this.slayerTask = getServer().getScheduler().runTaskTimer(this, slayerService::tickBosses, 20L, 20L);
     }
 
     public ConfigService configService() {

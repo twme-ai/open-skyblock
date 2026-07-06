@@ -239,6 +239,8 @@ commands:
   slayer-progress: "<prefix><slayer> <dark_gray>|</dark_gray> <yellow><progress></yellow><gray>/</gray><yellow><required_xp></yellow><gray> Combat XP</gray>"
   slayer-boss-missing: "<prefix><red>The configured Slayer boss mob is missing: <yellow><mob></yellow>.</red>"
   slayer-boss-spawned: "<prefix><red>Slayer boss spawned:</red> <boss> <dark_gray>|</dark_gray> <slayer> <gray>Tier</gray> <yellow><tier></yellow>"
+  slayer-boss-expired: "<prefix><red>Your Slayer boss despawned because the quest timer expired.</red>"
+  slayer-boss-not-yours: "<prefix><red>That Slayer boss belongs to <yellow><player></yellow>. Slayer rewards were denied.</red>"
   slayer-completed: "<prefix><green>Completed <slayer> <green>Tier <yellow><tier></yellow>.</green></green> <gray>Slayer XP:</gray> <yellow><slayer_xp></yellow>"
   slayer-cancelled: "<prefix><gray>Your Slayer quest has been cancelled.</gray>"
   slayer-status: "<prefix><slayer> <dark_gray>|</dark_gray> <gray>Tier</gray> <yellow><tier></yellow> <dark_gray>|</dark_gray> <yellow><progress></yellow><gray>/</gray><yellow><required_xp></yellow><gray> Combat XP</gray> <dark_gray>|</dark_gray> <phase>"
@@ -575,6 +577,7 @@ backpacks:
 slayers:
   phase-progress: "<yellow>Gather Combat XP</yellow>"
   phase-boss: "<red>Defeat the boss</red>"
+  boss-bar-title: "<boss> <dark_gray>|</dark_gray> <red><health></red><gray>/</gray><red><max_health> HP</red> <dark_gray>|</dark_gray> <yellow><time>s</yellow>"
 
 wardrobe:
   status-empty: "<dark_gray>Empty</dark_gray>"

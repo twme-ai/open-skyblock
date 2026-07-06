@@ -19,30 +19,59 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SlayerService {
+    private final JavaPlugin plugin;
     private final ConfigService configService;
     private final TextService text;
     private final ProfileManager profiles;
     private final EconomyService economy;
     private final SkillService skills;
     private final MobService mobs;
+    private final NamespacedKey bossOwnerKey;
+    private final NamespacedKey bossSlayerKey;
+    private final NamespacedKey bossTierKey;
     private final Map<String, SlayerDefinition> definitions = new HashMap<>();
+    private final Map<UUID, BossBar> bossBars = new HashMap<>();
+    private boolean bossBarEnabled = true;
+    private long bossTimeoutMillis = 300_000L;
+    private BossBar.Color bossBarColor = BossBar.Color.RED;
+    private BossBar.Overlay bossBarOverlay = BossBar.Overlay.PROGRESS;
 
-    public SlayerService(ConfigService configService, TextService text, ProfileManager profiles, EconomyService economy, SkillService skills, MobService mobs) {
+    public SlayerService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, EconomyService economy, SkillService skills, MobService mobs) {
+        this.plugin = plugin;
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.economy = economy;
         this.skills = skills;
         this.mobs = mobs;
+        this.bossOwnerKey = new NamespacedKey(plugin, "slayer_boss_owner");
+        this.bossSlayerKey = new NamespacedKey(plugin, "slayer_boss_id");
+        this.bossTierKey = new NamespacedKey(plugin, "slayer_boss_tier");
     }
 
     public void reload() {
         definitions.clear();
+        ConfigurationSection settings = configService.slayers().getConfigurationSection("settings");
+        this.bossTimeoutMillis = Math.max(10L, settings == null ? 300L : settings.getLong("boss-timeout-seconds", 300L)) * 1000L;
+        this.bossBarEnabled = settings == null || settings.getBoolean("boss-bar-enabled", true);
+        this.bossBarColor = parseBossBarColor(settings == null ? "RED" : settings.getString("boss-bar-color", "RED"));
+        this.bossBarOverlay = parseBossBarOverlay(settings == null ? "PROGRESS" : settings.getString("boss-bar-overlay", "PROGRESS"));
         ConfigurationSection section = configService.slayers().getConfigurationSection("slayers");
         if (section == null) {
             return;
@@ -183,11 +212,31 @@ public final class SlayerService {
         }
     }
 
-    public void handleKill(Player player, SkyBlockMobDefinition killedMob, Location deathLocation) {
-        if (!enabled() || killedMob == null) {
+    public boolean isSlayerBoss(Entity entity) {
+        return entity != null && entity.getPersistentDataContainer().has(bossOwnerKey, PersistentDataType.STRING);
+    }
+
+    public boolean shouldGrantMobRewards(Player killer, Entity entity) {
+        if (!isSlayerBoss(entity)) {
+            return true;
+        }
+        return killer != null && bossOwnerId(entity)
+                .filter(killer.getUniqueId()::equals)
+                .isPresent();
+    }
+
+    public void handleKill(Player killer, SkyBlockMobDefinition killedMob, LivingEntity killedEntity) {
+        if (!enabled() || killedMob == null || killedEntity == null) {
             return;
         }
-        SkyBlockProfile profile = profiles.profile(player);
+        if (isSlayerBoss(killedEntity)) {
+            handleBossDeath(killer, killedMob, killedEntity);
+            return;
+        }
+        if (killer == null) {
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(killer);
         ActiveSlayerQuest active = profile.activeSlayer();
         if (active == null) {
             return;
@@ -198,8 +247,8 @@ public final class SlayerService {
             return;
         }
         if (active.bossSpawned()) {
-            if (killedMob.id().equalsIgnoreCase(tier.bossMobId())) {
-                complete(player, profile, definition, tier);
+            if (active.bossEntityId() == null && killedMob.id().equalsIgnoreCase(tier.bossMobId())) {
+                complete(killer, profile, definition, tier);
             }
             return;
         }
@@ -208,10 +257,10 @@ public final class SlayerService {
         }
         active.progressXp(active.progressXp() + Math.max(0.0D, killedMob.skillXp()));
         if (active.progressXp() >= tier.requiredXp()) {
-            spawnBoss(player, active, definition, tier, deathLocation);
+            spawnBoss(killer, active, definition, tier, killedEntity.getLocation());
             return;
         }
-        text.send(player, "commands.slayer-progress", List.of(
+        text.send(killer, "commands.slayer-progress", List.of(
                 TextService.parsed("slayer", definition.displayName()),
                 TextService.raw("progress", text.formatNumber(active.progressXp())),
                 TextService.raw("required_xp", text.formatNumber(tier.requiredXp()))
@@ -224,9 +273,14 @@ public final class SlayerService {
             text.send(player, "commands.slayer-boss-missing", List.of(TextService.raw("mob", tier.bossMobId())));
             return;
         }
-        mobs.spawn(location, boss);
+        LivingEntity entity = mobs.spawn(location, boss);
+        long expiresAt = System.currentTimeMillis() + bossTimeoutMillis;
+        tagBoss(entity, player, definition, tier);
         active.progressXp(tier.requiredXp());
         active.bossSpawned(true);
+        active.bossEntityId(entity.getUniqueId());
+        active.bossExpiresAtMillis(expiresAt);
+        showOrUpdateBossBar(player, entity, definition, tier, expiresAt);
         profiles.save(player);
         text.send(player, "commands.slayer-boss-spawned", List.of(
                 TextService.parsed("slayer", definition.displayName()),
@@ -236,6 +290,10 @@ public final class SlayerService {
     }
 
     private void complete(Player player, SkyBlockProfile profile, SlayerDefinition definition, SlayerTierDefinition tier) {
+        ActiveSlayerQuest active = profile.activeSlayer();
+        if (active != null && active.bossEntityId() != null) {
+            hideBossBar(active.bossEntityId());
+        }
         profile.activeSlayer(null);
         profile.slayerXp().put(definition.id(), profile.slayerXp().getOrDefault(definition.id(), 0.0D) + tier.slayerXp());
         if (tier.rewardSkill() != null && tier.rewardSkillXp() > 0.0D) {
@@ -251,6 +309,264 @@ public final class SlayerService {
                 TextService.raw("tier", Integer.toString(tier.tier())),
                 TextService.raw("slayer_xp", text.formatNumber(tier.slayerXp()))
         ));
+    }
+
+    public void refreshBossBarNextTick(Entity entity) {
+        if (!isSlayerBoss(entity)) {
+            return;
+        }
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            if (entity instanceof LivingEntity livingEntity && livingEntity.isValid() && !livingEntity.isDead()) {
+                updateBossBar(livingEntity);
+            }
+        });
+    }
+
+    public void tickBosses() {
+        if (!enabled()) {
+            hideAllBossBars();
+            return;
+        }
+        long now = System.currentTimeMillis();
+        boolean saveAll = false;
+        for (SkyBlockProfile profile : profiles.loadedProfiles()) {
+            ActiveSlayerQuest active = profile.activeSlayer();
+            if (active == null || !active.bossSpawned()) {
+                continue;
+            }
+            if (active.bossExpiresAtMillis() <= 0L) {
+                active.bossExpiresAtMillis(now + bossTimeoutMillis);
+                saveAll = true;
+            }
+            Entity entity = active.bossEntityId() == null ? null : Bukkit.getEntity(active.bossEntityId());
+            if (entity instanceof LivingEntity livingEntity && entity.isValid() && !entity.isDead()) {
+                updateBossBar(livingEntity, profile, active);
+            }
+            if (active.bossExpiresAtMillis() > 0L && now >= active.bossExpiresAtMillis()) {
+                if (entity != null && entity.isValid()) {
+                    entity.remove();
+                }
+                if (active.bossEntityId() != null) {
+                    hideBossBar(active.bossEntityId());
+                }
+                profile.activeSlayer(null);
+                Player player = plugin.getServer().getPlayer(profile.uniqueId());
+                if (player != null) {
+                    text.send(player, "commands.slayer-boss-expired");
+                    profiles.save(player);
+                } else {
+                    saveAll = true;
+                }
+            }
+        }
+        if (saveAll) {
+            profiles.saveAll();
+        }
+    }
+
+    public void playerJoined(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        ActiveSlayerQuest active = profile.activeSlayer();
+        if (active == null || !active.bossSpawned() || active.bossEntityId() == null) {
+            return;
+        }
+        Entity entity = Bukkit.getEntity(active.bossEntityId());
+        if (entity instanceof LivingEntity livingEntity && livingEntity.isValid() && !livingEntity.isDead()) {
+            updateBossBar(livingEntity, profile, active);
+        }
+    }
+
+    public void playerQuit(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        ActiveSlayerQuest active = profile.activeSlayer();
+        if (active == null || active.bossEntityId() == null) {
+            return;
+        }
+        BossBar bossBar = bossBars.get(active.bossEntityId());
+        if (bossBar != null) {
+            player.hideBossBar(bossBar);
+        }
+    }
+
+    public void shutdown() {
+        hideAllBossBars();
+    }
+
+    private void handleBossDeath(Player killer, SkyBlockMobDefinition killedMob, LivingEntity killedEntity) {
+        UUID ownerId = bossOwnerId(killedEntity).orElse(null);
+        hideBossBar(killedEntity.getUniqueId());
+        if (ownerId == null) {
+            return;
+        }
+        if (killer != null && !ownerId.equals(killer.getUniqueId())) {
+            text.send(killer, "commands.slayer-boss-not-yours", List.of(TextService.raw("player", ownerName(ownerId))));
+        }
+        Player owner = plugin.getServer().getPlayer(ownerId);
+        SkyBlockProfile profile = owner == null ? profiles.profile(ownerId) : profiles.profile(owner);
+        if (profile == null) {
+            return;
+        }
+        ActiveSlayerQuest active = profile.activeSlayer();
+        SlayerDefinition definition = active == null ? null : definition(active.slayerId()).orElse(null);
+        SlayerTierDefinition tier = definition == null ? null : definition.tiers().get(active.tier());
+        if (active == null || definition == null || tier == null || !matchesActiveBoss(active, tier, killedEntity, killedMob)) {
+            return;
+        }
+        if (owner == null) {
+            profile.activeSlayer(null);
+            profiles.saveAll();
+            return;
+        }
+        complete(owner, profile, definition, tier);
+    }
+
+    private boolean matchesActiveBoss(ActiveSlayerQuest active, SlayerTierDefinition tier, LivingEntity entity, SkyBlockMobDefinition killedMob) {
+        if (!active.bossSpawned() || !killedMob.id().equalsIgnoreCase(tier.bossMobId())) {
+            return false;
+        }
+        return active.bossEntityId() == null || active.bossEntityId().equals(entity.getUniqueId());
+    }
+
+    private void tagBoss(LivingEntity entity, Player player, SlayerDefinition definition, SlayerTierDefinition tier) {
+        entity.getPersistentDataContainer().set(bossOwnerKey, PersistentDataType.STRING, player.getUniqueId().toString());
+        entity.getPersistentDataContainer().set(bossSlayerKey, PersistentDataType.STRING, definition.id());
+        entity.getPersistentDataContainer().set(bossTierKey, PersistentDataType.INTEGER, tier.tier());
+    }
+
+    private Optional<UUID> bossOwnerId(Entity entity) {
+        if (entity == null) {
+            return Optional.empty();
+        }
+        String raw = entity.getPersistentDataContainer().get(bossOwnerKey, PersistentDataType.STRING);
+        if (raw == null || raw.isBlank()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(UUID.fromString(raw));
+        } catch (IllegalArgumentException ignored) {
+            return Optional.empty();
+        }
+    }
+
+    private String ownerName(UUID ownerId) {
+        SkyBlockProfile profile = profiles.profile(ownerId);
+        if (profile == null || profile.playerName() == null || profile.playerName().isBlank()) {
+            return ownerId.toString();
+        }
+        return profile.playerName();
+    }
+
+    private void showOrUpdateBossBar(Player player, LivingEntity entity, SlayerDefinition definition, SlayerTierDefinition tier, long expiresAt) {
+        if (!bossBarEnabled) {
+            return;
+        }
+        BossBar bossBar = bossBars.computeIfAbsent(entity.getUniqueId(), ignored -> BossBar.bossBar(Component.empty(), 1.0F, bossBarColor, bossBarOverlay));
+        bossBar.color(bossBarColor);
+        bossBar.overlay(bossBarOverlay);
+        bossBar.progress(healthProgress(entity));
+        bossBar.name(bossBarName(entity, definition, tier, expiresAt));
+        player.showBossBar(bossBar);
+    }
+
+    private void updateBossBar(LivingEntity entity) {
+        UUID ownerId = bossOwnerId(entity).orElse(null);
+        if (ownerId == null) {
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(ownerId);
+        ActiveSlayerQuest active = profile == null ? null : profile.activeSlayer();
+        if (profile == null || active == null) {
+            return;
+        }
+        updateBossBar(entity, profile, active);
+    }
+
+    private void updateBossBar(LivingEntity entity, SkyBlockProfile profile, ActiveSlayerQuest active) {
+        if (!bossBarEnabled || active.bossEntityId() == null) {
+            hideBossBar(entity.getUniqueId());
+            return;
+        }
+        SlayerDefinition definition = definition(active.slayerId()).orElse(null);
+        SlayerTierDefinition tier = definition == null ? null : definition.tiers().get(active.tier());
+        Player player = plugin.getServer().getPlayer(profile.uniqueId());
+        if (definition == null || tier == null || player == null) {
+            return;
+        }
+        showOrUpdateBossBar(player, entity, definition, tier, active.bossExpiresAtMillis());
+    }
+
+    private Component bossBarName(LivingEntity entity, SlayerDefinition definition, SlayerTierDefinition tier, long expiresAt) {
+        SkyBlockMobDefinition boss = mobs.definition(entity).orElse(null);
+        String bossName = boss == null ? definition.bossName() : boss.displayName();
+        return text.deserialize(text.rawMessage("slayers.boss-bar-title"), List.of(
+                TextService.parsed("boss", bossName),
+                TextService.parsed("slayer", definition.displayName()),
+                TextService.raw("tier", Integer.toString(tier.tier())),
+                TextService.raw("health", text.formatNumber(Math.max(0.0D, entity.getHealth()))),
+                TextService.raw("max_health", text.formatNumber(maxHealth(entity))),
+                TextService.raw("time", Long.toString(remainingSeconds(expiresAt)))
+        ));
+    }
+
+    private float healthProgress(LivingEntity entity) {
+        double maximum = maxHealth(entity);
+        if (maximum <= 0.0D) {
+            return 0.0F;
+        }
+        return (float) Math.max(0.0D, Math.min(1.0D, entity.getHealth() / maximum));
+    }
+
+    private double maxHealth(LivingEntity entity) {
+        AttributeInstance attribute = entity.getAttribute(Attribute.MAX_HEALTH);
+        if (attribute == null) {
+            return Math.max(1.0D, entity.getHealth());
+        }
+        return Math.max(1.0D, attribute.getValue());
+    }
+
+    private long remainingSeconds(long expiresAt) {
+        if (expiresAt <= 0L) {
+            return 0L;
+        }
+        return Math.max(0L, (long) Math.ceil((expiresAt - System.currentTimeMillis()) / 1000.0D));
+    }
+
+    private void hideBossBar(UUID entityId) {
+        BossBar bossBar = bossBars.remove(entityId);
+        if (bossBar == null) {
+            return;
+        }
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            player.hideBossBar(bossBar);
+        }
+    }
+
+    private void hideAllBossBars() {
+        for (UUID entityId : List.copyOf(bossBars.keySet())) {
+            hideBossBar(entityId);
+        }
+    }
+
+    private BossBar.Color parseBossBarColor(String value) {
+        if (value == null || value.isBlank()) {
+            return BossBar.Color.RED;
+        }
+        try {
+            return BossBar.Color.valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return BossBar.Color.RED;
+        }
+    }
+
+    private BossBar.Overlay parseBossBarOverlay(String value) {
+        if (value == null || value.isBlank()) {
+            return BossBar.Overlay.PROGRESS;
+        }
+        try {
+            return BossBar.Overlay.valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return BossBar.Overlay.PROGRESS;
+        }
     }
 
     private Map<Integer, SlayerTierDefinition> readTiers(ConfigurationSection section) {

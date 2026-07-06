@@ -27,9 +27,14 @@ public final class MobListener implements Listener {
         }
         Player killer = event.getEntity().getKiller();
         SkyBlockMobDefinition definition = plugin.mobs().definition(event.getEntity()).orElse(null);
-        plugin.mobs().handleDeath(event);
-        if (killer != null && definition != null) {
-            plugin.slayers().handleKill(killer, definition, event.getEntity().getLocation());
+        if (plugin.slayers().shouldGrantMobRewards(killer, event.getEntity())) {
+            plugin.mobs().handleDeath(event);
+        } else {
+            event.getDrops().clear();
+            event.setDroppedExp(0);
+        }
+        if (definition != null) {
+            plugin.slayers().handleKill(killer, definition, event.getEntity());
         }
     }
 
@@ -65,6 +70,7 @@ public final class MobListener implements Listener {
         }
         if (plugin.mobs().definition(event.getEntity()).isPresent()) {
             plugin.mobs().refreshNameNextTick(event.getEntity());
+            plugin.slayers().refreshBossBarNextTick(event.getEntity());
         }
     }
 
