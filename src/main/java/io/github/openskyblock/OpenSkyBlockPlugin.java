@@ -4,6 +4,7 @@ import io.github.openskyblock.command.SkyBlockCommand;
 import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.accessory.TuningService;
 import io.github.openskyblock.auction.AuctionService;
+import io.github.openskyblock.backpack.BackpackService;
 import io.github.openskyblock.bazaar.BazaarService;
 import io.github.openskyblock.cake.CakeService;
 import io.github.openskyblock.config.ConfigService;
@@ -80,6 +81,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BazaarService bazaarService;
     private TradeService tradeService;
     private StorageService storageService;
+    private BackpackService backpackService;
     private StatService statService;
     private UpgradeService upgradeService;
     private BukkitTask autosaveTask;
@@ -131,6 +133,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.bazaarService.load();
         this.tradeService = new TradeService(configService, textService, economyService, customItemService);
         this.storageService = new StorageService(configService, textService, profileManager);
+        this.backpackService = new BackpackService(this, configService, textService, profileManager);
 
         reloadServices();
         registerCommands();
@@ -209,6 +212,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         bazaarService.reload();
         tradeService.reload();
         storageService.reload();
+        backpackService.reload();
     }
 
     private void registerCommands() {
@@ -365,6 +369,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public StorageService storage() {
         return storageService;
+    }
+
+    public BackpackService backpacks() {
+        return backpackService;
     }
 
     public StatService stats() {

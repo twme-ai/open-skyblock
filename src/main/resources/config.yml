@@ -15,6 +15,7 @@ features:
   bazaar: true
   player-trading: true
   storage: true
+  backpacks: true
   sacks: true
   quiver: true
   potion-effects: true

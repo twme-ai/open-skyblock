@@ -201,6 +201,39 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection backpacks = section.getConfigurationSection("backpacks");
+        if (backpacks != null) {
+            for (String slotKey : backpacks.getKeys(false)) {
+                ConfigurationSection backpackSection = backpacks.getConfigurationSection(slotKey);
+                if (backpackSection == null) {
+                    continue;
+                }
+                try {
+                    int backpackSlot = Integer.parseInt(slotKey);
+                    String id = backpackSection.getString("id", "");
+                    if (id.isBlank()) {
+                        continue;
+                    }
+                    ItemStack[] contents = new ItemStack[54];
+                    ConfigurationSection items = backpackSection.getConfigurationSection("items");
+                    if (items != null) {
+                        for (String itemSlotKey : items.getKeys(false)) {
+                            int itemSlot = Integer.parseInt(itemSlotKey);
+                            if (itemSlot < 0 || itemSlot >= contents.length) {
+                                continue;
+                            }
+                            ItemStack itemStack = items.getItemStack(itemSlotKey);
+                            if (itemStack != null && !itemStack.getType().isAir()) {
+                                contents[itemSlot] = itemStack;
+                            }
+                        }
+                    }
+                    profile.backpacks().put(backpackSlot, new OwnedBackpack(backpackSlot, id.toUpperCase(), contents));
+                } catch (NumberFormatException ignored) {
+                    plugin.getLogger().warning("Skipping invalid backpack slot in profiles.yml: " + slotKey);
+                }
+            }
+        }
         ConfigurationSection sacks = section.getConfigurationSection("sacks");
         if (sacks != null) {
             for (String sackId : sacks.getKeys(false)) {
@@ -354,6 +387,22 @@ public final class ProfileManager {
                 ItemStack itemStack = contents[slot];
                 if (itemStack != null && !itemStack.getType().isAir()) {
                     profileData.set(base + ".storage.pages." + entry.getKey() + "." + slot, itemStack);
+                }
+            }
+        }
+        profileData.set(base + ".backpacks", null);
+        for (Map.Entry<Integer, OwnedBackpack> entry : profile.backpacks().entrySet()) {
+            OwnedBackpack backpack = entry.getValue();
+            if (backpack == null) {
+                continue;
+            }
+            String backpackBase = base + ".backpacks." + entry.getKey();
+            profileData.set(backpackBase + ".id", backpack.id());
+            ItemStack[] contents = backpack.contents();
+            for (int slot = 0; slot < contents.length; slot++) {
+                ItemStack itemStack = contents[slot];
+                if (itemStack != null && !itemStack.getType().isAir()) {
+                    profileData.set(backpackBase + ".items." + slot, itemStack);
                 }
             }
         }

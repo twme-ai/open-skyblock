@@ -2,6 +2,7 @@ package io.github.openskyblock.listener;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.menu.AccessoryBagHolder;
+import io.github.openskyblock.menu.BackpackHolder;
 import io.github.openskyblock.menu.BankMenuAction;
 import io.github.openskyblock.menu.BankMenuHolder;
 import io.github.openskyblock.menu.BrowserMenuAction;
@@ -30,6 +31,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 public final class MenuListener implements Listener {
     private final OpenSkyBlockPlugin plugin;
@@ -43,7 +45,7 @@ public final class MenuListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
-        if (event.getView().getTopInventory().getHolder() instanceof StorageHolder) {
+        if (event.getView().getTopInventory().getHolder() instanceof StorageHolder || event.getView().getTopInventory().getHolder() instanceof BackpackHolder) {
             return;
         }
         if (!(event.getView().getTopInventory().getHolder() instanceof SkyBlockMenuHolder holder)) {
@@ -185,12 +187,23 @@ public final class MenuListener implements Listener {
         if (event.getInventory().getHolder() instanceof StorageHolder holder) {
             plugin.storage().save(player, holder, event.getInventory());
         }
+        if (event.getInventory().getHolder() instanceof BackpackHolder holder) {
+            plugin.backpacks().save(player, holder, event.getInventory());
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onMenuItemUse(PlayerInteractEvent event) {
         Action action = event.getAction();
         if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+        if (plugin.backpacks().definition(event.getItem()).isPresent()) {
+            event.setCancelled(true);
+            plugin.backpacks().installHeld(event.getPlayer());
             return;
         }
         String itemId = plugin.customItems()

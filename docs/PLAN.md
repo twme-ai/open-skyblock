@@ -41,6 +41,7 @@ Verified reference links:
 - Official equipment reference: https://wiki.hypixel.net/Equipment
 - Official wardrobe reference: https://wiki.hypixel.net/Wardrobe
 - Official storage reference: https://wiki.hypixel.net/Storage
+- Official backpack reference: https://wiki.hypixel.net/Backpacks
 - Official pets reference: https://wiki.hypixel.net/Pets
 - Official quiver reference: https://wiki.hypixel.net/Quiver
 - Official God Potion reference: https://wiki.hypixel.net/God_Potion
@@ -116,13 +117,14 @@ Planned additions when each subsystem needs them:
    - Configurable equipment slots with profile persistence, equipment-slot item metadata, GUI equip/unequip flow, and stat aggregation are implemented.
    - Configurable Wardrobe slots with persistent armor setup storage, GUI swap/withdraw flow, and command access are implemented.
    - Configurable Storage pages with profile ItemStack persistence, command access, SkyBlock menu access, and inventory-close saving are implemented.
+   - Configurable installed Backpacks with item metadata, profile ItemStack persistence, command access, right-click install flow, and inventory-close saving are implemented.
    - Configurable Sacks with persistent material storage, carry-item access checks, automatic pickup routing, GUI deposit/withdraw flow, and command access are implemented.
    - Configurable Quiver storage with automatic arrow pickup, selected arrow type, bow-shot proxy consumption, GUI controls, and command access is implemented.
    - Configurable Potion Effects and God Potion bundles with persistent online-only timers, private-island timer pause, vanilla effect refresh, item activation, stat bonuses, and command status are implemented.
    - Configurable Century Cakes with persistent placed cake locations, reusable right-click activation, visitor activation option, active buff timers, pickup flow, and stat aggregation are implemented.
    - Configurable profile/account upgrades with persistent tier levels, purchase costs, stat bonuses, bank-capacity bonuses, accessory-bag slot bonuses, and minion-slot bonuses are implemented.
    - Configurable pet definitions, persistent owned pets, active pet selection, pet XP/levels, pet menu activation, and active pet stat aggregation are implemented.
-   - Backpacks, storage search/sorting, pet items, pet score, autopet rules, cosmetic summoned pet entities, advanced reforge stones, reforge anvil UI, vanilla/SkyBlock-specific enchantment effects, enchanting table/anvil UI, essence currencies, dungeon-only star scaling, gemstone slot unlocking, gemstone item consumption, advanced potion modifiers, and ability cooldowns remain future work.
+   - Storage search/sorting, pet items, pet score, autopet rules, cosmetic summoned pet entities, advanced reforge stones, reforge anvil UI, vanilla/SkyBlock-specific enchantment effects, enchanting table/anvil UI, essence currencies, dungeon-only star scaling, gemstone slot unlocking, gemstone item consumption, advanced potion modifiers, and ability cooldowns remain future work.
    - Custom mobs, loot tables, spawn zones, boss bars, damage formula, aggro, and death rewards.
 
 5. Economy
@@ -153,4 +155,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, secure player trading, configurable Storage pages, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, secure player trading, configurable Storage pages, configurable installed Backpacks, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

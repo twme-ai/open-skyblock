@@ -1,6 +1,7 @@
 package io.github.openskyblock.command;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
+import io.github.openskyblock.backpack.BackpackDefinition;
 import io.github.openskyblock.cake.CakeDefinition;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
@@ -49,6 +50,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "storage",
             "enderchest",
             "ec",
+            "backpacks",
+            "backpack",
             "shopnpcs",
             "sell",
             "sacks",
@@ -115,6 +118,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "bazaar", "bz" -> bazaar(sender, args);
             case "trade" -> trade(sender, args);
             case "storage", "enderchest", "ec" -> storage(sender, args);
+            case "backpacks", "backpack" -> backpack(sender, args);
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
             case "sacks", "sack" -> sacks(sender, args);
@@ -209,6 +213,20 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && isStorageCommand(args[0])) {
             return startsWith(numberRange(plugin.storage().pages()), args[1]);
+        }
+        if (args.length == 2 && isBackpackCommand(args[0])) {
+            List<String> values = new ArrayList<>(List.of("list", "install", "open", "remove", "give"));
+            values.addAll(numberRange(plugin.backpacks().slots()));
+            return startsWith(values, args[1]);
+        }
+        if (args.length == 3 && isBackpackCommand(args[0]) && (args[1].equalsIgnoreCase("open") || args[1].equalsIgnoreCase("remove"))) {
+            return startsWith(numberRange(plugin.backpacks().slots()), args[2]);
+        }
+        if (args.length == 3 && isBackpackCommand(args[0]) && args[1].equalsIgnoreCase("give")) {
+            return startsWith(plugin.backpacks().definitions().stream().map(BackpackDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 4 && isBackpackCommand(args[0]) && args[1].equalsIgnoreCase("give")) {
+            return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[3]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("shopnpcs")) {
             return startsWith(List.of("refresh", "remove"), args[1]);
@@ -376,6 +394,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " trade <player>", "commands.help.trade");
         helpLine(sender, label + " trade offerhand|offercoins|ready|confirm", "commands.help.trade-session");
         helpLine(sender, label + " storage [page]", "commands.help.storage");
+        helpLine(sender, label + " backpack [slot|list|install]", "commands.help.backpack");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
         helpLine(sender, label + " sacks", "commands.help.sacks");
         helpLine(sender, label + " sack deposit|withdraw", "commands.help.sack");
@@ -412,6 +431,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             helpLine(sender, label + " pet give <id> [player]", "commands.help.pet-give");
             helpLine(sender, label + " pet xp <amount> [player]", "commands.help.pet-xp");
             helpLine(sender, label + " minion give <id> [player]", "commands.help.minion-give");
+            helpLine(sender, label + " backpack give <id> [player]", "commands.help.backpack-give");
             helpLine(sender, label + " shopnpcs refresh|remove", "commands.help.shop-npcs");
             helpLine(sender, label + " reload", "commands.help.reload");
         }
@@ -735,6 +755,78 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             page = parsed.get();
         }
         plugin.storage().open(player, page);
+    }
+
+    private void backpack(CommandSender sender, String[] args) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("give")) {
+            backpackGive(sender, args);
+            return;
+        }
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.backpacks().open(player, 1);
+            return;
+        }
+        if (numeric(args[1])) {
+            parsePositiveInt(player, args[1]).ifPresent(slot -> plugin.backpacks().open(player, slot));
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "list" -> plugin.backpacks().sendList(player);
+            case "install" -> plugin.backpacks().installHeld(player);
+            case "open" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.backpack-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(slot -> plugin.backpacks().open(player, slot));
+            }
+            case "remove" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.backpack-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(slot -> plugin.backpacks().remove(player, slot));
+            }
+            default -> plugin.text().send(player, "commands.backpack-usage");
+        }
+    }
+
+    private void backpackGive(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("openskyblock.admin")) {
+            plugin.text().send(sender, "errors.no-permission");
+            return;
+        }
+        if (args.length < 3) {
+            plugin.text().send(sender, "commands.backpack-usage");
+            return;
+        }
+        Player target;
+        if (args.length >= 4) {
+            target = Bukkit.getPlayerExact(args[3]);
+            if (target == null) {
+                plugin.text().send(sender, "errors.unknown-player");
+                return;
+            }
+        } else {
+            target = requirePlayer(sender);
+            if (target == null) {
+                return;
+            }
+        }
+        BackpackDefinition definition = plugin.backpacks().definition(args[2]).orElse(null);
+        if (definition == null) {
+            plugin.text().send(sender, "commands.backpack-unknown", List.of(TextService.raw("backpack", args[2])));
+            return;
+        }
+        plugin.backpacks().give(target, definition);
+        plugin.text().send(sender, "commands.backpack-given", List.of(
+                TextService.parsed("backpack", definition.displayName()),
+                TextService.raw("player", target.getName())
+        ));
     }
 
     private void sell(CommandSender sender, String[] args) {
@@ -1568,6 +1660,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isStorageCommand(String value) {
         return value.equalsIgnoreCase("storage") || value.equalsIgnoreCase("enderchest") || value.equalsIgnoreCase("ec");
+    }
+
+    private boolean isBackpackCommand(String value) {
+        return value.equalsIgnoreCase("backpack") || value.equalsIgnoreCase("backpacks");
     }
 
     private boolean isPotionCommand(String value) {

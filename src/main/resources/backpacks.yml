@@ -1,0 +1,25 @@
+settings:
+  slots: 18
+  title: "<dark_gray>Backpack <slot>: <backpack></dark_gray>"
+
+definitions:
+  SMALL_BACKPACK:
+    material: CHEST
+    display-name: "<green>Small Backpack</green>"
+    rows: 2
+  MEDIUM_BACKPACK:
+    material: CHEST
+    display-name: "<blue>Medium Backpack</blue>"
+    rows: 3
+  LARGE_BACKPACK:
+    material: ENDER_CHEST
+    display-name: "<light_purple>Large Backpack</light_purple>"
+    rows: 4
+  GREATER_BACKPACK:
+    material: ENDER_CHEST
+    display-name: "<gold>Greater Backpack</gold>"
+    rows: 5
+  JUMBO_BACKPACK:
+    material: ENDER_CHEST
+    display-name: "<red>Jumbo Backpack</red>"
+    rows: 6

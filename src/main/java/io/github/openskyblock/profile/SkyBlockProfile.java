@@ -23,6 +23,7 @@ public final class SkyBlockProfile {
     private final Map<String, ItemStack> equipment = new HashMap<>();
     private final Map<Integer, WardrobeSet> wardrobe = new HashMap<>();
     private final Map<Integer, ItemStack[]> storagePages = new HashMap<>();
+    private final Map<Integer, OwnedBackpack> backpacks = new HashMap<>();
     private final Map<String, Map<String, Long>> sacks = new HashMap<>();
     private final Map<String, Long> quiver = new HashMap<>();
     private final Map<String, Long> potionEffects = new HashMap<>();
@@ -169,6 +170,10 @@ public final class SkyBlockProfile {
 
     public Map<Integer, ItemStack[]> storagePages() {
         return storagePages;
+    }
+
+    public Map<Integer, OwnedBackpack> backpacks() {
+        return backpacks;
     }
 
     public Map<String, Map<String, Long>> sacks() {
