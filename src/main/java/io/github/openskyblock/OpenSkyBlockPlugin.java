@@ -31,6 +31,7 @@ import io.github.openskyblock.listener.QuiverListener;
 import io.github.openskyblock.listener.RecipeListener;
 import io.github.openskyblock.listener.SackListener;
 import io.github.openskyblock.listener.ShopNpcListener;
+import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.mob.MobService;
 import io.github.openskyblock.mobspawn.MobSpawnService;
@@ -99,6 +100,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private MobService mobService;
     private MobSpawnService mobSpawnService;
     private MuseumService museumService;
+    private MayorService mayorService;
     private BestiaryService bestiaryService;
     private SlayerService slayerService;
     private StatService statService;
@@ -143,6 +145,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.equipmentService = new EquipmentService(configService, textService, profileManager, customItemService);
         this.wardrobeService = new WardrobeService(configService, textService, profileManager);
         this.calendarService = new CalendarService(configService, textService);
+        this.mayorService = new MayorService(configService, textService, profileManager);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService, upgradeService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
@@ -164,6 +167,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.auctionService = new AuctionService(this, configService, textService, economyService, customItemService);
         this.auctionService.load();
         this.darkAuctionService = new DarkAuctionService(this, configService, textService, profileManager, economyService, customItemService);
+        this.darkAuctionService.mayorService(mayorService);
         this.darkAuctionService.load();
         this.bazaarService = new BazaarService(this, configService, textService, economyService, customItemService);
         this.bazaarService.load();
@@ -258,6 +262,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         equipmentService.reload();
         wardrobeService.reload();
         calendarService.reload();
+        mayorService.reload();
         armorSetService.reload();
         cakeService.reload();
         potionService.reload();
@@ -381,6 +386,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public CalendarService calendar() {
         return calendarService;
+    }
+
+    public MayorService mayors() {
+        return mayorService;
     }
 
     public CakeService cakes() {

@@ -36,6 +36,7 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> bestiaryTiers = new HashMap<>();
     private final Map<String, Long> museumDonations = new HashMap<>();
     private final Map<String, Integer> darkAuctionPurchases = new HashMap<>();
+    private final Map<String, String> mayorVotes = new HashMap<>();
     private final Map<String, Double> slayerXp = new HashMap<>();
     private final Map<String, Integer> slayerLevels = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
@@ -282,6 +283,22 @@ public final class SkyBlockProfile {
 
     public void addDarkAuctionPurchase(String itemId, int amount) {
         setDarkAuctionPurchases(itemId, darkAuctionPurchases(itemId) + amount);
+    }
+
+    public Map<String, String> mayorVotes() {
+        return mayorVotes;
+    }
+
+    public String mayorVote(String electionId) {
+        return mayorVotes.get(electionId.toUpperCase());
+    }
+
+    public void setMayorVote(String electionId, String candidateId) {
+        if (candidateId == null || candidateId.isBlank()) {
+            mayorVotes.remove(electionId.toUpperCase());
+            return;
+        }
+        mayorVotes.put(electionId.toUpperCase(), candidateId.toUpperCase());
     }
 
     public Map<String, Double> slayerXp() {

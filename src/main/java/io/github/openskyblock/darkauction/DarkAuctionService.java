@@ -3,6 +3,7 @@ package io.github.openskyblock.darkauction;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.economy.EconomyService;
+import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.service.CustomItemDefinition;
@@ -35,6 +36,7 @@ public final class DarkAuctionService {
     private final EconomyService economy;
     private final CustomItemService customItems;
     private final Map<String, DarkAuctionItemDefinition> items = new HashMap<>();
+    private MayorService mayorService;
     private File dataFile;
     private YamlConfiguration data;
     private DarkAuctionLotState activeLot;
@@ -57,6 +59,10 @@ public final class DarkAuctionService {
         this.profiles = profiles;
         this.economy = economy;
         this.customItems = customItems;
+    }
+
+    public void mayorService(MayorService mayorService) {
+        this.mayorService = mayorService;
     }
 
     public void reload() {
@@ -174,7 +180,7 @@ public final class DarkAuctionService {
         if (activeLot == null) {
             text.send(player, "commands.dark-auction-closed", List.of(
                     TextService.raw("next", formatDuration(secondsUntilNextSession())),
-                    TextService.raw("minimum_purse", text.formatNumber(minimumPurse))
+                    TextService.raw("minimum_purse", text.formatNumber(effectiveMinimumPurse()))
             ));
             return;
         }
@@ -218,7 +224,7 @@ public final class DarkAuctionService {
         if (activeLot == null) {
             text.send(player, "commands.dark-auction-closed", List.of(
                     TextService.raw("next", formatDuration(secondsUntilNextSession())),
-                    TextService.raw("minimum_purse", text.formatNumber(minimumPurse))
+                    TextService.raw("minimum_purse", text.formatNumber(effectiveMinimumPurse()))
             ));
             return false;
         }
@@ -232,8 +238,9 @@ public final class DarkAuctionService {
             text.send(player, "commands.dark-auction-already-high-bidder");
             return false;
         }
-        if (profile.purse() < minimumPurse) {
-            text.send(player, "commands.dark-auction-entry-no-money", List.of(TextService.raw("minimum_purse", text.formatNumber(minimumPurse))));
+        double requiredPurse = effectiveMinimumPurse();
+        if (profile.purse() < requiredPurse) {
+            text.send(player, "commands.dark-auction-entry-no-money", List.of(TextService.raw("minimum_purse", text.formatNumber(requiredPurse))));
             return false;
         }
         if (definition.maxPurchasesPerProfile() > 0 && profile.darkAuctionPurchases(definition.id()) >= definition.maxPurchasesPerProfile()) {
@@ -468,7 +475,7 @@ public final class DarkAuctionService {
         return List.of(
                 TextService.raw("session", lot.sessionId()),
                 TextService.raw("lot", Integer.toString(lot.lotIndex() + 1)),
-                TextService.raw("lots", Integer.toString(lotsPerSession)),
+                TextService.raw("lots", Integer.toString(effectiveLotsPerSession())),
                 TextService.raw("id", definition.id()),
                 TextService.parsed("item", itemDisplay(definition)),
                 TextService.raw("starting_bid", text.formatNumber(definition.startingBid())),
@@ -504,12 +511,13 @@ public final class DarkAuctionService {
         long lotMillis = lotDurationSeconds * 1000L;
         long sessionIndex = Math.floorDiv(now - epochMillis, intervalMillis);
         long sessionStart = epochMillis + sessionIndex * intervalMillis;
-        long activeMillis = Math.min(intervalMillis, lotMillis * lotsPerSession);
+        int lots = effectiveLotsPerSession();
+        long activeMillis = Math.min(intervalMillis, lotMillis * lots);
         long offset = now - sessionStart;
         if (offset < 0L || offset >= activeMillis) {
             return Optional.empty();
         }
-        int lotIndex = (int) Math.min(lotsPerSession - 1L, offset / lotMillis);
+        int lotIndex = (int) Math.min(lots - 1L, offset / lotMillis);
         long lotEnd = Math.min(sessionStart + (lotIndex + 1L) * lotMillis, sessionStart + activeMillis);
         return Optional.of(new LotWindow(Long.toString(sessionStart), sessionIndex, lotIndex, lotEnd));
     }
@@ -518,7 +526,7 @@ public final class DarkAuctionService {
         long now = System.currentTimeMillis();
         long intervalMillis = intervalSeconds * 1000L;
         long lotMillis = lotDurationSeconds * 1000L;
-        long activeMillis = Math.min(intervalMillis, lotMillis * lotsPerSession);
+        long activeMillis = Math.min(intervalMillis, lotMillis * effectiveLotsPerSession());
         if (now < epochMillis) {
             return (epochMillis - now + 999L) / 1000L;
         }
@@ -575,6 +583,16 @@ public final class DarkAuctionService {
         Bukkit.getOnlinePlayers().stream()
                 .filter(player -> !player.getUniqueId().equals(excluded.getUniqueId()))
                 .forEach(player -> text.send(player, path, placeholders));
+    }
+
+    private int effectiveLotsPerSession() {
+        int extraLots = mayorService == null ? 0 : (int) Math.floor(Math.max(0.0D, mayorService.modifier("dark_auction_extra_lots")));
+        return Math.max(1, lotsPerSession + extraLots);
+    }
+
+    private double effectiveMinimumPurse() {
+        double reduction = mayorService == null ? 0.0D : Math.max(0.0D, mayorService.modifier("dark_auction_minimum_purse_reduction"));
+        return Math.max(0.0D, minimumPurse * Math.max(0.0D, 1.0D - reduction));
     }
 
     private String formatDuration(long totalSeconds) {

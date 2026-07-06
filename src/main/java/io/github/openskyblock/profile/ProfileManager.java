@@ -371,6 +371,15 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection mayorVotes = section.getConfigurationSection("mayors.votes");
+        if (mayorVotes != null) {
+            for (String electionId : mayorVotes.getKeys(false)) {
+                String candidateId = mayorVotes.getString(electionId, "");
+                if (!candidateId.isBlank()) {
+                    profile.setMayorVote(electionId.toUpperCase(), candidateId.toUpperCase());
+                }
+            }
+        }
         ConfigurationSection slayerXp = section.getConfigurationSection("slayers.xp");
         if (slayerXp != null) {
             for (String slayerId : slayerXp.getKeys(false)) {
@@ -594,6 +603,12 @@ public final class ProfileManager {
             ItemStack itemStack = profile.darkAuctionClaims().get(index);
             if (itemStack != null && !itemStack.getType().isAir()) {
                 profileData.set(base + ".dark-auction.claims." + index, itemStack);
+            }
+        }
+        profileData.set(base + ".mayors", null);
+        for (Map.Entry<String, String> entry : profile.mayorVotes().entrySet()) {
+            if (entry.getValue() != null && !entry.getValue().isBlank()) {
+                profileData.set(base + ".mayors.votes." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".slayers", null);

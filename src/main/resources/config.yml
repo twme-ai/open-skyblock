@@ -42,6 +42,7 @@ features:
   bestiary: true
   museum: true
   calendar: true
+  mayors: true
   slayers: true
 
 islands:

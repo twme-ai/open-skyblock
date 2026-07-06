@@ -1,0 +1,116 @@
+settings:
+  epoch-millis: 0
+  cycle-seconds: 446400
+  election-duration-seconds: 43200
+  candidates-per-election: 5
+  minister-enabled: true
+  minister-perk-count: 1
+  allow-vote-changes: true
+
+candidates:
+  AATROX:
+    display-name: "<red>Aatrox</red>"
+    description: "A Slayer-focused mayor."
+    weight: 1.0
+    perks:
+      slayer_xp:
+        display-name: "<red>Slayer XP Buff</red>"
+        description: "Configured Slayer XP modifier for future Slayer integrations."
+        modifiers:
+          slayer_xp_multiplier: 0.25
+      cheaper_slayers:
+        display-name: "<gold>Pathfinder</gold>"
+        description: "Configured Slayer cost reduction for future Slayer integrations."
+        modifiers:
+          slayer_cost_reduction: 0.50
+  COLE:
+    display-name: "<gold>Cole</gold>"
+    description: "A Mining-focused mayor."
+    weight: 1.0
+    perks:
+      mining_xp:
+        display-name: "<gold>Mining XP Buff</gold>"
+        description: "Configured Mining XP modifier for future Mining integrations."
+        modifiers:
+          mining_xp_multiplier: 0.25
+      mining_fortune:
+        display-name: "<yellow>Prospection</yellow>"
+        description: "Configured Mining Fortune modifier for future stat integrations."
+        modifiers:
+          mining_fortune_bonus: 50.0
+  DIANA:
+    display-name: "<light_purple>Diana</light_purple>"
+    description: "A Mythological event mayor."
+    weight: 1.0
+    perks:
+      pet_luck:
+        display-name: "<light_purple>Pet Luck</light_purple>"
+        description: "Configured Pet Luck modifier for pet reward integrations."
+        modifiers:
+          pet_luck_bonus: 25.0
+      mythological:
+        display-name: "<gold>Mythological Ritual</gold>"
+        description: "Enables a configurable mythological event hook."
+        modifiers:
+          mythological_event_enabled: 1.0
+  MARINA:
+    display-name: "<aqua>Marina</aqua>"
+    description: "A Fishing-focused mayor."
+    weight: 1.0
+    perks:
+      fishing_xp:
+        display-name: "<aqua>Fishing XP Buff</aqua>"
+        description: "Configured Fishing XP modifier for future Fishing integrations."
+        modifiers:
+          fishing_xp_multiplier: 0.50
+      sea_creatures:
+        display-name: "<blue>Luck of the Sea</blue>"
+        description: "Configured Sea Creature Chance modifier for future fishing systems."
+        modifiers:
+          sea_creature_chance_bonus: 15.0
+  PAUL:
+    display-name: "<blue>Paul</blue>"
+    description: "A Dungeon-focused mayor."
+    weight: 1.0
+    perks:
+      dungeon_score:
+        display-name: "<blue>EZPZ</blue>"
+        description: "Configured Dungeon score modifier for future Dungeon integrations."
+        modifiers:
+          dungeon_score_bonus: 10.0
+      dungeon_discount:
+        display-name: "<green>Marauder</green>"
+        description: "Configured Dungeon chest discount for future Dungeon integrations."
+        modifiers:
+          dungeon_chest_discount: 0.20
+  DERPY:
+    display-name: "<dark_purple>Derpy</dark_purple>"
+    description: "A special mayor with disruptive global modifiers."
+    weight: 0.25
+    perks:
+      double_mobs:
+        display-name: "<red>Double Mobs HP</red>"
+        description: "Configured combat difficulty modifier for future mob stat integrations."
+        modifiers:
+          mob_health_multiplier: 2.0
+      skill_experience:
+        display-name: "<green>Skillz</green>"
+        description: "Configured global Skill XP modifier for future progression integrations."
+        modifiers:
+          global_skill_xp_multiplier: 0.50
+  SCORPIUS:
+    display-name: "<dark_purple>Scorpius</dark_purple>"
+    description: "A special mayor tied to the Dark Auction."
+    weight: 0.25
+    perks:
+      darker_auctions:
+        display-name: "<dark_purple>Darker Auctions</dark_purple>"
+        description: "Adds one extra Dark Auction lot and lowers the entry purse requirement."
+        modifiers:
+          dark_auction_extra_lots: 1.0
+          dark_auction_minimum_purse_reduction: 0.25
+      bribe:
+        display-name: "<gold>Bribe</gold>"
+        description: "Configured coin grant hook for future election reward integrations."
+        modifiers:
+          election_bribe_coins: 100000.0
