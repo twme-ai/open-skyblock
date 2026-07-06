@@ -10,6 +10,8 @@ public record ReforgeDefinition(
         String prefix,
         Set<String> allowedCategories,
         double costMultiplier,
+        String requiredItemId,
+        int requiredAmount,
         Map<Rarity, Map<String, Double>> statsByRarity
 ) {
 }

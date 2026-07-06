@@ -59,6 +59,8 @@ public final class ReforgeService {
                     reforgeSection.getString("prefix", normalizedId),
                     categories(reforgeSection.getStringList("allowed-categories")),
                     Math.max(0.0D, reforgeSection.getDouble("cost-multiplier", 1.0D)),
+                    reforgeSection.getString("required-item", "").toUpperCase(Locale.ROOT),
+                    Math.max(1, reforgeSection.getInt("required-amount", 1)),
                     statsByRarity(reforgeSection.getConfigurationSection("stats"))
             ));
         }
@@ -140,9 +142,16 @@ public final class ReforgeService {
             return false;
         }
         double cost = cost(reforge, itemDefinition);
+        if (!reforge.requiredItemId().isBlank() && !hasRequiredItem(player, reforge)) {
+            text.send(player, "commands.reforge-stone-missing", placeholders(reforge, itemDefinition, cost));
+            return false;
+        }
         if (!economy.spendPurse(player, cost)) {
             text.send(player, "commands.reforge-no-money", placeholders(reforge, itemDefinition, cost));
             return false;
+        }
+        if (!reforge.requiredItemId().isBlank()) {
+            consumeRequiredItem(player, reforge);
         }
         ItemMeta meta = held.getItemMeta();
         meta.getPersistentDataContainer().set(reforgeKey, PersistentDataType.STRING, reforge.id());
@@ -191,7 +200,10 @@ public final class ReforgeService {
             text.send(sender, "commands.reforge-list-line", List.of(
                     TextService.raw("id", definition.id()),
                     TextService.parsed("reforge", definition.displayName()),
-                    TextService.raw("categories", String.join(", ", definition.allowedCategories()))
+                    TextService.raw("categories", String.join(", ", definition.allowedCategories())),
+                    TextService.parsed("required_item", requiredItemName(definition)),
+                    TextService.raw("required_amount", Integer.toString(definition.requiredItemId().isBlank() ? 0 : definition.requiredAmount())),
+                    TextService.parsed("required", requiredItemLine(definition))
             ));
         }
     }
@@ -219,8 +231,71 @@ public final class ReforgeService {
                 TextService.parsed("reforge_prefix", reforge.prefix()),
                 TextService.parsed("item", itemDefinition.displayName()),
                 TextService.raw("category", itemDefinition.category().toUpperCase(Locale.ROOT)),
+                TextService.parsed("required_item", requiredItemName(reforge)),
+                TextService.raw("required_amount", Integer.toString(reforge.requiredItemId().isBlank() ? 0 : reforge.requiredAmount())),
                 TextService.raw("cost", text.formatNumber(cost))
         );
+    }
+
+    private String requiredItemName(ReforgeDefinition reforge) {
+        if (reforge.requiredItemId().isBlank()) {
+            return text.rawMessage("reforges.no-required-item");
+        }
+        return customItems.definition(reforge.requiredItemId())
+                .map(CustomItemDefinition::displayName)
+                .orElse(reforge.requiredItemId());
+    }
+
+    private String requiredItemLine(ReforgeDefinition reforge) {
+        if (reforge.requiredItemId().isBlank()) {
+            return text.rawMessage("reforges.no-required-item");
+        }
+        return "<yellow>" + reforge.requiredAmount() + "x</yellow> " + requiredItemName(reforge);
+    }
+
+    private boolean hasRequiredItem(Player player, ReforgeDefinition reforge) {
+        return countRequiredItems(player, reforge) >= reforge.requiredAmount();
+    }
+
+    private int countRequiredItems(Player player, ReforgeDefinition reforge) {
+        String itemId = reforge.requiredItemId();
+        if (itemId.isBlank()) {
+            return reforge.requiredAmount();
+        }
+        int heldSlot = player.getInventory().getHeldItemSlot();
+        int amount = 0;
+        for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
+            if (slot == heldSlot) {
+                continue;
+            }
+            ItemStack itemStack = player.getInventory().getItem(slot);
+            if (customItems.definition(itemStack).map(CustomItemDefinition::id).filter(itemId::equals).isPresent()) {
+                amount += itemStack.getAmount();
+            }
+        }
+        return amount;
+    }
+
+    private void consumeRequiredItem(Player player, ReforgeDefinition reforge) {
+        String itemId = reforge.requiredItemId();
+        int remaining = reforge.requiredAmount();
+        int heldSlot = player.getInventory().getHeldItemSlot();
+        for (int slot = 0; slot < player.getInventory().getSize() && remaining > 0; slot++) {
+            if (slot == heldSlot) {
+                continue;
+            }
+            ItemStack itemStack = player.getInventory().getItem(slot);
+            if (customItems.definition(itemStack).map(CustomItemDefinition::id).filter(itemId::equals).isEmpty()) {
+                continue;
+            }
+            int remove = Math.min(remaining, itemStack.getAmount());
+            remaining -= remove;
+            if (itemStack.getAmount() <= remove) {
+                player.getInventory().setItem(slot, null);
+            } else {
+                itemStack.setAmount(itemStack.getAmount() - remove);
+            }
+        }
     }
 
     private Set<String> categories(List<String> rawCategories) {

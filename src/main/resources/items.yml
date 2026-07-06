@@ -73,6 +73,14 @@ items:
       - "<gray>Attach this to a pet from the Pets menu.</gray>"
       - "<gray>Grants the configured combat stat bonuses.</gray>"
     stats: {}
+  DRAGON_CLAW:
+    material: FLINT
+    display-name: "<gold>Dragon Claw</gold>"
+    category: REFORGE_STONE
+    rarity: EPIC
+    lore:
+      - "<gray>Consumed to apply the configured Fabled reforge.</gray>"
+    stats: {}
   GEMSTONE_CHAMBER:
     material: ECHO_SHARD
     display-name: "<light_purple>Gemstone Chamber</light_purple>"

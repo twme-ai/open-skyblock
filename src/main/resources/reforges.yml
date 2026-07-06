@@ -60,6 +60,33 @@ reforges:
       MYTHIC:
         strength: 25.0
         intelligence: 100.0
+  FABLED:
+    display-name: "<gold>Fabled</gold>"
+    prefix: "<gold>Fabled</gold>"
+    allowed-categories:
+      - SWORD
+    cost-multiplier: 2.0
+    required-item: DRAGON_CLAW
+    required-amount: 1
+    stats:
+      COMMON:
+        strength: 8.0
+        crit_damage: 12.0
+      UNCOMMON:
+        strength: 12.0
+        crit_damage: 18.0
+      RARE:
+        strength: 18.0
+        crit_damage: 28.0
+      EPIC:
+        strength: 28.0
+        crit_damage: 40.0
+      LEGENDARY:
+        strength: 38.0
+        crit_damage: 55.0
+      MYTHIC:
+        strength: 48.0
+        crit_damage: 70.0
   FIERCE:
     display-name: "<red>Fierce</red>"
     prefix: "<red>Fierce</red>"
