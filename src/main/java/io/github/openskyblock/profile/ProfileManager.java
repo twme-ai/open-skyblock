@@ -308,6 +308,17 @@ public final class ProfileManager {
                 profile.setZooPurchases(petId.toUpperCase(), zooPurchases.getInt(petId, 0));
             }
         }
+        profile.jerryGiftYear(section.getInt("season-jerry.year", 0));
+        profile.jerryHiddenGiftsFound(section.getInt("season-jerry.hidden-gifts", 0));
+        profile.jerryStJerryClaimedYear(section.getInt("season-jerry.st-jerry-claimed-year", 0));
+        profile.jerryGiftAttackWaves(section.getInt("season-jerry.gift-attack-waves", 0));
+        profile.jerryNorthStars(section.getLong("season-jerry.north-stars", 0L));
+        ConfigurationSection jerryGifts = section.getConfigurationSection("season-jerry.gifts-opened");
+        if (jerryGifts != null) {
+            for (String giftId : jerryGifts.getKeys(false)) {
+                profile.setJerryGiftsOpened(giftId.toUpperCase(), jerryGifts.getInt(giftId, 0));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -872,6 +883,17 @@ public final class ProfileManager {
         for (Map.Entry<String, Integer> entry : profile.zooPurchases().entrySet()) {
             if (entry.getValue() > 0) {
                 profileData.set(base + ".traveling-zoo.purchases." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".season-jerry", null);
+        profileData.set(base + ".season-jerry.year", profile.jerryGiftYear());
+        profileData.set(base + ".season-jerry.hidden-gifts", profile.jerryHiddenGiftsFound());
+        profileData.set(base + ".season-jerry.st-jerry-claimed-year", profile.jerryStJerryClaimedYear());
+        profileData.set(base + ".season-jerry.gift-attack-waves", profile.jerryGiftAttackWaves());
+        profileData.set(base + ".season-jerry.north-stars", profile.jerryNorthStars());
+        for (Map.Entry<String, Integer> entry : profile.jerryGiftsOpened().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".season-jerry.gifts-opened." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());

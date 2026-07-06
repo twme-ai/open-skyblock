@@ -115,6 +115,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "travelingzoo",
             "traveling-zoo",
             "oringo",
+            "jerry",
+            "seasonofjerry",
+            "season-jerry",
+            "winter",
             "stars",
             "star",
             "essence",
@@ -224,6 +228,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "mythological", "ritual", "diana", "burrow", "burrows" -> mythological(sender, args);
             case "spooky", "spookyfestival", "candy" -> spooky(sender, args);
             case "zoo", "travelingzoo", "traveling-zoo", "oringo" -> travelingZoo(sender, args);
+            case "jerry", "seasonofjerry", "season-jerry", "winter" -> seasonOfJerry(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -572,6 +577,24 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isZooCommand(args[0]) && args[1].equalsIgnoreCase("buy")) {
             return startsWith(plugin.travelingZoo().activeOfferIds(), args[2]);
         }
+        if (args.length == 2 && isSeasonOfJerryCommand(args[0])) {
+            return startsWith(List.of("status", "gifts", "find", "claim", "defend", "open"), args[1]);
+        }
+        if (args.length == 3 && isSeasonOfJerryCommand(args[0]) && args[1].equalsIgnoreCase("open")) {
+            return startsWith(plugin.seasonOfJerry().giftIds(), args[2]);
+        }
+        if (args.length == 4 && isSeasonOfJerryCommand(args[0]) && args[1].equalsIgnoreCase("open")) {
+            return startsWith(List.of("1", "5", "10", "64"), args[3]);
+        }
+        if (args.length == 3 && isSeasonOfJerryCommand(args[0]) && args[1].equalsIgnoreCase("defend")) {
+            return startsWith(plugin.seasonOfJerry().waveIds(), args[2]);
+        }
+        if (args.length == 4 && isSeasonOfJerryCommand(args[0]) && args[1].equalsIgnoreCase("defend")) {
+            return startsWith(List.of("0", "1", "3", "5"), args[3]);
+        }
+        if (args.length == 3 && isSeasonOfJerryCommand(args[0]) && args[1].equalsIgnoreCase("find")) {
+            return startsWith(List.of("1", "5", "10", "20"), args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -816,6 +839,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " mythological status|dig|mobs|treasures", "commands.help.mythological");
         helpLine(sender, label + " spooky status|mobs|kill|claim", "commands.help.spooky");
         helpLine(sender, label + " zoo status|offers|buy", "commands.help.zoo");
+        helpLine(sender, label + " jerry status|gifts|find|defend|open", "commands.help.jerry");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1983,6 +2007,57 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.travelingZoo().buy(player, args[2]);
             }
             default -> plugin.text().send(player, "commands.zoo-usage");
+        }
+    }
+
+    private void seasonOfJerry(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.seasonOfJerry().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "gifts", "list" -> plugin.seasonOfJerry().sendGifts(player);
+            case "find", "collect" -> {
+                int amount = args.length >= 3 ? parsePositiveInt(player, args[2]).orElse(-1) : 1;
+                if (amount > 0) {
+                    plugin.seasonOfJerry().findHiddenGifts(player, amount);
+                }
+            }
+            case "claim", "stjerry" -> plugin.seasonOfJerry().claimStJerry(player);
+            case "defend", "attack" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.jerry-usage");
+                    return;
+                }
+                Optional<Integer> wave = parsePositiveInt(player, args[2]);
+                if (wave.isEmpty()) {
+                    return;
+                }
+                int giftPiles = 5;
+                if (args.length >= 4) {
+                    Optional<Integer> parsedGiftPiles = parseNonNegativeInt(player, args[3]);
+                    if (parsedGiftPiles.isEmpty()) {
+                        return;
+                    }
+                    giftPiles = parsedGiftPiles.get();
+                }
+                plugin.seasonOfJerry().defend(player, wave.get(), giftPiles);
+            }
+            case "open" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.jerry-usage");
+                    return;
+                }
+                int amount = args.length >= 4 ? parsePositiveInt(player, args[3]).orElse(-1) : 1;
+                if (amount > 0) {
+                    plugin.seasonOfJerry().openGift(player, args[2], amount);
+                }
+            }
+            default -> plugin.text().send(player, "commands.jerry-usage");
         }
     }
 
@@ -3162,6 +3237,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isZooCommand(String value) {
         return value.equalsIgnoreCase("zoo") || value.equalsIgnoreCase("travelingzoo") || value.equalsIgnoreCase("traveling-zoo") || value.equalsIgnoreCase("oringo");
+    }
+
+    private boolean isSeasonOfJerryCommand(String value) {
+        return value.equalsIgnoreCase("jerry") || value.equalsIgnoreCase("seasonofjerry") || value.equalsIgnoreCase("season-jerry") || value.equalsIgnoreCase("winter");
     }
 
     private boolean isUpgradeCommand(String value) {

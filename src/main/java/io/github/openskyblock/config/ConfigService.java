@@ -40,6 +40,7 @@ public final class ConfigService {
             "mythological.yml",
             "spooky.yml",
             "traveling_zoo.yml",
+            "season_jerry.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -205,6 +206,10 @@ public final class ConfigService {
 
     public FileConfiguration travelingZoo() {
         return file("traveling_zoo.yml");
+    }
+
+    public FileConfiguration seasonJerry() {
+        return file("season_jerry.yml");
     }
 
     public FileConfiguration mobSpawns() {

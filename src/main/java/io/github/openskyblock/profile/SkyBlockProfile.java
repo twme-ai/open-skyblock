@@ -45,6 +45,7 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> spookyMobKills = new HashMap<>();
     private final Set<String> claimedSpookyRewards = new HashSet<>();
     private final Map<String, Integer> zooPurchases = new HashMap<>();
+    private final Map<String, Integer> jerryGiftsOpened = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -107,6 +108,11 @@ public final class SkyBlockProfile {
     private long mythologicalBurrowsDug;
     private long spookyGreenCandy;
     private long spookyPurpleCandy;
+    private int jerryGiftYear;
+    private int jerryHiddenGiftsFound;
+    private int jerryStJerryClaimedYear;
+    private int jerryGiftAttackWaves;
+    private long jerryNorthStars;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -1004,6 +1010,79 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> zooPurchases() {
         return zooPurchases;
+    }
+
+    public int jerryGiftYear() {
+        return jerryGiftYear;
+    }
+
+    public void jerryGiftYear(int jerryGiftYear) {
+        this.jerryGiftYear = Math.max(0, jerryGiftYear);
+    }
+
+    public int jerryHiddenGiftsFound() {
+        return jerryHiddenGiftsFound;
+    }
+
+    public void jerryHiddenGiftsFound(int jerryHiddenGiftsFound) {
+        this.jerryHiddenGiftsFound = Math.max(0, jerryHiddenGiftsFound);
+    }
+
+    public void addJerryHiddenGiftsFound(int amount) {
+        jerryHiddenGiftsFound(jerryHiddenGiftsFound + amount);
+    }
+
+    public int jerryStJerryClaimedYear() {
+        return jerryStJerryClaimedYear;
+    }
+
+    public void jerryStJerryClaimedYear(int jerryStJerryClaimedYear) {
+        this.jerryStJerryClaimedYear = Math.max(0, jerryStJerryClaimedYear);
+    }
+
+    public int jerryGiftAttackWaves() {
+        return jerryGiftAttackWaves;
+    }
+
+    public void jerryGiftAttackWaves(int jerryGiftAttackWaves) {
+        this.jerryGiftAttackWaves = Math.max(0, jerryGiftAttackWaves);
+    }
+
+    public void addJerryGiftAttackWave(int amount) {
+        jerryGiftAttackWaves(jerryGiftAttackWaves + amount);
+    }
+
+    public long jerryNorthStars() {
+        return jerryNorthStars;
+    }
+
+    public void jerryNorthStars(long jerryNorthStars) {
+        this.jerryNorthStars = Math.max(0L, jerryNorthStars);
+    }
+
+    public void addJerryNorthStars(long amount) {
+        jerryNorthStars(jerryNorthStars + amount);
+    }
+
+    public int jerryGiftsOpened(String giftId) {
+        return jerryGiftsOpened.getOrDefault(giftId.toUpperCase(), 0);
+    }
+
+    public void setJerryGiftsOpened(String giftId, int amount) {
+        String normalized = giftId.toUpperCase();
+        if (amount <= 0) {
+            jerryGiftsOpened.remove(normalized);
+            return;
+        }
+        jerryGiftsOpened.put(normalized, amount);
+    }
+
+    public void addJerryGiftOpened(String giftId, int amount) {
+        setJerryGiftsOpened(giftId, jerryGiftsOpened(giftId) + amount);
+    }
+
+    public Map<String, Integer> jerryGiftsOpened() {
+        return jerryGiftsOpened;
     }
 
     public String shopPurchaseDay() {

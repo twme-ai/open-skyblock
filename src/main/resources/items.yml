@@ -491,6 +491,106 @@ items:
     stats:
       crit_chance: 1
       speed: 2
+  WHITE_GIFT:
+    material: WHITE_SHULKER_BOX
+    display-name: "<white>White Gift</white>"
+    category: ITEM
+    rarity: COMMON
+    lore:
+      - "<gray>A Season of Jerry gift that can be opened for winter rewards.</gray>"
+    stats: {}
+  GREEN_GIFT:
+    material: LIME_SHULKER_BOX
+    display-name: "<green>Green Gift</green>"
+    category: ITEM
+    rarity: UNCOMMON
+    lore:
+      - "<gray>A Season of Jerry gift with stronger winter rewards.</gray>"
+    stats: {}
+  RED_GIFT:
+    material: RED_SHULKER_BOX
+    display-name: "<red>Red Gift</red>"
+    category: ITEM
+    rarity: RARE
+    lore:
+      - "<gray>A valuable Season of Jerry gift.</gray>"
+    stats: {}
+  NORTH_STAR:
+    material: NETHER_STAR
+    display-name: "<aqua>North Star</aqua>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A winter currency from Season of Jerry gifts.</gray>"
+    stats: {}
+  SNOW_CANNON:
+    material: IRON_HORSE_ARMOR
+    display-name: "<aqua>Snow Cannon</aqua>"
+    category: BOW
+    rarity: RARE
+    lore:
+      - "<gray>A winter launcher inspired by Jerry's Workshop.</gray>"
+    stats:
+      damage: 25
+  ICE_RUNE:
+    material: BLUE_DYE
+    display-name: "<aqua>Ice Rune</aqua>"
+    category: ITEM
+    rarity: RARE
+    lore:
+      - "<gray>A cosmetic winter rune reward placeholder.</gray>"
+    stats: {}
+  WINTER_TALISMAN:
+    material: PRISMARINE_CRYSTALS
+    display-name: "<aqua>Winter Talisman</aqua>"
+    category: ACCESSORY
+    rarity: RARE
+    lore:
+      - "<gray>A winter accessory from Season of Jerry gifts.</gray>"
+      - "<gray>Carry it in your Accessory Bag for configured stat value.</gray>"
+    stats:
+      health: 5
+      defense: 5
+  SNOW_SUIT_HELMET:
+    material: LEATHER_HELMET
+    display-name: "<white>Snow Suit Helmet</white>"
+    category: ARMOR
+    rarity: RARE
+    lore:
+      - "<gray>Part of a winter reward armor set.</gray>"
+    stats:
+      health: 20
+      defense: 15
+  SNOW_SUIT_CHESTPLATE:
+    material: LEATHER_CHESTPLATE
+    display-name: "<white>Snow Suit Chestplate</white>"
+    category: ARMOR
+    rarity: RARE
+    lore:
+      - "<gray>Part of a winter reward armor set.</gray>"
+    stats:
+      health: 40
+      defense: 25
+  SNOW_SUIT_LEGGINGS:
+    material: LEATHER_LEGGINGS
+    display-name: "<white>Snow Suit Leggings</white>"
+    category: ARMOR
+    rarity: RARE
+    lore:
+      - "<gray>Part of a winter reward armor set.</gray>"
+    stats:
+      health: 30
+      defense: 20
+  SNOW_SUIT_BOOTS:
+    material: LEATHER_BOOTS
+    display-name: "<white>Snow Suit Boots</white>"
+    category: ARMOR
+    rarity: RARE
+    lore:
+      - "<gray>Part of a winter reward armor set.</gray>"
+    stats:
+      health: 20
+      defense: 15
   WASHED_UP_SOUVENIR:
     material: NAUTILUS_SHELL
     display-name: "<aqua>Washed-up Souvenir</aqua>"

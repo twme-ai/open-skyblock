@@ -29,6 +29,7 @@ import io.github.openskyblock.forge.ForgeService;
 import io.github.openskyblock.garden.GardenService;
 import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.island.IslandService;
+import io.github.openskyblock.jerry.SeasonOfJerryService;
 import io.github.openskyblock.listener.AutoPetListener;
 import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.CakeListener;
@@ -113,6 +114,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private MythologicalService mythologicalService;
     private SpookyService spookyService;
     private TravelingZooService travelingZooService;
+    private SeasonOfJerryService seasonOfJerryService;
     private FarmingContestService farmingContestService;
     private CookieService cookieService;
     private CakeService cakeService;
@@ -218,6 +220,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.petService = new PetService(this, configService, textService, profileManager, customItemService);
         this.skillService.petService(petService);
         this.travelingZooService = new TravelingZooService(configService, textService, profileManager, economyService, petService, customItemService, calendarService);
+        this.seasonOfJerryService = new SeasonOfJerryService(configService, textService, profileManager, economyService, skillService, customItemService, calendarService);
+        this.skillService.seasonOfJerryService(seasonOfJerryService);
         this.mythologicalService = new MythologicalService(configService, textService, profileManager, economyService, skillService, customItemService, mayorService, petService);
         this.skillService.mythologicalService(mythologicalService);
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
@@ -364,6 +368,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         gemstoneService.reload();
         petService.reload();
         travelingZooService.reload();
+        seasonOfJerryService.reload();
         mythologicalService.reload();
         minionService.reload();
         menuService.reload();
@@ -584,6 +589,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public TravelingZooService travelingZoo() {
         return travelingZooService;
+    }
+
+    public SeasonOfJerryService seasonOfJerry() {
+        return seasonOfJerryService;
     }
 
     public MinionService minions() {
