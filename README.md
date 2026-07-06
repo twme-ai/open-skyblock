@@ -35,7 +35,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable Century Cakes with persistent placed cake furniture, reusable right-click buffs, visitor activation option, active buff timers, pickup flow, and stat aggregation.
 - Configurable profile/account upgrades with persistent tier levels, purse-cost purchases, stat bonuses, bank-capacity bonuses, accessory-bag slot bonuses, and minion-slot bonuses.
 - Aggregated combat stats from configurable base stats, held/armor items, equipment slots, accessory-category custom items, and Slayer rewards.
-- Configurable item reforges with persistent item metadata, rarity-scaled stat tables, optional consumed Reforge Stones, purse costs, lore rendering, and stat aggregation.
+- Configurable item reforges with persistent item metadata, rarity-scaled stat tables, optional consumed Reforge Stones, purse costs, Reforge Anvil GUI, lore rendering, and stat aggregation.
 - Configurable item enchantments with persistent item metadata, max levels, ultimate-enchantment exclusivity, purse costs, lore rendering, and stat aggregation.
 - Configurable item stars with persistent item metadata, category limits, purse costs, display suffix/lore, and item stat scaling.
 - Configurable gemstone slots with persistent item metadata, item/category slot rules, locked-slot unlocking, gemstone item consumption, tiered gemstone stat bonuses, purse costs, lore rendering, and stat aggregation.
@@ -149,7 +149,7 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock upgrade info <id>`
 - `/skyblock upgrade buy <id>`
 - `/skyblock reforges`
-- `/skyblock reforge <id|remove>`
+- `/skyblock reforge [id|remove]`
 - `/skyblock enchants`
 - `/skyblock enchant <id> <level>`
 - `/skyblock enchant remove <id>`

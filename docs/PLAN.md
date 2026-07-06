@@ -54,6 +54,7 @@ Verified reference links:
 - Official profile upgrades reference: https://wiki.hypixel.net/Profile
 - Community account/profile upgrade reference: https://hypixelskyblock.minecraft.wiki/w/Account_%26_Profile_Upgrades
 - Official reforging reference: https://wiki.hypixel.net/Reforging
+- Official Reforge Anvil reference: https://wiki.hypixel.net/Reforge_Anvil
 - Official Reforge Stones reference: https://wiki.hypixel.net/Reforge_Stones
 - Official auction house reference: https://wiki.hypixel.net/Auction_House
 - Official bazaar reference: https://wiki.hypixel.net/Bazaar
@@ -69,6 +70,7 @@ Verified reference links:
 - Paper InventoryCloseEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/inventory/InventoryCloseEvent.html
 - Paper Inventory API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/inventory/Inventory.html
 - Paper custom inventory holder reference: https://docs.papermc.io/paper/dev/custom-inventory-holder/
+- Paper InventoryClickEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/inventory/InventoryClickEvent.html
 - Paper EntityPickupItemEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityPickupItemEvent.html
 - Paper EntityDeathEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityDeathEvent.html
 - Paper World entity spawning API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/World.html
@@ -123,7 +125,7 @@ Planned additions when each subsystem needs them:
    - Accessory Bag storage, unique accessory counting, Magical Power by rarity, and bagged accessory stat aggregation are implemented.
    - Accessory tuning with Magical Power-derived tuning points and configurable per-stat values is implemented.
    - Configurable armor set IDs and full-set stat bonuses are implemented.
-   - Configurable item reforges with item metadata persistence, rarity-scaled stat tables, optional consumed Reforge Stones, purse costs, and stat/lore integration are implemented.
+   - Configurable item reforges with item metadata persistence, rarity-scaled stat tables, optional consumed Reforge Stones, purse costs, Reforge Anvil GUI, and stat/lore integration are implemented.
    - Configurable item enchantments with item metadata persistence, max levels, ultimate-enchantment exclusivity, purse costs, and stat/lore integration are implemented.
    - Configurable item stars with item metadata persistence, category limits, purse costs, display suffix/lore, and item stat scaling are implemented.
    - Configurable gemstone slots with item metadata persistence, item/category slot rules, tiered gemstone stat bonuses, purse costs, and stat/lore integration are implemented.
@@ -138,7 +140,7 @@ Planned additions when each subsystem needs them:
    - Configurable Century Cakes with persistent placed cake locations, reusable right-click activation, visitor activation option, active buff timers, pickup flow, and stat aggregation are implemented.
    - Configurable profile/account upgrades with persistent tier levels, purchase costs, stat bonuses, bank-capacity bonuses, accessory-bag slot bonuses, and minion-slot bonuses are implemented.
    - Configurable pet definitions, persistent owned pets, active pet selection, pet XP/levels, pet menu activation, attachable pet items, Pet Score rewards, Autopet rules, cosmetic summoned pet entities, and active pet stat aggregation are implemented.
-   - Reforge anvil UI, vanilla/SkyBlock-specific enchantment effects, enchanting table/anvil UI, essence currencies, dungeon-only star scaling, advanced potion modifiers, and advanced ability scripting remain future work.
+   - Vanilla/SkyBlock-specific enchantment effects, enchanting table/anvil UI, essence currencies, dungeon-only star scaling, advanced potion modifiers, and advanced ability scripting remain future work.
    - Configurable custom mobs with level/health nameplates, stat-based damage and defense, admin spawning, kill rewards, configurable loot rolls, and rare drop announcements are implemented.
    - Configurable mob spawn zones with runtime caps, player activation checks, weighted mob selection, and periodic spawning are implemented.
    - Configurable Bestiary families with persistent kill counts, tier rewards, and stat aggregation are implemented.
@@ -173,4 +175,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, secure player trading, configurable Storage pages with search and sorting, configurable installed Backpacks, configurable SkyBlock mobs, loot rolls, and rare drop announcements, configurable mob spawn zones, configurable Bestiary progression, configurable Slayer quests with owner-tagged timed bosses and Slayer level rewards, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, item ability activation, collection-gated and Slayer-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges with optional Reforge Stone consumption, item enchantments, item stars, gemstone slots with unlock and item-consumption flows, configurable active pets with attachable pet items, Pet Score rewards, Autopet rules, and cosmetic pet companions, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, secure player trading, configurable Storage pages with search and sorting, configurable installed Backpacks, configurable SkyBlock mobs, loot rolls, and rare drop announcements, configurable mob spawn zones, configurable Bestiary progression, configurable Slayer quests with owner-tagged timed bosses and Slayer level rewards, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, item ability activation, collection-gated and Slayer-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges with optional Reforge Stone consumption and Reforge Anvil GUI, item enchantments, item stars, gemstone slots with unlock and item-consumption flows, configurable active pets with attachable pet items, Pet Score rewards, Autopet rules, and cosmetic pet companions, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

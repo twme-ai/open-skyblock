@@ -45,7 +45,7 @@ commands:
     cakes: "View active cake buffs and placed cakes."
     upgrades: "View and purchase configurable account/profile upgrades."
     reforges: "List configured item reforges."
-    reforge: "Apply or remove a reforge from your held custom item."
+    reforge: "Open the Reforge Anvil or apply/remove a reforge."
     enchants: "List configured custom enchantments."
     enchant: "Apply or remove an enchantment from your held custom item."
     stars: "View item star upgrade settings."
@@ -325,7 +325,7 @@ commands:
   upgrade-detail-header: "<prefix><aqua><upgrade></aqua> <gray>Level</gray> <yellow><level></yellow><gray>/</gray><yellow><max_level></yellow>"
   upgrade-detail-line: "<gray>Level <level>:</gray> <gold><cost></gold> <dark_gray>|</dark_gray> <gray>Stats:</gray> <yellow><stats></yellow> <dark_gray>|</dark_gray> <gray>Capacity:</gray> <yellow><capacities></yellow>"
   reforge-disabled: "<prefix><red>Reforges are disabled on this server.</red>"
-  reforge-usage: "<prefix><red>Use <yellow>/skyblock reforges</yellow> or <yellow>/skyblock reforge <id|remove></yellow>.</red>"
+  reforge-usage: "<prefix><red>Use <yellow>/skyblock reforges</yellow> or <yellow>/skyblock reforge [id|remove]</yellow>.</red>"
   reforge-list-header: "<prefix><aqua>Reforges</aqua>"
   reforge-list-line: "<gray><id>:</gray> <reforge> <dark_gray>|</dark_gray> <gray>Categories:</gray> <yellow><categories></yellow> <dark_gray>|</dark_gray> <gray>Stone:</gray> <required>"
   reforge-held-missing: "<prefix><red>You must hold a configured custom item.</red>"
@@ -567,6 +567,11 @@ stars:
 
 reforges:
   no-required-item: "<dark_gray>None</dark_gray>"
+  no-current: "<dark_gray>None</dark_gray>"
+  current: "<green>Current</green>"
+  available: "<yellow>Available</yellow>"
+  missing-required: "<red>Missing required item</red>"
+  no-stats: "<dark_gray>No stat bonuses configured.</dark_gray>"
 
 gemstones:
   empty-slot: "<dark_gray>Empty</dark_gray>"

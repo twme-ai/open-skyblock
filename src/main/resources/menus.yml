@@ -129,6 +129,13 @@ skyblock:
       lore:
         - "<gray>View recorded minions.</gray>"
       action: MINIONS
+    reforge-anvil:
+      slot: 27
+      material: ANVIL
+      display-name: "<gold>Reforge Anvil</gold>"
+      lore:
+        - "<gray>Apply configured reforges and Reforge Stones.</gray>"
+      action: REFORGE_ANVIL
 
 minion:
   title: "<dark_gray><minion_name></dark_gray>"
@@ -705,6 +712,74 @@ pets:
       - "<yellow>Hold a pet item and click to attach it.</yellow>"
   back:
     slot: 49
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+
+reforge-anvil:
+  title: "<dark_gray>Reforge Anvil</dark_gray>"
+  rows: 6
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 37
+    - 38
+    - 39
+    - 40
+    - 41
+    - 42
+    - 43
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  preview:
+    slot: 4
+    display-name: "<item>"
+    lore:
+      - "<gray>Category:</gray> <yellow><category></yellow>"
+      - "<gray>Rarity:</gray> <yellow><rarity></yellow>"
+      - "<gray>Current Reforge:</gray> <current_reforge>"
+  reforge-item:
+    material: ANVIL
+    display-name: "<reforge>"
+    lore:
+      - "<gray>Item:</gray> <item>"
+      - "<gray>Cost:</gray> <gold><cost></gold>"
+      - "<gray>Required:</gray> <required>"
+      - "<gray>Status:</gray> <status>"
+      - ""
+      - "<stats>"
+      - ""
+      - "<yellow>Click to apply this reforge.</yellow>"
+  remove:
+    slot: 48
+    material: BARRIER
+    display-name: "<red>Remove Reforge</red>"
+    lore:
+      - "<gray>Remove the current reforge from your held item.</gray>"
+  back:
+    slot: 50
     material: NETHER_STAR
     display-name: "<green>SkyBlock Menu</green>"
     lore: []

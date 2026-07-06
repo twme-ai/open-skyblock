@@ -13,6 +13,7 @@ import io.github.openskyblock.menu.MinionMenuAction;
 import io.github.openskyblock.menu.MinionMenuHolder;
 import io.github.openskyblock.menu.PetMenuHolder;
 import io.github.openskyblock.menu.QuiverHolder;
+import io.github.openskyblock.menu.ReforgeAnvilHolder;
 import io.github.openskyblock.menu.SackMenuAction;
 import io.github.openskyblock.menu.SackMenuHolder;
 import io.github.openskyblock.menu.SackSelectorHolder;
@@ -88,6 +89,9 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof PetMenuHolder petMenuHolder) {
                 handlePetClick(event, player, petMenuHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof ReforgeAnvilHolder reforgeAnvilHolder) {
+                handleReforgeAnvilClick(event, player, reforgeAnvilHolder);
             }
             return;
         }
@@ -180,6 +184,11 @@ public final class MenuListener implements Listener {
         if (plugin.menus().runPetMenuClick(player, holder, event.getRawSlot(), event.getCursor())) {
             consumeCursorItem(event);
         }
+    }
+
+    private void handleReforgeAnvilClick(InventoryClickEvent event, Player player, ReforgeAnvilHolder holder) {
+        event.setCancelled(true);
+        plugin.menus().runReforgeAnvilClick(player, holder, event.getRawSlot());
     }
 
     private void consumeCursorItem(InventoryClickEvent event) {

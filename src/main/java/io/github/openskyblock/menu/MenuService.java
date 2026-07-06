@@ -10,10 +10,12 @@ import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.quiver.QuiverItemDefinition;
 import io.github.openskyblock.recipe.SkyBlockRecipe;
+import io.github.openskyblock.reforge.ReforgeDefinition;
 import io.github.openskyblock.sack.SackDefinition;
 import io.github.openskyblock.sack.SackItemDefinition;
 import io.github.openskyblock.service.CollectionDefinition;
 import io.github.openskyblock.service.CollectionTier;
+import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionPlacement;
 import io.github.openskyblock.shop.ShopDefinition;
 import io.github.openskyblock.shop.ShopItemDefinition;
@@ -410,6 +412,50 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openReforgeAnvil(Player player) {
+        if (!plugin.reforges().enabled()) {
+            text.send(player, "commands.reforge-disabled");
+            return;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        CustomItemDefinition itemDefinition = plugin.customItems().definition(held).orElse(null);
+        if (itemDefinition == null) {
+            text.send(player, "commands.reforge-held-missing");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("reforge-anvil");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 6)));
+        Map<Integer, String> reforgesBySlot = new HashMap<>();
+        Map<Integer, ReforgeAnvilAction> actions = new HashMap<>();
+        ReforgeAnvilHolder holder = new ReforgeAnvilHolder(reforgesBySlot, actions);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Reforge Anvil</dark_gray>"), reforgeMenuPlaceholders(held, itemDefinition))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        addReforgePreview(inventory, section.getConfigurationSection("preview"), held, itemDefinition);
+
+        List<Integer> slots = contentSlots(section);
+        List<ReforgeDefinition> reforges = plugin.reforges().applicableDefinitions(itemDefinition);
+        for (int index = 0; index < reforges.size() && index < slots.size(); index++) {
+            int slot = slots.get(index);
+            if (slot < 0 || slot >= inventory.getSize()) {
+                continue;
+            }
+            ReforgeDefinition reforge = reforges.get(index);
+            inventory.setItem(slot, reforgeMenuItem(player, held, itemDefinition, reforge, section.getConfigurationSection("reforge-item")));
+            reforgesBySlot.put(slot, reforge.id());
+        }
+        addReforgeAction(inventory, section.getConfigurationSection("remove"), ReforgeAnvilAction.REMOVE, actions);
+        addReforgeAction(inventory, section.getConfigurationSection("back"), ReforgeAnvilAction.BACK, actions);
+        player.openInventory(inventory);
+    }
+
     public void openShopSelector(Player player) {
         if (!plugin.shops().enabled()) {
             text.send(player, "commands.shop-disabled");
@@ -610,6 +656,7 @@ public final class MenuService {
             case TUNING -> openTuningMenu(player);
             case EQUIPMENT -> openEquipmentMenu(player);
             case WARDROBE -> openWardrobeMenu(player);
+            case REFORGE_ANVIL -> openReforgeAnvil(player);
             case PETS -> openPetMenu(player);
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
@@ -808,6 +855,26 @@ public final class MenuService {
         }
         if (holder.action(rawSlot) == WardrobeAction.BACK) {
             openSkyBlockMenu(player);
+        }
+    }
+
+    public void runReforgeAnvilClick(Player player, ReforgeAnvilHolder holder, int rawSlot) {
+        String reforgeId = holder.reforgeId(rawSlot);
+        if (reforgeId != null) {
+            if (plugin.reforges().applyHeld(player, reforgeId)) {
+                openReforgeAnvil(player);
+            }
+            return;
+        }
+        switch (holder.action(rawSlot)) {
+            case REMOVE -> {
+                if (plugin.reforges().removeHeld(player)) {
+                    openReforgeAnvil(player);
+                }
+            }
+            case BACK -> openSkyBlockMenu(player);
+            case NONE -> {
+            }
         }
     }
 
@@ -1138,6 +1205,18 @@ public final class MenuService {
         actions.put(slot, action);
     }
 
+    private void addReforgeAction(Inventory inventory, ConfigurationSection section, ReforgeAnvilAction action, Map<Integer, ReforgeAnvilAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
     private void addSackMenuAction(Inventory inventory, ConfigurationSection section, SackMenuAction action, Map<Integer, SackMenuAction> actions) {
         if (section == null) {
             return;
@@ -1288,6 +1367,70 @@ public final class MenuService {
         return itemStack;
     }
 
+    private void addReforgePreview(Inventory inventory, ConfigurationSection section, ItemStack held, CustomItemDefinition itemDefinition) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, reforgePreviewItem(section, held, itemDefinition));
+    }
+
+    private ItemStack reforgePreviewItem(ConfigurationSection section, ItemStack held, CustomItemDefinition itemDefinition) {
+        ItemStack itemStack = held.clone();
+        itemStack.setAmount(1);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = reforgeMenuPlaceholders(held, itemDefinition);
+        meta.displayName(text.deserialize(section.getString("display-name", "<item>"), placeholders));
+        meta.lore(section.getStringList("lore").stream()
+                .map(line -> text.deserialize(line, placeholders))
+                .toList());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack reforgeMenuItem(Player player, ItemStack held, CustomItemDefinition itemDefinition, ReforgeDefinition reforge, ConfigurationSection section) {
+        Material material = Material.ANVIL;
+        if (section != null) {
+            Material configured = Material.matchMaterial(section.getString("material", "ANVIL"));
+            if (configured != null) {
+                material = configured;
+            }
+        }
+        ItemStack itemStack = new ItemStack(material);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = reforgeMenuPlaceholders(player, held, itemDefinition, reforge);
+        meta.displayName(text.deserialize(section == null ? "<reforge>" : section.getString("display-name", "<reforge>"), placeholders));
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        List<String> rawLore = section == null ? List.of("<gray>Cost:</gray> <gold><cost></gold>", "<stats>") : section.getStringList("lore");
+        for (String line : rawLore) {
+            if (line.equals("<stats>")) {
+                lore.addAll(reforgeStatLore(reforge, itemDefinition));
+            } else {
+                lore.add(text.deserialize(line, placeholders));
+            }
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private List<net.kyori.adventure.text.Component> reforgeStatLore(ReforgeDefinition reforge, CustomItemDefinition itemDefinition) {
+        Map<String, Double> stats = plugin.reforges().stats(reforge, itemDefinition.rarity());
+        if (stats.isEmpty()) {
+            return List.of(text.deserialize(text.rawMessage("reforges.no-stats")));
+        }
+        return stats.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> text.message("items.reforge-stat-line", List.of(
+                        TextService.raw("stat", text.statName(entry.getKey())),
+                        TextService.raw("value", text.formatNumber(entry.getValue()))
+                )))
+                .toList();
+    }
+
     private ItemStack tuningItem(Player player, String stat, ConfigurationSection section) {
         Material material = Material.matchMaterial(section.getString("material", "AMETHYST_SHARD"));
         ItemStack itemStack = new ItemStack(material == null ? Material.AMETHYST_SHARD : material);
@@ -1411,6 +1554,43 @@ public final class MenuService {
                 TextService.raw("maxed_pets", Integer.toString(plugin.pets().maxedPetCount(profile))),
                 TextService.parsed("active_pet", activePet)
         );
+    }
+
+    private List<TextService.TextPlaceholder> reforgeMenuPlaceholders(ItemStack held, CustomItemDefinition itemDefinition) {
+        String current = plugin.reforges().definition(held)
+                .map(ReforgeDefinition::displayName)
+                .orElseGet(() -> text.rawMessage("reforges.no-current"));
+        return List.of(
+                TextService.parsed("item", itemDefinition.displayName()),
+                TextService.raw("category", itemDefinition.category()),
+                TextService.raw("rarity", itemDefinition.rarity().name()),
+                TextService.parsed("current_reforge", current)
+        );
+    }
+
+    private List<TextService.TextPlaceholder> reforgeMenuPlaceholders(Player player, ItemStack held, CustomItemDefinition itemDefinition, ReforgeDefinition reforge) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(plugin.reforges().placeholders(
+                reforge,
+                itemDefinition,
+                plugin.reforges().cost(reforge, itemDefinition)
+        ));
+        placeholders.add(TextService.parsed("required", plugin.reforges().requiredItemLine(reforge)));
+        placeholders.add(TextService.parsed("status", reforgeStatus(player, held, reforge)));
+        placeholders.add(TextService.parsed("current_reforge", plugin.reforges().definition(held)
+                .map(ReforgeDefinition::displayName)
+                .orElseGet(() -> text.rawMessage("reforges.no-current"))));
+        placeholders.add(TextService.raw("rarity", itemDefinition.rarity().name()));
+        return placeholders;
+    }
+
+    private String reforgeStatus(Player player, ItemStack held, ReforgeDefinition reforge) {
+        if (plugin.reforges().reforgeId(held).filter(reforge.id()::equals).isPresent()) {
+            return text.rawMessage("reforges.current");
+        }
+        if (!plugin.reforges().hasRequiredItem(player, reforge)) {
+            return text.rawMessage("reforges.missing-required");
+        }
+        return text.rawMessage("reforges.available");
     }
 
     private List<TextService.TextPlaceholder> equipmentPlaceholders(Player player) {

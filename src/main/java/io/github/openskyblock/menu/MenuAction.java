@@ -16,6 +16,7 @@ public enum MenuAction {
     TUNING,
     EQUIPMENT,
     WARDROBE,
+    REFORGE_ANVIL,
     PETS,
     COLLECTIONS,
     RECIPES,

@@ -83,6 +83,15 @@ public final class ReforgeService {
                 .toList();
     }
 
+    public List<ReforgeDefinition> applicableDefinitions(CustomItemDefinition itemDefinition) {
+        if (itemDefinition == null) {
+            return List.of();
+        }
+        return definitions().stream()
+                .filter(reforge -> isApplicable(reforge, itemDefinition))
+                .toList();
+    }
+
     public Optional<ReforgeDefinition> definition(ItemStack itemStack) {
         if (!enabled()) {
             return Optional.empty();
@@ -237,7 +246,7 @@ public final class ReforgeService {
         );
     }
 
-    private String requiredItemName(ReforgeDefinition reforge) {
+    public String requiredItemName(ReforgeDefinition reforge) {
         if (reforge.requiredItemId().isBlank()) {
             return text.rawMessage("reforges.no-required-item");
         }
@@ -246,14 +255,14 @@ public final class ReforgeService {
                 .orElse(reforge.requiredItemId());
     }
 
-    private String requiredItemLine(ReforgeDefinition reforge) {
+    public String requiredItemLine(ReforgeDefinition reforge) {
         if (reforge.requiredItemId().isBlank()) {
             return text.rawMessage("reforges.no-required-item");
         }
         return "<yellow>" + reforge.requiredAmount() + "x</yellow> " + requiredItemName(reforge);
     }
 
-    private boolean hasRequiredItem(Player player, ReforgeDefinition reforge) {
+    public boolean hasRequiredItem(Player player, ReforgeDefinition reforge) {
         return countRequiredItems(player, reforge) >= reforge.requiredAmount();
     }
 
