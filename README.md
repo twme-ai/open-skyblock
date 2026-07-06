@@ -19,6 +19,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Data-driven shaped recipes for vanilla, custom item, and minion outputs with collection-tier crafting gates.
 - Purse and bank economy with deposit, withdraw, deposit-all, withdraw-all, capacity limits, and a configurable bank menu.
 - Configurable NPC shops with buy menus, right-click sell flow, daily buy limits, and `/skyblock sell`.
+- Optional physical shop NPCs spawned from `shops.yml` with persistent shop tags and right-click shop opening.
 - `/skyblock` command with profile, purse, skills, collections, custom item, minion, and reload subcommands.
 - Listeners for block breaking, entity kills, item pickup, custom item combat bonuses, join, and quit persistence.
 
@@ -53,6 +54,8 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock bank withdraw <amount|all>`
 - `/skyblock shops`
 - `/skyblock shop <id>`
+- `/skyblock shopnpcs refresh`
+- `/skyblock shopnpcs remove`
 - `/skyblock sell <hand|all>`
 - `/skyblock profile`
 - `/skyblock purse`

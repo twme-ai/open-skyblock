@@ -29,6 +29,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "bank",
             "shops",
             "shop",
+            "shopnpcs",
             "sell",
             "profile",
             "purse",
@@ -64,6 +65,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "bank" -> bank(sender, args);
             case "shops" -> shops(sender);
             case "shop" -> shop(sender, args);
+            case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
             case "purse" -> purse(sender);
             case "skills" -> skills(sender);
@@ -93,6 +95,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("shop")) {
             return startsWith(plugin.shops().shops().stream().map(shop -> shop.id()).toList(), args[1]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("shopnpcs")) {
+            return startsWith(List.of("refresh", "remove"), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("sell")) {
             return startsWith(List.of("hand", "all"), args[1]);
@@ -135,6 +140,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("openskyblock.admin")) {
             helpLine(sender, label + " giveitem <id> [player]", "commands.help.giveitem");
             helpLine(sender, label + " minion give <id> [player]", "commands.help.minion-give");
+            helpLine(sender, label + " shopnpcs refresh|remove", "commands.help.shop-npcs");
             helpLine(sender, label + " reload", "commands.help.reload");
         }
         helpLine(sender, label + " minion add <id>", "commands.help.minion-add");
@@ -266,6 +272,24 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "all" -> plugin.shops().sellAll(player);
             default -> plugin.text().send(player, "commands.shop-usage");
         }
+    }
+
+    private void shopNpcs(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("openskyblock.admin")) {
+            plugin.text().send(sender, "errors.no-permission");
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("refresh")) {
+            plugin.shopNpcs().reload();
+            plugin.text().send(sender, "commands.shop-npc-spawned");
+            return;
+        }
+        if (args[1].equalsIgnoreCase("remove")) {
+            plugin.shopNpcs().removeLoadedNpcs();
+            plugin.text().send(sender, "commands.shop-npc-removed");
+            return;
+        }
+        plugin.text().send(sender, "errors.unknown-command");
     }
 
     private void purse(CommandSender sender) {

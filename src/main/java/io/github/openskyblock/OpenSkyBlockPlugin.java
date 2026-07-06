@@ -11,6 +11,7 @@ import io.github.openskyblock.listener.MinionListener;
 import io.github.openskyblock.listener.PlayerLifecycleListener;
 import io.github.openskyblock.listener.ProgressionListener;
 import io.github.openskyblock.listener.RecipeListener;
+import io.github.openskyblock.listener.ShopNpcListener;
 import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.recipe.RecipeService;
@@ -19,6 +20,7 @@ import io.github.openskyblock.service.CustomItemService;
 import io.github.openskyblock.service.MinionService;
 import io.github.openskyblock.service.SkillService;
 import io.github.openskyblock.shop.ShopService;
+import io.github.openskyblock.shop.ShopNpcService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -36,8 +38,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private RecipeService recipeService;
     private EconomyService economyService;
     private ShopService shopService;
+    private ShopNpcService shopNpcService;
     private BukkitTask autosaveTask;
     private BukkitTask minionTask;
+    private BukkitTask shopNpcTask;
 
     @Override
     public void onEnable() {
@@ -55,6 +59,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.menuService = new MenuService(this, configService, textService, profileManager);
         this.recipeService = new RecipeService(this, configService, textService, profileManager, collectionService, customItemService, minionService);
         this.shopService = new ShopService(configService, textService, profileManager, economyService);
+        this.shopNpcService = new ShopNpcService(this, configService, textService, shopService);
 
         reloadServices();
         registerCommands();
@@ -71,6 +76,12 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         }
         if (minionTask != null) {
             minionTask.cancel();
+        }
+        if (shopNpcTask != null) {
+            shopNpcTask.cancel();
+        }
+        if (shopNpcService != null) {
+            shopNpcService.removeLoadedNpcs();
         }
         if (profileManager != null) {
             profileManager.saveAll();
@@ -97,6 +108,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         menuService.reload();
         recipeService.reload();
         shopService.reload();
+        shopNpcService.reload();
     }
 
     private void registerCommands() {
@@ -116,12 +128,15 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new MinionListener(this), this);
         getServer().getPluginManager().registerEvents(new RecipeListener(this), this);
+        getServer().getPluginManager().registerEvents(new ShopNpcListener(this), this);
     }
 
     private void startTasks() {
         long autosaveTicks = Math.max(1200L, getConfig().getLong("settings.auto-save-ticks", 6000L));
         this.autosaveTask = getServer().getScheduler().runTaskTimer(this, profileManager::saveAll, autosaveTicks, autosaveTicks);
         this.minionTask = getServer().getScheduler().runTaskTimer(this, minionService::tickLoadedMinions, 200L, 200L);
+        long shopNpcTicks = Math.max(100L, getConfig().getLong("shop-npcs.respawn-ticks", 200L));
+        this.shopNpcTask = getServer().getScheduler().runTaskTimer(this, shopNpcService::spawnConfiguredNpcs, shopNpcTicks, shopNpcTicks);
     }
 
     public ConfigService configService() {
@@ -170,5 +185,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public ShopService shops() {
         return shopService;
+    }
+
+    public ShopNpcService shopNpcs() {
+        return shopNpcService;
     }
 }

@@ -3,6 +3,16 @@ shops:
     display-name: "<yellow>Farm Merchant</yellow>"
     material: WHEAT
     rows: 4
+    npc:
+      enabled: false
+      world: world
+      x: 0.5
+      y: 80.0
+      z: 0.5
+      yaw: 180.0
+      pitch: 0.0
+      type: VILLAGER
+      profession: FARMER
     items:
       WHEAT:
         slot: 10
@@ -40,6 +50,16 @@ shops:
     display-name: "<gray>Mine Merchant</gray>"
     material: IRON_PICKAXE
     rows: 4
+    npc:
+      enabled: false
+      world: world
+      x: 2.5
+      y: 80.0
+      z: 0.5
+      yaw: 180.0
+      pitch: 0.0
+      type: VILLAGER
+      profession: TOOLSMITH
     items:
       COBBLESTONE:
         slot: 10
@@ -69,6 +89,16 @@ shops:
     display-name: "<green>Lumber Merchant</green>"
     material: OAK_LOG
     rows: 4
+    npc:
+      enabled: false
+      world: world
+      x: 4.5
+      y: 80.0
+      z: 0.5
+      yaw: 180.0
+      pitch: 0.0
+      type: VILLAGER
+      profession: FLETCHER
     items:
       OAK_LOG:
         slot: 10

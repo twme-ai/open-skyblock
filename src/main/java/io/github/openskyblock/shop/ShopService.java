@@ -14,8 +14,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 
 public final class ShopService {
@@ -49,6 +51,7 @@ public final class ShopService {
                     shopSection.getString("display-name", id),
                     material == null ? Material.EMERALD : material,
                     Math.max(1, Math.min(6, shopSection.getInt("rows", 4))),
+                    loadNpc(shopSection.getConfigurationSection("npc")),
                     loadItems(shopSection.getConfigurationSection("items"))
             ));
         }
@@ -200,6 +203,35 @@ public final class ShopService {
                 .map(Optional::get)
                 .sorted(Comparator.comparingInt(ShopItemDefinition::slot))
                 .toList();
+    }
+
+    private ShopNpcDefinition loadNpc(ConfigurationSection section) {
+        if (section == null) {
+            return new ShopNpcDefinition(false, "", 0.0D, 0.0D, 0.0D, 0.0F, 0.0F, EntityType.VILLAGER, Villager.Profession.NONE);
+        }
+        EntityType entityType;
+        try {
+            entityType = EntityType.valueOf(section.getString("type", "VILLAGER").toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            entityType = EntityType.VILLAGER;
+        }
+        Villager.Profession profession;
+        try {
+            profession = Villager.Profession.valueOf(section.getString("profession", "NONE").toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            profession = Villager.Profession.NONE;
+        }
+        return new ShopNpcDefinition(
+                section.getBoolean("enabled", false),
+                section.getString("world", ""),
+                section.getDouble("x", 0.0D),
+                section.getDouble("y", 0.0D),
+                section.getDouble("z", 0.0D),
+                (float) section.getDouble("yaw", 0.0D),
+                (float) section.getDouble("pitch", 0.0D),
+                entityType,
+                profession
+        );
     }
 
     private Optional<ShopItemDefinition> loadItem(String id, ConfigurationSection section) {
