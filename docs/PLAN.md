@@ -72,7 +72,8 @@ Planned additions when each subsystem needs them:
    - Forge-style timers and advanced recipe categories remain future work.
 
 4. Stats and Combat
-   - Complete custom stat model, item stat aggregation, armor set bonuses, accessory power, pets, potion modifiers, enchantments, reforges, gemstones, and ability cooldowns.
+   - Base stat configuration, equipment stat aggregation, accessory item stat aggregation, player stat display, and basic combat damage/defense formulas are implemented.
+   - Armor set bonuses, accessory power, pets, potion modifiers, enchantments, reforges, gemstones, and ability cooldowns remain future work.
    - Custom mobs, loot tables, spawn zones, boss bars, damage formula, aggro, and death rewards.
 
 5. Economy
@@ -99,4 +100,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, combat stat hooks, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

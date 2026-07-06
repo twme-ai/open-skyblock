@@ -287,6 +287,7 @@ public final class MenuService {
             case ISLAND_HOME -> player.performCommand("skyblock island home");
             case BANK -> openBankMenu(player);
             case SKILLS -> player.performCommand("skyblock skills");
+            case STATS -> player.performCommand("skyblock stats");
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
             case SHOPS -> openShopSelector(player);

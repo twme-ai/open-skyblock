@@ -30,8 +30,15 @@ skyblock:
       lore:
         - "<gray>View your skill progression.</gray>"
       action: SKILLS
+    stats:
+      slot: 15
+      material: DIAMOND_SWORD
+      display-name: "<red>Stats</red>"
+      lore:
+        - "<gray>View your aggregated combat stats.</gray>"
+      action: STATS
     collections:
-      slot: 16
+      slot: 17
       material: CHEST
       display-name: "<gold>Collections</gold>"
       lore:

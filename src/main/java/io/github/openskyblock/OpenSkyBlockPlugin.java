@@ -21,6 +21,7 @@ import io.github.openskyblock.service.MinionService;
 import io.github.openskyblock.service.SkillService;
 import io.github.openskyblock.shop.ShopService;
 import io.github.openskyblock.shop.ShopNpcService;
+import io.github.openskyblock.stats.StatService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -39,6 +40,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private EconomyService economyService;
     private ShopService shopService;
     private ShopNpcService shopNpcService;
+    private StatService statService;
     private BukkitTask autosaveTask;
     private BukkitTask minionTask;
     private BukkitTask shopNpcTask;
@@ -54,6 +56,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.collectionService = new CollectionService(configService, textService, profileManager);
         this.skillService = new SkillService(configService, textService, profileManager, collectionService, economyService);
         this.customItemService = new CustomItemService(this, configService, textService);
+        this.statService = new StatService(configService, textService, customItemService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -189,5 +192,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public ShopNpcService shopNpcs() {
         return shopNpcService;
+    }
+
+    public StatService stats() {
+        return statService;
     }
 }

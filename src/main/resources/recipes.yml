@@ -60,3 +60,18 @@ recipes:
     requirement:
       collection: WHEAT
       tier: 0
+  SPEED_TALISMAN:
+    display-name: "<green>Speed Talisman Recipe</green>"
+    result:
+      type: CUSTOM_ITEM
+      id: SPEED_TALISMAN
+      amount: 1
+    shape:
+      - " S "
+      - " S "
+      - " S "
+    ingredients:
+      S: SUGAR_CANE
+    requirement:
+      collection: SUGAR_CANE
+      tier: 1

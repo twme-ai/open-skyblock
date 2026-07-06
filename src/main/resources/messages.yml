@@ -24,6 +24,7 @@ commands:
     shop: "Open a configured NPC shop."
     shop-npcs: "Refresh or remove configured physical shop NPCs."
     sell: "Sell held items or matching inventory items to NPC shops."
+    stats: "View your aggregated SkyBlock stats."
     profile: "View your profile summary."
     purse: "View your purse and bank balance."
     skills: "View your skill levels."
@@ -60,6 +61,8 @@ commands:
   shops-header: "<prefix><aqua>NPC Shops</aqua>"
   shops-line: "<gray><id>:</gray> <shop>"
   skills-header: "<prefix><aqua>Skills</aqua>"
+  stats-header: "<prefix><aqua>Stats</aqua>"
+  stats-line: "<gray><stat>:</gray> <green><value></green>"
   skill-line: "<gray><skill>:</gray> <yellow>Level <level></yellow> <dark_gray>(</dark_gray><white><xp></white><gray> XP</gray><dark_gray>)</dark_gray>"
   collections-header: "<prefix><aqua>Collections</aqua>"
   collection-line: "<gray><collection>:</gray> <white><amount></white> <dark_gray>|</dark_gray> <yellow>Tier <tier></yellow>"
@@ -110,6 +113,9 @@ items:
     crit_chance: "Crit Chance"
     crit_damage: "Crit Damage"
     ferocity: "Ferocity"
+    health: "Health"
+    defense: "Defense"
+    speed: "Speed"
 
 minions:
   item-lore:

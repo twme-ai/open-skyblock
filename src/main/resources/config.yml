@@ -32,3 +32,25 @@ bank:
 
 shop-npcs:
   respawn-ticks: 200
+
+stats:
+  base:
+    health: 100.0
+    defense: 0.0
+    damage: 5.0
+    strength: 0.0
+    crit_chance: 30.0
+    crit_damage: 50.0
+    intelligence: 0.0
+    speed: 100.0
+    ferocity: 0.0
+  display-order:
+    - health
+    - defense
+    - damage
+    - strength
+    - crit_chance
+    - crit_damage
+    - intelligence
+    - speed
+    - ferocity

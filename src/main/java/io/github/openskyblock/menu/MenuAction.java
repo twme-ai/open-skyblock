@@ -8,6 +8,7 @@ public enum MenuAction {
     ISLAND_HOME,
     BANK,
     SKILLS,
+    STATS,
     COLLECTIONS,
     RECIPES,
     SHOPS,

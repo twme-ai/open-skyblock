@@ -43,6 +43,15 @@ items:
         - "Teleport forward and gain brief speed."
       mana-cost: 50
       cooldown-seconds: 1
+  SPEED_TALISMAN:
+    material: FEATHER
+    display-name: "<green>Speed Talisman</green>"
+    category: ACCESSORY
+    rarity: COMMON
+    lore:
+      - "<gray>A simple accessory that increases movement.</gray>"
+    stats:
+      speed: 5
   HYPERION:
     material: NETHERITE_SWORD
     display-name: "<gold>Hyperion</gold>"

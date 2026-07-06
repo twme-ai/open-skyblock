@@ -34,6 +34,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "profile",
             "purse",
             "skills",
+            "stats",
             "collections",
             "recipes",
             "giveitem",
@@ -69,6 +70,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "sell" -> sell(sender, args);
             case "purse" -> purse(sender);
             case "skills" -> skills(sender);
+            case "stats" -> stats(sender);
             case "collections" -> collections(sender);
             case "recipes" -> recipes(sender);
             case "giveitem" -> giveItem(sender, args);
@@ -135,6 +137,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " profile", "commands.help.profile");
         helpLine(sender, label + " purse", "commands.help.purse");
         helpLine(sender, label + " skills", "commands.help.skills");
+        helpLine(sender, label + " stats", "commands.help.stats");
         helpLine(sender, label + " collections", "commands.help.collections");
         helpLine(sender, label + " recipes", "commands.help.recipes");
         if (sender.hasPermission("openskyblock.admin")) {
@@ -319,6 +322,14 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                     TextService.raw("xp", plugin.text().formatNumber(xp))
             ));
         }
+    }
+
+    private void stats(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.stats().sendStats(player);
     }
 
     private void collections(CommandSender sender) {
