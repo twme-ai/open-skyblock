@@ -13,6 +13,7 @@ import io.github.openskyblock.calendar.CalendarService;
 import io.github.openskyblock.commission.CommissionService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.cookie.CookieService;
 import io.github.openskyblock.darkauction.DarkAuctionService;
 import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.economy.EconomyService;
@@ -23,6 +24,7 @@ import io.github.openskyblock.island.IslandService;
 import io.github.openskyblock.listener.AutoPetListener;
 import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.CakeListener;
+import io.github.openskyblock.listener.CookieListener;
 import io.github.openskyblock.listener.ItemAbilityListener;
 import io.github.openskyblock.listener.MenuListener;
 import io.github.openskyblock.listener.MinionListener;
@@ -81,6 +83,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private CalendarService calendarService;
     private CommissionService commissionService;
     private FarmingContestService farmingContestService;
+    private CookieService cookieService;
     private CakeService cakeService;
     private PotionService potionService;
     private ReforgeService reforgeService;
@@ -119,6 +122,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BukkitTask petCosmeticTask;
     private BukkitTask darkAuctionTask;
     private BukkitTask farmingContestTask;
+    private BukkitTask cookieTask;
 
     @Override
     public void onEnable() {
@@ -137,6 +141,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
         this.skillService.museumService(museumService);
         this.economyService.museumService(museumService);
+        this.cookieService = new CookieService(configService, textService, profileManager, customItemService);
+        this.cookieService.museumService(museumService);
         this.armorSetService = new ArmorSetService(configService);
         this.reforgeService = new ReforgeService(this, configService, textService, economyService, customItemService);
         this.enchantmentService = new EnchantmentService(this, configService, textService, economyService, customItemService);
@@ -222,6 +228,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         if (farmingContestTask != null) {
             farmingContestTask.cancel();
         }
+        if (cookieTask != null) {
+            cookieTask.cancel();
+        }
         if (petService != null) {
             petService.removeAllCosmeticPets();
         }
@@ -266,6 +275,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         commissionService.reload();
         customItemService.reload();
         museumService.reload();
+        cookieService.reload();
         itemAbilityService.reload();
         upgradeService.reload();
         sackService.reload();
@@ -318,6 +328,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SackListener(this), this);
         getServer().getPluginManager().registerEvents(new QuiverListener(this), this);
         getServer().getPluginManager().registerEvents(new CakeListener(this), this);
+        getServer().getPluginManager().registerEvents(new CookieListener(this), this);
         getServer().getPluginManager().registerEvents(new MobListener(this), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
@@ -339,6 +350,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.petCosmeticTask = getServer().getScheduler().runTaskTimer(this, petService::tickCosmeticPets, 20L, petService.cosmeticUpdateTicks());
         this.darkAuctionTask = getServer().getScheduler().runTaskTimer(this, darkAuctionService::tick, 20L, darkAuctionService.tickIntervalTicks());
         this.farmingContestTask = getServer().getScheduler().runTaskTimer(this, farmingContestService::tick, 20L, farmingContestService.tickIntervalTicks());
+        this.cookieTask = getServer().getScheduler().runTaskTimer(this, cookieService::tickOnlinePlayers, 20L, cookieService.tickIntervalTicks());
     }
 
     public ConfigService configService() {
@@ -411,6 +423,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public FarmingContestService farmingContests() {
         return farmingContestService;
+    }
+
+    public CookieService cookies() {
+        return cookieService;
     }
 
     public CakeService cakes() {

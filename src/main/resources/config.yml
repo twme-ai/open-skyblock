@@ -21,6 +21,7 @@ features:
   quiver: true
   potion-effects: true
   cakes: true
+  cookies: true
   profile-upgrades: true
   reforges: true
   enchantments: true

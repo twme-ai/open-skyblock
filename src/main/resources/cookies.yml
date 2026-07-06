@@ -1,0 +1,30 @@
+settings:
+  booster-cookie-item: BOOSTER_COOKIE
+  duration-seconds: 345600
+  base-bits: 4800
+  tick-interval-ticks: 200
+  accrual-interval-seconds: 1800
+  bits-per-interval: 250
+  fame-per-bit-spent: 1.0
+
+fame-ranks:
+  NEW_PLAYER:
+    display-name: "<gray>New Player</gray>"
+    required-fame: 0.0
+    bits-multiplier: 1.0
+  SETTLER:
+    display-name: "<green>Settler</green>"
+    required-fame: 20000.0
+    bits-multiplier: 1.05
+  CITIZEN:
+    display-name: "<blue>Citizen</blue>"
+    required-fame: 80000.0
+    bits-multiplier: 1.10
+  CONTRIBUTOR:
+    display-name: "<light_purple>Contributor</light_purple>"
+    required-fame: 200000.0
+    bits-multiplier: 1.20
+  PATRON:
+    display-name: "<gold>Patron</gold>"
+    required-fame: 500000.0
+    bits-multiplier: 1.35

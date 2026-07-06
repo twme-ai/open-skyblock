@@ -442,6 +442,15 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection cookies = section.getConfigurationSection("cookies");
+        if (cookies != null) {
+            profile.cookieBuffExpiresAtMillis(cookies.getLong("buff-expires-at", 0L));
+            profile.bits(cookies.getLong("bits", 0L));
+            profile.bitsAvailable(cookies.getLong("bits-available", 0L));
+            profile.fameXp(cookies.getDouble("fame-xp", 0.0D));
+            profile.cookiesConsumed(cookies.getLong("consumed", 0L));
+            profile.bitsLastAccrualMillis(cookies.getLong("last-accrual-millis", 0L));
+        }
         ConfigurationSection slayerXp = section.getConfigurationSection("slayers.xp");
         if (slayerXp != null) {
             for (String slayerId : slayerXp.getKeys(false)) {
@@ -709,6 +718,13 @@ public final class ProfileManager {
             profileData.set(commissionBase + ".id", commission.id());
             profileData.set(commissionBase + ".progress", commission.progress());
         }
+        profileData.set(base + ".cookies", null);
+        profileData.set(base + ".cookies.buff-expires-at", profile.cookieBuffExpiresAtMillis());
+        profileData.set(base + ".cookies.bits", profile.bits());
+        profileData.set(base + ".cookies.bits-available", profile.bitsAvailable());
+        profileData.set(base + ".cookies.fame-xp", profile.fameXp());
+        profileData.set(base + ".cookies.consumed", profile.cookiesConsumed());
+        profileData.set(base + ".cookies.last-accrual-millis", profile.bitsLastAccrualMillis());
         profileData.set(base + ".slayers", null);
         for (Map.Entry<String, Double> entry : profile.slayerXp().entrySet()) {
             if (entry.getValue() > 0.0D) {

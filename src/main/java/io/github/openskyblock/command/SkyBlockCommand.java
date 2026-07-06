@@ -69,6 +69,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "godpotion",
             "cakes",
             "cake",
+            "cookie",
+            "cookies",
+            "bits",
+            "fame",
             "upgrades",
             "upgrade",
             "reforges",
@@ -160,6 +164,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "quiver" -> quiver(sender, args);
             case "potions", "potion", "godpotion" -> potions(sender, args);
             case "cakes", "cake" -> cakes(sender, args);
+            case "cookie", "cookies" -> cookies(sender, args);
+            case "bits" -> bits(sender, args);
+            case "fame" -> fame(sender);
             case "upgrades", "upgrade" -> upgrades(sender, args);
             case "reforges" -> reforges(sender);
             case "reforge" -> reforge(sender, args);
@@ -334,6 +341,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && isCakeCommand(args[0])) {
             return startsWith(List.of("status", "placed", "clear", "list"), args[1]);
+        }
+        if (args.length == 2 && isCookieCommand(args[0])) {
+            return startsWith(List.of("status", "eat"), args[1]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("bits")) {
+            return startsWith(List.of("status", "spend"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("bits") && args[1].equalsIgnoreCase("spend")) {
+            return startsWith(List.of("100", "1000", "4800"), args[2]);
         }
         if (args.length == 2 && isUpgradeCommand(args[0])) {
             return startsWith(List.of("list", "buy", "info"), args[1]);
@@ -577,6 +593,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " quiver deposit|withdraw|select", "commands.help.quiver-edit");
         helpLine(sender, label + " potions", "commands.help.potions");
         helpLine(sender, label + " cakes", "commands.help.cakes");
+        helpLine(sender, label + " cookie [eat]", "commands.help.cookie");
+        helpLine(sender, label + " bits [spend <amount>]", "commands.help.bits");
+        helpLine(sender, label + " fame", "commands.help.fame");
         helpLine(sender, label + " upgrades", "commands.help.upgrades");
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge [id|remove]", "commands.help.reforge");
@@ -1216,6 +1235,49 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 }
             }
             default -> plugin.text().send(player, "commands.cake-usage");
+        }
+    }
+
+    private void cookies(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.cookies().sendSummary(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "eat", "consume" -> plugin.cookies().consumeHeld(player);
+            default -> plugin.text().send(player, "commands.cookie-usage");
+        }
+    }
+
+    private void bits(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.cookies().sendSummary(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "spend" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.cookie-usage");
+                    return;
+                }
+                parsePositiveLong(player, args[2]).ifPresent(amount -> plugin.cookies().spendBits(player, amount));
+            }
+            default -> plugin.text().send(player, "commands.cookie-usage");
+        }
+    }
+
+    private void fame(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player != null) {
+            plugin.cookies().sendFame(player);
         }
     }
 
@@ -2376,6 +2438,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isCakeCommand(String value) {
         return value.equalsIgnoreCase("cake") || value.equalsIgnoreCase("cakes");
+    }
+
+    private boolean isCookieCommand(String value) {
+        return value.equalsIgnoreCase("cookie") || value.equalsIgnoreCase("cookies");
     }
 
     private boolean isUpgradeCommand(String value) {

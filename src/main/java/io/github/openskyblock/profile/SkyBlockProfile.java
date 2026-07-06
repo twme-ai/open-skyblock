@@ -59,6 +59,12 @@ public final class SkyBlockProfile {
     private long totalCommissions;
     private String commissionDay;
     private int dailyCommissions;
+    private long cookieBuffExpiresAtMillis;
+    private long bits;
+    private long bitsAvailable;
+    private double fameXp;
+    private long cookiesConsumed;
+    private long bitsLastAccrualMillis;
 
     public SkyBlockProfile(UUID uniqueId, String playerName, double purse, double bank) {
         this.uniqueId = uniqueId;
@@ -439,6 +445,70 @@ public final class SkyBlockProfile {
 
     public void addDailyCommission() {
         dailyCommissions(dailyCommissions + 1);
+    }
+
+    public long cookieBuffExpiresAtMillis() {
+        return cookieBuffExpiresAtMillis;
+    }
+
+    public void cookieBuffExpiresAtMillis(long cookieBuffExpiresAtMillis) {
+        this.cookieBuffExpiresAtMillis = Math.max(0L, cookieBuffExpiresAtMillis);
+    }
+
+    public long bits() {
+        return bits;
+    }
+
+    public void bits(long bits) {
+        this.bits = Math.max(0L, bits);
+    }
+
+    public void addBits(long amount) {
+        bits(bits + amount);
+    }
+
+    public long bitsAvailable() {
+        return bitsAvailable;
+    }
+
+    public void bitsAvailable(long bitsAvailable) {
+        this.bitsAvailable = Math.max(0L, bitsAvailable);
+    }
+
+    public void addBitsAvailable(long amount) {
+        bitsAvailable(bitsAvailable + amount);
+    }
+
+    public double fameXp() {
+        return fameXp;
+    }
+
+    public void fameXp(double fameXp) {
+        this.fameXp = Math.max(0.0D, fameXp);
+    }
+
+    public void addFameXp(double amount) {
+        fameXp(fameXp + amount);
+    }
+
+    public long cookiesConsumed() {
+        return cookiesConsumed;
+    }
+
+    public void cookiesConsumed(long cookiesConsumed) {
+        this.cookiesConsumed = Math.max(0L, cookiesConsumed);
+    }
+
+    public void addCookieConsumed() {
+        cookiesConsumed(cookiesConsumed + 1L);
+    }
+
+    public long bitsLastAccrualMillis() {
+        return bitsLastAccrualMillis;
+    }
+
+    public void bitsLastAccrualMillis(long bitsLastAccrualMillis) {
+        this.bitsLastAccrualMillis = Math.max(0L, bitsLastAccrualMillis);
     }
 
     public Map<String, Double> slayerXp() {

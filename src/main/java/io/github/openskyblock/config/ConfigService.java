@@ -18,6 +18,7 @@ public final class ConfigService {
             "quiver.yml",
             "potions.yml",
             "cakes.yml",
+            "cookies.yml",
             "upgrades.yml",
             "auctions.yml",
             "bazaar.yml",
@@ -101,6 +102,10 @@ public final class ConfigService {
 
     public FileConfiguration cakes() {
         return file("cakes.yml");
+    }
+
+    public FileConfiguration cookies() {
+        return file("cookies.yml");
     }
 
     public FileConfiguration upgrades() {
