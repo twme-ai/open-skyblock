@@ -10,6 +10,7 @@ import io.github.openskyblock.bestiary.BestiaryService;
 import io.github.openskyblock.bazaar.BazaarService;
 import io.github.openskyblock.cake.CakeService;
 import io.github.openskyblock.calendar.CalendarService;
+import io.github.openskyblock.commission.CommissionService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.darkauction.DarkAuctionService;
@@ -78,6 +79,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private WardrobeService wardrobeService;
     private ArmorSetService armorSetService;
     private CalendarService calendarService;
+    private CommissionService commissionService;
     private FarmingContestService farmingContestService;
     private CakeService cakeService;
     private PotionService potionService;
@@ -130,6 +132,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.economyService.upgradeService(upgradeService);
         this.collectionService = new CollectionService(configService, textService, profileManager);
         this.skillService = new SkillService(configService, textService, profileManager, collectionService, economyService);
+        this.commissionService = new CommissionService(configService, textService, profileManager, economyService, skillService);
         this.customItemService = new CustomItemService(this, configService, textService);
         this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
         this.skillService.museumService(museumService);
@@ -260,6 +263,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         textService.reload();
         collectionService.reload();
         skillService.reload();
+        commissionService.reload();
         customItemService.reload();
         museumService.reload();
         itemAbilityService.reload();
@@ -395,6 +399,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public CalendarService calendar() {
         return calendarService;
+    }
+
+    public CommissionService commissions() {
+        return commissionService;
     }
 
     public MayorService mayors() {

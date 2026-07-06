@@ -1,0 +1,97 @@
+settings:
+  default-slots: 2
+  max-slots: 4
+  daily-bonus-commissions: 4
+  daily-hotm-xp-bonus: 900.0
+
+slot-milestones:
+  25: 3
+  100: 4
+
+hotm-levels:
+  1:
+    required-xp: 0.0
+  2:
+    required-xp: 3000.0
+  3:
+    required-xp: 9000.0
+  4:
+    required-xp: 25000.0
+  5:
+    required-xp: 60000.0
+  6:
+    required-xp: 100000.0
+  7:
+    required-xp: 150000.0
+
+commissions:
+  MINE_COBBLESTONE:
+    display-name: "<gray>Mine Cobblestone</gray>"
+    description: "Mine Cobblestone for the Dwarven Mines commission board."
+    type: MINE_BLOCK
+    target: COBBLESTONE
+    amount: 250
+    weight: 2.0
+    rewards:
+      mining-xp: 500.0
+      hotm-xp: 100.0
+      coins: 1000.0
+      powder:
+        type: MITHRIL
+        amount: 50.0
+  MINE_COAL:
+    display-name: "<dark_gray>Mine Coal Ore</dark_gray>"
+    description: "Mine Coal Ore or Deepslate Coal Ore for a mining commission."
+    type: MINE_BLOCK
+    target: COAL_ORE
+    amount: 100
+    weight: 1.0
+    rewards:
+      mining-xp: 500.0
+      hotm-xp: 100.0
+      coins: 1000.0
+      powder:
+        type: MITHRIL
+        amount: 60.0
+  MINE_DEEPSLATE_COAL:
+    display-name: "<dark_gray>Mine Deepslate Coal Ore</dark_gray>"
+    description: "Mine Deepslate Coal Ore for a mining commission."
+    type: MINE_BLOCK
+    target: DEEPSLATE_COAL_ORE
+    amount: 100
+    weight: 1.0
+    rewards:
+      mining-xp: 500.0
+      hotm-xp: 100.0
+      coins: 1000.0
+      powder:
+        type: MITHRIL
+        amount: 60.0
+  KILL_ZOMBIES:
+    display-name: "<red>Clear Zombies</red>"
+    description: "Defeat Zombies for a combat-style commission."
+    type: KILL_ENTITY
+    target: ZOMBIE
+    amount: 50
+    weight: 0.75
+    rewards:
+      mining-xp: 250.0
+      hotm-xp: 100.0
+      coins: 1500.0
+      powder:
+        type: GEMSTONE
+        amount: 25.0
+  KILL_SKELETONS:
+    display-name: "<white>Clear Skeletons</white>"
+    description: "Defeat Skeletons for a combat-style commission."
+    type: KILL_ENTITY
+    target: SKELETON
+    amount: 50
+    weight: 0.75
+    rewards:
+      mining-xp: 250.0
+      hotm-xp: 100.0
+      coins: 1500.0
+      powder:
+        type: GEMSTONE
+        amount: 25.0

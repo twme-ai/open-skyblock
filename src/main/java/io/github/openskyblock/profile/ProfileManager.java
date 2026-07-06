@@ -411,6 +411,37 @@ public final class ProfileManager {
                 profile.setFarmingContestReward(contestId.toUpperCase(), farmingRewards.getString(contestId, "NONE"));
             }
         }
+        profile.hotmXp(section.getDouble("commissions.hotm-xp", 0.0D));
+        profile.totalCommissions(section.getLong("commissions.total", 0L));
+        profile.commissionDay(section.getString("commissions.daily.day", null));
+        profile.dailyCommissions(section.getInt("commissions.daily.completed", 0));
+        ConfigurationSection powder = section.getConfigurationSection("commissions.powder");
+        if (powder != null) {
+            for (String powderId : powder.getKeys(false)) {
+                double amount = powder.getDouble(powderId, 0.0D);
+                if (amount > 0.0D) {
+                    profile.setHotmPowder(powderId.toUpperCase(), amount);
+                }
+            }
+        }
+        ConfigurationSection activeCommissions = section.getConfigurationSection("commissions.active");
+        if (activeCommissions != null) {
+            for (String slotKey : activeCommissions.getKeys(false)) {
+                ConfigurationSection active = activeCommissions.getConfigurationSection(slotKey);
+                if (active == null) {
+                    continue;
+                }
+                try {
+                    int slot = Integer.parseInt(slotKey);
+                    String id = active.getString("id", "");
+                    if (!id.isBlank()) {
+                        profile.activeCommissions().put(slot, new ActiveCommission(slot, id.toUpperCase(), active.getLong("progress", 0L)));
+                    }
+                } catch (NumberFormatException ignored) {
+                    plugin.getLogger().warning("Skipping invalid commission slot in profiles.yml: " + slotKey);
+                }
+            }
+        }
         ConfigurationSection slayerXp = section.getConfigurationSection("slayers.xp");
         if (slayerXp != null) {
             for (String slayerId : slayerXp.getKeys(false)) {
@@ -658,6 +689,25 @@ public final class ProfileManager {
         }
         for (Map.Entry<String, String> entry : profile.farmingContestRewards().entrySet()) {
             profileData.set(base + ".farming-contests.rewards." + entry.getKey(), entry.getValue());
+        }
+        profileData.set(base + ".commissions", null);
+        profileData.set(base + ".commissions.hotm-xp", profile.hotmXp());
+        profileData.set(base + ".commissions.total", profile.totalCommissions());
+        profileData.set(base + ".commissions.daily.day", profile.commissionDay());
+        profileData.set(base + ".commissions.daily.completed", profile.dailyCommissions());
+        for (Map.Entry<String, Double> entry : profile.hotmPowder().entrySet()) {
+            if (entry.getValue() > 0.0D) {
+                profileData.set(base + ".commissions.powder." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<Integer, ActiveCommission> entry : profile.activeCommissions().entrySet()) {
+            ActiveCommission commission = entry.getValue();
+            if (commission == null) {
+                continue;
+            }
+            String commissionBase = base + ".commissions.active." + entry.getKey();
+            profileData.set(commissionBase + ".id", commission.id());
+            profileData.set(commissionBase + ".progress", commission.progress());
         }
         profileData.set(base + ".slayers", null);
         for (Map.Entry<String, Double> entry : profile.slayerXp().entrySet()) {

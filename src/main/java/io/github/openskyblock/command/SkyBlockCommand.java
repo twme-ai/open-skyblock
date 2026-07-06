@@ -97,6 +97,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "jacob",
             "farmingcontest",
             "farmingcontests",
+            "commissions",
+            "commission",
+            "hotm",
             "mobs",
             "mob",
             "mobzones",
@@ -178,6 +181,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "event" -> event(sender, args);
             case "mayor", "mayors" -> mayors(sender, args);
             case "jacob", "farmingcontest", "farmingcontests" -> farmingContests(sender, args);
+            case "commissions", "commission" -> commissions(sender, args);
+            case "hotm" -> hotm(sender);
             case "mobs", "mob" -> mobs(sender, args);
             case "mobzones", "mobzone" -> mobZones(sender, args);
             case "museum" -> museum(sender, args);
@@ -427,6 +432,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isFarmingContestCommand(args[0]) && args[1].equalsIgnoreCase("leaderboard")) {
             return startsWith(plugin.farmingContests().cropIds(), args[2]);
         }
+        if (args.length == 2 && isCommissionCommand(args[0])) {
+            return startsWith(List.of("claim"), args[1]);
+        }
+        if (args.length == 3 && isCommissionCommand(args[0]) && args[1].equalsIgnoreCase("claim")) {
+            return startsWith(List.of("1", "2", "3", "4"), args[2]);
+        }
         if (args.length == 2 && isMobCommand(args[0])) {
             return startsWith(List.of("list", "spawn"), args[1]);
         }
@@ -591,6 +602,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " mayor [status|candidates|results|perks]", "commands.help.mayor");
         helpLine(sender, label + " mayor vote <id>", "commands.help.mayor-vote");
         helpLine(sender, label + " jacob [status|crops|rewards|medals|leaderboard]", "commands.help.farming-contest");
+        helpLine(sender, label + " commissions", "commands.help.commissions");
+        helpLine(sender, label + " hotm", "commands.help.hotm");
         helpLine(sender, label + " mobs", "commands.help.mobs");
         helpLine(sender, label + " mobzones", "commands.help.mob-zones");
         helpLine(sender, label + " museum donate|list|milestones", "commands.help.museum");
@@ -1629,6 +1642,34 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void commissions(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.commissions().sendSummary(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "claim" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.commissions-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(slot -> plugin.commissions().claim(player, slot));
+            }
+            default -> plugin.text().send(player, "commands.commissions-usage");
+        }
+    }
+
+    private void hotm(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player != null) {
+            plugin.commissions().sendHotm(player);
+        }
+    }
+
     private void mobs(CommandSender sender, String[] args) {
         if (args.length < 2 || args[1].equalsIgnoreCase("list")) {
             Player player = requirePlayer(sender);
@@ -2315,6 +2356,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isFarmingContestCommand(String value) {
         return value.equalsIgnoreCase("jacob") || value.equalsIgnoreCase("farmingcontest") || value.equalsIgnoreCase("farmingcontests");
+    }
+
+    private boolean isCommissionCommand(String value) {
+        return value.equalsIgnoreCase("commission") || value.equalsIgnoreCase("commissions");
     }
 
     private boolean isMobZoneCommand(String value) {

@@ -40,6 +40,8 @@ public final class SkyBlockProfile {
     private final Map<String, Long> farmingContestMedals = new HashMap<>();
     private final Map<String, Map<String, Long>> farmingContestScores = new HashMap<>();
     private final Map<String, String> farmingContestRewards = new HashMap<>();
+    private final Map<Integer, ActiveCommission> activeCommissions = new HashMap<>();
+    private final Map<String, Double> hotmPowder = new HashMap<>();
     private final Map<String, Double> slayerXp = new HashMap<>();
     private final Map<String, Integer> slayerLevels = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
@@ -53,6 +55,10 @@ public final class SkyBlockProfile {
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
     private long jacobsTickets;
+    private double hotmXp;
+    private long totalCommissions;
+    private String commissionDay;
+    private int dailyCommissions;
 
     public SkyBlockProfile(UUID uniqueId, String playerName, double purse, double bank) {
         this.uniqueId = uniqueId;
@@ -365,6 +371,74 @@ public final class SkyBlockProfile {
 
     public void setFarmingContestReward(String contestId, String rewardId) {
         farmingContestRewards.put(contestId.toUpperCase(), rewardId == null || rewardId.isBlank() ? "NONE" : rewardId.toUpperCase());
+    }
+
+    public double hotmXp() {
+        return hotmXp;
+    }
+
+    public void hotmXp(double hotmXp) {
+        this.hotmXp = Math.max(0.0D, hotmXp);
+    }
+
+    public void addHotmXp(double amount) {
+        hotmXp(hotmXp + amount);
+    }
+
+    public double hotmPowder(String powderId) {
+        return hotmPowder.getOrDefault(powderId.toUpperCase(), 0.0D);
+    }
+
+    public void setHotmPowder(String powderId, double amount) {
+        if (amount <= 0.0D) {
+            hotmPowder.remove(powderId.toUpperCase());
+            return;
+        }
+        hotmPowder.put(powderId.toUpperCase(), amount);
+    }
+
+    public void addHotmPowder(String powderId, double amount) {
+        setHotmPowder(powderId, hotmPowder(powderId) + amount);
+    }
+
+    public Map<String, Double> hotmPowder() {
+        return hotmPowder;
+    }
+
+    public Map<Integer, ActiveCommission> activeCommissions() {
+        return activeCommissions;
+    }
+
+    public long totalCommissions() {
+        return totalCommissions;
+    }
+
+    public void totalCommissions(long totalCommissions) {
+        this.totalCommissions = Math.max(0L, totalCommissions);
+    }
+
+    public void addTotalCommissions(long amount) {
+        totalCommissions(totalCommissions + amount);
+    }
+
+    public String commissionDay() {
+        return commissionDay;
+    }
+
+    public void commissionDay(String commissionDay) {
+        this.commissionDay = commissionDay;
+    }
+
+    public int dailyCommissions() {
+        return dailyCommissions;
+    }
+
+    public void dailyCommissions(int dailyCommissions) {
+        this.dailyCommissions = Math.max(0, dailyCommissions);
+    }
+
+    public void addDailyCommission() {
+        dailyCommissions(dailyCommissions + 1);
     }
 
     public Map<String, Double> slayerXp() {
