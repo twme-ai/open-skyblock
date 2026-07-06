@@ -58,6 +58,13 @@ skyblock:
       lore:
         - "<gray>Store accessories and gain Magical Power.</gray>"
       action: ACCESSORY_BAG
+    storage:
+      slot: 17
+      material: CHEST
+      display-name: "<gold>Storage</gold>"
+      lore:
+        - "<gray>Open your persistent Storage pages.</gray>"
+      action: STORAGE
     tuning:
       slot: 18
       material: AMETHYST_SHARD

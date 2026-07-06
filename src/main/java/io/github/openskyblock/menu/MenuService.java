@@ -605,6 +605,7 @@ public final class MenuService {
             case STATS -> player.performCommand("skyblock stats");
             case SACKS -> openSacksMenu(player);
             case QUIVER -> openQuiverMenu(player);
+            case STORAGE -> plugin.storage().open(player, 1);
             case ACCESSORY_BAG -> openAccessoryBag(player);
             case TUNING -> openTuningMenu(player);
             case EQUIPMENT -> openEquipmentMenu(player);

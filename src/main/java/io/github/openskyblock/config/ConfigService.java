@@ -22,6 +22,7 @@ public final class ConfigService {
             "auctions.yml",
             "bazaar.yml",
             "trades.yml",
+            "storage.yml",
             "equipment.yml",
             "wardrobe.yml",
             "armor_sets.yml",
@@ -105,6 +106,10 @@ public final class ConfigService {
 
     public FileConfiguration trades() {
         return file("trades.yml");
+    }
+
+    public FileConfiguration storage() {
+        return file("storage.yml");
     }
 
     public FileConfiguration equipment() {

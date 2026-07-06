@@ -11,6 +11,7 @@ public enum MenuAction {
     STATS,
     SACKS,
     QUIVER,
+    STORAGE,
     ACCESSORY_BAG,
     TUNING,
     EQUIPMENT,

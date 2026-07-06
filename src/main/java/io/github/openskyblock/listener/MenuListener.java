@@ -18,6 +18,7 @@ import io.github.openskyblock.menu.SackSelectorHolder;
 import io.github.openskyblock.menu.ShopMenuHolder;
 import io.github.openskyblock.menu.ShopSelectorHolder;
 import io.github.openskyblock.menu.SkyBlockMenuHolder;
+import io.github.openskyblock.menu.StorageHolder;
 import io.github.openskyblock.menu.TuningHolder;
 import io.github.openskyblock.menu.WardrobeHolder;
 import io.github.openskyblock.service.CustomItemDefinition;
@@ -27,6 +28,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public final class MenuListener implements Listener {
@@ -39,6 +41,9 @@ public final class MenuListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onMenuClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) {
+            return;
+        }
+        if (event.getView().getTopInventory().getHolder() instanceof StorageHolder) {
             return;
         }
         if (!(event.getView().getTopInventory().getHolder() instanceof SkyBlockMenuHolder holder)) {
@@ -170,6 +175,16 @@ public final class MenuListener implements Listener {
     private void handlePetClick(InventoryClickEvent event, Player player, PetMenuHolder holder) {
         event.setCancelled(true);
         plugin.menus().runPetMenuClick(player, holder, event.getRawSlot());
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) {
+            return;
+        }
+        if (event.getInventory().getHolder() instanceof StorageHolder holder) {
+            plugin.storage().save(player, holder, event.getInventory());
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

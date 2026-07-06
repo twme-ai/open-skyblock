@@ -40,6 +40,7 @@ import io.github.openskyblock.shop.ShopNpcService;
 import io.github.openskyblock.stats.StatService;
 import io.github.openskyblock.stats.ArmorSetService;
 import io.github.openskyblock.star.StarService;
+import io.github.openskyblock.storage.StorageService;
 import io.github.openskyblock.trade.TradeService;
 import io.github.openskyblock.upgrade.UpgradeService;
 import io.github.openskyblock.wardrobe.WardrobeService;
@@ -78,6 +79,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private AuctionService auctionService;
     private BazaarService bazaarService;
     private TradeService tradeService;
+    private StorageService storageService;
     private StatService statService;
     private UpgradeService upgradeService;
     private BukkitTask autosaveTask;
@@ -128,6 +130,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.bazaarService = new BazaarService(this, configService, textService, economyService, customItemService);
         this.bazaarService.load();
         this.tradeService = new TradeService(configService, textService, economyService, customItemService);
+        this.storageService = new StorageService(configService, textService, profileManager);
 
         reloadServices();
         registerCommands();
@@ -205,6 +208,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         auctionService.reload();
         bazaarService.reload();
         tradeService.reload();
+        storageService.reload();
     }
 
     private void registerCommands() {
@@ -357,6 +361,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public TradeService trades() {
         return tradeService;
+    }
+
+    public StorageService storage() {
+        return storageService;
     }
 
     public StatService stats() {

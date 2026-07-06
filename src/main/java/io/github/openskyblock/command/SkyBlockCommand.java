@@ -46,6 +46,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "bazaar",
             "bz",
             "trade",
+            "storage",
+            "enderchest",
+            "ec",
             "shopnpcs",
             "sell",
             "sacks",
@@ -111,6 +114,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "auctions", "auction" -> auctions(sender, args);
             case "bazaar", "bz" -> bazaar(sender, args);
             case "trade" -> trade(sender, args);
+            case "storage", "enderchest", "ec" -> storage(sender, args);
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
             case "sacks", "sack" -> sacks(sender, args);
@@ -202,6 +206,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("trade") && args[1].equalsIgnoreCase("remove")) {
             return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
+        }
+        if (args.length == 2 && isStorageCommand(args[0])) {
+            return startsWith(numberRange(plugin.storage().pages()), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("shopnpcs")) {
             return startsWith(List.of("refresh", "remove"), args[1]);
@@ -368,6 +375,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " bazaar instabuy|instasell|buyorder|selloffer", "commands.help.bazaar-order");
         helpLine(sender, label + " trade <player>", "commands.help.trade");
         helpLine(sender, label + " trade offerhand|offercoins|ready|confirm", "commands.help.trade-session");
+        helpLine(sender, label + " storage [page]", "commands.help.storage");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
         helpLine(sender, label + " sacks", "commands.help.sacks");
         helpLine(sender, label + " sack deposit|withdraw", "commands.help.sack");
@@ -711,6 +719,22 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return null;
         }
         return target;
+    }
+
+    private void storage(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        int page = 1;
+        if (args.length >= 2) {
+            Optional<Integer> parsed = parsePositiveInt(player, args[1]);
+            if (parsed.isEmpty()) {
+                return;
+            }
+            page = parsed.get();
+        }
+        plugin.storage().open(player, page);
     }
 
     private void sell(CommandSender sender, String[] args) {
@@ -1540,6 +1564,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isBazaarCommand(String value) {
         return value.equalsIgnoreCase("bazaar") || value.equalsIgnoreCase("bz");
+    }
+
+    private boolean isStorageCommand(String value) {
+        return value.equalsIgnoreCase("storage") || value.equalsIgnoreCase("enderchest") || value.equalsIgnoreCase("ec");
     }
 
     private boolean isPotionCommand(String value) {

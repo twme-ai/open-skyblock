@@ -175,6 +175,32 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection storagePages = section.getConfigurationSection("storage.pages");
+        if (storagePages != null) {
+            for (String pageKey : storagePages.getKeys(false)) {
+                ConfigurationSection pageSection = storagePages.getConfigurationSection(pageKey);
+                if (pageSection == null) {
+                    continue;
+                }
+                try {
+                    int page = Integer.parseInt(pageKey);
+                    ItemStack[] contents = new ItemStack[54];
+                    for (String slotKey : pageSection.getKeys(false)) {
+                        int slot = Integer.parseInt(slotKey);
+                        if (slot < 0 || slot >= contents.length) {
+                            continue;
+                        }
+                        ItemStack itemStack = pageSection.getItemStack(slotKey);
+                        if (itemStack != null && !itemStack.getType().isAir()) {
+                            contents[slot] = itemStack;
+                        }
+                    }
+                    profile.storagePages().put(page, contents);
+                } catch (NumberFormatException ignored) {
+                    plugin.getLogger().warning("Skipping invalid storage page or slot in profiles.yml: " + pageKey);
+                }
+            }
+        }
         ConfigurationSection sacks = section.getConfigurationSection("sacks");
         if (sacks != null) {
             for (String sackId : sacks.getKeys(false)) {
@@ -317,6 +343,19 @@ public final class ProfileManager {
             profileData.set(wardrobeBase + ".chestplate", set.chestplate());
             profileData.set(wardrobeBase + ".leggings", set.leggings());
             profileData.set(wardrobeBase + ".boots", set.boots());
+        }
+        profileData.set(base + ".storage", null);
+        for (Map.Entry<Integer, ItemStack[]> entry : profile.storagePages().entrySet()) {
+            ItemStack[] contents = entry.getValue();
+            if (contents == null) {
+                continue;
+            }
+            for (int slot = 0; slot < contents.length; slot++) {
+                ItemStack itemStack = contents[slot];
+                if (itemStack != null && !itemStack.getType().isAir()) {
+                    profileData.set(base + ".storage.pages." + entry.getKey() + "." + slot, itemStack);
+                }
+            }
         }
         profileData.set(base + ".sacks", null);
         for (Map.Entry<String, Map<String, Long>> sackEntry : profile.sacks().entrySet()) {
