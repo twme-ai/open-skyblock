@@ -15,6 +15,7 @@ import io.github.openskyblock.listener.ProgressionListener;
 import io.github.openskyblock.listener.RecipeListener;
 import io.github.openskyblock.listener.ShopNpcListener;
 import io.github.openskyblock.menu.MenuService;
+import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.recipe.RecipeService;
 import io.github.openskyblock.service.CollectionService;
@@ -39,6 +40,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private AccessoryService accessoryService;
     private TuningService tuningService;
     private ArmorSetService armorSetService;
+    private PetService petService;
     private MinionService minionService;
     private IslandService islandService;
     private MenuService menuService;
@@ -65,7 +67,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.armorSetService = new ArmorSetService(configService);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
-        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, armorSetService);
+        this.petService = new PetService(configService, textService, profileManager);
+        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, armorSetService, petService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -117,6 +120,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         skillService.reload();
         customItemService.reload();
         armorSetService.reload();
+        petService.reload();
         minionService.reload();
         menuService.reload();
         recipeService.reload();
@@ -186,6 +190,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public ArmorSetService armorSets() {
         return armorSetService;
+    }
+
+    public PetService pets() {
+        return petService;
     }
 
     public MinionService minions() {

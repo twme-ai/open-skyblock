@@ -4,6 +4,7 @@ import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.accessory.TuningService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.service.CustomItemDefinition;
@@ -23,8 +24,9 @@ public final class StatService {
     private final AccessoryService accessories;
     private final TuningService tuning;
     private final ArmorSetService armorSets;
+    private final PetService pets;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
@@ -32,6 +34,7 @@ public final class StatService {
         this.accessories = accessories;
         this.tuning = tuning;
         this.armorSets = armorSets;
+        this.pets = pets;
     }
 
     public StatSnapshot snapshot(Player player) {
@@ -41,6 +44,7 @@ public final class StatService {
         addArmorSetStats(stats, player);
         addAccessoryStats(stats, profile);
         addTuningStats(stats, profile);
+        addPetStats(stats, profile);
         return new StatSnapshot(stats);
     }
 
@@ -125,6 +129,12 @@ public final class StatService {
 
     private void addTuningStats(Map<String, Double> stats, SkyBlockProfile profile) {
         for (Map.Entry<String, Double> entry : tuning.tuningBonuses(profile).entrySet()) {
+            stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
+        }
+    }
+
+    private void addPetStats(Map<String, Double> stats, SkyBlockProfile profile) {
+        for (Map.Entry<String, Double> entry : pets.activeStats(profile).entrySet()) {
             stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
         }
     }

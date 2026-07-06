@@ -12,6 +12,7 @@ errors:
   unknown-player: "<prefix><red>That player is not online.</red>"
   unknown-item: "<prefix><red>Unknown custom item: <yellow><item></yellow>.</red>"
   unknown-minion: "<prefix><red>Unknown minion: <yellow><minion></yellow>.</red>"
+  unknown-pet: "<prefix><red>Unknown pet: <yellow><pet></yellow>.</red>"
   invalid-number: "<prefix><red>That number is invalid.</red>"
 
 commands:
@@ -27,6 +28,10 @@ commands:
     stats: "View your aggregated SkyBlock stats."
     accessory-bag: "Open your Accessory Bag."
     tuning: "Open or edit stat tuning."
+    pets: "Open your Pets menu."
+    pet-activate: "Summon one of your owned pets."
+    pet-give: "Give a configured pet."
+    pet-xp: "Add XP to the active pet."
     profile: "View your profile summary."
     purse: "View your purse and bank balance."
     skills: "View your skill levels."
@@ -81,6 +86,17 @@ commands:
   tuning-no-points: "<prefix><red>You do not have available tuning points.</red>"
   tuning-none: "<prefix><red>You do not have tuning points assigned to <stat><red>.</red></red>"
   tuning-unknown-stat: "<prefix><red>Unknown tuning stat: <yellow><stat></yellow>.</red>"
+  pet-disabled: "<prefix><red>Pets are disabled on this server.</red>"
+  pet-empty: "<prefix><gray>You do not own any pets yet.</gray>"
+  pet-usage: "<prefix><red>Use <yellow>/skyblock pets</yellow> or <yellow>/skyblock pet activate <slot></yellow>.</red>"
+  pet-not-found: "<prefix><red>That pet could not be found.</red>"
+  pet-no-active: "<prefix><red>You do not have an active pet.</red>"
+  pet-list-header: "<prefix><aqua>Pets</aqua>"
+  pet-list-line: "<gray><slot>.</gray> <pet> <dark_gray>|</dark_gray> <yellow>Level <level></yellow><gray>/</gray><yellow><max_level></yellow> <dark_gray>|</dark_gray> <status>"
+  pet-activated: "<prefix><green>Summoned <pet><green>.</green></green>"
+  pet-given: "<prefix><green>Gave <pet> <green>to <yellow><player></yellow>.</green></green>"
+  pet-xp: "<prefix><gray>+<xp> Pet XP for <pet> <dark_gray>(</dark_gray><yellow>Level <level></yellow><dark_gray>)</dark_gray></gray>"
+  pet-level-up: "<prefix><gold><pet> reached Level <level>!</gold>"
   skill-line: "<gray><skill>:</gray> <yellow>Level <level></yellow> <dark_gray>(</dark_gray><white><xp></white><gray> XP</gray><dark_gray>)</dark_gray>"
   collections-header: "<prefix><aqua>Collections</aqua>"
   collection-line: "<gray><collection>:</gray> <white><amount></white> <dark_gray>|</dark_gray> <yellow>Tier <tier></yellow>"
@@ -147,6 +163,14 @@ minions:
   item-rarity-line: "<blue><bold>MINION</bold></blue>"
   location-present: "<yellow><world></yellow> <gray>(<x>, <y>, <z>)</gray>"
   location-missing: "<dark_gray>not placed</dark_gray>"
+
+pets:
+  no-active: "<gray>None</gray>"
+  active-status: "<green>Summoned</green>"
+  inactive-status: "<gray>Stored</gray>"
+  max-level-xp: "<gold>Maxed</gold>"
+  no-stats: "<dark_gray>No stat bonuses configured.</dark_gray>"
+  stat-line: "<gray><stat>:</gray> <green>+<value></green>"
 
 menus:
   collection-next-tier: "<yellow>Tier <tier></yellow> <gray>at</gray> <white><amount></white>"

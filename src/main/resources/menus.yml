@@ -80,6 +80,13 @@ skyblock:
       lore:
         - "<gray>Browse configured NPC merchants.</gray>"
       action: SHOPS
+    pets:
+      slot: 24
+      material: BONE
+      display-name: "<aqua>Pets</aqua>"
+      lore:
+        - "<gray>View, level, and summon your pets.</gray>"
+      action: PETS
     minions:
       slot: 25
       material: HAY_BLOCK
@@ -413,6 +420,67 @@ tuning:
       - "<gray>Remove all assigned tuning points.</gray>"
   back:
     slot: 32
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+
+pets:
+  title: "<dark_gray>Pets</dark_gray>"
+  rows: 6
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 37
+    - 38
+    - 39
+    - 40
+    - 41
+    - 42
+    - 43
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  summary:
+    slot: 4
+    material: NAME_TAG
+    display-name: "<aqua>Pets</aqua>"
+    lore:
+      - "<gray>Owned:</gray> <yellow><count></yellow>"
+      - "<gray>Active:</gray> <active_pet>"
+  pet-item:
+    display-name: "<pet>"
+    lore:
+      - "<gray>Level:</gray> <yellow><level></yellow><gray>/</gray><yellow><max_level></yellow>"
+      - "<gray>XP:</gray> <white><xp></white> <dark_gray>|</dark_gray> <gray>Next:</gray> <white><xp_to_next></white>"
+      - "<gray>Rarity:</gray> <rarity_colored>"
+      - "<gray>Status:</gray> <status>"
+      - ""
+      - "<stats>"
+      - ""
+      - "<yellow>Click to summon this pet.</yellow>"
+  back:
+    slot: 49
     material: NETHER_STAR
     display-name: "<green>SkyBlock Menu</green>"
     lore: []

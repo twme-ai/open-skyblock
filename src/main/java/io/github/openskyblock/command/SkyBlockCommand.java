@@ -2,6 +2,7 @@ package io.github.openskyblock.command;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.service.CustomItemDefinition;
@@ -33,6 +34,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "sell",
             "accessorybag",
             "tuning",
+            "pets",
+            "pet",
             "profile",
             "purse",
             "skills",
@@ -72,6 +75,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "sell" -> sell(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
+            case "pets" -> pets(sender);
+            case "pet" -> pet(sender, args);
             case "purse" -> purse(sender);
             case "skills" -> skills(sender);
             case "stats" -> stats(sender);
@@ -114,8 +119,31 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("tuning")) {
             return startsWith(List.of("add", "remove", "reset", "summary", "open"), args[1]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("pet")) {
+            return startsWith(List.of("open", "list", "activate", "give", "xp"), args[1]);
+        }
         if (args.length == 3 && args[0].equalsIgnoreCase("tuning") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
             return startsWith(plugin.tuning().tunableStats(), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("pet") && args[1].equalsIgnoreCase("activate")) {
+            if (sender instanceof Player player) {
+                SkyBlockProfile profile = plugin.profiles().profile(player);
+                List<String> slots = new ArrayList<>();
+                for (int index = 1; index <= profile.pets().size(); index++) {
+                    slots.add(Integer.toString(index));
+                }
+                return startsWith(slots, args[2]);
+            }
+            return List.of();
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("pet") && args[1].equalsIgnoreCase("give")) {
+            return startsWith(plugin.pets().definitions().stream().map(PetDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("pet") && args[1].equalsIgnoreCase("xp")) {
+            return startsWith(List.of("100", "1000", "10000"), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("pet") && (args[1].equalsIgnoreCase("give") || args[1].equalsIgnoreCase("xp"))) {
+            return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[3]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("accessorybag") && args[1].equalsIgnoreCase("remove")) {
             return startsWith(plugin.profiles().loadedProfiles().stream()
@@ -155,6 +183,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
+        helpLine(sender, label + " pets", "commands.help.pets");
+        helpLine(sender, label + " pet activate <slot>", "commands.help.pet-activate");
         helpLine(sender, label + " profile", "commands.help.profile");
         helpLine(sender, label + " purse", "commands.help.purse");
         helpLine(sender, label + " skills", "commands.help.skills");
@@ -163,6 +193,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " recipes", "commands.help.recipes");
         if (sender.hasPermission("openskyblock.admin")) {
             helpLine(sender, label + " giveitem <id> [player]", "commands.help.giveitem");
+            helpLine(sender, label + " pet give <id> [player]", "commands.help.pet-give");
+            helpLine(sender, label + " pet xp <amount> [player]", "commands.help.pet-xp");
             helpLine(sender, label + " minion give <id> [player]", "commands.help.minion-give");
             helpLine(sender, label + " shopnpcs refresh|remove", "commands.help.shop-npcs");
             helpLine(sender, label + " reload", "commands.help.reload");
@@ -349,6 +381,109 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "summary" -> plugin.tuning().sendSummary(player);
             default -> plugin.text().send(player, "errors.unknown-command");
         }
+    }
+
+    private void pets(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.menus().openPetMenu(player);
+    }
+
+    private void pet(CommandSender sender, String[] args) {
+        if (args.length < 2 || args[1].equalsIgnoreCase("open")) {
+            pets(sender);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "list" -> {
+                Player player = requirePlayer(sender);
+                if (player != null) {
+                    plugin.pets().sendList(player);
+                }
+            }
+            case "activate" -> petActivate(sender, args);
+            case "give" -> petGive(sender, args);
+            case "xp" -> petXp(sender, args);
+            default -> plugin.text().send(sender, "errors.unknown-command");
+        }
+    }
+
+    private void petActivate(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.pet-usage");
+            return;
+        }
+        try {
+            int slot = Integer.parseInt(args[2]) - 1;
+            plugin.pets().activate(player, slot);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(player, "errors.invalid-number");
+        }
+    }
+
+    private void petGive(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("openskyblock.admin")) {
+            plugin.text().send(sender, "errors.no-permission");
+            return;
+        }
+        if (args.length < 3) {
+            plugin.text().send(sender, "errors.unknown-command");
+            return;
+        }
+        Player target;
+        if (args.length >= 4) {
+            target = Bukkit.getPlayerExact(args[3]);
+            if (target == null) {
+                plugin.text().send(sender, "errors.unknown-player");
+                return;
+            }
+        } else if (sender instanceof Player player) {
+            target = player;
+        } else {
+            plugin.text().send(sender, "errors.players-only");
+            return;
+        }
+        PetDefinition definition = plugin.pets().definition(args[2]).orElse(null);
+        if (definition == null) {
+            plugin.text().send(sender, "errors.unknown-pet", List.of(TextService.raw("pet", args[2])));
+            return;
+        }
+        plugin.pets().addPet(plugin.profiles().profile(target), definition);
+        plugin.text().send(sender, "commands.pet-given", List.of(
+                TextService.parsed("pet", definition.displayName()),
+                TextService.raw("player", target.getName())
+        ));
+    }
+
+    private void petXp(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("openskyblock.admin")) {
+            plugin.text().send(sender, "errors.no-permission");
+            return;
+        }
+        if (args.length < 3) {
+            plugin.text().send(sender, "errors.unknown-command");
+            return;
+        }
+        Player target;
+        if (args.length >= 4) {
+            target = Bukkit.getPlayerExact(args[3]);
+            if (target == null) {
+                plugin.text().send(sender, "errors.unknown-player");
+                return;
+            }
+        } else if (sender instanceof Player player) {
+            target = player;
+        } else {
+            plugin.text().send(sender, "errors.players-only");
+            return;
+        }
+        parsePositiveAmount(sender, args[2]).ifPresent(amount -> plugin.pets().addXp(target, amount));
     }
 
     private void shopNpcs(CommandSender sender, String[] args) {
@@ -582,16 +717,16 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         return null;
     }
 
-    private Optional<Double> parsePositiveAmount(Player player, String raw) {
+    private Optional<Double> parsePositiveAmount(CommandSender sender, String raw) {
         try {
             double amount = Double.parseDouble(raw);
             if (amount <= 0.0D || Double.isNaN(amount) || Double.isInfinite(amount)) {
-                plugin.text().send(player, "errors.invalid-number");
+                plugin.text().send(sender, "errors.invalid-number");
                 return Optional.empty();
             }
             return Optional.of(amount);
         } catch (NumberFormatException ignored) {
-            plugin.text().send(player, "errors.invalid-number");
+            plugin.text().send(sender, "errors.invalid-number");
             return Optional.empty();
         }
     }

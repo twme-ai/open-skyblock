@@ -34,9 +34,12 @@ Verified reference links:
 - Official collections reference: https://wiki.hypixel.net/Collections
 - Official minions reference: https://wiki.hypixel.net/Minions
 - Official SkyBlock levels reference: https://wiki.hypixel.net/SkyBlock_Levels
+- Official pets reference: https://wiki.hypixel.net/Pets
 - Official auction house reference: https://wiki.hypixel.net/Auction_House
 - Official bazaar reference: https://wiki.hypixel.net/Bazaar
 - Official NPC reference: https://wiki.hypixel.net/NPCs
+- Paper custom inventory holder reference: https://docs.papermc.io/paper/dev/custom-inventory-holder/
+- MyPet Spigot/Paper pet plugin reference: https://github.com/MyPetORG/MyPet
 
 ## Library Choices
 
@@ -76,7 +79,8 @@ Planned additions when each subsystem needs them:
    - Accessory Bag storage, unique accessory counting, Magical Power by rarity, and bagged accessory stat aggregation are implemented.
    - Accessory tuning with Magical Power-derived tuning points and configurable per-stat values is implemented.
    - Configurable armor set IDs and full-set stat bonuses are implemented.
-   - Pets, potion modifiers, enchantments, reforges, gemstones, and ability cooldowns remain future work.
+   - Configurable pet definitions, persistent owned pets, active pet selection, pet XP/levels, pet menu activation, and active pet stat aggregation are implemented.
+   - Pet items, pet score, autopet rules, cosmetic summoned pet entities, potion modifiers, enchantments, reforges, gemstones, and ability cooldowns remain future work.
    - Custom mobs, loot tables, spawn zones, boss bars, damage formula, aggro, and death rewards.
 
 5. Economy
@@ -100,7 +104,8 @@ Planned additions when each subsystem needs them:
 - Configuration keys must use English values by default.
 - Feature content should be data-driven before being hard-coded.
 - Server owners should be able to disable major systems independently as implementation matures.
+- Each new subsystem or subfeature implementation should first check current online documentation, gameplay references, and relevant existing plugin patterns, then record durable links when they influence the implementation.
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, armor set bonuses, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, armor set bonuses, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

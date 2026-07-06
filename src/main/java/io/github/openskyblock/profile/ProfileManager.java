@@ -141,6 +141,20 @@ public final class ProfileManager {
                 profile.setTuning(key.toLowerCase(), tuning.getInt(key, 0));
             }
         }
+        profile.activePetInstanceId(section.getString("pets.active", null));
+        ConfigurationSection pets = section.getConfigurationSection("pets.owned");
+        if (pets != null) {
+            for (String key : pets.getKeys(false)) {
+                ConfigurationSection pet = pets.getConfigurationSection(key);
+                if (pet != null) {
+                    profile.pets().add(new OwnedPet(
+                            pet.getString("instance-id", null),
+                            pet.getString("id", ""),
+                            pet.getDouble("xp", 0.0D)
+                    ));
+                }
+            }
+        }
         ConfigurationSection minions = section.getConfigurationSection("minions");
         if (minions != null) {
             for (String key : minions.getKeys(false)) {
@@ -182,6 +196,15 @@ public final class ProfileManager {
         profileData.set(base + ".tuning", null);
         for (Map.Entry<String, Integer> entry : profile.tuning().entrySet()) {
             profileData.set(base + ".tuning." + entry.getKey(), entry.getValue());
+        }
+        profileData.set(base + ".pets.active", profile.activePetInstanceId());
+        profileData.set(base + ".pets.owned", null);
+        for (int index = 0; index < profile.pets().size(); index++) {
+            OwnedPet pet = profile.pets().get(index);
+            String petBase = base + ".pets.owned." + index;
+            profileData.set(petBase + ".instance-id", pet.instanceId());
+            profileData.set(petBase + ".id", pet.petId());
+            profileData.set(petBase + ".xp", pet.xp());
         }
         profileData.set(base + ".minions", null);
         for (int index = 0; index < profile.minions().size(); index++) {

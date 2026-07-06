@@ -11,6 +11,7 @@ public enum MenuAction {
     STATS,
     ACCESSORY_BAG,
     TUNING,
+    PETS,
     COLLECTIONS,
     RECIPES,
     SHOPS,

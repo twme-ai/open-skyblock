@@ -3,6 +3,8 @@ package io.github.openskyblock.menu;
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.pet.PetDefinition;
+import io.github.openskyblock.profile.OwnedPet;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.recipe.SkyBlockRecipe;
@@ -284,6 +286,43 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openPetMenu(Player player) {
+        if (!plugin.pets().enabled()) {
+            text.send(player, "commands.pet-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("pets");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 6)));
+        Map<Integer, Integer> petsBySlot = new HashMap<>();
+        Map<Integer, PetMenuAction> actions = new HashMap<>();
+        PetMenuHolder holder = new PetMenuHolder(petsBySlot, actions);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Pets</dark_gray>"), petMenuPlaceholders(player))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        addPetSummary(inventory, section.getConfigurationSection("summary"), player);
+        List<Integer> slots = contentSlots(section);
+        SkyBlockProfile profile = profiles.profile(player);
+        for (int index = 0; index < profile.pets().size() && index < slots.size(); index++) {
+            OwnedPet pet = profile.pets().get(index);
+            PetDefinition definition = plugin.pets().definition(pet.petId()).orElse(null);
+            if (definition == null) {
+                continue;
+            }
+            int slot = slots.get(index);
+            inventory.setItem(slot, petMenuItem(profile, pet, definition, section.getConfigurationSection("pet-item")));
+            petsBySlot.put(slot, index);
+        }
+        addPetAction(inventory, section.getConfigurationSection("back"), PetMenuAction.BACK, actions);
+        player.openInventory(inventory);
+    }
+
     public void openShopSelector(Player player) {
         if (!plugin.shops().enabled()) {
             text.send(player, "commands.shop-disabled");
@@ -367,6 +406,7 @@ public final class MenuService {
             case STATS -> player.performCommand("skyblock stats");
             case ACCESSORY_BAG -> openAccessoryBag(player);
             case TUNING -> openTuningMenu(player);
+            case PETS -> openPetMenu(player);
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
             case SHOPS -> openShopSelector(player);
@@ -468,6 +508,18 @@ public final class MenuService {
             case BACK -> openSkyBlockMenu(player);
             case NONE -> {
             }
+        }
+    }
+
+    public void runPetMenuClick(Player player, PetMenuHolder holder, int rawSlot) {
+        Integer petIndex = holder.petIndex(rawSlot);
+        if (petIndex != null) {
+            plugin.pets().activate(player, petIndex);
+            openPetMenu(player);
+            return;
+        }
+        if (holder.action(rawSlot) == PetMenuAction.BACK) {
+            openSkyBlockMenu(player);
         }
     }
 
@@ -731,6 +783,57 @@ public final class MenuService {
         actions.put(slot, action);
     }
 
+    private void addPetSummary(Inventory inventory, ConfigurationSection section, Player player) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, petMenuPlaceholders(player)));
+    }
+
+    private void addPetAction(Inventory inventory, ConfigurationSection section, PetMenuAction action, Map<Integer, PetMenuAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
+    private ItemStack petMenuItem(SkyBlockProfile profile, OwnedPet pet, PetDefinition definition, ConfigurationSection section) {
+        ItemStack itemStack = new ItemStack(definition.material());
+        ItemMeta meta = itemStack.getItemMeta();
+        boolean active = plugin.pets().isActive(profile, pet);
+        List<TextService.TextPlaceholder> placeholders = plugin.pets().placeholders(pet, definition, active);
+        if (section == null) {
+            meta.displayName(text.deserialize(definition.displayName(), placeholders));
+            meta.lore(plugin.pets().statLore(definition, pet));
+            itemStack.setItemMeta(meta);
+            return itemStack;
+        }
+        meta.displayName(text.deserialize(section.getString("display-name", "<pet>"), placeholders));
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        for (String line : definition.lore()) {
+            lore.add(text.deserialize(line, placeholders));
+        }
+        for (String line : section.getStringList("lore")) {
+            if (line.equals("<stats>")) {
+                lore.addAll(plugin.pets().statLore(definition, pet));
+            } else {
+                lore.add(text.deserialize(line, placeholders));
+            }
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
     private ItemStack tuningItem(Player player, String stat, ConfigurationSection section) {
         Material material = Material.matchMaterial(section.getString("material", "AMETHYST_SHARD"));
         ItemStack itemStack = new ItemStack(material == null ? Material.AMETHYST_SHARD : material);
@@ -838,6 +941,17 @@ public final class MenuService {
                 TextService.raw("total", Integer.toString(plugin.tuning().totalPoints(profile))),
                 TextService.raw("available", Integer.toString(plugin.tuning().availablePoints(profile))),
                 TextService.raw("magical_power", Integer.toString(plugin.accessories().magicalPower(profile)))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> petMenuPlaceholders(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        String activePet = plugin.pets().activeDefinition(profile)
+                .map(PetDefinition::displayName)
+                .orElse(text.rawMessage("pets.no-active"));
+        return List.of(
+                TextService.raw("count", Integer.toString(profile.pets().size())),
+                TextService.parsed("active_pet", activePet)
         );
     }
 

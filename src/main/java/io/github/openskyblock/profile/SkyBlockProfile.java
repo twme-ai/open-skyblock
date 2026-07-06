@@ -20,7 +20,9 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> tuning = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
+    private final List<OwnedPet> pets = new ArrayList<>();
     private String shopPurchaseDay;
+    private String activePetInstanceId;
 
     public SkyBlockProfile(UUID uniqueId, String playerName, double purse, double bank) {
         this.uniqueId = uniqueId;
@@ -163,5 +165,17 @@ public final class SkyBlockProfile {
 
     public List<PlacedMinion> minions() {
         return minions;
+    }
+
+    public List<OwnedPet> pets() {
+        return pets;
+    }
+
+    public String activePetInstanceId() {
+        return activePetInstanceId;
+    }
+
+    public void activePetInstanceId(String activePetInstanceId) {
+        this.activePetInstanceId = activePetInstanceId;
     }
 }
