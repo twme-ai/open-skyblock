@@ -25,8 +25,10 @@ public final class SkyBlockProfile {
     private final Map<String, Map<String, Long>> sacks = new HashMap<>();
     private final Map<String, Long> quiver = new HashMap<>();
     private final Map<String, Long> potionEffects = new HashMap<>();
+    private final Map<String, Long> cakeBuffs = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
+    private final List<PlacedCake> placedCakes = new ArrayList<>();
     private final List<OwnedPet> pets = new ArrayList<>();
     private String shopPurchaseDay;
     private String activePetInstanceId;
@@ -183,6 +185,10 @@ public final class SkyBlockProfile {
         return potionEffects;
     }
 
+    public Map<String, Long> cakeBuffs() {
+        return cakeBuffs;
+    }
+
     public List<String> accessoryBag() {
         return accessoryBag;
     }
@@ -201,6 +207,10 @@ public final class SkyBlockProfile {
 
     public List<PlacedMinion> minions() {
         return minions;
+    }
+
+    public List<PlacedCake> placedCakes() {
+        return placedCakes;
     }
 
     public List<OwnedPet> pets() {

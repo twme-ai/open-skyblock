@@ -64,6 +64,150 @@ items:
         - "Activate the configured God Potion effects."
       mana-cost: 0
       cooldown-seconds: 0
+  CRAB_COLORED_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<red>Crab-Colored Century Cake</red>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  FRUIT_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<gold>Fruit Century Cake</gold>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  LATEST_UPDATE_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<green>Latest Update Century Cake</green>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  POTATO_STYLE_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<yellow>Potato-Style Century Cake</yellow>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  PET_ROCK_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<gray>Pet Rock Century Cake</gray>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  BARRY_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<blue>Barry Century Cake</blue>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  SEA_EMPEROR_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<aqua>Sea Emperor Century Cake</aqua>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  STREAMERS_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<light_purple>Streamer's Century Cake</light_purple>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  NEXT_DUNGEON_FLOOR_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<dark_purple>Century Cake of the Next Dungeon Floor</dark_purple>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  CHOCOLATE_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<gold>Chocolate Century Cake</gold>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  CLOUDY_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<white>Cloudy Century Cake</white>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  HYPE_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<dark_aqua>Century Cake of Hype</dark_aqua>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  UNDEAD_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<dark_green>Undead Century Cake</dark_green>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  NOT_A_LIE_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<white>Not-a-lie Century Cake</white>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  CORPSE_FLAVORED_CENTURY_CAKE:
+    material: CAKE
+    display-name: "<dark_red>Corpse-Flavored Century Cake</dark_red>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
+  EKAC_YRUTNEC_TFIR:
+    material: CAKE
+    display-name: "<dark_purple>EkaC yrutneC tfiR</dark_purple>"
+    category: CAKE
+    rarity: SPECIAL
+    lore:
+      - "<gray>Place this on your private island.</gray>"
+      - "<gray>Right-click the placed cake for a 48 hour buff.</gray>"
+    stats: {}
   ROGUE_SWORD:
     material: GOLDEN_SWORD
     display-name: "<green>Rogue Sword</green>"

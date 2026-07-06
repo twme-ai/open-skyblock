@@ -14,6 +14,7 @@ features:
   sacks: true
   quiver: true
   potion-effects: true
+  cakes: true
   reforges: true
   enchantments: true
   item-stars: true
@@ -69,6 +70,14 @@ stats:
     - magical_power
     - magic_find
     - pet_luck
+    - farming_fortune
+    - mining_fortune
+    - foraging_fortune
+    - sea_creature_chance
+    - vitality
+    - true_defense
+    - cold_resistance
+    - rift_time
   magical-power:
     COMMON: 3
     UNCOMMON: 5

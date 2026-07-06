@@ -17,6 +17,7 @@ public final class ConfigService {
             "sacks.yml",
             "quiver.yml",
             "potions.yml",
+            "cakes.yml",
             "equipment.yml",
             "wardrobe.yml",
             "armor_sets.yml",
@@ -80,6 +81,10 @@ public final class ConfigService {
 
     public FileConfiguration potions() {
         return file("potions.yml");
+    }
+
+    public FileConfiguration cakes() {
+        return file("cakes.yml");
     }
 
     public FileConfiguration equipment() {

@@ -1,0 +1,117 @@
+settings:
+  max-placed-per-profile: 64
+  allow-visitor-activation: true
+
+cakes:
+  CRAB_COLORED_CENTURY_CAKE:
+    display-name: "<red>Crab-Colored Century Cake</red>"
+    item-id: CRAB_COLORED_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      health: 5.0
+  FRUIT_CENTURY_CAKE:
+    display-name: "<gold>Fruit Century Cake</gold>"
+    item-id: FRUIT_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      strength: 2.0
+  LATEST_UPDATE_CENTURY_CAKE:
+    display-name: "<green>Latest Update Century Cake</green>"
+    item-id: LATEST_UPDATE_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      ferocity: 2.0
+  POTATO_STYLE_CENTURY_CAKE:
+    display-name: "<yellow>Potato-Style Century Cake</yellow>"
+    item-id: POTATO_STYLE_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      speed: 10.0
+  PET_ROCK_CENTURY_CAKE:
+    display-name: "<gray>Pet Rock Century Cake</gray>"
+    item-id: PET_ROCK_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      defense: 3.0
+  BARRY_CENTURY_CAKE:
+    display-name: "<blue>Barry Century Cake</blue>"
+    item-id: BARRY_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      intelligence: 5.0
+  SEA_EMPEROR_CENTURY_CAKE:
+    display-name: "<aqua>Sea Emperor Century Cake</aqua>"
+    item-id: SEA_EMPEROR_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      sea_creature_chance: 1.0
+  STREAMERS_CENTURY_CAKE:
+    display-name: "<light_purple>Streamer's Century Cake</light_purple>"
+    item-id: STREAMERS_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      pet_luck: 1.0
+  NEXT_DUNGEON_FLOOR_CENTURY_CAKE:
+    display-name: "<dark_purple>Century Cake of the Next Dungeon Floor</dark_purple>"
+    item-id: NEXT_DUNGEON_FLOOR_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      magic_find: 1.0
+  CHOCOLATE_CENTURY_CAKE:
+    display-name: "<gold>Chocolate Century Cake</gold>"
+    item-id: CHOCOLATE_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      farming_fortune: 5.0
+  CLOUDY_CENTURY_CAKE:
+    display-name: "<white>Cloudy Century Cake</white>"
+    item-id: CLOUDY_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      foraging_fortune: 5.0
+  HYPE_CENTURY_CAKE:
+    display-name: "<dark_aqua>Century Cake of Hype</dark_aqua>"
+    item-id: HYPE_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      mining_fortune: 5.0
+  UNDEAD_CENTURY_CAKE:
+    display-name: "<dark_green>Undead Century Cake</dark_green>"
+    item-id: UNDEAD_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      vitality: 1.0
+  NOT_A_LIE_CENTURY_CAKE:
+    display-name: "<white>Not-a-lie Century Cake</white>"
+    item-id: NOT_A_LIE_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      true_defense: 1.0
+  CORPSE_FLAVORED_CENTURY_CAKE:
+    display-name: "<dark_red>Corpse-Flavored Century Cake</dark_red>"
+    item-id: CORPSE_FLAVORED_CENTURY_CAKE
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      cold_resistance: 1.0
+  EKAC_YRUTNEC_TFIR:
+    display-name: "<dark_purple>EkaC yrutneC tfiR</dark_purple>"
+    item-id: EKAC_YRUTNEC_TFIR
+    material: CAKE
+    duration-seconds: 172800
+    stats:
+      rift_time: 10.0

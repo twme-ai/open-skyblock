@@ -1,6 +1,7 @@
 package io.github.openskyblock.command;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
+import io.github.openskyblock.cake.CakeDefinition;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
 import io.github.openskyblock.equipment.EquipmentSlotDefinition;
@@ -47,6 +48,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "potions",
             "potion",
             "godpotion",
+            "cakes",
+            "cake",
             "reforges",
             "reforge",
             "enchants",
@@ -102,6 +105,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "sacks", "sack" -> sacks(sender, args);
             case "quiver" -> quiver(sender, args);
             case "potions", "potion", "godpotion" -> potions(sender, args);
+            case "cakes", "cake" -> cakes(sender, args);
             case "reforges" -> reforges(sender);
             case "reforge" -> reforge(sender, args);
             case "enchants", "enchantments" -> enchants(sender);
@@ -180,6 +184,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && isPotionCommand(args[0]) && args[1].equalsIgnoreCase("activate")) {
             return startsWith(plugin.potions().bundles().stream().map(PotionBundleDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 2 && isCakeCommand(args[0])) {
+            return startsWith(List.of("status", "placed", "clear", "list"), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("reforge")) {
             List<String> values = new ArrayList<>();
@@ -302,6 +309,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " quiver", "commands.help.quiver");
         helpLine(sender, label + " quiver deposit|withdraw|select", "commands.help.quiver-edit");
         helpLine(sender, label + " potions", "commands.help.potions");
+        helpLine(sender, label + " cakes", "commands.help.cakes");
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge <id|remove>", "commands.help.reforge");
         helpLine(sender, label + " enchants", "commands.help.enchants");
@@ -567,6 +575,32 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.potions().activateBundle(player, args[2]);
             }
             default -> plugin.text().send(player, "commands.potion-usage");
+        }
+    }
+
+    private void cakes(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.cakes().sendSummary(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "placed" -> plugin.cakes().sendPlaced(player);
+            case "clear" -> plugin.cakes().clear(player);
+            case "list" -> {
+                plugin.text().send(player, "commands.cake-list-header");
+                for (CakeDefinition definition : plugin.cakes().definitions()) {
+                    plugin.text().send(player, "commands.cake-list-line", List.of(
+                            TextService.raw("id", definition.id()),
+                            TextService.parsed("cake", definition.displayName()),
+                            TextService.raw("duration", plugin.cakes().formatDuration(definition.durationSeconds()))
+                    ));
+                }
+            }
+            default -> plugin.text().send(player, "commands.cake-usage");
         }
     }
 
@@ -1196,6 +1230,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isPotionCommand(String value) {
         return value.equalsIgnoreCase("potion") || value.equalsIgnoreCase("potions") || value.equalsIgnoreCase("godpotion");
+    }
+
+    private boolean isCakeCommand(String value) {
+        return value.equalsIgnoreCase("cake") || value.equalsIgnoreCase("cakes");
     }
 
     private List<String> numberRange(int max) {

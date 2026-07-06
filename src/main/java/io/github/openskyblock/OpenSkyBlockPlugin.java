@@ -3,6 +3,7 @@ package io.github.openskyblock;
 import io.github.openskyblock.command.SkyBlockCommand;
 import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.accessory.TuningService;
+import io.github.openskyblock.cake.CakeService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.EnchantmentService;
@@ -11,6 +12,7 @@ import io.github.openskyblock.equipment.EquipmentService;
 import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.island.IslandService;
 import io.github.openskyblock.listener.IslandProtectionListener;
+import io.github.openskyblock.listener.CakeListener;
 import io.github.openskyblock.listener.MenuListener;
 import io.github.openskyblock.listener.MinionListener;
 import io.github.openskyblock.listener.PlayerLifecycleListener;
@@ -55,6 +57,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private EquipmentService equipmentService;
     private WardrobeService wardrobeService;
     private ArmorSetService armorSetService;
+    private CakeService cakeService;
     private PotionService potionService;
     private ReforgeService reforgeService;
     private EnchantmentService enchantmentService;
@@ -100,9 +103,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.wardrobeService = new WardrobeService(configService, textService, profileManager);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
+        this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
         this.potionService = new PotionService(this, configService, textService, profileManager);
         this.petService = new PetService(configService, textService, profileManager);
-        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, potionService, petService, reforgeService, enchantmentService, starService, gemstoneService);
+        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, petService, reforgeService, enchantmentService, starService, gemstoneService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -161,6 +165,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         equipmentService.reload();
         wardrobeService.reload();
         armorSetService.reload();
+        cakeService.reload();
         potionService.reload();
         reforgeService.reload();
         enchantmentService.reload();
@@ -189,6 +194,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ProgressionListener(this), this);
         getServer().getPluginManager().registerEvents(new SackListener(this), this);
         getServer().getPluginManager().registerEvents(new QuiverListener(this), this);
+        getServer().getPluginManager().registerEvents(new CakeListener(this), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new MinionListener(this), this);
@@ -255,6 +261,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public ArmorSetService armorSets() {
         return armorSetService;
+    }
+
+    public CakeService cakes() {
+        return cakeService;
     }
 
     public PotionService potions() {

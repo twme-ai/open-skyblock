@@ -23,6 +23,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable Sacks with persistent material storage, carry-item access checks, automatic pickup routing, GUI deposit/withdraw flow, and command access.
 - Configurable Quiver with persistent arrow storage, pickup routing, arrow selection, bow-shot proxy consumption, GUI access, and command access.
 - Configurable Potion Effects and God Potion bundles with persistent online-only timers, private-island timer pause, vanilla effect refresh, stat bonuses, item activation, and command status.
+- Configurable Century Cakes with persistent placed cake furniture, reusable right-click buffs, visitor activation option, active buff timers, pickup flow, and stat aggregation.
 - Aggregated combat stats from configurable base stats, held/armor items, equipment slots, and accessory-category custom items.
 - Configurable item reforges with persistent item metadata, rarity-scaled stat tables, purse costs, lore rendering, and stat aggregation.
 - Configurable item enchantments with persistent item metadata, max levels, ultimate-enchantment exclusivity, purse costs, lore rendering, and stat aggregation.
@@ -83,6 +84,10 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock potions`
 - `/skyblock potion clear`
 - `/skyblock potion activate <bundle>`
+- `/skyblock cakes`
+- `/skyblock cake placed`
+- `/skyblock cake clear`
+- `/skyblock cake list`
 - `/skyblock reforges`
 - `/skyblock reforge <id|remove>`
 - `/skyblock enchants`

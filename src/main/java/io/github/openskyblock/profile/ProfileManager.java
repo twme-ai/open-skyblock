@@ -213,6 +213,30 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection cakeBuffs = section.getConfigurationSection("cakes.active");
+        if (cakeBuffs != null) {
+            for (String cakeId : cakeBuffs.getKeys(false)) {
+                long expiresAt = cakeBuffs.getLong(cakeId, 0L);
+                if (expiresAt > System.currentTimeMillis()) {
+                    profile.cakeBuffs().put(cakeId.toUpperCase(), expiresAt);
+                }
+            }
+        }
+        ConfigurationSection placedCakes = section.getConfigurationSection("cakes.placed");
+        if (placedCakes != null) {
+            for (String key : placedCakes.getKeys(false)) {
+                ConfigurationSection cake = placedCakes.getConfigurationSection(key);
+                if (cake != null) {
+                    profile.placedCakes().add(new PlacedCake(
+                            cake.getString("id", ""),
+                            cake.getString("world", null),
+                            cake.getInt("x", 0),
+                            cake.getInt("y", 0),
+                            cake.getInt("z", 0)
+                    ));
+                }
+            }
+        }
         profile.activePetInstanceId(section.getString("pets.active", null));
         ConfigurationSection pets = section.getConfigurationSection("pets.owned");
         if (pets != null) {
@@ -305,6 +329,22 @@ public final class ProfileManager {
             if (entry.getValue() > 0L) {
                 profileData.set(base + ".potions.active." + entry.getKey(), entry.getValue());
             }
+        }
+        profileData.set(base + ".cakes.active", null);
+        for (Map.Entry<String, Long> entry : profile.cakeBuffs().entrySet()) {
+            if (entry.getValue() > System.currentTimeMillis()) {
+                profileData.set(base + ".cakes.active." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".cakes.placed", null);
+        for (int index = 0; index < profile.placedCakes().size(); index++) {
+            PlacedCake cake = profile.placedCakes().get(index);
+            String cakeBase = base + ".cakes.placed." + index;
+            profileData.set(cakeBase + ".id", cake.id());
+            profileData.set(cakeBase + ".world", cake.worldName());
+            profileData.set(cakeBase + ".x", cake.x());
+            profileData.set(cakeBase + ".y", cake.y());
+            profileData.set(cakeBase + ".z", cake.z());
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());
         profileData.set(base + ".pets.owned", null);
