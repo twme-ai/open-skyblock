@@ -39,6 +39,7 @@ features:
   minions: true
   combat-stats: true
   custom-mobs: true
+  sea-creatures: true
   mob-spawn-zones: true
   bestiary: true
   museum: true

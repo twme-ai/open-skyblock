@@ -26,6 +26,7 @@ public final class ConfigService {
             "storage.yml",
             "backpacks.yml",
             "mobs.yml",
+            "sea_creatures.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -134,6 +135,10 @@ public final class ConfigService {
 
     public FileConfiguration mobs() {
         return file("mobs.yml");
+    }
+
+    public FileConfiguration seaCreatures() {
+        return file("sea_creatures.yml");
     }
 
     public FileConfiguration mobSpawns() {

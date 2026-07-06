@@ -1,0 +1,15 @@
+settings:
+  base-chance: 20.0
+  remove-caught-item-on-spawn: true
+
+creatures:
+  SEA_WALKER:
+    display-name: "<aqua>Sea Walker</aqua>"
+    mob: SEA_WALKER
+    required-fishing-level: 0
+    weight: 80.0
+  SEA_GUARDIAN:
+    display-name: "<blue>Sea Guardian</blue>"
+    mob: SEA_GUARDIAN
+    required-fishing-level: 5
+    weight: 20.0

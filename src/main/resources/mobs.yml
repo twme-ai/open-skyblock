@@ -138,3 +138,55 @@ mobs:
         max-amount: 1
         magic-find: true
         announce: true
+  SEA_WALKER:
+    entity-type: DROWNED
+    display-name: "<aqua>Sea Walker</aqua>"
+    level: 5
+    health: 180
+    damage: 25
+    defense: 5
+    skill: FISHING
+    xp: 12
+    coins: 5
+    collection: RAW_FISH
+    collection-amount: 1
+    vanilla-drops: false
+    drops:
+      COD:
+        type: VANILLA
+        material: COD
+        chance: 100
+        min-amount: 1
+        max-amount: 2
+      PRISMARINE_SHARD:
+        type: VANILLA
+        material: PRISMARINE_SHARD
+        chance: 20
+        min-amount: 1
+        max-amount: 1
+  SEA_GUARDIAN:
+    entity-type: GUARDIAN
+    display-name: "<blue>Sea Guardian</blue>"
+    level: 15
+    health: 700
+    damage: 60
+    defense: 20
+    skill: FISHING
+    xp: 35
+    coins: 15
+    collection: RAW_FISH
+    collection-amount: 2
+    vanilla-drops: false
+    drops:
+      PRISMARINE_SHARD:
+        type: VANILLA
+        material: PRISMARINE_SHARD
+        chance: 100
+        min-amount: 2
+        max-amount: 4
+      PRISMARINE_CRYSTALS:
+        type: VANILLA
+        material: PRISMARINE_CRYSTALS
+        chance: 25
+        min-amount: 1
+        max-amount: 2

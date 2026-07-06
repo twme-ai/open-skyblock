@@ -104,6 +104,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "commissions",
             "commission",
             "hotm",
+            "seacreatures",
+            "seacreature",
             "mobs",
             "mob",
             "mobzones",
@@ -190,6 +192,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "jacob", "farmingcontest", "farmingcontests" -> farmingContests(sender, args);
             case "commissions", "commission" -> commissions(sender, args);
             case "hotm" -> hotm(sender);
+            case "seacreatures", "seacreature" -> seaCreatures(sender, args);
             case "mobs", "mob" -> mobs(sender, args);
             case "mobzones", "mobzone" -> mobZones(sender, args);
             case "museum" -> museum(sender, args);
@@ -454,6 +457,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isCommissionCommand(args[0]) && args[1].equalsIgnoreCase("claim")) {
             return startsWith(List.of("1", "2", "3", "4"), args[2]);
         }
+        if (args.length == 2 && isSeaCreatureCommand(args[0])) {
+            return startsWith(List.of("status", "list"), args[1]);
+        }
         if (args.length == 2 && isMobCommand(args[0])) {
             return startsWith(List.of("list", "spawn"), args[1]);
         }
@@ -623,6 +629,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " jacob [status|crops|rewards|medals|leaderboard]", "commands.help.farming-contest");
         helpLine(sender, label + " commissions", "commands.help.commissions");
         helpLine(sender, label + " hotm", "commands.help.hotm");
+        helpLine(sender, label + " seacreatures [list]", "commands.help.sea-creatures");
         helpLine(sender, label + " mobs", "commands.help.mobs");
         helpLine(sender, label + " mobzones", "commands.help.mob-zones");
         helpLine(sender, label + " museum donate|list|milestones", "commands.help.museum");
@@ -1732,6 +1739,21 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void seaCreatures(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.seaCreatures().sendSummary(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "list", "guide" -> plugin.seaCreatures().sendList(player);
+            default -> plugin.text().send(player, "commands.sea-creature-usage");
+        }
+    }
+
     private void mobs(CommandSender sender, String[] args) {
         if (args.length < 2 || args[1].equalsIgnoreCase("list")) {
             Player player = requirePlayer(sender);
@@ -2422,6 +2444,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isCommissionCommand(String value) {
         return value.equalsIgnoreCase("commission") || value.equalsIgnoreCase("commissions");
+    }
+
+    private boolean isSeaCreatureCommand(String value) {
+        return value.equalsIgnoreCase("seacreature") || value.equalsIgnoreCase("seacreatures");
     }
 
     private boolean isMobZoneCommand(String value) {
