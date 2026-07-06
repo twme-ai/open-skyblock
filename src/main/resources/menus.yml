@@ -694,10 +694,12 @@ pets:
       - "<gray>XP:</gray> <white><xp></white> <dark_gray>|</dark_gray> <gray>Next:</gray> <white><xp_to_next></white>"
       - "<gray>Rarity:</gray> <rarity_colored>"
       - "<gray>Status:</gray> <status>"
+      - "<gray>Held Item:</gray> <pet_item>"
       - ""
       - "<stats>"
       - ""
       - "<yellow>Click to summon this pet.</yellow>"
+      - "<yellow>Hold a pet item and click to attach it.</yellow>"
   back:
     slot: 49
     material: NETHER_STAR

@@ -811,16 +811,24 @@ public final class MenuService {
         }
     }
 
-    public void runPetMenuClick(Player player, PetMenuHolder holder, int rawSlot) {
+    public boolean runPetMenuClick(Player player, PetMenuHolder holder, int rawSlot, ItemStack cursor) {
         Integer petIndex = holder.petIndex(rawSlot);
         if (petIndex != null) {
+            if (plugin.pets().isPetItem(cursor)) {
+                boolean attached = plugin.pets().attachItem(player, petIndex, cursor);
+                if (attached) {
+                    openPetMenu(player);
+                }
+                return attached;
+            }
             plugin.pets().activate(player, petIndex);
             openPetMenu(player);
-            return;
+            return false;
         }
         if (holder.action(rawSlot) == PetMenuAction.BACK) {
             openSkyBlockMenu(player);
         }
+        return false;
     }
 
     public void runMinionAction(Player player, MinionMenuHolder holder, MinionMenuAction action) {

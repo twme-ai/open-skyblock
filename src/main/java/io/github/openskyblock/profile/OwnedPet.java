@@ -7,11 +7,17 @@ public final class OwnedPet {
     private final String instanceId;
     private final String petId;
     private double xp;
+    private String petItemId;
 
     public OwnedPet(String instanceId, String petId, double xp) {
+        this(instanceId, petId, xp, "");
+    }
+
+    public OwnedPet(String instanceId, String petId, double xp, String petItemId) {
         this.instanceId = instanceId == null || instanceId.isBlank() ? UUID.randomUUID().toString() : instanceId;
-        this.petId = petId == null ? "" : petId.toUpperCase(Locale.ROOT);
+        this.petId = normalizeId(petId);
         this.xp = Math.max(0.0D, xp);
+        this.petItemId = normalizeId(petItemId);
     }
 
     public String instanceId() {
@@ -32,5 +38,17 @@ public final class OwnedPet {
 
     public void addXp(double amount) {
         xp(this.xp + amount);
+    }
+
+    public String petItemId() {
+        return petItemId;
+    }
+
+    public void petItemId(String petItemId) {
+        this.petItemId = normalizeId(petItemId);
+    }
+
+    private static String normalizeId(String id) {
+        return id == null ? "" : id.toUpperCase(Locale.ROOT);
     }
 }

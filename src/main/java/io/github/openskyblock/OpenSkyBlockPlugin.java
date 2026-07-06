@@ -134,7 +134,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
         this.cakeService = new CakeService(configService, textService, profileManager, customItemService);
         this.potionService = new PotionService(this, configService, textService, profileManager);
-        this.petService = new PetService(configService, textService, profileManager);
+        this.petService = new PetService(configService, textService, profileManager, customItemService);
         this.bestiaryService = new BestiaryService(configService, textService, profileManager, skillService, economyService);
         this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, bestiaryService, reforgeService, enchantmentService, starService, gemstoneService);
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);

@@ -32,6 +32,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 public final class MenuListener implements Listener {
     private final OpenSkyBlockPlugin plugin;
@@ -176,7 +177,23 @@ public final class MenuListener implements Listener {
 
     private void handlePetClick(InventoryClickEvent event, Player player, PetMenuHolder holder) {
         event.setCancelled(true);
-        plugin.menus().runPetMenuClick(player, holder, event.getRawSlot());
+        if (plugin.menus().runPetMenuClick(player, holder, event.getRawSlot(), event.getCursor())) {
+            consumeCursorItem(event);
+        }
+    }
+
+    private void consumeCursorItem(InventoryClickEvent event) {
+        ItemStack cursor = event.getCursor();
+        if (cursor == null || cursor.getType().isAir()) {
+            return;
+        }
+        if (cursor.getAmount() <= 1) {
+            event.setCursor(null);
+            return;
+        }
+        ItemStack reduced = cursor.clone();
+        reduced.setAmount(cursor.getAmount() - 1);
+        event.setCursor(reduced);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

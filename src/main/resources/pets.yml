@@ -1,3 +1,11 @@
+pet-items:
+  IRON_CLAWS:
+    display-name: "<green>Iron Claws</green>"
+    item: PET_ITEM_IRON_CLAWS
+    stats:
+      strength: 5.0
+      crit_damage: 10.0
+
 pets:
   ROCK:
     material: COBBLESTONE

@@ -376,7 +376,8 @@ public final class ProfileManager {
                     profile.pets().add(new OwnedPet(
                             pet.getString("instance-id", null),
                             pet.getString("id", ""),
-                            pet.getDouble("xp", 0.0D)
+                            pet.getDouble("xp", 0.0D),
+                            pet.getString("pet-item", "")
                     ));
                 }
             }
@@ -554,6 +555,9 @@ public final class ProfileManager {
             profileData.set(petBase + ".instance-id", pet.instanceId());
             profileData.set(petBase + ".id", pet.petId());
             profileData.set(petBase + ".xp", pet.xp());
+            if (!pet.petItemId().isBlank()) {
+                profileData.set(petBase + ".pet-item", pet.petItemId());
+            }
         }
         profileData.set(base + ".minions", null);
         for (int index = 0; index < profile.minions().size(); index++) {

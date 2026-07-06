@@ -5,6 +5,8 @@ import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.profile.OwnedPet;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.service.CustomItemDefinition;
+import io.github.openskyblock.service.CustomItemService;
 import io.github.openskyblock.service.Rarity;
 import io.github.openskyblock.stats.StatSnapshot;
 import java.util.Comparator;
@@ -19,21 +21,29 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public final class PetService {
     private final ConfigService configService;
     private final TextService text;
     private final ProfileManager profiles;
+    private final CustomItemService customItems;
     private final Map<String, PetDefinition> definitions = new HashMap<>();
+    private final Map<String, PetItemDefinition> petItems = new HashMap<>();
+    private final Map<String, PetItemDefinition> petItemsByItem = new HashMap<>();
 
-    public PetService(ConfigService configService, TextService text, ProfileManager profiles) {
+    public PetService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
+        this.customItems = customItems;
     }
 
     public void reload() {
         definitions.clear();
+        petItems.clear();
+        petItemsByItem.clear();
+        readPetItems(configService.pets().getConfigurationSection("pet-items"));
         ConfigurationSection section = configService.pets().getConfigurationSection("pets");
         if (section == null) {
             return;
@@ -76,6 +86,26 @@ public final class PetService {
                 .toList();
     }
 
+    public Optional<PetItemDefinition> petItem(String id) {
+        if (id == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(petItems.get(id.toUpperCase(Locale.ROOT)));
+    }
+
+    public Optional<PetItemDefinition> petItem(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType().isAir()) {
+            return Optional.empty();
+        }
+        return customItems.definition(itemStack)
+                .map(CustomItemDefinition::id)
+                .map(petItemsByItem::get);
+    }
+
+    public boolean isPetItem(ItemStack itemStack) {
+        return petItem(itemStack).isPresent();
+    }
+
     public OwnedPet addPet(SkyBlockProfile profile, PetDefinition definition) {
         OwnedPet pet = new OwnedPet(UUID.randomUUID().toString(), definition.id(), 0.0D);
         profile.pets().add(pet);
@@ -106,6 +136,33 @@ public final class PetService {
         return true;
     }
 
+    public boolean attachItem(Player player, int petIndex, ItemStack itemStack) {
+        if (!enabled()) {
+            text.send(player, "commands.pet-disabled");
+            return false;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        if (petIndex < 0 || petIndex >= profile.pets().size()) {
+            text.send(player, "commands.pet-not-found");
+            return false;
+        }
+        PetItemDefinition petItem = petItem(itemStack).orElse(null);
+        if (petItem == null) {
+            text.send(player, "commands.pet-item-invalid");
+            return false;
+        }
+        OwnedPet pet = profile.pets().get(petIndex);
+        PetDefinition definition = definition(pet.petId()).orElse(null);
+        if (definition == null) {
+            text.send(player, "commands.pet-not-found");
+            return false;
+        }
+        pet.petItemId(petItem.id());
+        profiles.save(player);
+        text.send(player, "commands.pet-item-attached", placeholders(pet, definition, isActive(profile, pet)));
+        return true;
+    }
+
     public Optional<OwnedPet> activePet(SkyBlockProfile profile) {
         String activeId = profile.activePetInstanceId();
         if (activeId == null || activeId.isBlank()) {
@@ -132,7 +189,7 @@ public final class PetService {
         if (definition == null) {
             return Map.of();
         }
-        return statsAtLevel(definition, level(definition, pet));
+        return combinedStats(definition, pet);
     }
 
     public boolean addXp(Player player, double amount) {
@@ -214,7 +271,7 @@ public final class PetService {
     }
 
     public List<Component> statLore(PetDefinition definition, OwnedPet pet) {
-        Map<String, Double> stats = statsAtLevel(definition, level(definition, pet));
+        Map<String, Double> stats = combinedStats(definition, pet);
         if (stats.isEmpty()) {
             return List.of(text.deserialize(text.rawMessage("pets.no-stats")));
         }
@@ -240,8 +297,15 @@ public final class PetService {
                 TextService.parsed("xp_to_next", xpToNext),
                 TextService.raw("rarity", definition.rarity().name()),
                 TextService.parsed("rarity_colored", definition.rarity().colorTag() + definition.rarity().name()),
+                TextService.parsed("pet_item", petItemName(pet)),
                 TextService.parsed("status", text.rawMessage(active ? "pets.active-status" : "pets.inactive-status"))
         );
+    }
+
+    public String petItemName(OwnedPet pet) {
+        return petItem(pet.petItemId())
+                .map(PetItemDefinition::displayName)
+                .orElseGet(() -> text.rawMessage("pets.no-item"));
     }
 
     public String statLabel(String stat) {
@@ -264,6 +328,42 @@ public final class PetService {
             merged.put(placeholder.key(), placeholder);
         }
         return merged.values().stream().toList();
+    }
+
+    private void readPetItems(ConfigurationSection section) {
+        if (section == null) {
+            return;
+        }
+        for (String id : section.getKeys(false)) {
+            ConfigurationSection itemSection = section.getConfigurationSection(id);
+            if (itemSection == null) {
+                continue;
+            }
+            String normalizedId = id.toUpperCase(Locale.ROOT);
+            String itemId = itemSection.getString("item", normalizedId).toUpperCase(Locale.ROOT);
+            PetItemDefinition petItem = new PetItemDefinition(
+                    normalizedId,
+                    itemSection.getString("display-name", normalizedId),
+                    itemId,
+                    Map.copyOf(stats(itemSection.getConfigurationSection("stats")))
+            );
+            petItems.put(normalizedId, petItem);
+            if (!itemId.isBlank()) {
+                petItemsByItem.put(itemId, petItem);
+            }
+        }
+    }
+
+    private Map<String, Double> combinedStats(PetDefinition definition, OwnedPet pet) {
+        Map<String, Double> stats = new HashMap<>(statsAtLevel(definition, level(definition, pet)));
+        PetItemDefinition petItem = petItem(pet.petItemId()).orElse(null);
+        if (petItem != null) {
+            for (Map.Entry<String, Double> entry : petItem.stats().entrySet()) {
+                stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
+            }
+        }
+        stats.entrySet().removeIf(entry -> Math.abs(entry.getValue()) <= 0.000001D);
+        return stats;
     }
 
     private Map<String, Double> statsAtLevel(PetDefinition definition, int level) {
