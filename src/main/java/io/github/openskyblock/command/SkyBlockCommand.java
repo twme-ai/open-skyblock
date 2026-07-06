@@ -31,6 +31,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "shop",
             "shopnpcs",
             "sell",
+            "accessorybag",
             "profile",
             "purse",
             "skills",
@@ -68,6 +69,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "shop" -> shop(sender, args);
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
+            case "accessorybag" -> accessoryBag(sender, args);
             case "purse" -> purse(sender);
             case "skills" -> skills(sender);
             case "stats" -> stats(sender);
@@ -104,6 +106,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("sell")) {
             return startsWith(List.of("hand", "all"), args[1]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
+            return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("accessorybag") && args[1].equalsIgnoreCase("remove")) {
+            return startsWith(plugin.profiles().loadedProfiles().stream()
+                    .filter(profile -> sender instanceof Player player && profile.uniqueId().equals(player.getUniqueId()))
+                    .flatMap(profile -> profile.accessoryBag().stream())
+                    .toList(), args[2]);
+        }
         if (args.length == 3 && args[0].equalsIgnoreCase("bank") && (args[1].equalsIgnoreCase("deposit") || args[1].equalsIgnoreCase("withdraw"))) {
             return startsWith(List.of("all", "100", "1000", "10000"), args[2]);
         }
@@ -134,6 +145,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " shops", "commands.help.shop");
         helpLine(sender, label + " shop <id>", "commands.help.shop");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
+        helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " profile", "commands.help.profile");
         helpLine(sender, label + " purse", "commands.help.purse");
         helpLine(sender, label + " skills", "commands.help.skills");
@@ -274,6 +286,29 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "hand" -> plugin.shops().sellHand(player);
             case "all" -> plugin.shops().sellAll(player);
             default -> plugin.text().send(player, "commands.shop-usage");
+        }
+    }
+
+    private void accessoryBag(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("open")) {
+            plugin.menus().openAccessoryBag(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "add" -> plugin.accessories().addHeld(player);
+            case "remove" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.accessory-bag-missing");
+                    return;
+                }
+                plugin.accessories().withdraw(player, args[2]);
+            }
+            case "summary" -> plugin.accessories().sendSummary(player);
+            default -> plugin.text().send(player, "errors.unknown-command");
         }
     }
 

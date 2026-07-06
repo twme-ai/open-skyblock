@@ -25,6 +25,7 @@ commands:
     shop-npcs: "Refresh or remove configured physical shop NPCs."
     sell: "Sell held items or matching inventory items to NPC shops."
     stats: "View your aggregated SkyBlock stats."
+    accessory-bag: "Open your Accessory Bag."
     profile: "View your profile summary."
     purse: "View your purse and bank balance."
     skills: "View your skill levels."
@@ -63,6 +64,14 @@ commands:
   skills-header: "<prefix><aqua>Skills</aqua>"
   stats-header: "<prefix><aqua>Stats</aqua>"
   stats-line: "<gray><stat>:</gray> <green><value></green>"
+  accessory-bag-disabled: "<prefix><red>The Accessory Bag is disabled on this server.</red>"
+  accessory-bag-added: "<prefix><green>Added <accessory><green> to your Accessory Bag.</green></green>"
+  accessory-bag-removed: "<prefix><green>Removed <accessory><green> from your Accessory Bag.</green></green>"
+  accessory-bag-full: "<prefix><red>Your Accessory Bag is full.</red>"
+  accessory-bag-duplicate: "<prefix><red>That accessory is already in your Accessory Bag.</red>"
+  accessory-bag-not-accessory: "<prefix><red>You must hold a configured accessory item.</red>"
+  accessory-bag-missing: "<prefix><red>That accessory is not in your Accessory Bag.</red>"
+  accessory-bag-summary: "<prefix><gray>Accessories:</gray> <yellow><count></yellow><gray>/</gray><yellow><capacity></yellow> <dark_gray>|</dark_gray> <gray>Magical Power:</gray> <light_purple><magical_power></light_purple>"
   skill-line: "<gray><skill>:</gray> <yellow>Level <level></yellow> <dark_gray>(</dark_gray><white><xp></white><gray> XP</gray><dark_gray>)</dark_gray>"
   collections-header: "<prefix><aqua>Collections</aqua>"
   collection-line: "<gray><collection>:</gray> <white><amount></white> <dark_gray>|</dark_gray> <yellow>Tier <tier></yellow>"
@@ -116,6 +125,7 @@ items:
     health: "Health"
     defense: "Defense"
     speed: "Speed"
+    magical_power: "Magical Power"
 
 minions:
   item-lore:
@@ -140,3 +150,8 @@ menus:
     - "<yellow>Left-click to buy.</yellow>"
     - "<yellow>Right-click to sell matching items.</yellow>"
   shop-unlimited: "Unlimited"
+  accessory-bag-item:
+    - "<gray>Rarity:</gray> <rarity>"
+    - "<gray>Magical Power:</gray> <light_purple><magical_power></light_purple>"
+    - ""
+    - "<yellow>Click to remove this accessory.</yellow>"

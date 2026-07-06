@@ -21,6 +21,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable NPC shops with buy menus, right-click sell flow, daily buy limits, and `/skyblock sell`.
 - Optional physical shop NPCs spawned from `shops.yml` with persistent shop tags and right-click shop opening.
 - Aggregated combat stats from configurable base stats, equipment, and accessory-category custom items.
+- Accessory Bag with unique accessory storage, Magical Power, GUI add/remove flow, and stat aggregation from bagged accessories.
 - `/skyblock` command with profile, purse, skills, collections, custom item, minion, and reload subcommands.
 - Listeners for block breaking, entity kills, item pickup, custom item combat bonuses, join, and quit persistence.
 
@@ -62,6 +63,9 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock purse`
 - `/skyblock skills`
 - `/skyblock stats`
+- `/skyblock accessorybag`
+- `/skyblock accessorybag add`
+- `/skyblock accessorybag remove <id>`
 - `/skyblock collections`
 - `/skyblock recipes`
 - `/skyblock giveitem <id> [player]`

@@ -1,6 +1,7 @@
 package io.github.openskyblock.listener;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
+import io.github.openskyblock.menu.AccessoryBagHolder;
 import io.github.openskyblock.menu.BankMenuAction;
 import io.github.openskyblock.menu.BankMenuHolder;
 import io.github.openskyblock.menu.BrowserMenuAction;
@@ -47,6 +48,9 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof ShopMenuHolder shopMenuHolder) {
                 handleShopClick(event, player, shopMenuHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof AccessoryBagHolder accessoryBagHolder) {
+                handleAccessoryBagClick(event, player, accessoryBagHolder);
             }
             return;
         }
@@ -95,6 +99,11 @@ public final class MenuListener implements Listener {
         event.setCancelled(true);
         boolean sellClick = event.getClick().isRightClick();
         plugin.menus().runShopMenuClick(player, holder, event.getRawSlot(), sellClick);
+    }
+
+    private void handleAccessoryBagClick(InventoryClickEvent event, Player player, AccessoryBagHolder holder) {
+        event.setCancelled(true);
+        plugin.menus().runAccessoryBagClick(player, holder, event.getRawSlot());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

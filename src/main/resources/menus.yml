@@ -37,8 +37,15 @@ skyblock:
       lore:
         - "<gray>View your aggregated combat stats.</gray>"
       action: STATS
+    accessory-bag:
+      slot: 16
+      material: ENDER_CHEST
+      display-name: "<light_purple>Accessory Bag</light_purple>"
+      lore:
+        - "<gray>Store accessories and gain Magical Power.</gray>"
+      action: ACCESSORY_BAG
     collections:
-      slot: 17
+      slot: 26
       material: CHEST
       display-name: "<gold>Collections</gold>"
       lore:
@@ -298,4 +305,50 @@ shop:
     slot: 49
     material: EMERALD
     display-name: "<green>NPC Shops</green>"
+    lore: []
+
+accessory-bag:
+  title: "<dark_gray>Accessory Bag</dark_gray>"
+  rows: 6
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 28
+    - 29
+    - 30
+    - 31
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  summary:
+    slot: 4
+    material: NETHER_STAR
+    display-name: "<light_purple>Magical Power: <magical_power></light_purple>"
+    lore:
+      - "<gray>Accessories:</gray> <yellow><count></yellow><gray>/</gray><yellow><capacity></yellow>"
+      - "<gray>Unique accessories grant Magical Power and stats.</gray>"
+  add-held:
+    slot: 48
+    material: HOPPER
+    display-name: "<green>Add Held Accessory</green>"
+    lore:
+      - "<gray>Move the accessory in your hand into the bag.</gray>"
+  back:
+    slot: 50
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
     lore: []

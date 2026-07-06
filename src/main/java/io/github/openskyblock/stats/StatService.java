@@ -1,7 +1,10 @@
 package io.github.openskyblock.stats;
 
+import io.github.openskyblock.accessory.AccessoryService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.profile.ProfileManager;
+import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.CustomItemService;
 import java.util.LinkedHashMap;
@@ -14,18 +17,22 @@ import org.bukkit.inventory.ItemStack;
 public final class StatService {
     private final ConfigService configService;
     private final TextService text;
+    private final ProfileManager profiles;
     private final CustomItemService customItems;
+    private final AccessoryService accessories;
 
-    public StatService(ConfigService configService, TextService text, CustomItemService customItems) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories) {
         this.configService = configService;
         this.text = text;
+        this.profiles = profiles;
         this.customItems = customItems;
+        this.accessories = accessories;
     }
 
     public StatSnapshot snapshot(Player player) {
         Map<String, Double> stats = baseStats();
         addEquipmentStats(stats, player);
-        addAccessoryStats(stats, player);
+        addAccessoryStats(stats, profiles.profile(player));
         return new StatSnapshot(stats);
     }
 
@@ -77,10 +84,14 @@ public final class StatService {
         }
     }
 
-    private void addAccessoryStats(Map<String, Double> stats, Player player) {
-        for (ItemStack itemStack : player.getInventory().getStorageContents()) {
-            addItemStats(stats, itemStack, true);
+    private void addAccessoryStats(Map<String, Double> stats, SkyBlockProfile profile) {
+        for (CustomItemDefinition definition : accessories.accessories(profile)) {
+            for (Map.Entry<String, Double> entry : definition.stats().entrySet()) {
+                String stat = StatSnapshot.normalize(entry.getKey());
+                stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
+            }
         }
+        stats.put("magical_power", stats.getOrDefault("magical_power", 0.0D) + accessories.magicalPower(profile));
     }
 
     private void addItemStats(Map<String, Double> stats, ItemStack itemStack, boolean accessoryOnly) {

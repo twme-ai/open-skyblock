@@ -207,6 +207,42 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openAccessoryBag(Player player) {
+        if (!plugin.accessories().enabled()) {
+            text.send(player, "commands.accessory-bag-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("accessory-bag");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 6)));
+        Map<Integer, AccessoryBagAction> actions = new HashMap<>();
+        Map<Integer, String> accessoriesBySlot = new HashMap<>();
+        AccessoryBagHolder holder = new AccessoryBagHolder(actions, accessoriesBySlot);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Accessory Bag</dark_gray>"), accessoryBagPlaceholders(player))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        addAccessorySummary(inventory, section.getConfigurationSection("summary"), player);
+        List<Integer> slots = contentSlots(section);
+        SkyBlockProfile profile = profiles.profile(player);
+        for (int index = 0; index < profile.accessoryBag().size() && index < slots.size(); index++) {
+            String itemId = profile.accessoryBag().get(index);
+            int slot = slots.get(index);
+            plugin.customItems().definition(itemId).ifPresent(definition -> {
+                inventory.setItem(slot, accessoryBagItem(definition));
+                accessoriesBySlot.put(slot, definition.id());
+            });
+        }
+        addAccessoryAction(inventory, section.getConfigurationSection("add-held"), AccessoryBagAction.ADD_HELD, actions);
+        addAccessoryAction(inventory, section.getConfigurationSection("back"), AccessoryBagAction.BACK, actions);
+        player.openInventory(inventory);
+    }
+
     public void openShopSelector(Player player) {
         if (!plugin.shops().enabled()) {
             text.send(player, "commands.shop-disabled");
@@ -288,6 +324,7 @@ public final class MenuService {
             case BANK -> openBankMenu(player);
             case SKILLS -> player.performCommand("skyblock skills");
             case STATS -> player.performCommand("skyblock stats");
+            case ACCESSORY_BAG -> openAccessoryBag(player);
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
             case SHOPS -> openShopSelector(player);
@@ -347,6 +384,24 @@ public final class MenuService {
                 plugin.economy().withdrawAll(player);
                 openBankMenu(player);
             }
+            case NONE -> {
+            }
+        }
+    }
+
+    public void runAccessoryBagClick(Player player, AccessoryBagHolder holder, int rawSlot) {
+        String itemId = holder.accessory(rawSlot);
+        if (itemId != null) {
+            plugin.accessories().withdraw(player, itemId);
+            openAccessoryBag(player);
+            return;
+        }
+        switch (holder.action(rawSlot)) {
+            case ADD_HELD -> {
+                plugin.accessories().addHeld(player);
+                openAccessoryBag(player);
+            }
+            case BACK -> openSkyBlockMenu(player);
             case NONE -> {
             }
         }
@@ -546,6 +601,49 @@ public final class MenuService {
         return itemStack;
     }
 
+    private void addAccessorySummary(Inventory inventory, ConfigurationSection section, Player player) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, accessoryBagPlaceholders(player)));
+    }
+
+    private void addAccessoryAction(Inventory inventory, ConfigurationSection section, AccessoryBagAction action, Map<Integer, AccessoryBagAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
+    private ItemStack accessoryBagItem(io.github.openskyblock.service.CustomItemDefinition definition) {
+        ItemStack itemStack = plugin.customItems().createItem(definition);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = List.of(
+                TextService.raw("rarity", definition.rarity().name()),
+                TextService.raw("magical_power", Integer.toString(plugin.accessories().magicalPower(definition)))
+        );
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        if (meta.lore() != null) {
+            lore.addAll(meta.lore());
+            lore.add(net.kyori.adventure.text.Component.empty());
+        }
+        for (String line : configService.messages().getStringList("menus.accessory-bag-item")) {
+            lore.add(text.deserialize(line, placeholders));
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
     private ItemStack shopSelectorItem(ShopDefinition shop, ConfigurationSection section) {
         ItemStack itemStack = new ItemStack(shop.material());
         ItemMeta meta = itemStack.getItemMeta();
@@ -613,6 +711,15 @@ public final class MenuService {
                 TextService.raw("purse", text.formatNumber(profile.purse())),
                 TextService.raw("bank", text.formatNumber(profile.bank())),
                 TextService.raw("capacity", text.formatNumber(plugin.economy().bankCapacity()))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> accessoryBagPlaceholders(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        return List.of(
+                TextService.raw("count", Integer.toString(profile.accessoryBag().size())),
+                TextService.raw("capacity", Integer.toString(plugin.accessories().capacity())),
+                TextService.raw("magical_power", Integer.toString(plugin.accessories().magicalPower(profile)))
         );
     }
 

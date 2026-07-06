@@ -130,6 +130,11 @@ public final class ProfileManager {
                 profile.setDailyShopPurchases(key.toUpperCase(), shopPurchases.getInt(key, 0));
             }
         }
+        for (String itemId : section.getStringList("accessory-bag")) {
+            if (itemId != null && !itemId.isBlank()) {
+                profile.addAccessory(itemId);
+            }
+        }
         ConfigurationSection minions = section.getConfigurationSection("minions");
         if (minions != null) {
             for (String key : minions.getKeys(false)) {
@@ -167,6 +172,7 @@ public final class ProfileManager {
         for (Map.Entry<String, Integer> entry : profile.dailyShopPurchases().entrySet()) {
             profileData.set(base + ".shop-purchases.items." + entry.getKey(), entry.getValue());
         }
+        profileData.set(base + ".accessory-bag", profile.accessoryBag());
         profileData.set(base + ".minions", null);
         for (int index = 0; index < profile.minions().size(); index++) {
             PlacedMinion minion = profile.minions().get(index);

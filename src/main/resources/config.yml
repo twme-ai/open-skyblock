@@ -11,6 +11,7 @@ features:
   bank: true
   npc-shops: true
   physical-shop-npcs: true
+  accessory-bag: true
   skills: true
   collections: true
   custom-items: true
@@ -54,3 +55,15 @@ stats:
     - intelligence
     - speed
     - ferocity
+    - magical_power
+  magical-power:
+    COMMON: 3
+    UNCOMMON: 5
+    RARE: 8
+    EPIC: 12
+    LEGENDARY: 16
+    MYTHIC: 22
+    SPECIAL: 3
+
+accessory-bag:
+  capacity: 18

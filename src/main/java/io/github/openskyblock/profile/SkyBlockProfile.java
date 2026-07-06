@@ -17,6 +17,7 @@ public final class SkyBlockProfile {
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
+    private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private String shopPurchaseDay;
 
@@ -121,6 +122,22 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> dailyShopPurchases() {
         return dailyShopPurchases;
+    }
+
+    public List<String> accessoryBag() {
+        return accessoryBag;
+    }
+
+    public boolean hasAccessory(String itemId) {
+        return accessoryBag.stream().anyMatch(existing -> existing.equalsIgnoreCase(itemId));
+    }
+
+    public void addAccessory(String itemId) {
+        accessoryBag.add(itemId.toUpperCase());
+    }
+
+    public boolean removeAccessory(String itemId) {
+        return accessoryBag.removeIf(existing -> existing.equalsIgnoreCase(itemId));
     }
 
     public List<PlacedMinion> minions() {
