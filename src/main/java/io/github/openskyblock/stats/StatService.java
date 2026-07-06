@@ -1,6 +1,7 @@
 package io.github.openskyblock.stats;
 
 import io.github.openskyblock.accessory.AccessoryService;
+import io.github.openskyblock.accessory.TuningService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.profile.ProfileManager;
@@ -20,19 +21,23 @@ public final class StatService {
     private final ProfileManager profiles;
     private final CustomItemService customItems;
     private final AccessoryService accessories;
+    private final TuningService tuning;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.customItems = customItems;
         this.accessories = accessories;
+        this.tuning = tuning;
     }
 
     public StatSnapshot snapshot(Player player) {
         Map<String, Double> stats = baseStats();
+        SkyBlockProfile profile = profiles.profile(player);
         addEquipmentStats(stats, player);
-        addAccessoryStats(stats, profiles.profile(player));
+        addAccessoryStats(stats, profile);
+        addTuningStats(stats, profile);
         return new StatSnapshot(stats);
     }
 
@@ -92,6 +97,12 @@ public final class StatService {
             }
         }
         stats.put("magical_power", stats.getOrDefault("magical_power", 0.0D) + accessories.magicalPower(profile));
+    }
+
+    private void addTuningStats(Map<String, Double> stats, SkyBlockProfile profile) {
+        for (Map.Entry<String, Double> entry : tuning.tuningBonuses(profile).entrySet()) {
+            stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
+        }
     }
 
     private void addItemStats(Map<String, Double> stats, ItemStack itemStack, boolean accessoryOnly) {

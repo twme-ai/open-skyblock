@@ -44,6 +44,13 @@ skyblock:
       lore:
         - "<gray>Store accessories and gain Magical Power.</gray>"
       action: ACCESSORY_BAG
+    tuning:
+      slot: 18
+      material: AMETHYST_SHARD
+      display-name: "<light_purple>Stats Tuning</light_purple>"
+      lore:
+        - "<gray>Spend tuning points from Magical Power.</gray>"
+      action: TUNING
     collections:
       slot: 26
       material: CHEST
@@ -349,6 +356,63 @@ accessory-bag:
       - "<gray>Move the accessory in your hand into the bag.</gray>"
   back:
     slot: 50
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+
+tuning:
+  title: "<dark_gray>Stats Tuning</dark_gray>"
+  rows: 4
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  summary:
+    slot: 4
+    material: AMETHYST_SHARD
+    display-name: "<light_purple>Tuning Points</light_purple>"
+    lore:
+      - "<gray>Used:</gray> <yellow><used></yellow><gray>/</gray><yellow><total></yellow>"
+      - "<gray>Available:</gray> <green><available></green>"
+      - "<gray>Magical Power:</gray> <light_purple><magical_power></light_purple>"
+  stats:
+    health:
+      slot: 10
+      material: RED_DYE
+      display-name: "<red>Health</red>"
+    defense:
+      slot: 11
+      material: IRON_CHESTPLATE
+      display-name: "<gray>Defense</gray>"
+    strength:
+      slot: 12
+      material: BLAZE_POWDER
+      display-name: "<red>Strength</red>"
+    crit_chance:
+      slot: 13
+      material: FLINT
+      display-name: "<blue>Crit Chance</blue>"
+    crit_damage:
+      slot: 14
+      material: DIAMOND
+      display-name: "<blue>Crit Damage</blue>"
+    intelligence:
+      slot: 15
+      material: LAPIS_LAZULI
+      display-name: "<aqua>Intelligence</aqua>"
+    speed:
+      slot: 16
+      material: SUGAR
+      display-name: "<white>Speed</white>"
+  reset:
+    slot: 30
+    material: BARRIER
+    display-name: "<red>Reset Tuning</red>"
+    lore:
+      - "<gray>Remove all assigned tuning points.</gray>"
+  back:
+    slot: 32
     material: NETHER_STAR
     display-name: "<green>SkyBlock Menu</green>"
     lore: []

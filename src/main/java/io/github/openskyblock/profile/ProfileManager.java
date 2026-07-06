@@ -135,6 +135,12 @@ public final class ProfileManager {
                 profile.addAccessory(itemId);
             }
         }
+        ConfigurationSection tuning = section.getConfigurationSection("tuning");
+        if (tuning != null) {
+            for (String key : tuning.getKeys(false)) {
+                profile.setTuning(key.toLowerCase(), tuning.getInt(key, 0));
+            }
+        }
         ConfigurationSection minions = section.getConfigurationSection("minions");
         if (minions != null) {
             for (String key : minions.getKeys(false)) {
@@ -173,6 +179,10 @@ public final class ProfileManager {
             profileData.set(base + ".shop-purchases.items." + entry.getKey(), entry.getValue());
         }
         profileData.set(base + ".accessory-bag", profile.accessoryBag());
+        profileData.set(base + ".tuning", null);
+        for (Map.Entry<String, Integer> entry : profile.tuning().entrySet()) {
+            profileData.set(base + ".tuning." + entry.getKey(), entry.getValue());
+        }
         profileData.set(base + ".minions", null);
         for (int index = 0; index < profile.minions().size(); index++) {
             PlacedMinion minion = profile.minions().get(index);

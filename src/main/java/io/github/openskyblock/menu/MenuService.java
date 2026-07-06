@@ -243,6 +243,47 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openTuningMenu(Player player) {
+        if (!plugin.tuning().enabled()) {
+            text.send(player, "commands.tuning-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("tuning");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 4)));
+        Map<Integer, String> statSlots = new HashMap<>();
+        Map<Integer, TuningAction> actions = new HashMap<>();
+        TuningHolder holder = new TuningHolder(statSlots, actions);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Stats Tuning</dark_gray>"))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        addTuningSummary(inventory, section.getConfigurationSection("summary"), player);
+        ConfigurationSection stats = section.getConfigurationSection("stats");
+        if (stats != null) {
+            for (String stat : stats.getKeys(false)) {
+                ConfigurationSection statSection = stats.getConfigurationSection(stat);
+                if (statSection == null || !plugin.tuning().isTunable(stat)) {
+                    continue;
+                }
+                int slot = statSection.getInt("slot", -1);
+                if (slot < 0 || slot >= inventory.getSize()) {
+                    continue;
+                }
+                inventory.setItem(slot, tuningItem(player, stat, statSection));
+                statSlots.put(slot, stat);
+            }
+        }
+        addTuningAction(inventory, section.getConfigurationSection("reset"), TuningAction.RESET, actions);
+        addTuningAction(inventory, section.getConfigurationSection("back"), TuningAction.BACK, actions);
+        player.openInventory(inventory);
+    }
+
     public void openShopSelector(Player player) {
         if (!plugin.shops().enabled()) {
             text.send(player, "commands.shop-disabled");
@@ -325,6 +366,7 @@ public final class MenuService {
             case SKILLS -> player.performCommand("skyblock skills");
             case STATS -> player.performCommand("skyblock stats");
             case ACCESSORY_BAG -> openAccessoryBag(player);
+            case TUNING -> openTuningMenu(player);
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
             case SHOPS -> openShopSelector(player);
@@ -400,6 +442,28 @@ public final class MenuService {
             case ADD_HELD -> {
                 plugin.accessories().addHeld(player);
                 openAccessoryBag(player);
+            }
+            case BACK -> openSkyBlockMenu(player);
+            case NONE -> {
+            }
+        }
+    }
+
+    public void runTuningClick(Player player, TuningHolder holder, int rawSlot, boolean removeClick) {
+        String stat = holder.stat(rawSlot);
+        if (stat != null) {
+            if (removeClick) {
+                plugin.tuning().removePoint(player, stat);
+            } else {
+                plugin.tuning().addPoint(player, stat);
+            }
+            openTuningMenu(player);
+            return;
+        }
+        switch (holder.action(rawSlot)) {
+            case RESET -> {
+                plugin.tuning().reset(player);
+                openTuningMenu(player);
             }
             case BACK -> openSkyBlockMenu(player);
             case NONE -> {
@@ -644,6 +708,50 @@ public final class MenuService {
         return itemStack;
     }
 
+    private void addTuningSummary(Inventory inventory, ConfigurationSection section, Player player) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, tuningPlaceholders(player)));
+    }
+
+    private void addTuningAction(Inventory inventory, ConfigurationSection section, TuningAction action, Map<Integer, TuningAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
+    private ItemStack tuningItem(Player player, String stat, ConfigurationSection section) {
+        Material material = Material.matchMaterial(section.getString("material", "AMETHYST_SHARD"));
+        ItemStack itemStack = new ItemStack(material == null ? Material.AMETHYST_SHARD : material);
+        ItemMeta meta = itemStack.getItemMeta();
+        SkyBlockProfile profile = profiles.profile(player);
+        int points = profile.tuning(stat);
+        double value = plugin.tuning().tuningValue(stat);
+        List<TextService.TextPlaceholder> placeholders = List.of(
+                TextService.raw("stat", plugin.tuning().statLabel(stat)),
+                TextService.raw("points", Integer.toString(points)),
+                TextService.raw("value", text.formatNumber(value)),
+                TextService.raw("bonus", text.formatNumber(points * value))
+        );
+        meta.displayName(text.deserialize(section.getString("display-name", "<white><stat></white>"), placeholders));
+        meta.lore(configService.messages().getStringList("menus.tuning-stat").stream()
+                .map(line -> text.deserialize(line, placeholders))
+                .toList());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
     private ItemStack shopSelectorItem(ShopDefinition shop, ConfigurationSection section) {
         ItemStack itemStack = new ItemStack(shop.material());
         ItemMeta meta = itemStack.getItemMeta();
@@ -719,6 +827,16 @@ public final class MenuService {
         return List.of(
                 TextService.raw("count", Integer.toString(profile.accessoryBag().size())),
                 TextService.raw("capacity", Integer.toString(plugin.accessories().capacity())),
+                TextService.raw("magical_power", Integer.toString(plugin.accessories().magicalPower(profile)))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> tuningPlaceholders(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        return List.of(
+                TextService.raw("used", Integer.toString(plugin.tuning().usedPoints(profile))),
+                TextService.raw("total", Integer.toString(plugin.tuning().totalPoints(profile))),
+                TextService.raw("available", Integer.toString(plugin.tuning().availablePoints(profile))),
                 TextService.raw("magical_power", Integer.toString(plugin.accessories().magicalPower(profile)))
         );
     }

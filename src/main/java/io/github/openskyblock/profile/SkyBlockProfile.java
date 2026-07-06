@@ -17,6 +17,7 @@ public final class SkyBlockProfile {
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
+    private final Map<String, Integer> tuning = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private String shopPurchaseDay;
@@ -122,6 +123,26 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> dailyShopPurchases() {
         return dailyShopPurchases;
+    }
+
+    public int tuning(String stat) {
+        return tuning.getOrDefault(stat, 0);
+    }
+
+    public void setTuning(String stat, int points) {
+        tuning.put(stat, Math.max(0, points));
+    }
+
+    public void addTuning(String stat, int points) {
+        setTuning(stat, tuning(stat) + points);
+    }
+
+    public void clearTuning() {
+        tuning.clear();
+    }
+
+    public Map<String, Integer> tuning() {
+        return tuning;
     }
 
     public List<String> accessoryBag() {

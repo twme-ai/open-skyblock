@@ -2,6 +2,7 @@ package io.github.openskyblock;
 
 import io.github.openskyblock.command.SkyBlockCommand;
 import io.github.openskyblock.accessory.AccessoryService;
+import io.github.openskyblock.accessory.TuningService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.economy.EconomyService;
@@ -35,6 +36,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private CollectionService collectionService;
     private CustomItemService customItemService;
     private AccessoryService accessoryService;
+    private TuningService tuningService;
     private MinionService minionService;
     private IslandService islandService;
     private MenuService menuService;
@@ -59,7 +61,8 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.skillService = new SkillService(configService, textService, profileManager, collectionService, economyService);
         this.customItemService = new CustomItemService(this, configService, textService);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService);
-        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService);
+        this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
+        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -171,6 +174,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public AccessoryService accessories() {
         return accessoryService;
+    }
+
+    public TuningService tuning() {
+        return tuningService;
     }
 
     public MinionService minions() {

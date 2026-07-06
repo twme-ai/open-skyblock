@@ -32,6 +32,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "shopnpcs",
             "sell",
             "accessorybag",
+            "tuning",
             "profile",
             "purse",
             "skills",
@@ -70,6 +71,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
+            case "tuning" -> tuning(sender, args);
             case "purse" -> purse(sender);
             case "skills" -> skills(sender);
             case "stats" -> stats(sender);
@@ -109,6 +111,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("tuning")) {
+            return startsWith(List.of("add", "remove", "reset", "summary", "open"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("tuning") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
+            return startsWith(plugin.tuning().tunableStats(), args[2]);
+        }
         if (args.length == 3 && args[0].equalsIgnoreCase("accessorybag") && args[1].equalsIgnoreCase("remove")) {
             return startsWith(plugin.profiles().loadedProfiles().stream()
                     .filter(profile -> sender instanceof Player player && profile.uniqueId().equals(player.getUniqueId()))
@@ -146,6 +154,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " shop <id>", "commands.help.shop");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
+        helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " profile", "commands.help.profile");
         helpLine(sender, label + " purse", "commands.help.purse");
         helpLine(sender, label + " skills", "commands.help.skills");
@@ -308,6 +317,36 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.accessories().withdraw(player, args[2]);
             }
             case "summary" -> plugin.accessories().sendSummary(player);
+            default -> plugin.text().send(player, "errors.unknown-command");
+        }
+    }
+
+    private void tuning(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("open")) {
+            plugin.menus().openTuningMenu(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "add" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.tuning-unknown-stat", List.of(TextService.raw("stat", "")));
+                    return;
+                }
+                plugin.tuning().addPoint(player, args[2]);
+            }
+            case "remove" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.tuning-unknown-stat", List.of(TextService.raw("stat", "")));
+                    return;
+                }
+                plugin.tuning().removePoint(player, args[2]);
+            }
+            case "reset" -> plugin.tuning().reset(player);
+            case "summary" -> plugin.tuning().sendSummary(player);
             default -> plugin.text().send(player, "errors.unknown-command");
         }
     }

@@ -10,6 +10,7 @@ public enum MenuAction {
     SKILLS,
     STATS,
     ACCESSORY_BAG,
+    TUNING,
     COLLECTIONS,
     RECIPES,
     SHOPS,
