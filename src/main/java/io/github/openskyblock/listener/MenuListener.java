@@ -2,6 +2,8 @@ package io.github.openskyblock.listener;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.menu.MenuAction;
+import io.github.openskyblock.menu.MinionMenuAction;
+import io.github.openskyblock.menu.MinionMenuHolder;
 import io.github.openskyblock.menu.SkyBlockMenuHolder;
 import io.github.openskyblock.service.CustomItemDefinition;
 import org.bukkit.entity.Player;
@@ -25,6 +27,9 @@ public final class MenuListener implements Listener {
             return;
         }
         if (!(event.getView().getTopInventory().getHolder() instanceof SkyBlockMenuHolder holder)) {
+            if (event.getView().getTopInventory().getHolder() instanceof MinionMenuHolder minionHolder) {
+                handleMinionClick(event, player, minionHolder);
+            }
             return;
         }
         event.setCancelled(true);
@@ -34,6 +39,15 @@ public final class MenuListener implements Listener {
         }
         player.closeInventory();
         plugin.menus().runAction(player, action);
+    }
+
+    private void handleMinionClick(InventoryClickEvent event, Player player, MinionMenuHolder holder) {
+        event.setCancelled(true);
+        MinionMenuAction action = holder.action(event.getRawSlot());
+        if (action == MinionMenuAction.NONE) {
+            return;
+        }
+        plugin.menus().runMinionAction(player, holder, action);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

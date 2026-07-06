@@ -14,6 +14,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable SkyBlock menu GUI and starter menu item.
 - Configurable MiniMessage messages in `messages.yml`.
 - Configurable skills, collection tiers, action rewards, custom items, and minion definitions.
+- Placeable minion items with island-only placement, generated storage, claim menu, pickup flow, and offline ticking from persisted timestamps.
 - `/skyblock` command with profile, purse, skills, collections, custom item, minion, and reload subcommands.
 - Listeners for block breaking, entity kills, item pickup, custom item combat bonuses, join, and quit persistence.
 
@@ -48,6 +49,7 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock skills`
 - `/skyblock collections`
 - `/skyblock giveitem <id> [player]`
+- `/skyblock minion give <id> [player]`
 - `/skyblock minion add <id>`
 - `/skyblock minion list`
 - `/skyblock minion claim [slot|all]`

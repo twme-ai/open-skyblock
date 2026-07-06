@@ -44,3 +44,36 @@ skyblock:
       lore:
         - "<gray>View recorded minions.</gray>"
       action: MINIONS
+
+minion:
+  title: "<dark_gray><minion_name></dark_gray>"
+  rows: 3
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  items:
+    status:
+      slot: 11
+      material: BOOK
+      display-name: "<aqua>Minion Status</aqua>"
+      lore:
+        - "<gray>Generated:</gray> <yellow><generated></yellow><gray>/<storage></gray>"
+        - "<gray>Resource:</gray> <collection>"
+        - "<gray>Interval:</gray> <yellow><interval_seconds>s</yellow>"
+      action: NONE
+    claim:
+      slot: 13
+      material: CHEST
+      display-name: "<green>Claim Resources</green>"
+      lore:
+        - "<gray>Move stored resources into your inventory.</gray>"
+      action: CLAIM
+    pickup:
+      slot: 15
+      material: BARRIER
+      display-name: "<red>Pick Up Minion</red>"
+      lore:
+        - "<gray>Claim stored resources and return the minion item.</gray>"
+      action: PICKUP

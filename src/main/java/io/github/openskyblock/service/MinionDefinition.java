@@ -9,6 +9,7 @@ public record MinionDefinition(
         String generatedCollection,
         long generatedAmount,
         long intervalTicks,
-        long storageSize
+        long storageSize,
+        int requiredCollectionTier
 ) {
 }

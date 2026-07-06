@@ -6,6 +6,7 @@ import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.island.IslandService;
 import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.MenuListener;
+import io.github.openskyblock.listener.MinionListener;
 import io.github.openskyblock.listener.PlayerLifecycleListener;
 import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.listener.ProgressionListener;
@@ -41,7 +42,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.collectionService = new CollectionService(configService, textService, profileManager);
         this.skillService = new SkillService(configService, textService, profileManager, collectionService);
         this.customItemService = new CustomItemService(this, configService, textService);
-        this.minionService = new MinionService(configService, textService, profileManager, collectionService);
+        this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
 
@@ -98,12 +99,13 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ProgressionListener(this), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
+        getServer().getPluginManager().registerEvents(new MinionListener(this), this);
     }
 
     private void startTasks() {
         long autosaveTicks = Math.max(1200L, getConfig().getLong("settings.auto-save-ticks", 6000L));
         this.autosaveTask = getServer().getScheduler().runTaskTimer(this, profileManager::saveAll, autosaveTicks, autosaveTicks);
-        this.minionTask = getServer().getScheduler().runTaskTimer(this, () -> minionService.tickOnlineMinions(getServer().getOnlinePlayers()), 200L, 200L);
+        this.minionTask = getServer().getScheduler().runTaskTimer(this, minionService::tickLoadedMinions, 200L, 200L);
     }
 
     public ConfigService configService() {

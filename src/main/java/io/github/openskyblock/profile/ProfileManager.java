@@ -67,6 +67,18 @@ public final class ProfileManager {
         return profiles.values();
     }
 
+    public SkyBlockProfile profileByIslandWorld(String worldName) {
+        if (worldName == null || worldName.isBlank()) {
+            return null;
+        }
+        for (SkyBlockProfile profile : profiles.values()) {
+            if (worldName.equals(profile.islandWorldName())) {
+                return profile;
+            }
+        }
+        return null;
+    }
+
     public void save(Player player) {
         SkyBlockProfile profile = profiles.get(player.getUniqueId());
         if (profile != null) {
@@ -119,7 +131,11 @@ public final class ProfileManager {
                     profile.minions().add(new PlacedMinion(
                             minion.getString("id", ""),
                             minion.getLong("generated", 0L),
-                            minion.getLong("last-action-millis", System.currentTimeMillis())
+                            minion.getLong("last-action-millis", System.currentTimeMillis()),
+                            minion.getString("world", null),
+                            minion.getInt("x", 0),
+                            minion.getInt("y", 0),
+                            minion.getInt("z", 0)
                     ));
                 }
             }
@@ -146,6 +162,10 @@ public final class ProfileManager {
             profileData.set(minionBase + ".id", minion.id());
             profileData.set(minionBase + ".generated", minion.generatedAmount());
             profileData.set(minionBase + ".last-action-millis", minion.lastActionMillis());
+            profileData.set(minionBase + ".world", minion.worldName());
+            profileData.set(minionBase + ".x", minion.x());
+            profileData.set(minionBase + ".y", minion.y());
+            profileData.set(minionBase + ".z", minion.z());
         }
     }
 

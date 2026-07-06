@@ -60,7 +60,7 @@ Planned additions when each subsystem needs them:
 1. Foundation
    - Plugin bootstrap, configuration, MiniMessage text service, profile persistence, commands, and event listeners.
    - Skill XP, collection progression, item metadata, and basic custom item stats.
-   - Minion definitions and simple placed-minion records.
+   - Minion definitions, placeable minion items, persisted locations, storage, offline ticking, claim menus, and pickup flow.
 
 2. Private Islands
    - World allocation, island border, spawn, reset flow, cooperative profiles, permissions, visitors, warps, schematic placement, and protected interaction rules.
@@ -95,4 +95,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, starter menu item flow, skill XP, collections, custom item metadata, combat stat hooks, and simple minion records. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, starter menu item flow, skill XP, collections, custom item metadata, combat stat hooks, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

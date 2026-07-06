@@ -6,6 +6,7 @@ minions:
     generated-amount: 1
     interval-ticks: 400
     storage-size: 64
+    required-collection-tier: 1
   COBBLESTONE_MINION:
     display-name: "<gray>Cobblestone Minion</gray>"
     material: COBBLESTONE
@@ -13,6 +14,7 @@ minions:
     generated-amount: 1
     interval-ticks: 300
     storage-size: 64
+    required-collection-tier: 1
   ZOMBIE_MINION:
     display-name: "<dark_green>Zombie Minion</dark_green>"
     material: ZOMBIE_HEAD
@@ -20,3 +22,4 @@ minions:
     generated-amount: 1
     interval-ticks: 500
     storage-size: 64
+    required-collection-tier: 1
