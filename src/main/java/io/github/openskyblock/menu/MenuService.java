@@ -1554,7 +1554,7 @@ public final class MenuService {
         List<String> rawLore = section == null ? List.of("<gray>Cost:</gray> <gold><cost></gold>", "<stats>") : section.getStringList("lore");
         for (String line : rawLore) {
             if (line.equals("<stats>")) {
-                lore.addAll(reforgeStatLore(reforge, itemDefinition));
+                lore.addAll(reforgeStatLore(reforge, held, itemDefinition));
             } else {
                 lore.add(text.deserialize(line, placeholders));
             }
@@ -1564,8 +1564,8 @@ public final class MenuService {
         return itemStack;
     }
 
-    private List<net.kyori.adventure.text.Component> reforgeStatLore(ReforgeDefinition reforge, CustomItemDefinition itemDefinition) {
-        Map<String, Double> stats = plugin.reforges().stats(reforge, itemDefinition.rarity());
+    private List<net.kyori.adventure.text.Component> reforgeStatLore(ReforgeDefinition reforge, ItemStack held, CustomItemDefinition itemDefinition) {
+        Map<String, Double> stats = plugin.reforges().stats(reforge, plugin.customItems().rarity(held, itemDefinition));
         if (stats.isEmpty()) {
             return List.of(text.deserialize(text.rawMessage("reforges.no-stats")));
         }
@@ -1801,7 +1801,7 @@ public final class MenuService {
         return List.of(
                 TextService.parsed("item", itemDefinition.displayName()),
                 TextService.raw("category", itemDefinition.category()),
-                TextService.raw("rarity", itemDefinition.rarity().name()),
+                TextService.raw("rarity", plugin.customItems().rarity(held, itemDefinition).name()),
                 TextService.parsed("current_reforge", current)
         );
     }
@@ -1810,14 +1810,14 @@ public final class MenuService {
         List<TextService.TextPlaceholder> placeholders = new ArrayList<>(plugin.reforges().placeholders(
                 reforge,
                 itemDefinition,
-                plugin.reforges().cost(reforge, itemDefinition)
+                plugin.reforges().cost(reforge, itemDefinition, held)
         ));
         placeholders.add(TextService.parsed("required", plugin.reforges().requiredItemLine(reforge)));
         placeholders.add(TextService.parsed("status", reforgeStatus(player, held, reforge)));
         placeholders.add(TextService.parsed("current_reforge", plugin.reforges().definition(held)
                 .map(ReforgeDefinition::displayName)
                 .orElseGet(() -> text.rawMessage("reforges.no-current"))));
-        placeholders.add(TextService.raw("rarity", itemDefinition.rarity().name()));
+        placeholders.add(TextService.raw("rarity", plugin.customItems().rarity(held, itemDefinition).name()));
         return placeholders;
     }
 
@@ -1836,7 +1836,7 @@ public final class MenuService {
         return List.of(
                 TextService.parsed("item", itemDefinition.displayName()),
                 TextService.raw("category", itemDefinition.category()),
-                TextService.raw("rarity", itemDefinition.rarity().name()),
+                TextService.raw("rarity", plugin.customItems().rarity(held, itemDefinition).name()),
                 TextService.raw("applied_enchantments", Integer.toString(applied))
         );
     }
@@ -1847,7 +1847,7 @@ public final class MenuService {
         return List.of(
                 TextService.parsed("item", itemDefinition.displayName()),
                 TextService.raw("category", itemDefinition.category()),
-                TextService.raw("rarity", itemDefinition.rarity().name()),
+                TextService.raw("rarity", plugin.customItems().rarity(held, itemDefinition).name()),
                 TextService.raw("applied_enchantments", Integer.toString(applied)),
                 TextService.raw("book_apply_multiplier", text.formatNumber(plugin.enchantments().bookApplyCostMultiplier())),
                 TextService.raw("book_combine_cost", text.formatNumber(plugin.enchantments().bookCombineCost())),
@@ -1858,14 +1858,14 @@ public final class MenuService {
     private List<TextService.TextPlaceholder> enchantmentMenuPlaceholders(Player player, ItemStack held, CustomItemDefinition itemDefinition, SkyBlockEnchantmentDefinition enchantment) {
         int currentLevel = plugin.enchantments().enchantments(held).getOrDefault(enchantment.id(), 0);
         int targetLevel = targetEnchantmentLevel(held, enchantment);
-        double cost = plugin.enchantments().cost(enchantment, itemDefinition, targetLevel);
+        double cost = plugin.enchantments().cost(enchantment, itemDefinition, held, targetLevel);
         List<TextService.TextPlaceholder> placeholders = new ArrayList<>(plugin.enchantments().placeholders(enchantment, itemDefinition, targetLevel, cost));
         placeholders.add(TextService.raw("current_level", currentLevel <= 0 ? text.rawMessage("enchantments.no-current") : plugin.enchantments().levelLabel(currentLevel)));
         placeholders.add(TextService.raw("target_level", plugin.enchantments().levelLabel(targetLevel)));
         placeholders.add(TextService.raw("max_level", plugin.enchantments().levelLabel(enchantment.maxLevel())));
         placeholders.add(TextService.raw("type", enchantment.ultimate() ? text.rawMessage("enchantments.ultimate-type") : text.rawMessage("enchantments.normal-type")));
         placeholders.add(TextService.parsed("status", enchantmentStatus(held, enchantment)));
-        placeholders.add(TextService.raw("rarity", itemDefinition.rarity().name()));
+        placeholders.add(TextService.raw("rarity", plugin.customItems().rarity(held, itemDefinition).name()));
         placeholders.add(TextService.raw("applied_enchantments", Integer.toString(plugin.enchantments().enchantments(held).size())));
         return placeholders;
     }

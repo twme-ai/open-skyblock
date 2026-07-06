@@ -18,6 +18,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -27,6 +28,8 @@ public final class CustomItemService {
     private final ConfigService configService;
     private final TextService text;
     private final NamespacedKey itemIdKey;
+    private final NamespacedKey rarityKey;
+    private final NamespacedKey recombobulatedKey;
     private final Map<String, CustomItemDefinition> definitions = new HashMap<>();
     private ReforgeService reforgeService;
     private EnchantmentService enchantmentService;
@@ -37,6 +40,8 @@ public final class CustomItemService {
         this.configService = configService;
         this.text = text;
         this.itemIdKey = new NamespacedKey(plugin, "item_id");
+        this.rarityKey = new NamespacedKey(plugin, "rarity_override");
+        this.recombobulatedKey = new NamespacedKey(plugin, "recombobulated");
     }
 
     public void reforgeService(ReforgeService reforgeService) {
@@ -150,6 +155,72 @@ public final class CustomItemService {
         return definition(id);
     }
 
+    public Rarity rarity(ItemStack itemStack, CustomItemDefinition definition) {
+        if (itemStack == null || !itemStack.hasItemMeta()) {
+            return definition.rarity();
+        }
+        String stored = itemStack.getItemMeta().getPersistentDataContainer().get(rarityKey, PersistentDataType.STRING);
+        if (stored == null || stored.isBlank()) {
+            return definition.rarity();
+        }
+        return Rarity.parse(stored);
+    }
+
+    public boolean recombobulated(ItemStack itemStack) {
+        if (itemStack == null || !itemStack.hasItemMeta()) {
+            return false;
+        }
+        Byte value = itemStack.getItemMeta().getPersistentDataContainer().get(recombobulatedKey, PersistentDataType.BYTE);
+        return value != null && value == (byte) 1;
+    }
+
+    public boolean recombobulateHeld(Player player) {
+        if (!rarityUpgradesEnabled()) {
+            text.send(player, "commands.recombobulate-disabled");
+            return false;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        CustomItemDefinition definition = definition(held).orElse(null);
+        if (definition == null) {
+            text.send(player, "commands.recombobulate-held-missing");
+            return false;
+        }
+        if (held.getAmount() != 1) {
+            text.send(player, "commands.recombobulate-single-item");
+            return false;
+        }
+        if (recombobulated(held)) {
+            text.send(player, "commands.recombobulate-already", recombobulatePlaceholders(held, definition, rarity(held, definition)));
+            return false;
+        }
+        if (!rarityUpgradeAllowed(definition)) {
+            text.send(player, "commands.recombobulate-not-applicable", recombobulatePlaceholders(held, definition, rarity(held, definition)));
+            return false;
+        }
+        Rarity current = rarity(held, definition);
+        Rarity upgraded = current.next();
+        if (upgraded == current || upgraded.ordinal() > maxRarity(current).ordinal()) {
+            text.send(player, "commands.recombobulate-maxed", recombobulatePlaceholders(held, definition, current));
+            return false;
+        }
+        String requiredItemId = recombobulatorItemId();
+        int requiredAmount = recombobulatorAmount();
+        if (!requiredItemId.isBlank() && countRequiredItems(player, requiredItemId) < requiredAmount) {
+            text.send(player, "commands.recombobulate-missing-item", recombobulatePlaceholders(held, definition, upgraded));
+            return false;
+        }
+        if (!requiredItemId.isBlank()) {
+            consumeRequiredItems(player, requiredItemId, requiredAmount);
+        }
+        ItemMeta meta = held.getItemMeta();
+        meta.getPersistentDataContainer().set(rarityKey, PersistentDataType.STRING, upgraded.name());
+        meta.getPersistentDataContainer().set(recombobulatedKey, PersistentDataType.BYTE, (byte) 1);
+        held.setItemMeta(meta);
+        refreshItem(held);
+        text.send(player, "commands.recombobulate-success", recombobulatePlaceholders(held, definition, upgraded));
+        return true;
+    }
+
     private Component displayName(CustomItemDefinition definition, ItemStack itemStack) {
         ReforgeDefinition reforge = reforge(itemStack);
         String suffix = starService == null ? "" : starService.suffix(itemStack);
@@ -164,6 +235,7 @@ public final class CustomItemService {
 
     private List<Component> lore(CustomItemDefinition definition, ItemStack itemStack) {
         List<Component> lines = new ArrayList<>();
+        Rarity effectiveRarity = rarity(itemStack, definition);
         for (String line : definition.lore()) {
             lines.add(text.deserialize(line));
         }
@@ -238,12 +310,15 @@ public final class CustomItemService {
                 )));
             }
         }
+        if (recombobulated(itemStack)) {
+            lines.add(text.message("items.recombobulated-line"));
+        }
         lines.add(Component.empty());
         String rarityFormat = text.rawMessage("items.rarity-line")
-                .replace("<rarity_color>", definition.rarity().colorTag())
+                .replace("<rarity_color>", effectiveRarity.colorTag())
                 .replace("</rarity_color>", "");
         lines.add(text.deserialize(rarityFormat, List.of(
-                TextService.raw("rarity", definition.rarity().name()),
+                TextService.raw("rarity", effectiveRarity.name()),
                 TextService.raw("category", definition.category().toUpperCase(Locale.ROOT))
         )));
         return lines;
@@ -273,5 +348,83 @@ public final class CustomItemService {
             return stat;
         }
         return Character.toUpperCase(normalized.charAt(0)) + normalized.substring(1);
+    }
+
+    private boolean rarityUpgradesEnabled() {
+        return configService.items().getBoolean("rarity-upgrades.enabled", true);
+    }
+
+    private String recombobulatorItemId() {
+        return configService.items().getString("rarity-upgrades.required-item", "RECOMBOBULATOR_3000").toUpperCase(Locale.ROOT);
+    }
+
+    private int recombobulatorAmount() {
+        return Math.max(1, configService.items().getInt("rarity-upgrades.required-amount", 1));
+    }
+
+    private boolean rarityUpgradeAllowed(CustomItemDefinition definition) {
+        List<String> categories = configService.items().getStringList("rarity-upgrades.allowed-categories");
+        if (categories.isEmpty()) {
+            return true;
+        }
+        String category = definition.category().toUpperCase(Locale.ROOT);
+        return categories.stream().anyMatch(allowed -> allowed.equalsIgnoreCase(category) || allowed.equalsIgnoreCase("ALL"));
+    }
+
+    private Rarity maxRarity(Rarity current) {
+        if (current == Rarity.SPECIAL || current == Rarity.VERY_SPECIAL) {
+            return Rarity.parse(configService.items().getString("rarity-upgrades.max-special-rarity", "VERY_SPECIAL"));
+        }
+        return Rarity.parse(configService.items().getString("rarity-upgrades.max-rarity", "MYTHIC"));
+    }
+
+    private List<TextService.TextPlaceholder> recombobulatePlaceholders(ItemStack itemStack, CustomItemDefinition definition, Rarity targetRarity) {
+        String requiredItemId = recombobulatorItemId();
+        String requiredItem = definition(requiredItemId)
+                .map(CustomItemDefinition::displayName)
+                .orElse(requiredItemId);
+        return List.of(
+                TextService.parsed("item", definition.displayName()),
+                TextService.raw("category", definition.category().toUpperCase(Locale.ROOT)),
+                TextService.raw("current_rarity", rarity(itemStack, definition).name()),
+                TextService.raw("target_rarity", targetRarity.name()),
+                TextService.raw("required_amount", Integer.toString(recombobulatorAmount())),
+                TextService.parsed("required_item", requiredItem)
+        );
+    }
+
+    private int countRequiredItems(Player player, String requiredItemId) {
+        int heldSlot = player.getInventory().getHeldItemSlot();
+        int amount = 0;
+        for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
+            if (slot == heldSlot) {
+                continue;
+            }
+            ItemStack itemStack = player.getInventory().getItem(slot);
+            if (definition(itemStack).map(item -> item.id().equalsIgnoreCase(requiredItemId)).orElse(false)) {
+                amount += itemStack.getAmount();
+            }
+        }
+        return amount;
+    }
+
+    private void consumeRequiredItems(Player player, String requiredItemId, int amount) {
+        int remaining = amount;
+        int heldSlot = player.getInventory().getHeldItemSlot();
+        for (int slot = 0; slot < player.getInventory().getSize() && remaining > 0; slot++) {
+            if (slot == heldSlot) {
+                continue;
+            }
+            ItemStack itemStack = player.getInventory().getItem(slot);
+            if (!definition(itemStack).map(item -> item.id().equalsIgnoreCase(requiredItemId)).orElse(false)) {
+                continue;
+            }
+            int removed = Math.min(remaining, itemStack.getAmount());
+            itemStack.setAmount(itemStack.getAmount() - removed);
+            remaining -= removed;
+            if (itemStack.getAmount() <= 0) {
+                player.getInventory().setItem(slot, null);
+            }
+        }
     }
 }

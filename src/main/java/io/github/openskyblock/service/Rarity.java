@@ -9,7 +9,9 @@ public enum Rarity {
     EPIC("<dark_purple>"),
     LEGENDARY("<gold>"),
     MYTHIC("<light_purple>"),
-    SPECIAL("<red>");
+    DIVINE("<aqua>"),
+    SPECIAL("<red>"),
+    VERY_SPECIAL("<red>");
 
     private final String colorTag;
 
@@ -19,6 +21,20 @@ public enum Rarity {
 
     public String colorTag() {
         return colorTag;
+    }
+
+    public Rarity next() {
+        return switch (this) {
+            case COMMON -> UNCOMMON;
+            case UNCOMMON -> RARE;
+            case RARE -> EPIC;
+            case EPIC -> LEGENDARY;
+            case LEGENDARY -> MYTHIC;
+            case MYTHIC -> DIVINE;
+            case DIVINE -> DIVINE;
+            case SPECIAL -> VERY_SPECIAL;
+            case VERY_SPECIAL -> VERY_SPECIAL;
+        };
     }
 
     public static Rarity parse(String value) {

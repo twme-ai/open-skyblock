@@ -298,7 +298,7 @@ public final class StarService {
             text.send(player, "commands.star-already", placeholders(definition, targetStars, 0.0D));
             return false;
         }
-        double cost = cost(definition, currentStars, targetStars);
+        double cost = cost(definition, itemStack, currentStars, targetStars);
         double essenceCost = essenceCost(definition, currentStars, targetStars);
         String essenceType = essenceType(definition);
         SkyBlockProfile profile = profiles.profile(player);
@@ -326,11 +326,11 @@ public final class StarService {
         return true;
     }
 
-    private double cost(CustomItemDefinition definition, int currentStars, int targetStars) {
+    private double cost(CustomItemDefinition definition, ItemStack itemStack, int currentStars, int targetStars) {
         if (targetStars <= currentStars) {
             return Math.max(0.0D, configService.stars().getDouble("settings.remove-cost", 0.0D));
         }
-        double base = Math.max(0.0D, configService.stars().getDouble("settings.base-costs." + definition.rarity().name(), 0.0D));
+        double base = Math.max(0.0D, configService.stars().getDouble("settings.base-costs." + customItems.rarity(itemStack, definition).name(), 0.0D));
         double total = 0.0D;
         for (int star = currentStars + 1; star <= targetStars; star++) {
             double multiplier = configService.stars().getDouble("settings.cost-multiplier-by-star." + star, star);
@@ -361,7 +361,7 @@ public final class StarService {
             return new SalvageReward("", 0.0D, 0.0D, 0.0D, stars(itemStack));
         }
         String essenceType = salvageEssenceType(definition);
-        double baseAmount = salvageBaseAmount(definition);
+        double baseAmount = salvageBaseAmount(definition, itemStack);
         int stars = stars(itemStack);
         double starBonus = configService.stars().getBoolean("settings.essence.salvage.include-stars", true)
                 ? Math.max(0.0D, configService.stars().getDouble("settings.essence.salvage.star-bonus-per-star", 2.0D)) * stars
@@ -396,7 +396,7 @@ public final class StarService {
         return normalizeEssence(configured);
     }
 
-    private double salvageBaseAmount(CustomItemDefinition definition) {
+    private double salvageBaseAmount(CustomItemDefinition definition, ItemStack itemStack) {
         String itemId = definition.id().toUpperCase(Locale.ROOT);
         String category = definition.category().toUpperCase(Locale.ROOT);
         if (configService.stars().contains("settings.essence.salvage.amount-by-item." + itemId)) {
@@ -405,7 +405,7 @@ public final class StarService {
         if (configService.stars().contains("settings.essence.salvage.amount-by-category." + category)) {
             return Math.max(0.0D, configService.stars().getDouble("settings.essence.salvage.amount-by-category." + category, 0.0D));
         }
-        return Math.max(0.0D, configService.stars().getDouble("settings.essence.salvage.amount-by-rarity." + definition.rarity().name(), 0.0D));
+        return Math.max(0.0D, configService.stars().getDouble("settings.essence.salvage.amount-by-rarity." + customItems.rarity(itemStack, definition).name(), 0.0D));
     }
 
     private String essenceType(CustomItemDefinition definition) {

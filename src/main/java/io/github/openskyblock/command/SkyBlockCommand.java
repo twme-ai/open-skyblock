@@ -71,6 +71,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "upgrade",
             "reforges",
             "reforge",
+            "recombobulate",
             "enchants",
             "enchantments",
             "enchant",
@@ -145,6 +146,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "upgrades", "upgrade" -> upgrades(sender, args);
             case "reforges" -> reforges(sender);
             case "reforge" -> reforge(sender, args);
+            case "recombobulate" -> recombobulate(sender);
             case "enchants", "enchantments" -> enchants(sender);
             case "enchant" -> enchant(sender, args);
             case "anvil" -> anvil(sender);
@@ -511,6 +513,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " upgrades", "commands.help.upgrades");
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge [id|remove]", "commands.help.reforge");
+        helpLine(sender, label + " recombobulate", "commands.help.recombobulate");
         helpLine(sender, label + " enchants", "commands.help.enchants");
         helpLine(sender, label + " enchant [id|anvil] [level]", "commands.help.enchant");
         helpLine(sender, label + " anvil", "commands.help.anvil");
@@ -1154,6 +1157,14 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return;
         }
         plugin.reforges().applyHeld(player, args[1]);
+    }
+
+    private void recombobulate(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.customItems().recombobulateHeld(player);
     }
 
     private void enchants(CommandSender sender) {

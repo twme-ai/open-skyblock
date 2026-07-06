@@ -115,7 +115,7 @@ public final class ReforgeService {
         if (reforge == null || itemDefinition == null || !isApplicable(reforge, itemDefinition)) {
             return Map.of();
         }
-        return stats(reforge, itemDefinition.rarity());
+        return stats(reforge, customItems.rarity(itemStack, itemDefinition));
     }
 
     public Map<String, Double> stats(ReforgeDefinition reforge, Rarity rarity) {
@@ -143,14 +143,14 @@ public final class ReforgeService {
             return false;
         }
         if (!isApplicable(reforge, itemDefinition)) {
-            text.send(player, "commands.reforge-not-applicable", placeholders(reforge, itemDefinition, cost(reforge, itemDefinition)));
+            text.send(player, "commands.reforge-not-applicable", placeholders(reforge, itemDefinition, cost(reforge, itemDefinition, held)));
             return false;
         }
         if (reforgeId(held).filter(existing -> existing.equals(reforge.id())).isPresent()) {
-            text.send(player, "commands.reforge-already", placeholders(reforge, itemDefinition, cost(reforge, itemDefinition)));
+            text.send(player, "commands.reforge-already", placeholders(reforge, itemDefinition, cost(reforge, itemDefinition, held)));
             return false;
         }
-        double cost = cost(reforge, itemDefinition);
+        double cost = cost(reforge, itemDefinition, held);
         if (!reforge.requiredItemId().isBlank() && !hasRequiredItem(player, reforge)) {
             text.send(player, "commands.reforge-stone-missing", placeholders(reforge, itemDefinition, cost));
             return false;
@@ -226,6 +226,11 @@ public final class ReforgeService {
 
     public double cost(ReforgeDefinition reforge, CustomItemDefinition itemDefinition) {
         double base = Math.max(0.0D, configService.reforges().getDouble("settings.base-costs." + itemDefinition.rarity().name(), 0.0D));
+        return base * Math.max(0.0D, reforge.costMultiplier());
+    }
+
+    public double cost(ReforgeDefinition reforge, CustomItemDefinition itemDefinition, ItemStack itemStack) {
+        double base = Math.max(0.0D, configService.reforges().getDouble("settings.base-costs." + customItems.rarity(itemStack, itemDefinition).name(), 0.0D));
         return base * Math.max(0.0D, reforge.costMultiplier());
     }
 

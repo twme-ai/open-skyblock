@@ -192,12 +192,12 @@ public final class EnchantmentService {
         }
         boolean targetIsBook = isBookDefinition(itemDefinition);
         if (!targetIsBook && !isApplicable(definition, itemDefinition)) {
-            text.send(player, "commands.enchantment-not-applicable", placeholders(definition, itemDefinition, level, cost(definition, itemDefinition, level)));
+            text.send(player, "commands.enchantment-not-applicable", placeholders(definition, itemDefinition, level, cost(definition, itemDefinition, held, level)));
             return false;
         }
         Map<String, Integer> current = new LinkedHashMap<>(enchantments(held));
         if (current.getOrDefault(definition.id(), 0) == level) {
-            text.send(player, "commands.enchantment-already", placeholders(definition, itemDefinition, level, cost(definition, itemDefinition, level)));
+            text.send(player, "commands.enchantment-already", placeholders(definition, itemDefinition, level, cost(definition, itemDefinition, held, level)));
             return false;
         }
         if (definition.ultimate()) {
@@ -217,7 +217,7 @@ public final class EnchantmentService {
                 return false;
             }
         }
-        double cost = cost(definition, itemDefinition, level);
+        double cost = cost(definition, itemDefinition, held, level);
         if (!economy.spendPurse(player, cost)) {
             text.send(player, "commands.enchantment-no-money", placeholders(definition, itemDefinition, level, cost));
             return false;
@@ -281,7 +281,7 @@ public final class EnchantmentService {
             merged.put(definition.id(), targetLevel);
             improved++;
             if (!targetIsBook) {
-                totalCost += cost(definition, itemDefinition, targetLevel);
+                totalCost += cost(definition, itemDefinition, held, targetLevel);
             }
         }
 
@@ -378,6 +378,11 @@ public final class EnchantmentService {
 
     public double cost(SkyBlockEnchantmentDefinition definition, CustomItemDefinition itemDefinition, int level) {
         double base = Math.max(0.0D, configService.enchantments().getDouble("settings.base-costs." + itemDefinition.rarity().name(), 0.0D));
+        return base * Math.max(0.0D, definition.costMultiplier()) * Math.max(1, level);
+    }
+
+    public double cost(SkyBlockEnchantmentDefinition definition, CustomItemDefinition itemDefinition, ItemStack itemStack, int level) {
+        double base = Math.max(0.0D, configService.enchantments().getDouble("settings.base-costs." + customItems.rarity(itemStack, itemDefinition).name(), 0.0D));
         return base * Math.max(0.0D, definition.costMultiplier()) * Math.max(1, level);
     }
 

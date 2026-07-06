@@ -17,6 +17,15 @@ items:
       - "<gray>Apply this book to a compatible custom item in the Anvil.</gray>"
       - "<gray>Matching enchantments of the same level combine into the next level.</gray>"
     stats: {}
+  RECOMBOBULATOR_3000:
+    material: NETHER_STAR
+    display-name: "<light_purple>Recombobulator 3000</light_purple>"
+    category: ITEM
+    rarity: EPIC
+    lore:
+      - "<gray>Consumed to permanently increase the rarity of one compatible item.</gray>"
+      - "<gray>Use <yellow>/skyblock recombobulate</yellow> while holding the target item.</gray>"
+    stats: {}
   AGRONOMY_SACK:
     material: WHEAT
     display-name: "<green>Agronomy Sack</green>"
@@ -578,3 +587,15 @@ items:
         radius: 6
         damage: 500
         heal: 100
+
+rarity-upgrades:
+  enabled: true
+  required-item: RECOMBOBULATOR_3000
+  required-amount: 1
+  max-rarity: MYTHIC
+  max-special-rarity: VERY_SPECIAL
+  allowed-categories:
+    - SWORD
+    - ARMOR
+    - EQUIPMENT
+    - ACCESSORY

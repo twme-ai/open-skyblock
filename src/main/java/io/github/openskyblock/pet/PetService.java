@@ -896,7 +896,8 @@ public final class PetService {
             case EPIC -> 4;
             case LEGENDARY -> 5;
             case MYTHIC -> 6;
-            case SPECIAL -> 0;
+            case DIVINE -> 7;
+            case SPECIAL, VERY_SPECIAL -> 0;
         };
     }
 
