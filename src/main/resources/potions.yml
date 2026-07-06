@@ -1,0 +1,130 @@
+settings:
+  refresh-ticks: 200
+  effect-refresh-seconds: 30
+  pause-on-private-islands: true
+
+effects:
+  SPEED:
+    display-name: "<white>Speed</white>"
+    potion-effect: speed
+    amplifier: 1
+    ambient: false
+    particles: false
+    icon: true
+    stats:
+      speed: 100.0
+  JUMP_BOOST:
+    display-name: "<green>Jump Boost</green>"
+    potion-effect: jump_boost
+    amplifier: 1
+    ambient: false
+    particles: false
+    icon: true
+    stats: {}
+  HASTE:
+    display-name: "<yellow>Haste</yellow>"
+    potion-effect: haste
+    amplifier: 1
+    ambient: false
+    particles: false
+    icon: true
+    stats: {}
+  STRENGTH:
+    display-name: "<red>Strength</red>"
+    potion-effect: strength
+    amplifier: 1
+    ambient: false
+    particles: false
+    icon: true
+    stats:
+      strength: 30.0
+  CRITICAL:
+    display-name: "<blue>Critical</blue>"
+    potion-effect: none
+    amplifier: 0
+    ambient: false
+    particles: false
+    icon: true
+    stats:
+      crit_chance: 20.0
+      crit_damage: 30.0
+  REGENERATION:
+    display-name: "<light_purple>Regeneration</light_purple>"
+    potion-effect: regeneration
+    amplifier: 1
+    ambient: false
+    particles: false
+    icon: true
+    stats: {}
+  RESISTANCE:
+    display-name: "<gray>Resistance</gray>"
+    potion-effect: resistance
+    amplifier: 0
+    ambient: false
+    particles: false
+    icon: true
+    stats:
+      defense: 20.0
+  FIRE_RESISTANCE:
+    display-name: "<gold>Fire Resistance</gold>"
+    potion-effect: fire_resistance
+    amplifier: 0
+    ambient: false
+    particles: false
+    icon: true
+    stats: {}
+  WATER_BREATHING:
+    display-name: "<aqua>Water Breathing</aqua>"
+    potion-effect: water_breathing
+    amplifier: 0
+    ambient: false
+    particles: false
+    icon: true
+    stats: {}
+  NIGHT_VISION:
+    display-name: "<dark_aqua>Night Vision</dark_aqua>"
+    potion-effect: night_vision
+    amplifier: 0
+    ambient: false
+    particles: false
+    icon: true
+    stats: {}
+  ABSORPTION:
+    display-name: "<gold>Absorption</gold>"
+    potion-effect: absorption
+    amplifier: 1
+    ambient: false
+    particles: false
+    icon: true
+    stats:
+      health: 40.0
+  MAGIC_FIND:
+    display-name: "<aqua>Magic Find</aqua>"
+    potion-effect: none
+    amplifier: 0
+    ambient: false
+    particles: false
+    icon: false
+    stats:
+      magic_find: 75.0
+      pet_luck: 10.0
+
+bundles:
+  GOD_POTION:
+    display-name: "<light_purple>God Potion</light_purple>"
+    item-id: GOD_POTION
+    duration-seconds: 43200
+    max-duration-seconds: 86400
+    effects:
+      - SPEED
+      - JUMP_BOOST
+      - HASTE
+      - STRENGTH
+      - CRITICAL
+      - REGENERATION
+      - RESISTANCE
+      - FIRE_RESISTANCE
+      - WATER_BREATHING
+      - NIGHT_VISION
+      - ABSORPTION
+      - MAGIC_FIND

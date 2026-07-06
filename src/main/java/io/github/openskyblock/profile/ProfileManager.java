@@ -204,6 +204,15 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection potions = section.getConfigurationSection("potions.active");
+        if (potions != null) {
+            for (String effectId : potions.getKeys(false)) {
+                long seconds = potions.getLong(effectId, 0L);
+                if (seconds > 0L) {
+                    profile.potionEffects().put(effectId.toUpperCase(), seconds);
+                }
+            }
+        }
         profile.activePetInstanceId(section.getString("pets.active", null));
         ConfigurationSection pets = section.getConfigurationSection("pets.owned");
         if (pets != null) {
@@ -289,6 +298,12 @@ public final class ProfileManager {
         for (Map.Entry<String, Long> entry : profile.quiver().entrySet()) {
             if (entry.getValue() > 0L) {
                 profileData.set(base + ".quiver.items." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".potions.active", null);
+        for (Map.Entry<String, Long> entry : profile.potionEffects().entrySet()) {
+            if (entry.getValue() > 0L) {
+                profileData.set(base + ".potions.active." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());

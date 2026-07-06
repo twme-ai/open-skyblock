@@ -32,6 +32,7 @@ commands:
     sack: "Deposit or withdraw materials from configured Sacks."
     quiver: "Open your Quiver."
     quiver-edit: "Deposit, withdraw, or select Quiver arrows."
+    potions: "View active potion effects."
     reforges: "List configured item reforges."
     reforge: "Apply or remove a reforge from your held custom item."
     enchants: "List configured custom enchantments."
@@ -113,6 +114,16 @@ commands:
   quiver-selected: "<prefix><green>Selected</green> <item> <green>for your Quiver.</green>"
   quiver-summary: "<prefix><gray>Quiver:</gray> <yellow><stored></yellow><gray>/</gray><yellow><capacity></yellow> <dark_gray>|</dark_gray> <gray>Selected:</gray> <selected>"
   quiver-line: "<gray><item_id>:</gray> <item> <dark_gray>|</dark_gray> <yellow><stored></yellow>"
+  potion-disabled: "<prefix><red>Potion effects are disabled on this server.</red>"
+  potion-usage: "<prefix><red>Use <yellow>/skyblock potions</yellow>, <yellow>/skyblock potion clear</yellow>, or <yellow>/skyblock potion activate <bundle></yellow>.</red>"
+  potion-unknown-bundle: "<prefix><red>Unknown potion bundle: <yellow><bundle></yellow>.</red>"
+  potion-empty-bundle: "<prefix><red><bundle> does not contain configured effects.</red>"
+  potion-maxed: "<prefix><red><bundle> is already at the configured duration cap.</red> <gray>Remaining:</gray> <yellow><remaining></yellow>"
+  potion-activated: "<prefix><green>Activated <bundle><green> for <yellow><duration></yellow>.</green></green> <gray>Remaining:</gray> <yellow><remaining></yellow>"
+  potion-cleared: "<prefix><green>Your active potion effects have been cleared.</green>"
+  potion-summary-header: "<prefix><aqua>Active Potion Effects</aqua>"
+  potion-summary-empty: "<prefix><gray>You do not have active potion effects.</gray>"
+  potion-summary-line: "<effect> <dark_gray>|</dark_gray> <yellow><remaining></yellow>"
   reforge-disabled: "<prefix><red>Reforges are disabled on this server.</red>"
   reforge-usage: "<prefix><red>Use <yellow>/skyblock reforges</yellow> or <yellow>/skyblock reforge <id|remove></yellow>.</red>"
   reforge-list-header: "<prefix><aqua>Reforges</aqua>"
@@ -278,6 +289,8 @@ items:
     defense: "Defense"
     speed: "Speed"
     magical_power: "Magical Power"
+    magic_find: "Magic Find"
+    pet_luck: "Pet Luck"
 
 minions:
   item-lore:
@@ -319,6 +332,11 @@ quiver:
   selected-active: "<green>Selected</green>"
   selected-inactive: "<gray>Stored</gray>"
   selected-none: "<dark_gray>None</dark_gray>"
+
+potions:
+  duration-hours: "<hours>h <minutes>m"
+  duration-minutes: "<minutes>m <seconds>s"
+  duration-seconds: "<seconds>s"
 
 wardrobe:
   status-empty: "<dark_gray>Empty</dark_gray>"

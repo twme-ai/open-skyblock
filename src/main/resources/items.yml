@@ -48,6 +48,22 @@ items:
     lore:
       - "<gray>Open your Quiver and select the arrow type to fire.</gray>"
     stats: {}
+  GOD_POTION:
+    material: POTION
+    display-name: "<light_purple>God Potion</light_purple>"
+    category: ITEM
+    rarity: SPECIAL
+    lore:
+      - "<gray>Grants the configured positive potion effect bundle.</gray>"
+      - "<gray>The timer only decreases while active online.</gray>"
+    stats: {}
+    ability:
+      name: "Drink"
+      type: "RIGHT CLICK"
+      lines:
+        - "Activate the configured God Potion effects."
+      mana-cost: 0
+      cooldown-seconds: 0
   ROGUE_SWORD:
     material: GOLDEN_SWORD
     display-name: "<green>Rogue Sword</green>"

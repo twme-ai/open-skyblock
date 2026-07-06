@@ -195,6 +195,9 @@ public final class MenuListener implements Listener {
                 plugin.menus().openQuiverMenu(event.getPlayer());
             }
             default -> {
+                if (plugin.potions().activateItem(event.getPlayer(), itemId, event.getItem())) {
+                    event.setCancelled(true);
+                }
             }
         }
     }

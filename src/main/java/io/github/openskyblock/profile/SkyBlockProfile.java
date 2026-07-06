@@ -24,6 +24,7 @@ public final class SkyBlockProfile {
     private final Map<Integer, WardrobeSet> wardrobe = new HashMap<>();
     private final Map<String, Map<String, Long>> sacks = new HashMap<>();
     private final Map<String, Long> quiver = new HashMap<>();
+    private final Map<String, Long> potionEffects = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private final List<OwnedPet> pets = new ArrayList<>();
@@ -176,6 +177,10 @@ public final class SkyBlockProfile {
 
     public void selectedQuiverItem(String selectedQuiverItem) {
         this.selectedQuiverItem = selectedQuiverItem;
+    }
+
+    public Map<String, Long> potionEffects() {
+        return potionEffects;
     }
 
     public List<String> accessoryBag() {

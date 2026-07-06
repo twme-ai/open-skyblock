@@ -21,6 +21,7 @@ import io.github.openskyblock.listener.SackListener;
 import io.github.openskyblock.listener.ShopNpcListener;
 import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.pet.PetService;
+import io.github.openskyblock.potion.PotionService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.quiver.QuiverService;
 import io.github.openskyblock.reforge.ReforgeService;
@@ -54,6 +55,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private EquipmentService equipmentService;
     private WardrobeService wardrobeService;
     private ArmorSetService armorSetService;
+    private PotionService potionService;
     private ReforgeService reforgeService;
     private EnchantmentService enchantmentService;
     private StarService starService;
@@ -70,6 +72,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BukkitTask autosaveTask;
     private BukkitTask minionTask;
     private BukkitTask shopNpcTask;
+    private BukkitTask potionTask;
 
     @Override
     public void onEnable() {
@@ -97,8 +100,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.wardrobeService = new WardrobeService(configService, textService, profileManager);
         this.accessoryService = new AccessoryService(configService, textService, profileManager, customItemService);
         this.tuningService = new TuningService(configService, textService, profileManager, accessoryService);
+        this.potionService = new PotionService(this, configService, textService, profileManager);
         this.petService = new PetService(configService, textService, profileManager);
-        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, petService, reforgeService, enchantmentService, starService, gemstoneService);
+        this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, potionService, petService, reforgeService, enchantmentService, starService, gemstoneService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -124,6 +128,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         }
         if (shopNpcTask != null) {
             shopNpcTask.cancel();
+        }
+        if (potionTask != null) {
+            potionTask.cancel();
         }
         if (shopNpcService != null) {
             shopNpcService.removeLoadedNpcs();
@@ -154,6 +161,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         equipmentService.reload();
         wardrobeService.reload();
         armorSetService.reload();
+        potionService.reload();
         reforgeService.reload();
         enchantmentService.reload();
         starService.reload();
@@ -194,6 +202,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.minionTask = getServer().getScheduler().runTaskTimer(this, minionService::tickLoadedMinions, 200L, 200L);
         long shopNpcTicks = Math.max(100L, getConfig().getLong("shop-npcs.respawn-ticks", 200L));
         this.shopNpcTask = getServer().getScheduler().runTaskTimer(this, shopNpcService::spawnConfiguredNpcs, shopNpcTicks, shopNpcTicks);
+        this.potionTask = getServer().getScheduler().runTaskTimer(this, potionService::tickOnlinePlayers, 20L, potionService.refreshTicks());
     }
 
     public ConfigService configService() {
@@ -246,6 +255,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public ArmorSetService armorSets() {
         return armorSetService;
+    }
+
+    public PotionService potions() {
+        return potionService;
     }
 
     public ReforgeService reforges() {

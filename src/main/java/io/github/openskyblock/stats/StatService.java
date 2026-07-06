@@ -8,6 +8,7 @@ import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.equipment.EquipmentService;
 import io.github.openskyblock.gemstone.GemstoneService;
 import io.github.openskyblock.pet.PetService;
+import io.github.openskyblock.potion.PotionService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.reforge.ReforgeService;
@@ -31,13 +32,14 @@ public final class StatService {
     private final TuningService tuning;
     private final EquipmentService equipment;
     private final ArmorSetService armorSets;
+    private final PotionService potions;
     private final PetService pets;
     private final ReforgeService reforges;
     private final EnchantmentService enchantments;
     private final StarService stars;
     private final GemstoneService gemstones;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, EquipmentService equipment, ArmorSetService armorSets, PetService pets, ReforgeService reforges, EnchantmentService enchantments, StarService stars, GemstoneService gemstones) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, EquipmentService equipment, ArmorSetService armorSets, PotionService potions, PetService pets, ReforgeService reforges, EnchantmentService enchantments, StarService stars, GemstoneService gemstones) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
@@ -46,6 +48,7 @@ public final class StatService {
         this.tuning = tuning;
         this.equipment = equipment;
         this.armorSets = armorSets;
+        this.potions = potions;
         this.pets = pets;
         this.reforges = reforges;
         this.enchantments = enchantments;
@@ -61,6 +64,7 @@ public final class StatService {
         addProfileEquipmentStats(stats, profile);
         addAccessoryStats(stats, profile);
         addTuningStats(stats, profile);
+        addPotionStats(stats, profile);
         addPetStats(stats, profile);
         return new StatSnapshot(stats);
     }
@@ -169,6 +173,12 @@ public final class StatService {
 
     private void addPetStats(Map<String, Double> stats, SkyBlockProfile profile) {
         for (Map.Entry<String, Double> entry : pets.activeStats(profile).entrySet()) {
+            stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
+        }
+    }
+
+    private void addPotionStats(Map<String, Double> stats, SkyBlockProfile profile) {
+        for (Map.Entry<String, Double> entry : potions.activeStats(profile).entrySet()) {
             stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
         }
     }

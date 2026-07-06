@@ -13,6 +13,7 @@ features:
   physical-shop-npcs: true
   sacks: true
   quiver: true
+  potion-effects: true
   reforges: true
   enchantments: true
   item-stars: true
@@ -66,6 +67,8 @@ stats:
     - speed
     - ferocity
     - magical_power
+    - magic_find
+    - pet_luck
   magical-power:
     COMMON: 3
     UNCOMMON: 5
