@@ -1,6 +1,12 @@
 settings:
   name-format: "<gray>[Lv<level>]</gray> <mob> <red><health></red><dark_gray>/</dark_gray><red><max_health> HP</red>"
   spawn-limit-per-command: 25
+  rare-drop-announcements: true
+  rare-drop-announce-threshold: 5
+  rare-drop-broadcast-threshold: 1
+  rare-drop-sound: ENTITY_PLAYER_LEVELUP
+  rare-drop-sound-volume: 1.0
+  rare-drop-sound-pitch: 1.2
 
 mobs:
   GRAVEYARD_ZOMBIE:
@@ -30,6 +36,8 @@ mobs:
         min-amount: 1
         max-amount: 1
         magic-find: true
+        announce: true
+        broadcast: true
   GRAVEYARD_SKELETON:
     entity-type: SKELETON
     display-name: "<white>Graveyard Skeleton</white>"
@@ -129,3 +137,4 @@ mobs:
         min-amount: 1
         max-amount: 1
         magic-find: true
+        announce: true

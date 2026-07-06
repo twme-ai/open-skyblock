@@ -25,7 +25,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Secure player trading with request/accept flow, item and coin escrow, review/confirm steps, cancellation, and disconnect cleanup.
 - Persistent configurable Storage pages with command and SkyBlock menu access, saved back to profiles on inventory close.
 - Configurable installed Backpacks with admin-granted backpack items, right-click install flow, profile-backed contents, open/list/remove commands, and inventory-close saving.
-- Configurable SkyBlock mobs with level/health nameplates, admin spawn commands, stat-based damage/defense, custom loot rolls, and kill rewards.
+- Configurable SkyBlock mobs with level/health nameplates, admin spawn commands, stat-based damage/defense, custom loot rolls, rare drop announcements, and kill rewards.
 - Configurable mob spawn zones with runtime caps, player activation checks, weighted mob selection, and force-spawn commands.
 - Configurable Bestiary families with persistent kill counts, milestone rewards, and stat aggregation.
 - Configurable Slayer quests with coin start costs, Combat XP progress, owner-tagged boss spawning, boss bars, timeouts, completion rewards, and persistent Slayer XP.

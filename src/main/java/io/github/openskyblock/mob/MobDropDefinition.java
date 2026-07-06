@@ -10,6 +10,8 @@ public record MobDropDefinition(
         double chance,
         int minAmount,
         int maxAmount,
-        boolean magicFind
+        boolean magicFind,
+        boolean announce,
+        boolean broadcast
 ) {
 }

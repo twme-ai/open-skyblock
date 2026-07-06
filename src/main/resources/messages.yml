@@ -206,6 +206,8 @@ commands:
   mob-list-header: "<prefix><aqua>SkyBlock Mobs</aqua>"
   mob-list-line: "<gray><id>:</gray> <mob> <dark_gray>|</dark_gray> <gray>Level</gray> <yellow><level></yellow> <dark_gray>|</dark_gray> <gray>Health</gray> <red><health></red> <dark_gray>|</dark_gray> <gray>Damage</gray> <red><damage></red> <dark_gray>|</dark_gray> <gray>Drops</gray> <yellow><drops></yellow>"
   mob-spawned: "<prefix><green>Spawned <yellow><amount>x</yellow> <mob><green>.</green></green>"
+  mob-rare-drop: "<prefix><gold><bold>RARE DROP!</bold></gold> <item> <dark_gray>(<chance>%)</dark_gray>"
+  mob-rare-drop-broadcast: "<prefix><gold><bold>RARE DROP!</bold></gold> <yellow><player></yellow> <gray>found</gray> <item> <gray>from</gray> <mob> <dark_gray>(<chance>%)</dark_gray>"
   mob-zone-disabled: "<prefix><red>Mob spawn zones are disabled on this server.</red>"
   mob-zone-usage: "<prefix><red>Use <yellow>/skyblock mobzones</yellow>, <yellow>/skyblock mobzone <id></yellow>, or <yellow>/skyblock mobzone spawn <id> [amount]</yellow>.</red>"
   mob-zone-unknown: "<prefix><red>Unknown mob spawn zone: <yellow><zone></yellow>.</red>"

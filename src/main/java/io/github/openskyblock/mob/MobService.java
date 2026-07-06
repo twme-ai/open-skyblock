@@ -20,6 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.configuration.ConfigurationSection;
@@ -46,6 +47,12 @@ public final class MobService {
     private final Map<String, SkyBlockMobDefinition> definitions = new HashMap<>();
     private String nameFormat = DEFAULT_NAME_FORMAT;
     private int spawnLimitPerCommand = 25;
+    private boolean rareDropAnnouncements = true;
+    private double rareDropAnnounceThreshold = 5.0D;
+    private double rareDropBroadcastThreshold = 1.0D;
+    private Sound rareDropSound = Sound.ENTITY_PLAYER_LEVELUP;
+    private float rareDropSoundVolume = 1.0F;
+    private float rareDropSoundPitch = 1.2F;
 
     public MobService(JavaPlugin plugin, ConfigService configService, TextService text, CustomItemService customItems, SkillService skills, StatService stats, BestiaryService bestiary) {
         this.plugin = plugin;
@@ -63,6 +70,12 @@ public final class MobService {
         String configuredNameFormat = configService.mobs().getString("settings.name-format", DEFAULT_NAME_FORMAT);
         this.nameFormat = configuredNameFormat == null || configuredNameFormat.isBlank() ? DEFAULT_NAME_FORMAT : configuredNameFormat;
         this.spawnLimitPerCommand = Math.max(1, Math.min(100, configService.mobs().getInt("settings.spawn-limit-per-command", 25)));
+        this.rareDropAnnouncements = configService.mobs().getBoolean("settings.rare-drop-announcements", true);
+        this.rareDropAnnounceThreshold = Math.max(0.0D, Math.min(100.0D, configService.mobs().getDouble("settings.rare-drop-announce-threshold", 5.0D)));
+        this.rareDropBroadcastThreshold = Math.max(0.0D, Math.min(100.0D, configService.mobs().getDouble("settings.rare-drop-broadcast-threshold", 1.0D)));
+        this.rareDropSound = parseSound(configService.mobs().getString("settings.rare-drop-sound", "ENTITY_PLAYER_LEVELUP"));
+        this.rareDropSoundVolume = (float) Math.max(0.0D, configService.mobs().getDouble("settings.rare-drop-sound-volume", 1.0D));
+        this.rareDropSoundPitch = (float) Math.max(0.1D, configService.mobs().getDouble("settings.rare-drop-sound-pitch", 1.2D));
         ConfigurationSection section = configService.mobs().getConfigurationSection("mobs");
         if (section == null) {
             return;
@@ -227,6 +240,7 @@ public final class MobService {
             }
             itemStack.setAmount(randomAmount(drop));
             results.add(itemStack);
+            announceDrop(player, definition, drop, itemStack, Math.min(100.0D, chance));
         }
         return results;
     }
@@ -277,6 +291,60 @@ public final class MobService {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
+    private void announceDrop(Player player, SkyBlockMobDefinition mob, MobDropDefinition drop, ItemStack itemStack, double effectiveChance) {
+        if (!rareDropAnnouncements || !drop.announce()) {
+            return;
+        }
+        List<TextService.TextPlaceholder> placeholders = List.of(
+                TextService.raw("player", player.getName()),
+                TextService.parsed("mob", mob.displayName()),
+                TextService.parsed("item", itemName(drop, itemStack)),
+                TextService.raw("chance", text.formatNumber(effectiveChance))
+        );
+        text.send(player, "mobs.rare-drop", placeholders);
+        if (rareDropSound != null) {
+            player.playSound(player.getLocation(), rareDropSound, rareDropSoundVolume, rareDropSoundPitch);
+        }
+        if (!drop.broadcast()) {
+            return;
+        }
+        for (Player online : plugin.getServer().getOnlinePlayers()) {
+            if (online.equals(player)) {
+                continue;
+            }
+            text.send(online, "mobs.rare-drop-broadcast", placeholders);
+        }
+    }
+
+    private String itemName(MobDropDefinition drop, ItemStack itemStack) {
+        String name = drop.type() == MobDropType.CUSTOM_ITEM
+                ? customItems.definition(drop.customItemId()).map(CustomItemDefinition::displayName).orElse(drop.customItemId())
+                : "<white>" + readableMaterial(drop.material()) + "</white>";
+        if (itemStack.getAmount() <= 1) {
+            return name;
+        }
+        return "<white>" + itemStack.getAmount() + "x</white> " + name;
+    }
+
+    private String readableMaterial(Material material) {
+        if (material == null || material.isAir()) {
+            return "Unknown Item";
+        }
+        String readable = material.name().toLowerCase(Locale.ROOT).replace('_', ' ');
+        String[] words = readable.split(" ");
+        StringBuilder builder = new StringBuilder();
+        for (String word : words) {
+            if (word.isBlank()) {
+                continue;
+            }
+            if (!builder.isEmpty()) {
+                builder.append(' ');
+            }
+            builder.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+        return builder.isEmpty() ? material.name() : builder.toString();
+    }
+
     private List<MobDropDefinition> readDrops(ConfigurationSection section) {
         if (section == null) {
             return List.of();
@@ -293,18 +361,37 @@ public final class MobService {
             customItemId = customItemId == null || customItemId.isBlank() ? id : customItemId.toUpperCase(Locale.ROOT);
             int minAmount = Math.max(1, dropSection.getInt("min-amount", dropSection.getInt("amount", 1)));
             int maxAmount = Math.max(minAmount, dropSection.getInt("max-amount", minAmount));
+            double chance = Math.max(0.0D, Math.min(100.0D, dropSection.getDouble("chance", 100.0D)));
+            boolean announce = dropSection.getBoolean("announce", chance > 0.0D && chance <= rareDropAnnounceThreshold);
+            boolean broadcast = dropSection.getBoolean("broadcast", chance > 0.0D && chance <= rareDropBroadcastThreshold);
+            if (broadcast) {
+                announce = true;
+            }
             drops.add(new MobDropDefinition(
                     id.toUpperCase(Locale.ROOT),
                     type,
                     material == null ? Material.AIR : material,
                     customItemId,
-                    Math.max(0.0D, Math.min(100.0D, dropSection.getDouble("chance", 100.0D))),
+                    chance,
                     minAmount,
                     maxAmount,
-                    dropSection.getBoolean("magic-find", false)
+                    dropSection.getBoolean("magic-find", false),
+                    announce,
+                    broadcast
             ));
         }
         return List.copyOf(drops);
+    }
+
+    private Sound parseSound(String value) {
+        if (value == null || value.isBlank() || value.equalsIgnoreCase("none")) {
+            return null;
+        }
+        try {
+            return Sound.valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return Sound.ENTITY_PLAYER_LEVELUP;
+        }
     }
 
     private EntityType parseEntityType(String value) {
