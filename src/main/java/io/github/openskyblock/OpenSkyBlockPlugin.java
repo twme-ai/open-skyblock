@@ -3,6 +3,8 @@ package io.github.openskyblock;
 import io.github.openskyblock.command.SkyBlockCommand;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.island.IslandService;
+import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.PlayerLifecycleListener;
 import io.github.openskyblock.listener.ProgressionListener;
 import io.github.openskyblock.profile.ProfileManager;
@@ -22,6 +24,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private CollectionService collectionService;
     private CustomItemService customItemService;
     private MinionService minionService;
+    private IslandService islandService;
     private BukkitTask autosaveTask;
     private BukkitTask minionTask;
 
@@ -36,6 +39,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.skillService = new SkillService(configService, textService, profileManager, collectionService);
         this.customItemService = new CustomItemService(this, configService, textService);
         this.minionService = new MinionService(configService, textService, profileManager, collectionService);
+        this.islandService = new IslandService(configService, textService, profileManager);
 
         reloadServices();
         registerCommands();
@@ -87,6 +91,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerLifecycleListener(profileManager), this);
         getServer().getPluginManager().registerEvents(new ProgressionListener(this), this);
+        getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
     }
 
     private void startTasks() {
@@ -121,5 +126,9 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public MinionService minions() {
         return minionService;
+    }
+
+    public IslandService islands() {
+        return islandService;
     }
 }

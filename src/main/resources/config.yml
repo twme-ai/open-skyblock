@@ -5,8 +5,16 @@ settings:
   skyblock-level-xp-per-level: 100
 
 features:
+  private-islands: true
   skills: true
   collections: true
   custom-items: true
   minions: true
   combat-stats: true
+
+islands:
+  world-prefix: "openskyblock_island_"
+  spawn-y: 80
+  starter-radius: 3
+  home-yaw: 180.0
+  home-pitch: 0.0

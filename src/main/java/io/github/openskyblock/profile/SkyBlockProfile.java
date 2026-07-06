@@ -13,6 +13,7 @@ public final class SkyBlockProfile {
     private String playerName;
     private double purse;
     private double bank;
+    private String islandWorldName;
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
@@ -50,6 +51,14 @@ public final class SkyBlockProfile {
 
     public void bank(double bank) {
         this.bank = Math.max(0.0D, bank);
+    }
+
+    public String islandWorldName() {
+        return islandWorldName;
+    }
+
+    public void islandWorldName(String islandWorldName) {
+        this.islandWorldName = islandWorldName;
     }
 
     public double skillXp(SkillType skillType) {

@@ -10,6 +10,7 @@ The repository currently contains the foundation needed for later full parity wo
 
 - Paper 1.21.8 API Maven project.
 - Persistent player profiles with purse, bank, skills, collections, and SkyBlock level calculation.
+- Private island world creation with starter platform, starter chest, home teleport, and basic island protection.
 - Configurable MiniMessage messages in `messages.yml`.
 - Configurable skills, collection tiers, action rewards, custom items, and minion definitions.
 - `/skyblock` command with profile, purse, skills, collections, custom item, minion, and reload subcommands.
@@ -37,6 +38,9 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 ## Commands
 
 - `/skyblock help`
+- `/skyblock island create`
+- `/skyblock island home`
+- `/skyblock island info`
 - `/skyblock profile`
 - `/skyblock purse`
 - `/skyblock skills`
@@ -44,6 +48,7 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock giveitem <id> [player]`
 - `/skyblock minion add <id>`
 - `/skyblock minion list`
+- `/skyblock minion claim [slot|all]`
 - `/skyblock reload`
 
 Alias: `/sb`

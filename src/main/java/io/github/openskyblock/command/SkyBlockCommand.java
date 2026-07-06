@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
     private static final List<String> ROOT_SUBCOMMANDS = List.of(
             "help",
+            "island",
             "profile",
             "purse",
             "skills",
@@ -52,6 +53,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         String subcommand = args[0].toLowerCase(Locale.ROOT);
         switch (subcommand) {
             case "profile" -> profile(sender);
+            case "island" -> island(sender, args);
             case "purse" -> purse(sender);
             case "skills" -> skills(sender);
             case "collections" -> collections(sender);
@@ -71,6 +73,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("giveitem")) {
             return startsWith(plugin.customItems().definitions().stream().map(CustomItemDefinition::id).toList(), args[1]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("island")) {
+            return startsWith(List.of("create", "home", "info"), args[1]);
+        }
         if (args.length == 3 && args[0].equalsIgnoreCase("giveitem")) {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
         }
@@ -89,6 +94,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
     private void help(CommandSender sender, String label) {
         TextService text = plugin.text();
         text.send(sender, "commands.help-header");
+        helpLine(sender, label + " island create|home|info", "commands.help.island");
         helpLine(sender, label + " profile", "commands.help.profile");
         helpLine(sender, label + " purse", "commands.help.purse");
         helpLine(sender, label + " skills", "commands.help.skills");
@@ -121,6 +127,23 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 TextService.raw("purse", plugin.text().formatNumber(profile.purse())),
                 TextService.raw("bank", plugin.text().formatNumber(profile.bank()))
         ));
+    }
+
+    private void island(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.islands().teleportHome(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "create" -> plugin.islands().createOrTeleport(player);
+            case "home" -> plugin.islands().teleportHome(player);
+            case "info" -> plugin.islands().sendInfo(player);
+            default -> plugin.text().send(player, "errors.unknown-command");
+        }
     }
 
     private void purse(CommandSender sender) {

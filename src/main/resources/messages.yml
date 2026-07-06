@@ -18,6 +18,7 @@ commands:
   help-header: "<prefix><aqua>OpenSkyBlock commands</aqua>"
   help-line: "<gray>/<command></gray> <white><description></white>"
   help:
+    island: "Create or travel to your private island."
     profile: "View your profile summary."
     purse: "View your purse and bank balance."
     skills: "View your skill levels."
@@ -39,6 +40,11 @@ commands:
   minion-list-line: "<gray><slot>.</gray> <minion_name> <dark_gray>|</dark_gray> <white><generated></white><gray> generated</gray>"
   minion-claimed: "<prefix><green>Claimed <white><amount></white> generated resources from minions.</green>"
   minion-nothing: "<prefix><gray>There are no generated minion resources to claim.</gray>"
+  island-created: "<prefix><green>Your private island has been created.</green>"
+  island-home: "<prefix><green>Teleported to your private island.</green>"
+  island-info: "<prefix><gray>Island world:</gray> <yellow><world></yellow>"
+  island-disabled: "<prefix><red>Private islands are disabled on this server.</red>"
+  island-protected: "<prefix><red>You cannot modify another player's island.</red>"
 
 progression:
   skill-xp: "<prefix><gray>+<xp> <skill> XP</gray>"
