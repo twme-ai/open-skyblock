@@ -847,6 +847,75 @@ items:
     stats:
       health: 5
       speed: 2
+  WHITE_BELT:
+    material: LEATHER_LEGGINGS
+    display-name: "<white>White Belt</white>"
+    category: EQUIPMENT
+    rarity: COMMON
+    equipment-slot: BELT
+    lore:
+      - "<gray>A Dojo belt awarded by Master Tao.</gray>"
+    stats:
+      defense: 5
+      speed: 2
+  YELLOW_BELT:
+    material: LEATHER_LEGGINGS
+    display-name: "<yellow>Yellow Belt</yellow>"
+    category: EQUIPMENT
+    rarity: UNCOMMON
+    equipment-slot: BELT
+    lore:
+      - "<gray>A Dojo belt awarded by Master Tao.</gray>"
+    stats:
+      defense: 10
+      speed: 3
+  GREEN_BELT:
+    material: LEATHER_LEGGINGS
+    display-name: "<green>Green Belt</green>"
+    category: EQUIPMENT
+    rarity: RARE
+    equipment-slot: BELT
+    lore:
+      - "<gray>A Dojo belt awarded by Master Tao.</gray>"
+    stats:
+      defense: 15
+      speed: 4
+  BLUE_BELT:
+    material: LEATHER_LEGGINGS
+    display-name: "<blue>Blue Belt</blue>"
+    category: EQUIPMENT
+    rarity: EPIC
+    equipment-slot: BELT
+    lore:
+      - "<gray>A Dojo belt awarded by Master Tao.</gray>"
+    stats:
+      defense: 20
+      speed: 5
+      crit_damage: 5
+  BROWN_BELT:
+    material: LEATHER_LEGGINGS
+    display-name: "<gold>Brown Belt</gold>"
+    category: EQUIPMENT
+    rarity: LEGENDARY
+    equipment-slot: BELT
+    lore:
+      - "<gray>A Dojo belt awarded by Master Tao.</gray>"
+    stats:
+      defense: 25
+      speed: 6
+      crit_damage: 8
+  BLACK_BELT:
+    material: LEATHER_LEGGINGS
+    display-name: "<dark_gray>Black Belt</dark_gray>"
+    category: EQUIPMENT
+    rarity: LEGENDARY
+    equipment-slot: BELT
+    lore:
+      - "<gray>The highest configured Dojo belt.</gray>"
+    stats:
+      defense: 35
+      speed: 8
+      crit_damage: 12
   BEGINNER_GLOVES:
     material: LEATHER_BOOTS
     display-name: "<green>Beginner Gloves</green>"

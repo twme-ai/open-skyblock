@@ -38,6 +38,8 @@ public final class SkyBlockProfile {
     private final Map<String, Long> factionReputation = new HashMap<>();
     private final Map<String, Integer> factionQuestCompletions = new HashMap<>();
     private final Map<String, Integer> factionMinibossKills = new HashMap<>();
+    private final Map<String, Integer> dojoChallengeScores = new HashMap<>();
+    private final Set<String> claimedDojoBelts = new HashSet<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -815,6 +817,35 @@ public final class SkyBlockProfile {
 
     public void addDailyFactionMiniboss() {
         dailyFactionMinibosses(dailyFactionMinibosses + 1);
+    }
+
+    public int dojoChallengeScore(String challengeId) {
+        return dojoChallengeScores.getOrDefault(challengeId.toUpperCase(), 0);
+    }
+
+    public void setDojoChallengeScore(String challengeId, int score) {
+        String normalized = challengeId.toUpperCase();
+        if (score <= 0) {
+            dojoChallengeScores.remove(normalized);
+            return;
+        }
+        dojoChallengeScores.put(normalized, score);
+    }
+
+    public Map<String, Integer> dojoChallengeScores() {
+        return dojoChallengeScores;
+    }
+
+    public boolean hasClaimedDojoBelt(String beltId) {
+        return claimedDojoBelts.contains(beltId.toUpperCase());
+    }
+
+    public boolean claimDojoBelt(String beltId) {
+        return claimedDojoBelts.add(beltId.toUpperCase());
+    }
+
+    public Set<String> claimedDojoBelts() {
+        return claimedDojoBelts;
     }
 
     public String shopPurchaseDay() {

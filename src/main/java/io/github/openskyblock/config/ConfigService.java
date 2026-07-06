@@ -36,6 +36,7 @@ public final class ConfigService {
             "rift.yml",
             "kuudra.yml",
             "factions.yml",
+            "dojo.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -185,6 +186,10 @@ public final class ConfigService {
 
     public FileConfiguration factions() {
         return file("factions.yml");
+    }
+
+    public FileConfiguration dojo() {
+        return file("dojo.yml");
     }
 
     public FileConfiguration mobSpawns() {

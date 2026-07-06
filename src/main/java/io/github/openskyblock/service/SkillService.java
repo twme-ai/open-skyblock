@@ -2,6 +2,7 @@ package io.github.openskyblock.service;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.dojo.DojoService;
 import io.github.openskyblock.dragon.DragonService;
 import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.faction.FactionService;
@@ -43,6 +44,7 @@ public final class SkillService {
     private RiftService riftService;
     private KuudraService kuudraService;
     private FactionService factionService;
+    private DojoService dojoService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -78,6 +80,10 @@ public final class SkillService {
 
     public void factionService(FactionService factionService) {
         this.factionService = factionService;
+    }
+
+    public void dojoService(DojoService dojoService) {
+        this.dojoService = dojoService;
     }
 
     public void reload() {
@@ -229,6 +235,9 @@ public final class SkillService {
         }
         if (factionService != null) {
             xp += (int) Math.round(factionService.skyBlockXp(profile));
+        }
+        if (dojoService != null) {
+            xp += (int) Math.round(dojoService.skyBlockXp(profile));
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);

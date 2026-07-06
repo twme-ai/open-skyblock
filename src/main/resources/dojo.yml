@@ -1,0 +1,90 @@
+settings:
+  ranks:
+    S: 1000
+    A: 800
+    B: 600
+    C: 400
+    D: 200
+
+challenges:
+  FORCE:
+    display-name: "<red>Test of Force</red>"
+    description: "<gray>Defeat spawned enemies quickly and cleanly.</gray>"
+    max-score: 1000
+    points-multiplier: 1.0
+    combat-xp-per-point: 0.5
+    coins-per-point: 2.0
+  STAMINA:
+    display-name: "<green>Test of Stamina</green>"
+    description: "<gray>Survive pressure while keeping control.</gray>"
+    max-score: 1000
+    points-multiplier: 1.0
+    combat-xp-per-point: 0.35
+    coins-per-point: 2.0
+  MASTERY:
+    display-name: "<aqua>Test of Mastery</aqua>"
+    description: "<gray>Land precise hits on marked targets.</gray>"
+    max-score: 1000
+    points-multiplier: 1.0
+    combat-xp-per-point: 0.45
+    coins-per-point: 2.0
+  DISCIPLINE:
+    display-name: "<yellow>Test of Discipline</yellow>"
+    description: "<gray>React correctly to changing rules.</gray>"
+    max-score: 1000
+    points-multiplier: 1.0
+    combat-xp-per-point: 0.4
+    coins-per-point: 2.0
+  SWIFTNESS:
+    display-name: "<white>Test of Swiftness</white>"
+    description: "<gray>Clear movement checks before time runs out.</gray>"
+    max-score: 1000
+    points-multiplier: 1.0
+    combat-xp-per-point: 0.25
+    coins-per-point: 2.0
+  CONTROL:
+    display-name: "<blue>Test of Control</blue>"
+    description: "<gray>Maintain positioning while hazards change.</gray>"
+    max-score: 1000
+    points-multiplier: 1.0
+    combat-xp-per-point: 0.3
+    coins-per-point: 2.0
+  TENACITY:
+    display-name: "<dark_purple>Test of Tenacity</dark_purple>"
+    description: "<gray>Endure escalating pressure as long as possible.</gray>"
+    max-score: 1000
+    points-multiplier: 1.0
+    combat-xp-per-point: 0.5
+    coins-per-point: 2.0
+
+belts:
+  WHITE:
+    display-name: "<white>White Belt</white>"
+    required-points: 0
+    item: WHITE_BELT
+    skyblock-xp: 5.0
+  YELLOW:
+    display-name: "<yellow>Yellow Belt</yellow>"
+    required-points: 1000
+    item: YELLOW_BELT
+    skyblock-xp: 5.0
+  GREEN:
+    display-name: "<green>Green Belt</green>"
+    required-points: 2000
+    item: GREEN_BELT
+    skyblock-xp: 5.0
+  BLUE:
+    display-name: "<blue>Blue Belt</blue>"
+    required-points: 4000
+    item: BLUE_BELT
+    skyblock-xp: 10.0
+  BROWN:
+    display-name: "<gold>Brown Belt</gold>"
+    required-points: 6000
+    item: BROWN_BELT
+    skyblock-xp: 10.0
+  BLACK:
+    display-name: "<dark_gray>Black Belt</dark_gray>"
+    required-points: 7000
+    item: BLACK_BELT
+    skyblock-xp: 25.0

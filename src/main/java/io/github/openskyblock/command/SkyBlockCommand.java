@@ -102,6 +102,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "factions",
             "reputation",
             "rep",
+            "dojo",
             "stars",
             "star",
             "essence",
@@ -207,6 +208,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "rift" -> rift(sender, args);
             case "kuudra", "kuudras" -> kuudra(sender, args);
             case "faction", "factions", "reputation", "rep" -> factions(sender, args);
+            case "dojo" -> dojo(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -515,6 +517,20 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isFactionCommand(args[0]) && args[1].equalsIgnoreCase("miniboss")) {
             return startsWith(plugin.factions().minibossIds(), args[2]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("dojo")) {
+            return startsWith(List.of("status", "challenges", "belts", "run", "claim"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("dojo") && args[1].equalsIgnoreCase("run")) {
+            return startsWith(plugin.dojo().challengeIds(), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("dojo") && args[1].equalsIgnoreCase("run")) {
+            return startsWith(List.of("200", "400", "600", "800", "1000"), args[3]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("dojo") && args[1].equalsIgnoreCase("claim")) {
+            List<String> values = new ArrayList<>(List.of("all"));
+            values.addAll(plugin.dojo().beltIds());
+            return startsWith(values, args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -755,6 +771,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " rift status|guide|zones|souls", "commands.help.rift");
         helpLine(sender, label + " kuudra status|tiers|keys|run", "commands.help.kuudra");
         helpLine(sender, label + " faction status|choose|quests|ranks", "commands.help.faction");
+        helpLine(sender, label + " dojo status|challenges|belts|run", "commands.help.dojo");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -1822,6 +1839,30 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.factions().defeatMiniboss(player, args[2]);
             }
             default -> plugin.text().send(player, "commands.faction-usage");
+        }
+    }
+
+    private void dojo(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.dojo().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "challenges", "tests", "list" -> plugin.dojo().sendChallenges(player);
+            case "belts", "rewards" -> plugin.dojo().sendBelts(player);
+            case "run", "test" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.dojo-usage");
+                    return;
+                }
+                parseNonNegativeInt(player, args[3]).ifPresent(score -> plugin.dojo().runChallenge(player, args[2], score));
+            }
+            case "claim" -> plugin.dojo().claimBelts(player, args.length >= 3 ? args[2] : "all");
+            default -> plugin.text().send(player, "commands.dojo-usage");
         }
     }
 

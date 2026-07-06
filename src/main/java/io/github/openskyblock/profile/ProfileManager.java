@@ -263,6 +263,17 @@ public final class ProfileManager {
                 profile.setFactionMinibossKills(minibossId.toUpperCase(), factionMinibosses.getInt(minibossId, 0));
             }
         }
+        ConfigurationSection dojoScores = section.getConfigurationSection("dojo.scores");
+        if (dojoScores != null) {
+            for (String challengeId : dojoScores.getKeys(false)) {
+                profile.setDojoChallengeScore(challengeId.toUpperCase(), dojoScores.getInt(challengeId, 0));
+            }
+        }
+        for (String beltId : section.getStringList("dojo.claimed-belts")) {
+            if (beltId != null && !beltId.isBlank()) {
+                profile.claimDojoBelt(beltId);
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -793,6 +804,13 @@ public final class ProfileManager {
                 profileData.set(base + ".factions.minibosses." + entry.getKey(), entry.getValue());
             }
         }
+        profileData.set(base + ".dojo", null);
+        for (Map.Entry<String, Integer> entry : profile.dojoChallengeScores().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".dojo.scores." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".dojo.claimed-belts", profile.claimedDojoBelts().stream().sorted().toList());
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
         profileData.set(base + ".shop-purchases.items", null);
         for (Map.Entry<String, Integer> entry : profile.dailyShopPurchases().entrySet()) {
