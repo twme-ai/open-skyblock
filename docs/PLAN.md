@@ -55,6 +55,8 @@ Verified reference links:
 - Official bazaar reference: https://wiki.hypixel.net/Bazaar
 - Official trading reference: https://wiki.hypixel.net/Trading
 - Official NPC reference: https://wiki.hypixel.net/NPCs
+- Official mobs reference: https://wiki.hypixel.net/Mobs
+- Official Bestiary reference: https://wiki.hypixel.net/Bestiary
 - Open-source Bazaar plugin reference: https://github.com/MatejLorinc/bazaar
 - Paper ItemStack API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/inventory/ItemStack.html
 - Paper YamlConfiguration API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/configuration/file/YamlConfiguration.html
@@ -63,6 +65,9 @@ Verified reference links:
 - Paper Inventory API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/inventory/Inventory.html
 - Paper custom inventory holder reference: https://docs.papermc.io/paper/dev/custom-inventory-holder/
 - Paper EntityPickupItemEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityPickupItemEvent.html
+- Paper EntityDeathEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityDeathEvent.html
+- Paper World entity spawning API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/World.html
+- Paper Attribute API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/attribute/Attribute.html
 - Paper EntityShootBowEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityShootBowEvent.html
 - Paper PotionEffect API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/potion/PotionEffect.html
 - Paper LivingEntity potion API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/entity/LivingEntity.html
@@ -125,7 +130,8 @@ Planned additions when each subsystem needs them:
    - Configurable profile/account upgrades with persistent tier levels, purchase costs, stat bonuses, bank-capacity bonuses, accessory-bag slot bonuses, and minion-slot bonuses are implemented.
    - Configurable pet definitions, persistent owned pets, active pet selection, pet XP/levels, pet menu activation, and active pet stat aggregation are implemented.
    - Storage search/sorting, pet items, pet score, autopet rules, cosmetic summoned pet entities, advanced reforge stones, reforge anvil UI, vanilla/SkyBlock-specific enchantment effects, enchanting table/anvil UI, essence currencies, dungeon-only star scaling, gemstone slot unlocking, gemstone item consumption, advanced potion modifiers, and ability cooldowns remain future work.
-   - Custom mobs, loot tables, spawn zones, boss bars, damage formula, aggro, and death rewards.
+   - Configurable custom mobs with level/health nameplates, stat-based damage and defense, admin spawning, kill rewards, and configurable loot rolls are implemented.
+   - Spawn zones, boss bars, aggro rules, advanced mob AI, rare drop announcements, Bestiary progression, and boss encounters remain future work.
 
 5. Economy
    - Base purse/bank deposit and withdraw flow is implemented.
@@ -155,4 +161,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, secure player trading, configurable Storage pages, configurable installed Backpacks, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, secure player trading, configurable Storage pages, configurable installed Backpacks, configurable SkyBlock mobs and loot rolls, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

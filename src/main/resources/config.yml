@@ -35,6 +35,7 @@ features:
   custom-items: true
   minions: true
   combat-stats: true
+  custom-mobs: true
 
 islands:
   world-prefix: "openskyblock_island_"

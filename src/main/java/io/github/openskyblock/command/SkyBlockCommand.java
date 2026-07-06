@@ -8,6 +8,7 @@ import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
 import io.github.openskyblock.equipment.EquipmentSlotDefinition;
 import io.github.openskyblock.gemstone.GemstoneDefinition;
 import io.github.openskyblock.gemstone.GemstoneSlotDefinition;
+import io.github.openskyblock.mob.SkyBlockMobDefinition;
 import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.potion.PotionBundleDefinition;
 import io.github.openskyblock.profile.PlacedMinion;
@@ -75,6 +76,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "gemstone",
             "equipment",
             "wardrobe",
+            "mobs",
+            "mob",
             "accessorybag",
             "tuning",
             "pets",
@@ -136,6 +139,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "gemstone" -> gemstone(sender, args);
             case "equipment" -> equipment(sender, args);
             case "wardrobe" -> wardrobe(sender, args);
+            case "mobs", "mob" -> mobs(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
             case "pets" -> pets(sender);
@@ -320,6 +324,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && args[0].equalsIgnoreCase("wardrobe") && (args[1].equalsIgnoreCase("save") || args[1].equalsIgnoreCase("equip") || args[1].equalsIgnoreCase("withdraw"))) {
             return startsWith(numberRange(plugin.wardrobe().slotCount()), args[2]);
         }
+        if (args.length == 2 && isMobCommand(args[0])) {
+            return startsWith(List.of("list", "spawn"), args[1]);
+        }
+        if (args.length == 3 && isMobCommand(args[0]) && args[1].equalsIgnoreCase("spawn")) {
+            return startsWith(plugin.mobs().definitions().stream().map(SkyBlockMobDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 4 && isMobCommand(args[0]) && args[1].equalsIgnoreCase("spawn")) {
+            return startsWith(List.of("1", "5", "10", Integer.toString(plugin.mobs().spawnLimitPerCommand())), args[3]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
         }
@@ -416,6 +429,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " equipment unequip <slot>", "commands.help.equipment-unequip");
         helpLine(sender, label + " wardrobe", "commands.help.wardrobe");
         helpLine(sender, label + " wardrobe save|equip|withdraw <slot>", "commands.help.wardrobe-slot");
+        helpLine(sender, label + " mobs", "commands.help.mobs");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
@@ -431,6 +445,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             helpLine(sender, label + " pet give <id> [player]", "commands.help.pet-give");
             helpLine(sender, label + " pet xp <amount> [player]", "commands.help.pet-xp");
             helpLine(sender, label + " minion give <id> [player]", "commands.help.minion-give");
+            helpLine(sender, label + " mob spawn <id> [amount]", "commands.help.mob-spawn");
             helpLine(sender, label + " backpack give <id> [player]", "commands.help.backpack-give");
             helpLine(sender, label + " shopnpcs refresh|remove", "commands.help.shop-npcs");
             helpLine(sender, label + " reload", "commands.help.reload");
@@ -1185,6 +1200,56 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void mobs(CommandSender sender, String[] args) {
+        if (args.length < 2 || args[1].equalsIgnoreCase("list")) {
+            Player player = requirePlayer(sender);
+            if (player != null) {
+                plugin.mobs().sendList(player);
+            }
+            return;
+        }
+        if (args[1].equalsIgnoreCase("spawn")) {
+            mobSpawn(sender, args);
+            return;
+        }
+        plugin.text().send(sender, "commands.mob-usage");
+    }
+
+    private void mobSpawn(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("openskyblock.admin")) {
+            plugin.text().send(sender, "errors.no-permission");
+            return;
+        }
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.mob-usage");
+            return;
+        }
+        SkyBlockMobDefinition definition = plugin.mobs().definition(args[2]).orElse(null);
+        if (definition == null) {
+            plugin.text().send(player, "commands.mob-unknown", List.of(TextService.raw("mob", args[2])));
+            return;
+        }
+        int amount = 1;
+        if (args.length >= 4) {
+            Optional<Integer> parsed = parsePositiveInt(player, args[3]);
+            if (parsed.isEmpty()) {
+                return;
+            }
+            amount = parsed.get();
+        }
+        int spawned = plugin.mobs().spawn(player, definition, amount);
+        if (spawned > 0) {
+            plugin.text().send(player, "commands.mob-spawned", List.of(
+                    TextService.raw("amount", Integer.toString(spawned)),
+                    TextService.parsed("mob", definition.displayName())
+            ));
+        }
+    }
+
     private void accessoryBag(CommandSender sender, String[] args) {
         Player player = requirePlayer(sender);
         if (player == null) {
@@ -1664,6 +1729,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isBackpackCommand(String value) {
         return value.equalsIgnoreCase("backpack") || value.equalsIgnoreCase("backpacks");
+    }
+
+    private boolean isMobCommand(String value) {
+        return value.equalsIgnoreCase("mob") || value.equalsIgnoreCase("mobs");
     }
 
     private boolean isPotionCommand(String value) {

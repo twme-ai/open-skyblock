@@ -39,6 +39,9 @@ public final class ProgressionListener implements Listener {
         if (killer == null) {
             return;
         }
+        if (plugin.mobs().enabled() && plugin.mobs().definition(event.getEntity()).isPresent()) {
+            return;
+        }
         plugin.skills()
                 .entityReward(event.getEntityType())
                 .ifPresent(reward -> plugin.skills().grantActionReward(killer, reward));

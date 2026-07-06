@@ -1,0 +1,84 @@
+settings:
+  name-format: "<gray>[Lv<level>]</gray> <mob> <red><health></red><dark_gray>/</dark_gray><red><max_health> HP</red>"
+  spawn-limit-per-command: 25
+
+mobs:
+  GRAVEYARD_ZOMBIE:
+    entity-type: ZOMBIE
+    display-name: "<green>Graveyard Zombie</green>"
+    level: 1
+    health: 100
+    damage: 20
+    defense: 0
+    skill: COMBAT
+    xp: 6
+    coins: 2
+    collection: ROTTEN_FLESH
+    collection-amount: 1
+    vanilla-drops: false
+    drops:
+      ROTTEN_FLESH:
+        type: VANILLA
+        material: ROTTEN_FLESH
+        chance: 100
+        min-amount: 1
+        max-amount: 2
+      UNDEAD_CHARM:
+        type: CUSTOM_ITEM
+        custom-item: UNDEAD_CHARM
+        chance: 1
+        min-amount: 1
+        max-amount: 1
+        magic-find: true
+  GRAVEYARD_SKELETON:
+    entity-type: SKELETON
+    display-name: "<white>Graveyard Skeleton</white>"
+    level: 2
+    health: 120
+    damage: 24
+    defense: 5
+    skill: COMBAT
+    xp: 7
+    coins: 2.5
+    collection: BONE
+    collection-amount: 1
+    vanilla-drops: false
+    drops:
+      BONE:
+        type: VANILLA
+        material: BONE
+        chance: 100
+        min-amount: 1
+        max-amount: 2
+      ARROW:
+        type: VANILLA
+        material: ARROW
+        chance: 25
+        min-amount: 1
+        max-amount: 2
+  SPIDER_DEN_SPIDER:
+    entity-type: SPIDER
+    display-name: "<dark_gray>Spider Den Spider</dark_gray>"
+    level: 4
+    health: 180
+    damage: 32
+    defense: 10
+    skill: COMBAT
+    xp: 10
+    coins: 4
+    collection: STRING
+    collection-amount: 1
+    vanilla-drops: false
+    drops:
+      STRING:
+        type: VANILLA
+        material: STRING
+        chance: 100
+        min-amount: 1
+        max-amount: 3
+      SPIDER_EYE:
+        type: VANILLA
+        material: SPIDER_EYE
+        chance: 35
+        min-amount: 1
+        max-amount: 1

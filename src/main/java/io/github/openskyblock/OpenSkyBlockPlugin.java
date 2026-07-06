@@ -18,6 +18,7 @@ import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.CakeListener;
 import io.github.openskyblock.listener.MenuListener;
 import io.github.openskyblock.listener.MinionListener;
+import io.github.openskyblock.listener.MobListener;
 import io.github.openskyblock.listener.PlayerLifecycleListener;
 import io.github.openskyblock.listener.ProgressionListener;
 import io.github.openskyblock.listener.QuiverListener;
@@ -25,6 +26,7 @@ import io.github.openskyblock.listener.RecipeListener;
 import io.github.openskyblock.listener.SackListener;
 import io.github.openskyblock.listener.ShopNpcListener;
 import io.github.openskyblock.menu.MenuService;
+import io.github.openskyblock.mob.MobService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.potion.PotionService;
 import io.github.openskyblock.profile.ProfileManager;
@@ -82,6 +84,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private TradeService tradeService;
     private StorageService storageService;
     private BackpackService backpackService;
+    private MobService mobService;
     private StatService statService;
     private UpgradeService upgradeService;
     private BukkitTask autosaveTask;
@@ -121,6 +124,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.potionService = new PotionService(this, configService, textService, profileManager);
         this.petService = new PetService(configService, textService, profileManager);
         this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, reforgeService, enchantmentService, starService, gemstoneService);
+        this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
@@ -213,6 +217,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         tradeService.reload();
         storageService.reload();
         backpackService.reload();
+        mobService.reload();
     }
 
     private void registerCommands() {
@@ -231,6 +236,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SackListener(this), this);
         getServer().getPluginManager().registerEvents(new QuiverListener(this), this);
         getServer().getPluginManager().registerEvents(new CakeListener(this), this);
+        getServer().getPluginManager().registerEvents(new MobListener(this), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new MinionListener(this), this);
@@ -373,6 +379,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public BackpackService backpacks() {
         return backpackService;
+    }
+
+    public MobService mobs() {
+        return mobService;
     }
 
     public StatService stats() {

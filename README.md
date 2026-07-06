@@ -25,6 +25,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Secure player trading with request/accept flow, item and coin escrow, review/confirm steps, cancellation, and disconnect cleanup.
 - Persistent configurable Storage pages with command and SkyBlock menu access, saved back to profiles on inventory close.
 - Configurable installed Backpacks with admin-granted backpack items, right-click install flow, profile-backed contents, open/list/remove commands, and inventory-close saving.
+- Configurable SkyBlock mobs with level/health nameplates, admin spawn commands, stat-based damage/defense, custom loot rolls, and kill rewards.
 - Configurable Sacks with persistent material storage, carry-item access checks, automatic pickup routing, GUI deposit/withdraw flow, and command access.
 - Configurable Quiver with persistent arrow storage, pickup routing, arrow selection, bow-shot proxy consumption, GUI access, and command access.
 - Configurable Potion Effects and God Potion bundles with persistent online-only timers, private-island timer pause, vanilla effect refresh, stat bonuses, item activation, and command status.
@@ -113,6 +114,8 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock backpack install`
 - `/skyblock backpack remove <slot>`
 - `/skyblock backpack give <id> [player]`
+- `/skyblock mobs`
+- `/skyblock mob spawn <id> [amount]`
 - `/skyblock sacks`
 - `/skyblock sack deposit <id>`
 - `/skyblock sack withdraw <id> <item> <amount|all>`

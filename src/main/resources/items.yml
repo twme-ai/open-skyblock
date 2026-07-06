@@ -252,6 +252,16 @@ items:
       - "<gray>A simple accessory that increases movement.</gray>"
     stats:
       speed: 5
+  UNDEAD_CHARM:
+    material: BONE
+    display-name: "<green>Undead Charm</green>"
+    category: ACCESSORY
+    rarity: UNCOMMON
+    lore:
+      - "<gray>A charm carried by restless monsters.</gray>"
+    stats:
+      health: 5
+      magic_find: 1
   BEGINNER_NECKLACE:
     material: NAME_TAG
     display-name: "<green>Beginner Necklace</green>"
