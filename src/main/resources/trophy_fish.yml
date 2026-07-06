@@ -1,0 +1,48 @@
+settings:
+  replace-caught-item: true
+  max-trophy-fish-chance: 200.0
+  item-display-name: "<tier> <fish>"
+  default-lore:
+    - "<dark_gray>Trophy Fish</dark_gray>"
+    - "<gray>Tier:</gray> <tier>"
+    - "<gray>Fish:</gray> <fish>"
+
+tiers:
+  DIAMOND:
+    display-name: "<aqua><bold>Diamond</bold></aqua>"
+    chance: 0.2
+  GOLD:
+    display-name: "<gold>Gold</gold>"
+    chance: 2.5
+  SILVER:
+    display-name: "<gray>Silver</gray>"
+    chance: 15.0
+  BRONZE:
+    display-name: "<#cd7f32>Bronze</#cd7f32>"
+    chance: 100.0
+
+fish:
+  SULPHUR_SKITTER:
+    display-name: "<yellow>Sulphur Skitter</yellow>"
+    material: PUFFERFISH
+    required-fishing-level: 0
+    chance: 1.25
+    skill-xp: 25
+    collection: RAW_FISH
+    collection-amount: 1
+  OBFUSCATED_FISH:
+    display-name: "<green>Obfuscated Fish</green>"
+    material: COD
+    required-fishing-level: 3
+    chance: 0.75
+    skill-xp: 35
+    collection: RAW_FISH
+    collection-amount: 1
+  VOLCANIC_STONEFISH:
+    display-name: "<red>Volcanic Stonefish</red>"
+    material: TROPICAL_FISH
+    required-fishing-level: 8
+    chance: 0.35
+    skill-xp: 60
+    collection: RAW_FISH
+    collection-amount: 2

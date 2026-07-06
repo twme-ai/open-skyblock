@@ -20,6 +20,7 @@ public final class SkyBlockProfile {
     private String islandWorldName;
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
+    private final Map<String, Map<String, Long>> trophyFish = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -147,6 +148,53 @@ public final class SkyBlockProfile {
 
     public Map<String, Long> collections() {
         return collections;
+    }
+
+    public long trophyFish(String fishId, String tier) {
+        Map<String, Long> tiers = trophyFish.get(fishId.toUpperCase());
+        return tiers == null ? 0L : tiers.getOrDefault(tier.toUpperCase(), 0L);
+    }
+
+    public void setTrophyFish(String fishId, String tier, long amount) {
+        String normalizedFish = fishId.toUpperCase();
+        String normalizedTier = tier.toUpperCase();
+        if (amount <= 0L) {
+            Map<String, Long> tiers = trophyFish.get(normalizedFish);
+            if (tiers != null) {
+                tiers.remove(normalizedTier);
+                if (tiers.isEmpty()) {
+                    trophyFish.remove(normalizedFish);
+                }
+            }
+            return;
+        }
+        trophyFish.computeIfAbsent(normalizedFish, ignored -> new HashMap<>()).put(normalizedTier, amount);
+    }
+
+    public void addTrophyFish(String fishId, String tier, long amount) {
+        if (amount <= 0L) {
+            return;
+        }
+        setTrophyFish(fishId, tier, trophyFish(fishId, tier) + amount);
+    }
+
+    public long trophyFishTotal(String fishId) {
+        Map<String, Long> tiers = trophyFish.get(fishId.toUpperCase());
+        if (tiers == null) {
+            return 0L;
+        }
+        return tiers.values().stream().mapToLong(Long::longValue).sum();
+    }
+
+    public long trophyFishTotal() {
+        return trophyFish.values().stream()
+                .flatMap(map -> map.values().stream())
+                .mapToLong(Long::longValue)
+                .sum();
+    }
+
+    public Map<String, Map<String, Long>> trophyFish() {
+        return trophyFish;
     }
 
     public String shopPurchaseDay() {

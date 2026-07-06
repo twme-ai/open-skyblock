@@ -19,6 +19,9 @@ public final class SeaCreatureListener implements Listener {
         if (event.getState() != PlayerFishEvent.State.CAUGHT_FISH) {
             return;
         }
+        if (plugin.trophyFish().isTrophyFish(event.getCaught())) {
+            return;
+        }
         if (!plugin.seaCreatures().trySpawn(event.getPlayer(), event.getHook().getLocation())) {
             return;
         }

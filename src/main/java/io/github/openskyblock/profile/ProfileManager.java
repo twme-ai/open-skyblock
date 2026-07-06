@@ -139,6 +139,18 @@ public final class ProfileManager {
                 profile.setCollectionAmount(key.toUpperCase(), collections.getLong(key, 0L));
             }
         }
+        ConfigurationSection trophyFish = section.getConfigurationSection("trophy-fish.catches");
+        if (trophyFish != null) {
+            for (String fishId : trophyFish.getKeys(false)) {
+                ConfigurationSection tiers = trophyFish.getConfigurationSection(fishId);
+                if (tiers == null) {
+                    continue;
+                }
+                for (String tier : tiers.getKeys(false)) {
+                    profile.setTrophyFish(fishId, tier, tiers.getLong(tier, 0L));
+                }
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -544,6 +556,14 @@ public final class ProfileManager {
         }
         for (Map.Entry<String, Long> entry : profile.collections().entrySet()) {
             profileData.set(base + ".collections." + entry.getKey(), entry.getValue());
+        }
+        profileData.set(base + ".trophy-fish", null);
+        for (Map.Entry<String, Map<String, Long>> fishEntry : profile.trophyFish().entrySet()) {
+            for (Map.Entry<String, Long> tierEntry : fishEntry.getValue().entrySet()) {
+                if (tierEntry.getValue() > 0L) {
+                    profileData.set(base + ".trophy-fish.catches." + fishEntry.getKey() + "." + tierEntry.getKey(), tierEntry.getValue());
+                }
+            }
         }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
         profileData.set(base + ".shop-purchases.items", null);

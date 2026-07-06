@@ -40,6 +40,7 @@ features:
   combat-stats: true
   custom-mobs: true
   sea-creatures: true
+  trophy-fishing: true
   mob-spawn-zones: true
   bestiary: true
   museum: true
@@ -99,6 +100,7 @@ stats:
     intelligence: 0.0
     speed: 100.0
     ferocity: 0.0
+    trophy_fish_chance: 0.0
   display-order:
     - health
     - defense
@@ -116,6 +118,7 @@ stats:
     - mining_fortune
     - foraging_fortune
     - sea_creature_chance
+    - trophy_fish_chance
     - vitality
     - true_defense
     - cold_resistance

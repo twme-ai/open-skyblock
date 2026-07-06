@@ -36,6 +36,7 @@ import io.github.openskyblock.listener.RecipeListener;
 import io.github.openskyblock.listener.SackListener;
 import io.github.openskyblock.listener.SeaCreatureListener;
 import io.github.openskyblock.listener.ShopNpcListener;
+import io.github.openskyblock.listener.TrophyFishListener;
 import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.menu.MenuService;
 import io.github.openskyblock.mob.MobService;
@@ -61,6 +62,7 @@ import io.github.openskyblock.stats.ArmorSetService;
 import io.github.openskyblock.star.StarService;
 import io.github.openskyblock.storage.StorageService;
 import io.github.openskyblock.trade.TradeService;
+import io.github.openskyblock.trophyfish.TrophyFishService;
 import io.github.openskyblock.upgrade.UpgradeService;
 import io.github.openskyblock.wardrobe.WardrobeService;
 import org.bukkit.command.PluginCommand;
@@ -108,6 +110,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BackpackService backpackService;
     private MobService mobService;
     private SeaCreatureService seaCreatureService;
+    private TrophyFishService trophyFishService;
     private MobSpawnService mobSpawnService;
     private MuseumService museumService;
     private MayorService mayorService;
@@ -171,6 +174,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.statService = new StatService(configService, textService, profileManager, customItemService, accessoryService, tuningService, equipmentService, armorSetService, cakeService, potionService, upgradeService, petService, bestiaryService, reforgeService, enchantmentService, starService, gemstoneService);
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
         this.seaCreatureService = new SeaCreatureService(configService, textService, profileManager, skillService, statService, mobService, mayorService);
+        this.trophyFishService = new TrophyFishService(this, configService, textService, profileManager, skillService, collectionService, statService);
         this.slayerService = new SlayerService(this, configService, textService, profileManager, economyService, skillService, mobService);
         this.statService.slayerService(slayerService);
         this.itemAbilityService = new ItemAbilityService(this, configService, textService, customItemService, statService);
@@ -311,6 +315,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         bestiaryService.reload();
         mobService.reload();
         seaCreatureService.reload();
+        trophyFishService.reload();
         slayerService.reload();
         mobSpawnService.reload();
     }
@@ -331,6 +336,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ProgressionListener(this), this);
         getServer().getPluginManager().registerEvents(new AutoPetListener(this), this);
         getServer().getPluginManager().registerEvents(new SackListener(this), this);
+        getServer().getPluginManager().registerEvents(new TrophyFishListener(this), this);
         getServer().getPluginManager().registerEvents(new SeaCreatureListener(this), this);
         getServer().getPluginManager().registerEvents(new QuiverListener(this), this);
         getServer().getPluginManager().registerEvents(new CakeListener(this), this);
@@ -521,6 +527,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public SeaCreatureService seaCreatures() {
         return seaCreatureService;
+    }
+
+    public TrophyFishService trophyFish() {
+        return trophyFishService;
     }
 
     public MobSpawnService mobSpawns() {
