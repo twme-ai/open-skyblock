@@ -10,6 +10,7 @@ import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.service.SkillService;
 import io.github.openskyblock.service.SkillType;
+import io.github.openskyblock.stats.StatSnapshot;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -93,7 +94,8 @@ public final class SlayerService {
                     slayerSection.getString("display-name", id),
                     slayerSection.getString("boss-name", id),
                     Set.copyOf(mobIds),
-                    readTiers(slayerSection.getConfigurationSection("tiers"))
+                    readTiers(slayerSection.getConfigurationSection("tiers")),
+                    readLevels(slayerSection.getConfigurationSection("levels"))
             ));
         }
     }
@@ -203,10 +205,12 @@ public final class SlayerService {
         text.send(player, "commands.slayer-list-header");
         for (SlayerDefinition definition : values) {
             double xp = profile.slayerXp().getOrDefault(definition.id(), 0.0D);
+            int level = profile.slayerLevels().getOrDefault(definition.id(), 0);
             text.send(player, "commands.slayer-list-line", List.of(
                     TextService.raw("id", definition.id()),
                     TextService.parsed("slayer", definition.displayName()),
                     TextService.raw("tiers", Integer.toString(definition.tiers().size())),
+                    TextService.raw("level", Integer.toString(level)),
                     TextService.raw("xp", text.formatNumber(xp))
             ));
         }
@@ -295,7 +299,9 @@ public final class SlayerService {
             hideBossBar(active.bossEntityId());
         }
         profile.activeSlayer(null);
-        profile.slayerXp().put(definition.id(), profile.slayerXp().getOrDefault(definition.id(), 0.0D) + tier.slayerXp());
+        double previousSlayerXp = profile.slayerXp().getOrDefault(definition.id(), 0.0D);
+        double currentSlayerXp = previousSlayerXp + tier.slayerXp();
+        profile.slayerXp().put(definition.id(), currentSlayerXp);
         if (tier.rewardSkill() != null && tier.rewardSkillXp() > 0.0D) {
             skills.addXp(player, tier.rewardSkill(), tier.rewardSkillXp());
         }
@@ -303,12 +309,84 @@ public final class SlayerService {
             economy.addPurse(player, tier.coins());
             text.send(player, "progression.coins", List.of(TextService.raw("coins", text.formatNumber(tier.coins()))));
         }
-        profiles.save(player);
         text.send(player, "commands.slayer-completed", List.of(
                 TextService.parsed("slayer", definition.displayName()),
                 TextService.raw("tier", Integer.toString(tier.tier())),
                 TextService.raw("slayer_xp", text.formatNumber(tier.slayerXp()))
         ));
+        grantLevels(player, profile, definition, previousSlayerXp, currentSlayerXp);
+        profiles.save(player);
+    }
+
+    public Map<String, Double> activeStats(SkyBlockProfile profile) {
+        if (!enabled()) {
+            return Map.of();
+        }
+        Map<String, Double> stats = new HashMap<>();
+        for (SlayerDefinition definition : definitions.values()) {
+            int unlockedLevel = profile.slayerLevels().getOrDefault(definition.id(), 0);
+            if (unlockedLevel <= 0) {
+                continue;
+            }
+            for (int level : definition.sortedLevelNumbers()) {
+                if (level > unlockedLevel) {
+                    break;
+                }
+                SlayerLevelDefinition reward = definition.levels().get(level);
+                if (reward == null) {
+                    continue;
+                }
+                for (Map.Entry<String, Double> entry : reward.stats().entrySet()) {
+                    String stat = StatSnapshot.normalize(entry.getKey());
+                    stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
+                }
+            }
+        }
+        return stats;
+    }
+
+    private void grantLevels(Player player, SkyBlockProfile profile, SlayerDefinition definition, double previousXp, double currentXp) {
+        int storedLevel = profile.slayerLevels().getOrDefault(definition.id(), 0);
+        int previousLevel = Math.max(storedLevel, level(definition, previousXp));
+        int currentLevel = level(definition, currentXp);
+        if (currentLevel <= storedLevel) {
+            return;
+        }
+        for (int level : definition.sortedLevelNumbers()) {
+            if (level <= storedLevel || level > currentLevel) {
+                continue;
+            }
+            SlayerLevelDefinition reward = definition.levels().get(level);
+            if (reward != null) {
+                grantLevel(player, definition, reward);
+            }
+        }
+        profile.slayerLevels().put(definition.id(), Math.max(previousLevel, currentLevel));
+    }
+
+    private void grantLevel(Player player, SlayerDefinition definition, SlayerLevelDefinition reward) {
+        text.send(player, "commands.slayer-level-up", List.of(
+                TextService.parsed("slayer", definition.displayName()),
+                TextService.raw("level", Integer.toString(reward.level()))
+        ));
+        if (reward.rewardSkill() != null && reward.rewardSkillXp() > 0.0D) {
+            skills.addXp(player, reward.rewardSkill(), reward.rewardSkillXp());
+        }
+        if (reward.coins() > 0.0D) {
+            economy.addPurse(player, reward.coins());
+            text.send(player, "progression.coins", List.of(TextService.raw("coins", text.formatNumber(reward.coins()))));
+        }
+        for (Map.Entry<String, Double> entry : reward.stats().entrySet()) {
+            text.send(player, "commands.slayer-level-stat", List.of(
+                    TextService.raw("stat", statLabel(entry.getKey())),
+                    TextService.raw("amount", text.formatNumber(entry.getValue()))
+            ));
+        }
+        for (String unlock : reward.unlocks()) {
+            if (unlock != null && !unlock.isBlank()) {
+                text.send(player, "commands.slayer-level-unlock", List.of(TextService.parsed("unlock", unlock)));
+            }
+        }
     }
 
     public void refreshBossBarNextTick(Entity entity) {
@@ -569,6 +647,53 @@ public final class SlayerService {
         }
     }
 
+    private int level(SlayerDefinition definition, double xp) {
+        int current = 0;
+        for (int level : definition.sortedLevelNumbers()) {
+            SlayerLevelDefinition reward = definition.levels().get(level);
+            if (reward != null && xp >= reward.requiredXp()) {
+                current = Math.max(current, reward.level());
+            }
+        }
+        return current;
+    }
+
+    private Map<Integer, SlayerLevelDefinition> readLevels(ConfigurationSection section) {
+        Map<Integer, SlayerLevelDefinition> levels = new LinkedHashMap<>();
+        if (section == null) {
+            return levels;
+        }
+        for (String key : section.getKeys(false)) {
+            ConfigurationSection levelSection = section.getConfigurationSection(key);
+            if (levelSection == null) {
+                continue;
+            }
+            try {
+                int level = Integer.parseInt(key);
+                Map<String, Double> stats = new HashMap<>();
+                ConfigurationSection statsSection = levelSection.getConfigurationSection("stats");
+                if (statsSection != null) {
+                    for (String stat : statsSection.getKeys(false)) {
+                        stats.put(StatSnapshot.normalize(stat), statsSection.getDouble(stat, 0.0D));
+                    }
+                }
+                SkillType rewardSkill = SkillType.fromKey(levelSection.getString("reward-skill", "COMBAT")).orElse(SkillType.COMBAT);
+                levels.put(level, new SlayerLevelDefinition(
+                        level,
+                        Math.max(0.0D, levelSection.getDouble("required-xp", 0.0D)),
+                        rewardSkill,
+                        Math.max(0.0D, levelSection.getDouble("reward-skill-xp", 0.0D)),
+                        Math.max(0.0D, levelSection.getDouble("coins", 0.0D)),
+                        Map.copyOf(stats),
+                        List.copyOf(levelSection.getStringList("unlocks"))
+                ));
+            } catch (NumberFormatException ignored) {
+                // Invalid Slayer level keys are skipped so one typo does not disable the whole Slayer file.
+            }
+        }
+        return Map.copyOf(levels);
+    }
+
     private Map<Integer, SlayerTierDefinition> readTiers(ConfigurationSection section) {
         Map<Integer, SlayerTierDefinition> tiers = new LinkedHashMap<>();
         if (section == null) {
@@ -600,5 +725,18 @@ public final class SlayerService {
             }
         }
         return Map.copyOf(tiers);
+    }
+
+    private String statLabel(String stat) {
+        String normalized = StatSnapshot.normalize(stat);
+        String configured = configService.messages().getString("items.stat-labels." + normalized);
+        if (configured != null && !configured.isBlank()) {
+            return configured;
+        }
+        String readable = normalized.replace('_', ' ');
+        if (readable.isBlank()) {
+            return stat;
+        }
+        return Character.toUpperCase(readable.charAt(0)) + readable.substring(1);
     }
 }

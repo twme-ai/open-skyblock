@@ -9,9 +9,14 @@ public record SlayerDefinition(
         String displayName,
         String bossName,
         Set<String> mobIds,
-        Map<Integer, SlayerTierDefinition> tiers
+        Map<Integer, SlayerTierDefinition> tiers,
+        Map<Integer, SlayerLevelDefinition> levels
 ) {
     public List<Integer> sortedTierNumbers() {
         return tiers.keySet().stream().sorted().toList();
+    }
+
+    public List<Integer> sortedLevelNumbers() {
+        return levels.keySet().stream().sorted().toList();
     }
 }

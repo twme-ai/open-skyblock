@@ -343,6 +343,15 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection slayerLevels = section.getConfigurationSection("slayers.levels");
+        if (slayerLevels != null) {
+            for (String slayerId : slayerLevels.getKeys(false)) {
+                int level = slayerLevels.getInt(slayerId, 0);
+                if (level > 0) {
+                    profile.slayerLevels().put(slayerId.toUpperCase(), level);
+                }
+            }
+        }
         ConfigurationSection activeSlayer = section.getConfigurationSection("slayers.active");
         if (activeSlayer != null) {
             String id = activeSlayer.getString("id", "");
@@ -517,6 +526,11 @@ public final class ProfileManager {
         for (Map.Entry<String, Double> entry : profile.slayerXp().entrySet()) {
             if (entry.getValue() > 0.0D) {
                 profileData.set(base + ".slayers.xp." + entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Integer> entry : profile.slayerLevels().entrySet()) {
+            if (entry.getValue() > 0) {
+                profileData.set(base + ".slayers.levels." + entry.getKey(), entry.getValue());
             }
         }
         ActiveSlayerQuest activeSlayer = profile.activeSlayer();

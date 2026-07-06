@@ -32,6 +32,7 @@ public final class SkyBlockProfile {
     private final Map<String, Long> bestiaryKills = new HashMap<>();
     private final Map<String, Integer> bestiaryTiers = new HashMap<>();
     private final Map<String, Double> slayerXp = new HashMap<>();
+    private final Map<String, Integer> slayerLevels = new HashMap<>();
     private final List<String> accessoryBag = new ArrayList<>();
     private final List<PlacedMinion> minions = new ArrayList<>();
     private final List<PlacedCake> placedCakes = new ArrayList<>();
@@ -218,6 +219,10 @@ public final class SkyBlockProfile {
 
     public Map<String, Double> slayerXp() {
         return slayerXp;
+    }
+
+    public Map<String, Integer> slayerLevels() {
+        return slayerLevels;
     }
 
     public ActiveSlayerQuest activeSlayer() {

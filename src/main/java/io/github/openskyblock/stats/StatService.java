@@ -16,6 +16,7 @@ import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.reforge.ReforgeService;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.CustomItemService;
+import io.github.openskyblock.slayer.SlayerService;
 import io.github.openskyblock.star.StarService;
 import io.github.openskyblock.upgrade.UpgradeService;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ public final class StatService {
     private final EnchantmentService enchantments;
     private final StarService stars;
     private final GemstoneService gemstones;
+    private SlayerService slayer;
 
     public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, EquipmentService equipment, ArmorSetService armorSets, CakeService cakes, PotionService potions, UpgradeService upgrades, PetService pets, BestiaryService bestiary, ReforgeService reforges, EnchantmentService enchantments, StarService stars, GemstoneService gemstones) {
         this.configService = configService;
@@ -65,6 +67,10 @@ public final class StatService {
         this.gemstones = gemstones;
     }
 
+    public void slayerService(SlayerService slayer) {
+        this.slayer = slayer;
+    }
+
     public StatSnapshot snapshot(Player player) {
         Map<String, Double> stats = baseStats();
         SkyBlockProfile profile = profiles.profile(player);
@@ -78,6 +84,7 @@ public final class StatService {
         addUpgradeStats(stats, profile);
         addPetStats(stats, profile);
         addBestiaryStats(stats, profile);
+        addSlayerStats(stats, profile);
         return new StatSnapshot(stats);
     }
 
@@ -209,6 +216,15 @@ public final class StatService {
 
     private void addBestiaryStats(Map<String, Double> stats, SkyBlockProfile profile) {
         for (Map.Entry<String, Double> entry : bestiary.activeStats(profile).entrySet()) {
+            stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
+        }
+    }
+
+    private void addSlayerStats(Map<String, Double> stats, SkyBlockProfile profile) {
+        if (slayer == null) {
+            return;
+        }
+        for (Map.Entry<String, Double> entry : slayer.activeStats(profile).entrySet()) {
             stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
         }
     }
