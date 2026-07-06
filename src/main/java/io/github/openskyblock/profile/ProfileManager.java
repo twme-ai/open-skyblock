@@ -175,6 +175,25 @@ public final class ProfileManager {
                 }
             }
         }
+        ConfigurationSection sacks = section.getConfigurationSection("sacks");
+        if (sacks != null) {
+            for (String sackId : sacks.getKeys(false)) {
+                ConfigurationSection sackSection = sacks.getConfigurationSection(sackId);
+                if (sackSection == null) {
+                    continue;
+                }
+                Map<String, Long> storage = profile.sacks().computeIfAbsent(sackId.toUpperCase(), ignored -> new HashMap<>());
+                for (String itemId : sackSection.getKeys(false)) {
+                    long amount = sackSection.getLong(itemId, 0L);
+                    if (amount > 0L) {
+                        storage.put(itemId.toUpperCase(), amount);
+                    }
+                }
+                if (storage.isEmpty()) {
+                    profile.sacks().remove(sackId.toUpperCase());
+                }
+            }
+        }
         profile.activePetInstanceId(section.getString("pets.active", null));
         ConfigurationSection pets = section.getConfigurationSection("pets.owned");
         if (pets != null) {
@@ -246,6 +265,14 @@ public final class ProfileManager {
             profileData.set(wardrobeBase + ".chestplate", set.chestplate());
             profileData.set(wardrobeBase + ".leggings", set.leggings());
             profileData.set(wardrobeBase + ".boots", set.boots());
+        }
+        profileData.set(base + ".sacks", null);
+        for (Map.Entry<String, Map<String, Long>> sackEntry : profile.sacks().entrySet()) {
+            for (Map.Entry<String, Long> itemEntry : sackEntry.getValue().entrySet()) {
+                if (itemEntry.getValue() > 0L) {
+                    profileData.set(base + ".sacks." + sackEntry.getKey() + "." + itemEntry.getKey(), itemEntry.getValue());
+                }
+            }
         }
         profileData.set(base + ".pets.active", profile.activePetInstanceId());
         profileData.set(base + ".pets.owned", null);

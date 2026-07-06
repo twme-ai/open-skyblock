@@ -28,6 +28,8 @@ commands:
     shop: "Open a configured NPC shop."
     shop-npcs: "Refresh or remove configured physical shop NPCs."
     sell: "Sell held items or matching inventory items to NPC shops."
+    sacks: "Open your Sacks menu."
+    sack: "Deposit or withdraw materials from configured Sacks."
     reforges: "List configured item reforges."
     reforge: "Apply or remove a reforge from your held custom item."
     enchants: "List configured custom enchantments."
@@ -83,6 +85,20 @@ commands:
   shop-npc-removed: "<prefix><green>Loaded shop NPCs have been removed.</green>"
   shops-header: "<prefix><aqua>NPC Shops</aqua>"
   shops-line: "<gray><id>:</gray> <shop>"
+  sack-disabled: "<prefix><red>Sacks are disabled on this server.</red>"
+  sack-usage: "<prefix><red>Use <yellow>/skyblock sacks</yellow>, <yellow>/skyblock sack deposit <id></yellow>, <yellow>/skyblock sack withdraw <id> <item> <amount|all></yellow>, or <yellow>/skyblock sack summary [id]</yellow>.</red>"
+  sack-unknown: "<prefix><red>Unknown sack: <yellow><sack></yellow>.</red>"
+  sack-unknown-item: "<prefix><red>Unknown sack item: <yellow><item></yellow>.</red>"
+  sack-missing: "<prefix><red>You need to carry <sack> to use that sack.</red>"
+  sack-deposited: "<prefix><green>Deposited <yellow><amount></yellow> matching items into <sack>.</green>"
+  sack-withdrawn: "<prefix><green>Withdrew <yellow><amount></yellow> <item> from <sack>.</green>"
+  sack-empty: "<prefix><red><sack> does not contain <item>.</red>"
+  sack-no-items: "<prefix><red>You do not have matching items for <sack>.</red>"
+  sack-auto-stored: "<prefix><gray>Stored <yellow><amount></yellow> items in your sacks.</gray>"
+  sack-summary-header: "<prefix><aqua>Sacks</aqua>"
+  sack-summary-line: "<gray><sack_id>:</gray> <sack> <dark_gray>|</dark_gray> <yellow><stored></yellow><gray>/</gray><yellow><capacity></yellow> <dark_gray>|</dark_gray> <access>"
+  sack-detail-header: "<prefix><aqua><sack></aqua>"
+  sack-detail-line: "<gray><item_id>:</gray> <item> <dark_gray>|</dark_gray> <yellow><stored></yellow><gray>/</gray><yellow><capacity></yellow>"
   reforge-disabled: "<prefix><red>Reforges are disabled on this server.</red>"
   reforge-usage: "<prefix><red>Use <yellow>/skyblock reforges</yellow> or <yellow>/skyblock reforge <id|remove></yellow>.</red>"
   reforge-list-header: "<prefix><aqua>Reforges</aqua>"
@@ -280,6 +296,10 @@ gemstones:
 equipment:
   empty-slot: "<dark_gray>Empty</dark_gray>"
 
+sacks:
+  access-available: "<green>Available</green>"
+  access-missing: "<red>Missing sack item</red>"
+
 wardrobe:
   status-empty: "<dark_gray>Empty</dark_gray>"
   status-stored: "<green><pieces>/4 armor pieces</green>"
@@ -297,6 +317,16 @@ menus:
     - "<yellow>Left-click to buy.</yellow>"
     - "<yellow>Right-click to sell matching items.</yellow>"
   shop-unlimited: "Unlimited"
+  sack-selector-item:
+    - "<gray>Stored:</gray> <yellow><stored></yellow><gray>/</gray><yellow><capacity></yellow>"
+    - "<gray>Access:</gray> <access>"
+    - ""
+    - "<yellow>Click to view this sack.</yellow>"
+  sack-detail-item:
+    - "<gray>Stored:</gray> <yellow><stored></yellow><gray>/</gray><yellow><capacity></yellow>"
+    - ""
+    - "<yellow>Left-click to withdraw a stack.</yellow>"
+    - "<yellow>Right-click to withdraw all.</yellow>"
   accessory-bag-item:
     - "<gray>Rarity:</gray> <rarity>"
     - "<gray>Magical Power:</gray> <light_purple><magical_power></light_purple>"

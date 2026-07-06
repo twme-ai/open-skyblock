@@ -10,6 +10,8 @@ import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.reforge.ReforgeDefinition;
+import io.github.openskyblock.sack.SackDefinition;
+import io.github.openskyblock.sack.SackItemDefinition;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionDefinition;
 import io.github.openskyblock.service.SkillDefinition;
@@ -37,6 +39,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "shop",
             "shopnpcs",
             "sell",
+            "sacks",
+            "sack",
             "reforges",
             "reforge",
             "enchants",
@@ -89,6 +93,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "shop" -> shop(sender, args);
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
+            case "sacks", "sack" -> sacks(sender, args);
             case "reforges" -> reforges(sender);
             case "reforge" -> reforge(sender, args);
             case "enchants", "enchantments" -> enchants(sender);
@@ -138,6 +143,20 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("sell")) {
             return startsWith(List.of("hand", "all"), args[1]);
+        }
+        if (args.length == 2 && isSackCommand(args[0])) {
+            return startsWith(List.of("open", "deposit", "withdraw", "summary"), args[1]);
+        }
+        if (args.length == 3 && isSackCommand(args[0]) && (args[1].equalsIgnoreCase("open") || args[1].equalsIgnoreCase("deposit") || args[1].equalsIgnoreCase("withdraw") || args[1].equalsIgnoreCase("summary"))) {
+            return startsWith(plugin.sacks().definitions().stream().map(SackDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 4 && isSackCommand(args[0]) && args[1].equalsIgnoreCase("withdraw")) {
+            return plugin.sacks().definition(args[2])
+                    .map(sack -> startsWith(sack.items().stream().map(SackItemDefinition::id).toList(), args[3]))
+                    .orElseGet(List::of);
+        }
+        if (args.length == 5 && isSackCommand(args[0]) && args[1].equalsIgnoreCase("withdraw")) {
+            return startsWith(List.of("all", "64", "128", "512"), args[4]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("reforge")) {
             List<String> values = new ArrayList<>();
@@ -255,6 +274,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " shops", "commands.help.shop");
         helpLine(sender, label + " shop <id>", "commands.help.shop");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
+        helpLine(sender, label + " sacks", "commands.help.sacks");
+        helpLine(sender, label + " sack deposit|withdraw", "commands.help.sack");
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge <id|remove>", "commands.help.reforge");
         helpLine(sender, label + " enchants", "commands.help.enchants");
@@ -414,6 +435,49 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "hand" -> plugin.shops().sellHand(player);
             case "all" -> plugin.shops().sellAll(player);
             default -> plugin.text().send(player, "commands.shop-usage");
+        }
+    }
+
+    private void sacks(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("open")) {
+            if (args.length >= 3) {
+                plugin.sacks().definition(args[2]).ifPresentOrElse(
+                        sack -> plugin.menus().openSackMenu(player, sack),
+                        () -> plugin.text().send(player, "commands.sack-unknown", List.of(TextService.raw("sack", args[2])))
+                );
+                return;
+            }
+            plugin.menus().openSacksMenu(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "deposit" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.sack-usage");
+                    return;
+                }
+                plugin.sacks().depositInventory(player, args[2]);
+            }
+            case "withdraw" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.sack-usage");
+                    return;
+                }
+                if (args.length >= 5 && args[4].equalsIgnoreCase("all")) {
+                    plugin.sacks().withdraw(player, args[2], args[3], 0);
+                    return;
+                }
+                int amount = args.length >= 5 ? parsePositiveInt(player, args[4]).orElse(-1) : 64;
+                if (amount > 0) {
+                    plugin.sacks().withdraw(player, args[2], args[3], amount);
+                }
+            }
+            case "summary" -> plugin.sacks().sendSummary(player, args.length >= 3 ? args[2] : null);
+            default -> plugin.text().send(player, "commands.sack-usage");
         }
     }
 
@@ -1035,6 +1099,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             }
         }
         return matches;
+    }
+
+    private boolean isSackCommand(String value) {
+        return value.equalsIgnoreCase("sack") || value.equalsIgnoreCase("sacks");
     }
 
     private List<String> numberRange(int max) {

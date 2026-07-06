@@ -1,0 +1,63 @@
+sacks:
+  AGRONOMY:
+    display-name: "<green>Agronomy Sack</green>"
+    material: WHEAT
+    item-id: AGRONOMY_SACK
+    require-item: true
+    auto-pickup: true
+    capacity-per-item: 640
+    items:
+      WHEAT:
+        material: WHEAT
+        display-name: "<yellow>Wheat</yellow>"
+      CARROT:
+        material: CARROT
+        display-name: "<gold>Carrot</gold>"
+      POTATO:
+        material: POTATO
+        display-name: "<yellow>Potato</yellow>"
+      SUGAR_CANE:
+        material: SUGAR_CANE
+        display-name: "<green>Sugar Cane</green>"
+  MINING:
+    display-name: "<gray>Mining Sack</gray>"
+    material: COBBLESTONE
+    item-id: MINING_SACK
+    require-item: true
+    auto-pickup: true
+    capacity-per-item: 640
+    items:
+      COBBLESTONE:
+        material: COBBLESTONE
+        display-name: "<gray>Cobblestone</gray>"
+      COAL:
+        material: COAL
+        display-name: "<dark_gray>Coal</dark_gray>"
+  COMBAT:
+    display-name: "<red>Combat Sack</red>"
+    material: ROTTEN_FLESH
+    item-id: COMBAT_SACK
+    require-item: true
+    auto-pickup: true
+    capacity-per-item: 640
+    items:
+      ROTTEN_FLESH:
+        material: ROTTEN_FLESH
+        display-name: "<dark_green>Rotten Flesh</dark_green>"
+      BONE:
+        material: BONE
+        display-name: "<white>Bone</white>"
+      STRING:
+        material: STRING
+        display-name: "<gray>String</gray>"
+  FISHING:
+    display-name: "<aqua>Fishing Sack</aqua>"
+    material: COD
+    item-id: FISHING_SACK
+    require-item: true
+    auto-pickup: true
+    capacity-per-item: 640
+    items:
+      COD:
+        material: COD
+        display-name: "<aqua>Raw Fish</aqua>"

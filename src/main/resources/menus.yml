@@ -23,6 +23,13 @@ skyblock:
       lore:
         - "<gray>Travel to your private island.</gray>"
       action: ISLAND_HOME
+    sacks:
+      slot: 13
+      material: BUNDLE
+      display-name: "<green>Sacks</green>"
+      lore:
+        - "<gray>Store matching materials automatically.</gray>"
+      action: SACKS
     skills:
       slot: 14
       material: DIAMOND_PICKAXE
@@ -333,6 +340,76 @@ shop:
     slot: 49
     material: EMERALD
     display-name: "<green>NPC Shops</green>"
+    lore: []
+
+sacks:
+  title: "<dark_gray>Sacks</dark_gray>"
+  rows: 4
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  sack-item:
+    display-name: "<sack>"
+    lore: []
+  back:
+    slot: 31
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+
+sack:
+  title: "<dark_gray><sack></dark_gray>"
+  rows: 5
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  sack-item:
+    display-name: "<item>"
+    lore: []
+  deposit:
+    slot: 39
+    material: HOPPER
+    display-name: "<green>Deposit Matching Items</green>"
+    lore:
+      - "<gray>Move matching inventory items into this sack.</gray>"
+  back:
+    slot: 41
+    material: BUNDLE
+    display-name: "<green>Sacks</green>"
     lore: []
 
 accessory-bag:

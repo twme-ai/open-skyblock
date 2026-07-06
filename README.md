@@ -20,6 +20,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Purse and bank economy with deposit, withdraw, deposit-all, withdraw-all, capacity limits, and a configurable bank menu.
 - Configurable NPC shops with buy menus, right-click sell flow, daily buy limits, and `/skyblock sell`.
 - Optional physical shop NPCs spawned from `shops.yml` with persistent shop tags and right-click shop opening.
+- Configurable Sacks with persistent material storage, carry-item access checks, automatic pickup routing, GUI deposit/withdraw flow, and command access.
 - Aggregated combat stats from configurable base stats, held/armor items, equipment slots, and accessory-category custom items.
 - Configurable item reforges with persistent item metadata, rarity-scaled stat tables, purse costs, lore rendering, and stat aggregation.
 - Configurable item enchantments with persistent item metadata, max levels, ultimate-enchantment exclusivity, purse costs, lore rendering, and stat aggregation.
@@ -68,6 +69,10 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock shopnpcs refresh`
 - `/skyblock shopnpcs remove`
 - `/skyblock sell <hand|all>`
+- `/skyblock sacks`
+- `/skyblock sack deposit <id>`
+- `/skyblock sack withdraw <id> <item> <amount|all>`
+- `/skyblock sack summary [id]`
 - `/skyblock reforges`
 - `/skyblock reforge <id|remove>`
 - `/skyblock enchants`

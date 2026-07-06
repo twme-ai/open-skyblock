@@ -11,6 +11,9 @@ import io.github.openskyblock.menu.MenuAction;
 import io.github.openskyblock.menu.MinionMenuAction;
 import io.github.openskyblock.menu.MinionMenuHolder;
 import io.github.openskyblock.menu.PetMenuHolder;
+import io.github.openskyblock.menu.SackMenuAction;
+import io.github.openskyblock.menu.SackMenuHolder;
+import io.github.openskyblock.menu.SackSelectorHolder;
 import io.github.openskyblock.menu.ShopMenuHolder;
 import io.github.openskyblock.menu.ShopSelectorHolder;
 import io.github.openskyblock.menu.SkyBlockMenuHolder;
@@ -52,6 +55,12 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof ShopMenuHolder shopMenuHolder) {
                 handleShopClick(event, player, shopMenuHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof SackSelectorHolder sackSelectorHolder) {
+                handleSackSelectorClick(event, player, sackSelectorHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof SackMenuHolder sackMenuHolder) {
+                handleSackMenuClick(event, player, sackMenuHolder);
             }
             if (event.getView().getTopInventory().getHolder() instanceof AccessoryBagHolder accessoryBagHolder) {
                 handleAccessoryBagClick(event, player, accessoryBagHolder);
@@ -115,6 +124,17 @@ public final class MenuListener implements Listener {
         event.setCancelled(true);
         boolean sellClick = event.getClick().isRightClick();
         plugin.menus().runShopMenuClick(player, holder, event.getRawSlot(), sellClick);
+    }
+
+    private void handleSackSelectorClick(InventoryClickEvent event, Player player, SackSelectorHolder holder) {
+        event.setCancelled(true);
+        plugin.menus().runSackSelectorClick(player, holder, event.getRawSlot());
+    }
+
+    private void handleSackMenuClick(InventoryClickEvent event, Player player, SackMenuHolder holder) {
+        event.setCancelled(true);
+        boolean withdrawAll = event.getClick().isRightClick();
+        plugin.menus().runSackMenuClick(player, holder, event.getRawSlot(), withdrawAll);
     }
 
     private void handleAccessoryBagClick(InventoryClickEvent event, Player player, AccessoryBagHolder holder) {

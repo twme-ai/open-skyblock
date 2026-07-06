@@ -11,6 +11,7 @@ features:
   bank: true
   npc-shops: true
   physical-shop-npcs: true
+  sacks: true
   reforges: true
   enchantments: true
   item-stars: true

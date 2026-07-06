@@ -8,6 +8,38 @@ items:
       - "<gray>Open your profile, skills, collections,</gray>"
       - "<gray>recipes, storage, pets, and island tools.</gray>"
     stats: {}
+  AGRONOMY_SACK:
+    material: WHEAT
+    display-name: "<green>Agronomy Sack</green>"
+    category: SACK
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Stores common farming materials.</gray>"
+    stats: {}
+  MINING_SACK:
+    material: COBBLESTONE
+    display-name: "<gray>Mining Sack</gray>"
+    category: SACK
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Stores common mining materials.</gray>"
+    stats: {}
+  COMBAT_SACK:
+    material: ROTTEN_FLESH
+    display-name: "<red>Combat Sack</red>"
+    category: SACK
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Stores common monster drops.</gray>"
+    stats: {}
+  FISHING_SACK:
+    material: COD
+    display-name: "<aqua>Fishing Sack</aqua>"
+    category: SACK
+    rarity: UNCOMMON
+    lore:
+      - "<gray>Stores common fishing drops.</gray>"
+    stats: {}
   ROGUE_SWORD:
     material: GOLDEN_SWORD
     display-name: "<green>Rogue Sword</green>"

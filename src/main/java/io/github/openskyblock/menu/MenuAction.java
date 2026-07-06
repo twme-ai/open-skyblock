@@ -9,6 +9,7 @@ public enum MenuAction {
     BANK,
     SKILLS,
     STATS,
+    SACKS,
     ACCESSORY_BAG,
     TUNING,
     EQUIPMENT,

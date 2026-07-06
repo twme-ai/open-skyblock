@@ -1,7 +1,6 @@
 package io.github.openskyblock.listener;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
-import io.github.openskyblock.service.ActionReward;
 import io.github.openskyblock.stats.StatSnapshot;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.block.data.Ageable;
@@ -52,17 +51,7 @@ public final class ProgressionListener implements Listener {
             return;
         }
         ItemStack itemStack = event.getItem().getItemStack();
-        plugin.skills().pickupReward(itemStack.getType()).ifPresent(reward -> {
-            long amount = Math.max(1L, itemStack.getAmount());
-            ActionReward scaled = new ActionReward(
-                    reward.skillType(),
-                    reward.skillXp() * amount,
-                    reward.collectionId(),
-                    reward.collectionAmount() * amount,
-                    reward.coins() * amount
-            );
-            plugin.skills().grantActionReward(player, scaled);
-        });
+        plugin.skills().grantPickupReward(player, itemStack.getType(), itemStack.getAmount());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)

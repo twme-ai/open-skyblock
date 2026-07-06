@@ -9,6 +9,8 @@ import io.github.openskyblock.profile.OwnedPet;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.recipe.SkyBlockRecipe;
+import io.github.openskyblock.sack.SackDefinition;
+import io.github.openskyblock.sack.SackItemDefinition;
 import io.github.openskyblock.service.CollectionDefinition;
 import io.github.openskyblock.service.CollectionTier;
 import io.github.openskyblock.service.MinionPlacement;
@@ -444,6 +446,82 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openSacksMenu(Player player) {
+        if (!plugin.sacks().enabled()) {
+            text.send(player, "commands.sack-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("sacks");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 4)));
+        Map<Integer, String> sacksBySlot = new HashMap<>();
+        SackSelectorHolder holder = new SackSelectorHolder(sacksBySlot);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Sacks</dark_gray>"))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        List<Integer> slots = contentSlots(section);
+        List<SackDefinition> sacks = plugin.sacks().definitions();
+        for (int index = 0; index < slots.size() && index < sacks.size(); index++) {
+            int slot = slots.get(index);
+            if (slot < 0 || slot >= inventory.getSize()) {
+                continue;
+            }
+            SackDefinition sack = sacks.get(index);
+            inventory.setItem(slot, sackSelectorItem(player, sack, section.getConfigurationSection("sack-item")));
+            sacksBySlot.put(slot, sack.id());
+        }
+        ConfigurationSection back = section.getConfigurationSection("back");
+        if (back != null) {
+            int slot = back.getInt("slot", -1);
+            if (slot >= 0 && slot < inventory.getSize()) {
+                inventory.setItem(slot, item(back, List.of()));
+                sacksBySlot.put(slot, BACK_ACTION);
+            }
+        }
+        player.openInventory(inventory);
+    }
+
+    public void openSackMenu(Player player, SackDefinition sack) {
+        if (!plugin.sacks().enabled()) {
+            text.send(player, "commands.sack-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("sack");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 5)));
+        Map<Integer, String> itemsBySlot = new HashMap<>();
+        Map<Integer, SackMenuAction> actions = new HashMap<>();
+        SackMenuHolder holder = new SackMenuHolder(sack.id(), itemsBySlot, actions);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray><sack></dark_gray>"), sackPlaceholders(player, sack))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        List<Integer> slots = contentSlots(section);
+        for (int index = 0; index < slots.size() && index < sack.items().size(); index++) {
+            int slot = slots.get(index);
+            if (slot < 0 || slot >= inventory.getSize()) {
+                continue;
+            }
+            SackItemDefinition item = sack.items().get(index);
+            inventory.setItem(slot, sackDetailItem(player, sack, item, section.getConfigurationSection("sack-item")));
+            itemsBySlot.put(slot, item.id());
+        }
+        addSackMenuAction(inventory, section.getConfigurationSection("deposit"), SackMenuAction.DEPOSIT, actions);
+        addSackMenuAction(inventory, section.getConfigurationSection("back"), SackMenuAction.BACK, actions);
+        player.openInventory(inventory);
+    }
+
     public void openShop(Player player, ShopDefinition shop) {
         if (!plugin.shops().enabled()) {
             text.send(player, "commands.shop-disabled");
@@ -488,6 +566,7 @@ public final class MenuService {
             case BANK -> openBankMenu(player);
             case SKILLS -> player.performCommand("skyblock skills");
             case STATS -> player.performCommand("skyblock stats");
+            case SACKS -> openSacksMenu(player);
             case ACCESSORY_BAG -> openAccessoryBag(player);
             case TUNING -> openTuningMenu(player);
             case EQUIPMENT -> openEquipmentMenu(player);
@@ -540,6 +619,47 @@ public final class MenuService {
             plugin.shops().buy(player, shop, item);
         }
         openShop(player, shop);
+    }
+
+    public void runSackSelectorClick(Player player, SackSelectorHolder holder, int rawSlot) {
+        String sackId = holder.sackId(rawSlot);
+        if (sackId == null) {
+            return;
+        }
+        if (BACK_ACTION.equals(sackId)) {
+            openSkyBlockMenu(player);
+            return;
+        }
+        SackDefinition sack = plugin.sacks().definition(sackId).orElse(null);
+        if (sack == null) {
+            text.send(player, "commands.sack-unknown", List.of(TextService.raw("sack", sackId)));
+            return;
+        }
+        openSackMenu(player, sack);
+    }
+
+    public void runSackMenuClick(Player player, SackMenuHolder holder, int rawSlot, boolean withdrawAll) {
+        SackDefinition sack = plugin.sacks().definition(holder.sackId()).orElse(null);
+        if (sack == null) {
+            text.send(player, "commands.sack-unknown", List.of(TextService.raw("sack", holder.sackId())));
+            player.closeInventory();
+            return;
+        }
+        String itemId = holder.itemId(rawSlot);
+        if (itemId != null) {
+            plugin.sacks().withdraw(player, sack.id(), itemId, withdrawAll ? Integer.MAX_VALUE : 64);
+            openSackMenu(player, sack);
+            return;
+        }
+        switch (holder.action(rawSlot)) {
+            case DEPOSIT -> {
+                plugin.sacks().depositInventory(player, sack.id());
+                openSackMenu(player, sack);
+            }
+            case BACK -> openSacksMenu(player);
+            case NONE -> {
+            }
+        }
     }
 
     public void runBankAction(Player player, BankMenuAction action) {
@@ -949,6 +1069,18 @@ public final class MenuService {
         actions.put(slot, action);
     }
 
+    private void addSackMenuAction(Inventory inventory, ConfigurationSection section, SackMenuAction action, Map<Integer, SackMenuAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
     private ItemStack emptyEquipmentItem(EquipmentSlotDefinition slot, ConfigurationSection section) {
         ItemStack itemStack = item(section, equipmentSlotPlaceholders(slot));
         ItemMeta meta = itemStack.getItemMeta();
@@ -971,6 +1103,34 @@ public final class MenuService {
         }
         for (String line : configService.messages().getStringList("menus.equipment-equipped")) {
             lore.add(text.deserialize(line, equipmentSlotPlaceholders(slot)));
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack sackSelectorItem(Player player, SackDefinition sack, ConfigurationSection section) {
+        ItemStack itemStack = new ItemStack(sack.material());
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = sackPlaceholders(player, sack);
+        meta.displayName(text.deserialize(section == null ? "<sack>" : section.getString("display-name", "<sack>"), placeholders));
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        for (String line : configService.messages().getStringList("menus.sack-selector-item")) {
+            lore.add(text.deserialize(line, placeholders));
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack sackDetailItem(Player player, SackDefinition sack, SackItemDefinition item, ConfigurationSection section) {
+        ItemStack itemStack = new ItemStack(item.material());
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = sackItemPlaceholders(player, sack, item);
+        meta.displayName(text.deserialize(section == null ? "<item>" : section.getString("display-name", "<item>"), placeholders));
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        for (String line : configService.messages().getStringList("menus.sack-detail-item")) {
+            lore.add(text.deserialize(line, placeholders));
         }
         meta.lore(lore);
         itemStack.setItemMeta(meta);
@@ -1186,6 +1346,29 @@ public final class MenuService {
                 TextService.raw("slot", Integer.toString(slot)),
                 TextService.raw("pieces", Integer.toString(pieces)),
                 TextService.raw("max_pieces", "4")
+        );
+    }
+
+    private List<TextService.TextPlaceholder> sackPlaceholders(Player player, SackDefinition sack) {
+        SkyBlockProfile profile = profiles.profile(player);
+        return List.of(
+                TextService.raw("sack_id", sack.id()),
+                TextService.parsed("sack", sack.displayName()),
+                TextService.raw("stored", text.formatNumber(plugin.sacks().totalStored(profile, sack))),
+                TextService.raw("capacity", text.formatNumber(plugin.sacks().totalCapacity(sack))),
+                TextService.parsed("access", plugin.sacks().accessText(player, sack))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> sackItemPlaceholders(Player player, SackDefinition sack, SackItemDefinition item) {
+        SkyBlockProfile profile = profiles.profile(player);
+        return List.of(
+                TextService.raw("sack_id", sack.id()),
+                TextService.parsed("sack", sack.displayName()),
+                TextService.raw("item_id", item.id()),
+                TextService.parsed("item", item.displayName()),
+                TextService.raw("stored", text.formatNumber(plugin.sacks().stored(profile, sack, item))),
+                TextService.raw("capacity", text.formatNumber(sack.capacity(item)))
         );
     }
 

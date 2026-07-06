@@ -83,6 +83,19 @@ public final class SkillService {
         return Optional.ofNullable(pickupRewards.get(material));
     }
 
+    public void grantPickupReward(Player player, Material material, long amount) {
+        pickupReward(material).ifPresent(reward -> {
+            long scaledAmount = Math.max(1L, amount);
+            grantActionReward(player, new ActionReward(
+                    reward.skillType(),
+                    reward.skillXp() * scaledAmount,
+                    reward.collectionId(),
+                    reward.collectionAmount() * scaledAmount,
+                    reward.coins() * scaledAmount
+            ));
+        });
+    }
+
     public Optional<ActionReward> entityReward(EntityType entityType) {
         return Optional.ofNullable(entityRewards.get(entityType));
     }
