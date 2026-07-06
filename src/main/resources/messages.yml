@@ -47,7 +47,7 @@ commands:
     reforges: "List configured item reforges."
     reforge: "Open the Reforge Anvil or apply/remove a reforge."
     enchants: "List configured custom enchantments."
-    enchant: "Apply or remove an enchantment from your held custom item."
+    enchant: "Open the Enchanting Table or apply/remove an enchantment."
     stars: "View item star upgrade settings."
     star: "Add, set, or clear stars on your held custom item."
     gemstones: "List configured gemstones."
@@ -337,7 +337,7 @@ commands:
   reforge-removed: "<prefix><green>Removed <reforge> from <item>.</green>"
   reforge-none: "<prefix><red>Your held item does not have a reforge.</red>"
   enchantment-disabled: "<prefix><red>Enchantments are disabled on this server.</red>"
-  enchantment-usage: "<prefix><red>Use <yellow>/skyblock enchants</yellow>, <yellow>/skyblock enchant <id> <level></yellow>, or <yellow>/skyblock enchant remove <id></yellow>.</red>"
+  enchantment-usage: "<prefix><red>Use <yellow>/skyblock enchants</yellow>, <yellow>/skyblock enchant [id] [level]</yellow>, or <yellow>/skyblock enchant remove <id></yellow>.</red>"
   enchantment-list-header: "<prefix><aqua>Enchantments</aqua>"
   enchantment-list-line: "<gray><id>:</gray> <enchantment> <dark_gray>|</dark_gray> <gray>Max:</gray> <yellow><max_level></yellow> <dark_gray>|</dark_gray> <gray>Type:</gray> <yellow><type></yellow> <dark_gray>|</dark_gray> <gray>Categories:</gray> <yellow><categories></yellow>"
   enchantment-held-missing: "<prefix><red>You must hold a configured custom item.</red>"
@@ -505,6 +505,7 @@ items:
   reforge-stat-line: "<gray><stat>:</gray> <green>+<value></green>"
   enchantment-line: "<blue><enchantment> <level></blue>"
   ultimate-enchantment-line: "<light_purple><bold><enchantment> <level></bold></light_purple>"
+  enchantment-stat-line: "<gray><stat>:</gray> <green>+<value></green>"
   star-line: "<gold><star_symbols></gold> <gray>Stars:</gray> <yellow><stars></yellow><gray>/</gray><yellow><max_stars></yellow> <dark_gray>|</dark_gray> <green>+<bonus>% item stats</green>"
   gemstone-line: "<gray>[<slot_symbol>]</gray> <slot><gray>:</gray> <gemstone> <yellow><tier></yellow>"
   gemstone-empty-line: "<dark_gray>[<slot_symbol>]</dark_gray> <slot><gray>:</gray> <dark_gray>Empty</dark_gray>"
@@ -561,6 +562,12 @@ pets:
 enchantments:
   normal-type: "Normal"
   ultimate-type: "Ultimate"
+  no-current: "None"
+  available: "<yellow>Available</yellow>"
+  upgrade: "<green>Upgrade</green>"
+  maxed: "<gold>Maxed</gold>"
+  ultimate-conflict: "<red>Ultimate conflict</red>"
+  no-stats: "<dark_gray>No stat bonuses configured.</dark_gray>"
 
 stars:
   display-suffix: " <gold><star_symbols></gold>"

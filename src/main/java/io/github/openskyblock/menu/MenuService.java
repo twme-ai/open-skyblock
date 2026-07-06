@@ -3,6 +3,7 @@ package io.github.openskyblock.menu;
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
 import io.github.openskyblock.equipment.EquipmentSlotDefinition;
 import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.OwnedPet;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -456,6 +458,49 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openEnchantingTable(Player player) {
+        if (!plugin.enchantments().enabled()) {
+            text.send(player, "commands.enchantment-disabled");
+            return;
+        }
+        ItemStack held = player.getInventory().getItemInMainHand();
+        CustomItemDefinition itemDefinition = plugin.customItems().definition(held).orElse(null);
+        if (itemDefinition == null) {
+            text.send(player, "commands.enchantment-held-missing");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("enchanting-table");
+        if (section == null) {
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 6)));
+        Map<Integer, String> enchantmentsBySlot = new HashMap<>();
+        Map<Integer, EnchantingTableAction> actions = new HashMap<>();
+        EnchantingTableHolder holder = new EnchantingTableHolder(enchantmentsBySlot, actions);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Enchanting Table</dark_gray>"), enchantmentMenuPlaceholders(held, itemDefinition))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        addEnchantingPreview(inventory, section.getConfigurationSection("preview"), held, itemDefinition);
+
+        List<Integer> slots = contentSlots(section);
+        List<SkyBlockEnchantmentDefinition> enchantments = plugin.enchantments().applicableDefinitions(itemDefinition);
+        for (int index = 0; index < enchantments.size() && index < slots.size(); index++) {
+            int slot = slots.get(index);
+            if (slot < 0 || slot >= inventory.getSize()) {
+                continue;
+            }
+            SkyBlockEnchantmentDefinition enchantment = enchantments.get(index);
+            inventory.setItem(slot, enchantmentMenuItem(player, held, itemDefinition, enchantment, section.getConfigurationSection("enchantment-item")));
+            enchantmentsBySlot.put(slot, enchantment.id());
+        }
+        addEnchantingAction(inventory, section.getConfigurationSection("back"), EnchantingTableAction.BACK, actions);
+        player.openInventory(inventory);
+    }
+
     public void openShopSelector(Player player) {
         if (!plugin.shops().enabled()) {
             text.send(player, "commands.shop-disabled");
@@ -657,6 +702,7 @@ public final class MenuService {
             case EQUIPMENT -> openEquipmentMenu(player);
             case WARDROBE -> openWardrobeMenu(player);
             case REFORGE_ANVIL -> openReforgeAnvil(player);
+            case ENCHANTING_TABLE -> openEnchantingTable(player);
             case PETS -> openPetMenu(player);
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
@@ -875,6 +921,33 @@ public final class MenuService {
             case BACK -> openSkyBlockMenu(player);
             case NONE -> {
             }
+        }
+    }
+
+    public void runEnchantingTableClick(Player player, EnchantingTableHolder holder, int rawSlot, boolean removeClick) {
+        String enchantmentId = holder.enchantmentId(rawSlot);
+        if (enchantmentId != null) {
+            ItemStack held = player.getInventory().getItemInMainHand();
+            SkyBlockEnchantmentDefinition enchantment = plugin.enchantments().definition(enchantmentId).orElse(null);
+            if (enchantment == null) {
+                text.send(player, "errors.unknown-enchantment", List.of(TextService.raw("enchantment", enchantmentId)));
+                return;
+            }
+            if (removeClick) {
+                if (plugin.enchantments().removeHeld(player, enchantmentId)) {
+                    openEnchantingTable(player);
+                }
+                return;
+            }
+            int currentLevel = plugin.enchantments().enchantments(held).getOrDefault(enchantment.id(), 0);
+            int targetLevel = Math.max(1, Math.min(enchantment.maxLevel(), currentLevel + 1));
+            if (plugin.enchantments().applyHeld(player, enchantmentId, targetLevel)) {
+                openEnchantingTable(player);
+            }
+            return;
+        }
+        if (holder.action(rawSlot) == EnchantingTableAction.BACK) {
+            openSkyBlockMenu(player);
         }
     }
 
@@ -1217,6 +1290,18 @@ public final class MenuService {
         actions.put(slot, action);
     }
 
+    private void addEnchantingAction(Inventory inventory, ConfigurationSection section, EnchantingTableAction action, Map<Integer, EnchantingTableAction> actions) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, List.of()));
+        actions.put(slot, action);
+    }
+
     private void addSackMenuAction(Inventory inventory, ConfigurationSection section, SackMenuAction action, Map<Integer, SackMenuAction> actions) {
         if (section == null) {
             return;
@@ -1431,6 +1516,73 @@ public final class MenuService {
                 .toList();
     }
 
+    private void addEnchantingPreview(Inventory inventory, ConfigurationSection section, ItemStack held, CustomItemDefinition itemDefinition) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, enchantingPreviewItem(section, held, itemDefinition));
+    }
+
+    private ItemStack enchantingPreviewItem(ConfigurationSection section, ItemStack held, CustomItemDefinition itemDefinition) {
+        ItemStack itemStack = held.clone();
+        itemStack.setAmount(1);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = enchantmentMenuPlaceholders(held, itemDefinition);
+        meta.displayName(text.deserialize(section.getString("display-name", "<item>"), placeholders));
+        meta.lore(section.getStringList("lore").stream()
+                .map(line -> text.deserialize(line, placeholders))
+                .toList());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack enchantmentMenuItem(Player player, ItemStack held, CustomItemDefinition itemDefinition, SkyBlockEnchantmentDefinition enchantment, ConfigurationSection section) {
+        Material material = Material.ENCHANTED_BOOK;
+        if (section != null) {
+            Material configured = Material.matchMaterial(section.getString("material", "ENCHANTED_BOOK"));
+            if (configured != null) {
+                material = configured;
+            }
+        }
+        ItemStack itemStack = new ItemStack(material);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = enchantmentMenuPlaceholders(player, held, itemDefinition, enchantment);
+        meta.displayName(text.deserialize(section == null ? "<enchantment> <level>" : section.getString("display-name", "<enchantment> <level>"), placeholders));
+        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+        List<String> rawLore = section == null ? List.of("<gray>Cost:</gray> <gold><cost></gold>", "<stats>") : section.getStringList("lore");
+        for (String line : rawLore) {
+            if (line.equals("<stats>")) {
+                lore.addAll(enchantmentStatLore(enchantment, targetEnchantmentLevel(held, enchantment)));
+            } else if (line.equals("<description>")) {
+                for (String descriptionLine : enchantment.lore()) {
+                    lore.add(text.deserialize(descriptionLine, placeholders));
+                }
+            } else {
+                lore.add(text.deserialize(line, placeholders));
+            }
+        }
+        meta.lore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private List<net.kyori.adventure.text.Component> enchantmentStatLore(SkyBlockEnchantmentDefinition enchantment, int level) {
+        if (enchantment.statsPerLevel().isEmpty()) {
+            return List.of(text.deserialize(text.rawMessage("enchantments.no-stats")));
+        }
+        return enchantment.statsPerLevel().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> text.message("items.enchantment-stat-line", List.of(
+                        TextService.raw("stat", text.statName(entry.getKey())),
+                        TextService.raw("value", text.formatNumber(entry.getValue() * level))
+                )))
+                .toList();
+    }
+
     private ItemStack tuningItem(Player player, String stat, ConfigurationSection section) {
         Material material = Material.matchMaterial(section.getString("material", "AMETHYST_SHARD"));
         ItemStack itemStack = new ItemStack(material == null ? Material.AMETHYST_SHARD : material);
@@ -1591,6 +1743,57 @@ public final class MenuService {
             return text.rawMessage("reforges.missing-required");
         }
         return text.rawMessage("reforges.available");
+    }
+
+    private List<TextService.TextPlaceholder> enchantmentMenuPlaceholders(ItemStack held, CustomItemDefinition itemDefinition) {
+        int applied = plugin.enchantments().enchantments(held).size();
+        return List.of(
+                TextService.parsed("item", itemDefinition.displayName()),
+                TextService.raw("category", itemDefinition.category()),
+                TextService.raw("rarity", itemDefinition.rarity().name()),
+                TextService.raw("applied_enchantments", Integer.toString(applied))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> enchantmentMenuPlaceholders(Player player, ItemStack held, CustomItemDefinition itemDefinition, SkyBlockEnchantmentDefinition enchantment) {
+        int currentLevel = plugin.enchantments().enchantments(held).getOrDefault(enchantment.id(), 0);
+        int targetLevel = targetEnchantmentLevel(held, enchantment);
+        double cost = plugin.enchantments().cost(enchantment, itemDefinition, targetLevel);
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(plugin.enchantments().placeholders(enchantment, itemDefinition, targetLevel, cost));
+        placeholders.add(TextService.raw("current_level", currentLevel <= 0 ? text.rawMessage("enchantments.no-current") : plugin.enchantments().levelLabel(currentLevel)));
+        placeholders.add(TextService.raw("target_level", plugin.enchantments().levelLabel(targetLevel)));
+        placeholders.add(TextService.raw("max_level", plugin.enchantments().levelLabel(enchantment.maxLevel())));
+        placeholders.add(TextService.raw("type", enchantment.ultimate() ? text.rawMessage("enchantments.ultimate-type") : text.rawMessage("enchantments.normal-type")));
+        placeholders.add(TextService.parsed("status", enchantmentStatus(held, enchantment)));
+        placeholders.add(TextService.raw("rarity", itemDefinition.rarity().name()));
+        placeholders.add(TextService.raw("applied_enchantments", Integer.toString(plugin.enchantments().enchantments(held).size())));
+        return placeholders;
+    }
+
+    private int targetEnchantmentLevel(ItemStack held, SkyBlockEnchantmentDefinition enchantment) {
+        int currentLevel = plugin.enchantments().enchantments(held).getOrDefault(enchantment.id(), 0);
+        return Math.max(1, Math.min(enchantment.maxLevel(), currentLevel + 1));
+    }
+
+    private String enchantmentStatus(ItemStack held, SkyBlockEnchantmentDefinition enchantment) {
+        int currentLevel = plugin.enchantments().enchantments(held).getOrDefault(enchantment.id(), 0);
+        if (currentLevel >= enchantment.maxLevel()) {
+            return text.rawMessage("enchantments.maxed");
+        }
+        if (enchantment.ultimate()) {
+            boolean conflict = plugin.enchantments().enchantments(held).keySet().stream()
+                    .map(plugin.enchantments()::definition)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .anyMatch(existing -> existing.ultimate() && !existing.id().equals(enchantment.id()));
+            if (conflict) {
+                return text.rawMessage("enchantments.ultimate-conflict");
+            }
+        }
+        if (currentLevel > 0) {
+            return text.rawMessage("enchantments.upgrade");
+        }
+        return text.rawMessage("enchantments.available");
     }
 
     private List<TextService.TextPlaceholder> equipmentPlaceholders(Player player) {

@@ -480,7 +480,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " reforges", "commands.help.reforges");
         helpLine(sender, label + " reforge [id|remove]", "commands.help.reforge");
         helpLine(sender, label + " enchants", "commands.help.enchants");
-        helpLine(sender, label + " enchant <id> <level>", "commands.help.enchant");
+        helpLine(sender, label + " enchant [id] [level]", "commands.help.enchant");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " gemstones", "commands.help.gemstones");
@@ -1129,7 +1129,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 2) {
-            plugin.text().send(player, "commands.enchantment-usage");
+            plugin.menus().openEnchantingTable(player);
             return;
         }
         if (args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("clear")) {

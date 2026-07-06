@@ -83,6 +83,15 @@ public final class EnchantmentService {
                 .toList();
     }
 
+    public List<SkyBlockEnchantmentDefinition> applicableDefinitions(CustomItemDefinition itemDefinition) {
+        if (itemDefinition == null) {
+            return List.of();
+        }
+        return definitions().stream()
+                .filter(definition -> isApplicable(definition, itemDefinition))
+                .toList();
+    }
+
     public Map<String, Integer> enchantments(ItemStack itemStack) {
         if (!enabled() || itemStack == null || !itemStack.hasItemMeta()) {
             return Map.of();
@@ -286,7 +295,7 @@ public final class EnchantmentService {
         itemStack.setItemMeta(meta);
     }
 
-    private List<TextService.TextPlaceholder> placeholders(SkyBlockEnchantmentDefinition definition, CustomItemDefinition itemDefinition, int level, double cost) {
+    public List<TextService.TextPlaceholder> placeholders(SkyBlockEnchantmentDefinition definition, CustomItemDefinition itemDefinition, int level, double cost) {
         return List.of(
                 TextService.raw("enchantment_id", definition.id()),
                 TextService.parsed("enchantment", definition.displayName()),
@@ -319,7 +328,7 @@ public final class EnchantmentService {
         return stats;
     }
 
-    private String levelLabel(int level) {
+    public String levelLabel(int level) {
         return switch (level) {
             case 1 -> "I";
             case 2 -> "II";
