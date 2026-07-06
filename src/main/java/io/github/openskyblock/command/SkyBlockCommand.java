@@ -39,6 +39,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "enchants",
             "enchantments",
             "enchant",
+            "stars",
+            "star",
             "accessorybag",
             "tuning",
             "pets",
@@ -84,6 +86,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "reforge" -> reforge(sender, args);
             case "enchants", "enchantments" -> enchants(sender);
             case "enchant" -> enchant(sender, args);
+            case "stars" -> stars(sender);
+            case "star" -> star(sender, args);
             case "accessorybag" -> accessoryBag(sender, args);
             case "tuning" -> tuning(sender, args);
             case "pets" -> pets(sender);
@@ -141,6 +145,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("enchant") && !args[1].equalsIgnoreCase("remove")) {
             return startsWith(plugin.enchantments().levelSuggestions(args[1]), args[2]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
+            return startsWith(List.of("add", "set", "clear"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("star") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set"))) {
+            return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("accessorybag")) {
             return startsWith(List.of("add", "remove", "summary", "open"), args[1]);
@@ -214,6 +224,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " reforge <id|remove>", "commands.help.reforge");
         helpLine(sender, label + " enchants", "commands.help.enchants");
         helpLine(sender, label + " enchant <id> <level>", "commands.help.enchant");
+        helpLine(sender, label + " stars", "commands.help.stars");
+        helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " accessorybag [add|remove|summary]", "commands.help.accessory-bag");
         helpLine(sender, label + " tuning [add|remove|reset|summary]", "commands.help.tuning");
         helpLine(sender, label + " pets", "commands.help.pets");
@@ -417,6 +429,38 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             plugin.enchantments().applyHeld(player, args[1], level);
         } catch (NumberFormatException ignored) {
             plugin.text().send(player, "errors.invalid-number");
+        }
+    }
+
+    private void stars(CommandSender sender) {
+        plugin.stars().sendInfo(sender);
+    }
+
+    private void star(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.text().send(player, "commands.star-usage");
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "add" -> {
+                int amount = args.length >= 3 ? parsePositiveInt(player, args[2]).orElse(-1) : 1;
+                if (amount > 0) {
+                    plugin.stars().addHeld(player, amount);
+                }
+            }
+            case "set" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.star-usage");
+                    return;
+                }
+                parseNonNegativeInt(player, args[2]).ifPresent(stars -> plugin.stars().setHeld(player, stars));
+            }
+            case "clear" -> plugin.stars().clearHeld(player);
+            default -> plugin.text().send(player, "commands.star-usage");
         }
     }
 
@@ -815,6 +859,34 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 return Optional.empty();
             }
             return Optional.of(amount);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(sender, "errors.invalid-number");
+            return Optional.empty();
+        }
+    }
+
+    private Optional<Integer> parsePositiveInt(CommandSender sender, String raw) {
+        try {
+            int value = Integer.parseInt(raw);
+            if (value <= 0) {
+                plugin.text().send(sender, "errors.invalid-number");
+                return Optional.empty();
+            }
+            return Optional.of(value);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(sender, "errors.invalid-number");
+            return Optional.empty();
+        }
+    }
+
+    private Optional<Integer> parseNonNegativeInt(CommandSender sender, String raw) {
+        try {
+            int value = Integer.parseInt(raw);
+            if (value < 0) {
+                plugin.text().send(sender, "errors.invalid-number");
+                return Optional.empty();
+            }
+            return Optional.of(value);
         } catch (NumberFormatException ignored) {
             plugin.text().send(sender, "errors.invalid-number");
             return Optional.empty();

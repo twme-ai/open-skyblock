@@ -11,6 +11,8 @@ import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.reforge.ReforgeService;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.CustomItemService;
+import io.github.openskyblock.star.StarService;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -29,8 +31,9 @@ public final class StatService {
     private final PetService pets;
     private final ReforgeService reforges;
     private final EnchantmentService enchantments;
+    private final StarService stars;
 
-    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets, ReforgeService reforges, EnchantmentService enchantments) {
+    public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, ArmorSetService armorSets, PetService pets, ReforgeService reforges, EnchantmentService enchantments, StarService stars) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
@@ -41,6 +44,7 @@ public final class StatService {
         this.pets = pets;
         this.reforges = reforges;
         this.enchantments = enchantments;
+        this.stars = stars;
     }
 
     public StatSnapshot snapshot(Player player) {
@@ -154,15 +158,24 @@ public final class StatService {
         if (accessoryOnly != isAccessory) {
             return;
         }
+        Map<String, Double> itemStats = new HashMap<>();
         for (Map.Entry<String, Double> entry : definition.stats().entrySet()) {
             String stat = StatSnapshot.normalize(entry.getKey());
-            stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
+            itemStats.put(stat, itemStats.getOrDefault(stat, 0.0D) + entry.getValue());
         }
         for (Map.Entry<String, Double> entry : reforges.stats(itemStack, definition).entrySet()) {
             String stat = StatSnapshot.normalize(entry.getKey());
-            stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
+            itemStats.put(stat, itemStats.getOrDefault(stat, 0.0D) + entry.getValue());
         }
         for (Map.Entry<String, Double> entry : enchantments.stats(itemStack, definition).entrySet()) {
+            String stat = StatSnapshot.normalize(entry.getKey());
+            itemStats.put(stat, itemStats.getOrDefault(stat, 0.0D) + entry.getValue());
+        }
+        for (Map.Entry<String, Double> entry : stars.bonusStats(itemStack, itemStats).entrySet()) {
+            String stat = StatSnapshot.normalize(entry.getKey());
+            itemStats.put(stat, itemStats.getOrDefault(stat, 0.0D) + entry.getValue());
+        }
+        for (Map.Entry<String, Double> entry : itemStats.entrySet()) {
             String stat = StatSnapshot.normalize(entry.getKey());
             stats.put(stat, stats.getOrDefault(stat, 0.0D) + entry.getValue());
         }

@@ -5,6 +5,7 @@ import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.reforge.ReforgeDefinition;
 import io.github.openskyblock.reforge.ReforgeService;
+import io.github.openskyblock.star.StarService;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public final class CustomItemService {
     private final Map<String, CustomItemDefinition> definitions = new HashMap<>();
     private ReforgeService reforgeService;
     private EnchantmentService enchantmentService;
+    private StarService starService;
 
     public CustomItemService(JavaPlugin plugin, ConfigService configService, TextService text) {
         this.configService = configService;
@@ -41,6 +43,10 @@ public final class CustomItemService {
 
     public void enchantmentService(EnchantmentService enchantmentService) {
         this.enchantmentService = enchantmentService;
+    }
+
+    public void starService(StarService starService) {
+        this.starService = starService;
     }
 
     public void reload() {
@@ -130,19 +136,27 @@ public final class CustomItemService {
 
     private Component displayName(CustomItemDefinition definition, ItemStack itemStack) {
         ReforgeDefinition reforge = reforge(itemStack);
+        String suffix = starService == null ? "" : starService.suffix(itemStack);
         if (reforge == null) {
-            return text.deserialize(definition.displayName());
+            return text.deserialize(definition.displayName() + suffix);
         }
-        return text.message("items.reforged-display-name", List.of(
-                TextService.parsed("reforge_prefix", reforge.prefix()),
-                TextService.parsed("item_name", definition.displayName())
-        ));
+        String raw = text.rawMessage("items.reforged-display-name")
+                .replace("<reforge_prefix>", reforge.prefix())
+                .replace("<item_name>", definition.displayName());
+        return text.deserialize(raw + suffix);
     }
 
     private List<Component> lore(CustomItemDefinition definition, ItemStack itemStack) {
         List<Component> lines = new ArrayList<>();
         for (String line : definition.lore()) {
             lines.add(text.deserialize(line));
+        }
+        if (starService != null) {
+            List<Component> starLore = starService.lore(itemStack, definition);
+            if (!starLore.isEmpty()) {
+                lines.add(Component.empty());
+                lines.addAll(starLore);
+            }
         }
         if (enchantmentService != null) {
             List<Component> enchantmentLore = enchantmentService.lore(itemStack);

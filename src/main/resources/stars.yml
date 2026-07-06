@@ -1,0 +1,25 @@
+settings:
+  default-max-stars: 5
+  star-symbol: "✪"
+  stat-multiplier-per-star: 0.02
+  remove-cost: 0.0
+  allowed-categories:
+    - SWORD
+    - ARMOR
+  category-max-stars:
+    SWORD: 5
+    ARMOR: 5
+  base-costs:
+    COMMON: 500.0
+    UNCOMMON: 1000.0
+    RARE: 2500.0
+    EPIC: 5000.0
+    LEGENDARY: 10000.0
+    MYTHIC: 25000.0
+    SPECIAL: 2500.0
+  cost-multiplier-by-star:
+    1: 1.0
+    2: 2.0
+    3: 3.0
+    4: 4.0
+    5: 5.0

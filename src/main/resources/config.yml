@@ -13,6 +13,7 @@ features:
   physical-shop-npcs: true
   reforges: true
   enchantments: true
+  item-stars: true
   pets: true
   accessory-bag: true
   accessory-tuning: true

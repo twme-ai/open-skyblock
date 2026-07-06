@@ -31,6 +31,8 @@ commands:
     reforge: "Apply or remove a reforge from your held custom item."
     enchants: "List configured custom enchantments."
     enchant: "Apply or remove an enchantment from your held custom item."
+    stars: "View item star upgrade settings."
+    star: "Add, set, or clear stars on your held custom item."
     stats: "View your aggregated SkyBlock stats."
     accessory-bag: "Open your Accessory Bag."
     tuning: "Open or edit stat tuning."
@@ -96,6 +98,17 @@ commands:
   enchantment-applied: "<prefix><green>Applied <enchantment> <level> to <item> for <gold><cost></gold> coins.</green>"
   enchantment-removed: "<prefix><green>Removed <enchantment> from <item>.</green>"
   enchantment-none: "<prefix><red>Your held item does not have that enchantment.</red>"
+  star-disabled: "<prefix><red>Item stars are disabled on this server.</red>"
+  star-usage: "<prefix><red>Use <yellow>/skyblock stars</yellow>, <yellow>/skyblock star add [amount]</yellow>, <yellow>/skyblock star set <amount></yellow>, or <yellow>/skyblock star clear</yellow>.</red>"
+  star-info-header: "<prefix><aqua>Item Stars</aqua>"
+  star-info-line: "<gray><category>:</gray> <yellow><max_stars></yellow><gray> max stars</gray> <dark_gray>|</dark_gray> <green>+<bonus>% stats per star</green>"
+  star-held-missing: "<prefix><red>You must hold a configured custom item.</red>"
+  star-not-applicable: "<prefix><red><item> cannot be upgraded with stars.</red>"
+  star-already: "<prefix><red><item> already has <yellow><stars></yellow> stars.</red>"
+  star-no-money: "<prefix><red>You need <gold><cost></gold> coins in your purse.</red>"
+  star-set: "<prefix><green>Set <item> to <star_symbols> <dark_gray>(</dark_gray><yellow><stars></yellow><dark_gray>/</dark_gray><yellow><max_stars></yellow><dark_gray>)</dark_gray> for <gold><cost></gold> coins.</green>"
+  star-cleared: "<prefix><green>Cleared stars from <item>.</green>"
+  star-none: "<prefix><red>Your held item does not have stars.</red>"
   skills-header: "<prefix><aqua>Skills</aqua>"
   stats-header: "<prefix><aqua>Stats</aqua>"
   stats-line: "<gray><stat>:</gray> <green><value></green>"
@@ -171,6 +184,7 @@ items:
   reforge-stat-line: "<gray><stat>:</gray> <green>+<value></green>"
   enchantment-line: "<blue><enchantment> <level></blue>"
   ultimate-enchantment-line: "<light_purple><bold><enchantment> <level></bold></light_purple>"
+  star-line: "<gold><star_symbols></gold> <gray>Stars:</gray> <yellow><stars></yellow><gray>/</gray><yellow><max_stars></yellow> <dark_gray>|</dark_gray> <green>+<bonus>% item stats</green>"
   ability-header: "<gold>Item Ability: <ability></gold> <yellow><type></yellow>"
   ability-line: "<gray><line></gray>"
   rarity-line: "<rarity_color><bold><rarity> <category></bold></rarity_color>"
@@ -209,6 +223,9 @@ pets:
 enchantments:
   normal-type: "Normal"
   ultimate-type: "Ultimate"
+
+stars:
+  display-suffix: " <gold><star_symbols></gold>"
 
 menus:
   collection-next-tier: "<yellow>Tier <tier></yellow> <gray>at</gray> <white><amount></white>"
