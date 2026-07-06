@@ -22,6 +22,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Optional physical shop NPCs spawned from `shops.yml` with persistent shop tags and right-click shop opening.
 - Configurable Auction House BIN-style listings with persistent item storage, listing fees, cancellation grace, buy flow, expired item returns, and seller claim flow.
 - Configurable Bazaar products with persistent buy orders, sell offers, instant buy/sell matching, escrow refunds, cancellation, and claim flow.
+- Secure player trading with request/accept flow, item and coin escrow, review/confirm steps, cancellation, and disconnect cleanup.
 - Configurable Sacks with persistent material storage, carry-item access checks, automatic pickup routing, GUI deposit/withdraw flow, and command access.
 - Configurable Quiver with persistent arrow storage, pickup routing, arrow selection, bow-shot proxy consumption, GUI access, and command access.
 - Configurable Potion Effects and God Potion bundles with persistent online-only timers, private-island timer pause, vanilla effect refresh, stat bonuses, item activation, and command status.
@@ -92,6 +93,16 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock bazaar claim`
 - `/skyblock bazaar cancel <id>`
 - `/skyblock bazaar orders`
+- `/skyblock trade <player>`
+- `/skyblock trade accept <player>`
+- `/skyblock trade deny <player>`
+- `/skyblock trade offerhand`
+- `/skyblock trade offercoins <amount>`
+- `/skyblock trade remove <slot>`
+- `/skyblock trade ready`
+- `/skyblock trade confirm`
+- `/skyblock trade status`
+- `/skyblock trade cancel`
 - `/skyblock sacks`
 - `/skyblock sack deposit <id>`
 - `/skyblock sack withdraw <id> <item> <amount|all>`

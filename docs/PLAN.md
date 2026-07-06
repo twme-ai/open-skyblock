@@ -51,10 +51,12 @@ Verified reference links:
 - Official reforging reference: https://wiki.hypixel.net/Reforging
 - Official auction house reference: https://wiki.hypixel.net/Auction_House
 - Official bazaar reference: https://wiki.hypixel.net/Bazaar
+- Official trading reference: https://wiki.hypixel.net/Trading
 - Official NPC reference: https://wiki.hypixel.net/NPCs
 - Open-source Bazaar plugin reference: https://github.com/MatejLorinc/bazaar
 - Paper ItemStack API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/inventory/ItemStack.html
 - Paper YamlConfiguration API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/configuration/file/YamlConfiguration.html
+- Paper PlayerQuitEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/player/PlayerQuitEvent.html
 - Paper custom inventory holder reference: https://docs.papermc.io/paper/dev/custom-inventory-holder/
 - Paper EntityPickupItemEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityPickupItemEvent.html
 - Paper EntityShootBowEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityShootBowEvent.html
@@ -125,7 +127,8 @@ Planned additions when each subsystem needs them:
    - Optional physical shop NPC spawning and click interaction is implemented.
    - Configurable persistent Auction House BIN-style listings with listing fees, cancellation grace, direct buy flow, expired item returns, and seller claim flow are implemented.
    - Configurable Bazaar products with persistent buy orders, sell offers, instant buy/sell matching, escrow refunds, cancellation, and claim flow are implemented.
-   - Bidding auctions, Auction House and Bazaar GUI browsing, trading, deeper escrow/claim queues, taxes, anti-duplication checks, market analytics, and audit logging remain future work.
+   - Secure player trading with request/accept flow, item and coin escrow, review/confirm steps, cancellation, and disconnect cleanup is implemented.
+   - Bidding auctions, Auction House and Bazaar GUI browsing, trade GUI polish, deeper escrow/claim queues, taxes, anti-duplication checks, market analytics, and audit logging remain future work.
 
 6. World Content
    - Hub and resource islands, Garden-like farming progression, Deep Caverns/Dwarven-style mining progression, combat islands, foraging islands, fishing content, seasonal events, and commissions.
@@ -146,4 +149,4 @@ Planned additions when each subsystem needs them:
 
 ## Current Implementation Boundary
 
-The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.
+The current codebase is a foundation, not full parity. It proves the project compiles and establishes the core contracts for profiles, private island creation, basic island protection, configurable SkyBlock menu GUI, paged collection and recipe book menus, starter menu item flow, purse/bank movement, configurable NPC shops with optional physical NPCs, configurable Auction House BIN-style listings, configurable Bazaar order books, secure player trading, configurable Sacks, configurable Quiver storage, configurable Potion Effects and God Potion bundles, configurable Century Cakes, configurable profile/account upgrades, configurable action coin rewards, skill XP, collections, custom item metadata, collection-gated recipes, stat aggregation, Accessory Bag, Magical Power, accessory tuning, equipment slots, Wardrobe armor storage, armor set bonuses, item reforges, item enchantments, item stars, gemstone slots, configurable active pets, basic combat formulas, and placeable minions with stored generation. Full feature parity remains open until every milestone above is implemented, tested, and documented.

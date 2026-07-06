@@ -25,6 +25,7 @@ public final class PlayerLifecycleListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         plugin.potions().playerQuit(event.getPlayer());
+        plugin.trades().playerQuit(event.getPlayer());
         plugin.profiles().save(event.getPlayer());
     }
 

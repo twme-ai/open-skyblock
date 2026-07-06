@@ -1,0 +1,4 @@
+settings:
+  request-expire-seconds: 60
+  max-item-stacks: 14
+  max-coin-offer: 1000000000.0

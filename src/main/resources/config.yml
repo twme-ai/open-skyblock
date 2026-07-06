@@ -13,6 +13,7 @@ features:
   physical-shop-npcs: true
   auction-house: true
   bazaar: true
+  player-trading: true
   sacks: true
   quiver: true
   potion-effects: true

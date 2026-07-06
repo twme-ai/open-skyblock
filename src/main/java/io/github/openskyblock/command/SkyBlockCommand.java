@@ -45,6 +45,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "auction",
             "bazaar",
             "bz",
+            "trade",
             "shopnpcs",
             "sell",
             "sacks",
@@ -109,6 +110,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "shop" -> shop(sender, args);
             case "auctions", "auction" -> auctions(sender, args);
             case "bazaar", "bz" -> bazaar(sender, args);
+            case "trade" -> trade(sender, args);
             case "shopnpcs" -> shopNpcs(sender, args);
             case "sell" -> sell(sender, args);
             case "sacks", "sack" -> sacks(sender, args);
@@ -186,6 +188,20 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 5 && isBazaarCommand(args[0]) && (args[1].equalsIgnoreCase("buyorder") || args[1].equalsIgnoreCase("selloffer"))) {
             return startsWith(List.of("1", "2.5", "10", "100"), args[4]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("trade")) {
+            List<String> values = new ArrayList<>(List.of("accept", "deny", "offerhand", "offercoins", "remove", "ready", "confirm", "cancel", "status"));
+            values.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
+            return startsWith(values, args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("trade") && (args[1].equalsIgnoreCase("accept") || args[1].equalsIgnoreCase("deny"))) {
+            return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("trade") && args[1].equalsIgnoreCase("offercoins")) {
+            return startsWith(List.of("100", "1000", "10000"), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("trade") && args[1].equalsIgnoreCase("remove")) {
+            return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("shopnpcs")) {
             return startsWith(List.of("refresh", "remove"), args[1]);
@@ -350,6 +366,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " auction create|buy|cancel|claim", "commands.help.auction");
         helpLine(sender, label + " bazaar", "commands.help.bazaar");
         helpLine(sender, label + " bazaar instabuy|instasell|buyorder|selloffer", "commands.help.bazaar-order");
+        helpLine(sender, label + " trade <player>", "commands.help.trade");
+        helpLine(sender, label + " trade offerhand|offercoins|ready|confirm", "commands.help.trade-session");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
         helpLine(sender, label + " sacks", "commands.help.sacks");
         helpLine(sender, label + " sack deposit|withdraw", "commands.help.sack");
@@ -628,6 +646,71 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "orders", "mine" -> plugin.bazaar().sendOrders(player);
             default -> plugin.text().send(player, "commands.bazaar-usage");
         }
+    }
+
+    private void trade(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2) {
+            plugin.text().send(player, "commands.trade-usage");
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "accept" -> {
+                Player requester = tradePlayer(player, args);
+                if (requester != null) {
+                    plugin.trades().accept(player, requester);
+                }
+            }
+            case "deny" -> {
+                Player requester = tradePlayer(player, args);
+                if (requester != null) {
+                    plugin.trades().deny(player, requester);
+                }
+            }
+            case "offerhand" -> plugin.trades().offerHand(player);
+            case "offercoins" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.trade-usage");
+                    return;
+                }
+                parsePositiveAmount(player, args[2]).ifPresent(amount -> plugin.trades().offerCoins(player, amount));
+            }
+            case "remove" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.trade-usage");
+                    return;
+                }
+                parsePositiveInt(player, args[2]).ifPresent(slot -> plugin.trades().removeItem(player, slot));
+            }
+            case "ready" -> plugin.trades().ready(player);
+            case "confirm" -> plugin.trades().confirm(player);
+            case "cancel" -> plugin.trades().cancel(player);
+            case "status" -> plugin.trades().status(player);
+            default -> {
+                Player target = Bukkit.getPlayerExact(args[1]);
+                if (target == null) {
+                    plugin.text().send(player, "errors.unknown-player");
+                    return;
+                }
+                plugin.trades().request(player, target);
+            }
+        }
+    }
+
+    private Player tradePlayer(Player player, String[] args) {
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.trade-usage");
+            return null;
+        }
+        Player target = Bukkit.getPlayerExact(args[2]);
+        if (target == null) {
+            plugin.text().send(player, "errors.unknown-player");
+            return null;
+        }
+        return target;
     }
 
     private void sell(CommandSender sender, String[] args) {
