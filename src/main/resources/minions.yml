@@ -1,5 +1,9 @@
 settings:
   upgrade-slots: 2
+  sell-prices:
+    WHEAT: 2.0
+    COBBLESTONE: 1.0
+    ROTTEN_FLESH: 1.0
 
 fuels:
   COAL:
@@ -42,6 +46,14 @@ upgrades:
           material: HAY_BLOCK
         COAL:
           material: COAL_BLOCK
+  BUDGET_HOPPER:
+    display-name: "<green>Budget Hopper</green>"
+    material: HOPPER
+    sell-percentage: 0.50
+  ENCHANTED_HOPPER:
+    display-name: "<aqua>Enchanted Hopper</aqua>"
+    material: HOPPER
+    sell-percentage: 0.90
 
 minions:
   WHEAT_MINION:

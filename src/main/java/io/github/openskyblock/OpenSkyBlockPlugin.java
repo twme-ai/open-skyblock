@@ -259,7 +259,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.statService.slayerService(slayerService);
         this.itemAbilityService = new ItemAbilityService(this, configService, textService, customItemService, statService);
         this.mobSpawnService = new MobSpawnService(this, configService, textService, mobService);
-        this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService, customItemService);
+        this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService, customItemService, economyService);
         this.minionService.mayorService(mayorService);
         this.islandService = new IslandService(configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);

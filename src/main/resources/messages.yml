@@ -1036,9 +1036,10 @@ commands:
   minion-limit: "<prefix><red>You have reached your minion limit of <yellow><limit></yellow>.</red>"
   minion-not-found: "<prefix><red>That minion no longer exists.</red>"
   minion-list-header: "<prefix><aqua>Minions</aqua>"
-  minion-list-line: "<gray><slot>.</gray> <minion_name> <dark_gray>|</dark_gray> <white><generated></white><gray> generated</gray> <dark_gray>|</dark_gray> <gray>Fuel:</gray> <fuel> <dark_gray>|</dark_gray> <gray>Upgrades:</gray> <upgrades> <dark_gray>|</dark_gray> <gray><location></gray>"
+  minion-list-line: "<gray><slot>.</gray> <minion_name> <dark_gray>|</dark_gray> <white><generated></white><gray> generated</gray> <dark_gray>|</dark_gray> <gray>Fuel:</gray> <fuel> <dark_gray>|</dark_gray> <gray>Upgrades:</gray> <upgrades> <dark_gray>|</dark_gray> <gray>Hopper:</gray> <hopper> <dark_gray>|</dark_gray> <gray>Coins:</gray> <gold><hopper_coins></gold> <dark_gray>|</dark_gray> <gray><location></gray>"
   minion-claimed: "<prefix><green>Claimed <white><amount></white> generated resources from minions.</green>"
   minion-nothing: "<prefix><gray>There are no generated minion resources to claim.</gray>"
+  minion-hopper-claimed: "<prefix><gold>Collected <coins> coins from minion hopper sales.</gold>"
   minion-fuel-usage: "<prefix><red>Use <yellow>/skyblock minion fuel <slot></yellow> or <yellow>/skyblock minion clearfuel <slot></yellow>.</red>"
   minion-fuel-missing: "<prefix><red>Hold a configured minion fuel item in your main hand.</red>"
   minion-fuel-invalid: "<prefix><red>That item is not configured as minion fuel.</red>"
@@ -1195,6 +1196,7 @@ minions:
   upgrade-unknown: "<dark_gray>Unknown Upgrade</dark_gray>"
   compaction-none: "<dark_gray>None</dark_gray>"
   compaction-format: "<upgrade> <gray>to</gray> <yellow><output></yellow>"
+  hopper-none: "<dark_gray>None</dark_gray>"
 
 pets:
   no-active: "<gray>None</gray>"

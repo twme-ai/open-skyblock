@@ -547,6 +547,8 @@ minion:
         - "<gray>Upgrades:</gray> <upgrades>"
         - "<gray>Storage Bonus:</gray> <yellow>+<upgrade_storage></yellow>"
         - "<gray>Compaction:</gray> <compaction>"
+        - "<gray>Hopper:</gray> <hopper>"
+        - "<gray>Hopper Coins:</gray> <gold><hopper_coins></gold>"
       action: NONE
     fuel:
       slot: 12
@@ -571,6 +573,7 @@ minion:
         - "<gray>Speed Bonus:</gray> <yellow>+<upgrade_speed>%</yellow>"
         - "<gray>Output Bonus:</gray> <yellow>+<upgrade_output>%</yellow>"
         - "<gray>Compaction:</gray> <compaction>"
+        - "<gray>Hopper Sell:</gray> <yellow><hopper_percentage>%</yellow>"
         - ""
         - "<yellow>Click to install held upgrade.</yellow>"
       action: UPGRADE

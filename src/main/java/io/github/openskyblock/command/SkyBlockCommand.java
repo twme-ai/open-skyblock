@@ -20,6 +20,7 @@ import io.github.openskyblock.quiver.QuiverItemDefinition;
 import io.github.openskyblock.reforge.ReforgeDefinition;
 import io.github.openskyblock.sack.SackDefinition;
 import io.github.openskyblock.sack.SackItemDefinition;
+import io.github.openskyblock.service.MinionClaimResult;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionDefinition;
 import io.github.openskyblock.service.SkillDefinition;
@@ -3385,6 +3386,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             } else {
                 placeholders.add(TextService.parsed("fuel", plugin.text().rawMessage("minions.fuel-empty")));
                 placeholders.add(TextService.parsed("upgrades", plugin.text().rawMessage("minions.upgrades-empty")));
+                placeholders.add(TextService.parsed("hopper", plugin.text().rawMessage("minions.hopper-none")));
+                placeholders.add(TextService.raw("hopper_coins", plugin.text().formatNumber(placedMinion.soldCoins())));
             }
             plugin.text().send(player, "commands.minion-list-line", placeholders);
         }
@@ -3392,13 +3395,13 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private void minionClaim(Player player, String[] args) {
         if (args.length < 3 || args[2].equalsIgnoreCase("all")) {
-            long claimed = plugin.minions().claimAll(player);
+            MinionClaimResult claimed = plugin.minions().claimAll(player);
             sendClaimResult(player, claimed);
             return;
         }
         try {
             int slot = Integer.parseInt(args[2]) - 1;
-            long claimed = plugin.minions().claim(player, slot);
+            MinionClaimResult claimed = plugin.minions().claim(player, slot);
             sendClaimResult(player, claimed);
         } catch (NumberFormatException ignored) {
             plugin.text().send(player, "errors.invalid-number");
@@ -3458,12 +3461,17 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void sendClaimResult(Player player, long claimed) {
-        if (claimed <= 0L) {
+    private void sendClaimResult(Player player, MinionClaimResult claimed) {
+        if (claimed.emptyResult()) {
             plugin.text().send(player, "commands.minion-nothing");
             return;
         }
-        plugin.text().send(player, "commands.minion-claimed", List.of(TextService.raw("amount", plugin.text().formatNumber(claimed))));
+        if (claimed.resources() > 0L) {
+            plugin.text().send(player, "commands.minion-claimed", List.of(TextService.raw("amount", plugin.text().formatNumber(claimed.resources()))));
+        }
+        if (claimed.coins() > 0.0D) {
+            plugin.text().send(player, "commands.minion-hopper-claimed", List.of(TextService.raw("coins", plugin.text().formatNumber(claimed.coins()))));
+        }
     }
 
     private void reload(CommandSender sender) {

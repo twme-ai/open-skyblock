@@ -11,6 +11,7 @@ public record MinionUpgradeDefinition(
         double speedMultiplier,
         double outputMultiplier,
         long storageBonus,
+        double sellPercentage,
         Map<String, MinionCompactionDefinition> compactions
 ) {
     public boolean customItem() {

@@ -863,6 +863,7 @@ public final class ProfileManager {
                             placedMinion.upgradeIds().add(upgradeId.toUpperCase(Locale.ROOT));
                         }
                     }
+                    placedMinion.soldCoins(minion.getDouble("sold-coins", 0.0D));
                     profile.minions().add(placedMinion);
                 }
             }
@@ -1357,6 +1358,7 @@ public final class ProfileManager {
                     .filter(upgradeId -> upgradeId != null && !upgradeId.isBlank())
                     .map(upgradeId -> upgradeId.toUpperCase(Locale.ROOT))
                     .toList());
+            profileData.set(minionBase + ".sold-coins", minion.soldCoins());
         }
     }
 

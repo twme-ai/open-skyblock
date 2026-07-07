@@ -20,6 +20,7 @@ import io.github.openskyblock.sack.SackItemDefinition;
 import io.github.openskyblock.service.CollectionDefinition;
 import io.github.openskyblock.service.CollectionTier;
 import io.github.openskyblock.service.CustomItemDefinition;
+import io.github.openskyblock.service.MinionClaimResult;
 import io.github.openskyblock.service.MinionPlacement;
 import io.github.openskyblock.service.SkillDefinition;
 import io.github.openskyblock.shop.ShopDefinition;
@@ -1391,7 +1392,7 @@ public final class MenuService {
         }
         switch (action) {
             case CLAIM -> {
-                long claimed = plugin.minions().claim(player, placement);
+                MinionClaimResult claimed = plugin.minions().claim(player, placement);
                 sendClaimResult(player, claimed);
                 player.closeInventory();
             }
@@ -2421,12 +2422,17 @@ public final class MenuService {
         return Math.max(0, Math.min(maxPage, page));
     }
 
-    private void sendClaimResult(Player player, long claimed) {
-        if (claimed <= 0L) {
+    private void sendClaimResult(Player player, MinionClaimResult claimed) {
+        if (claimed.emptyResult()) {
             text.send(player, "commands.minion-nothing");
             return;
         }
-        text.send(player, "commands.minion-claimed", List.of(TextService.raw("amount", text.formatNumber(claimed))));
+        if (claimed.resources() > 0L) {
+            text.send(player, "commands.minion-claimed", List.of(TextService.raw("amount", text.formatNumber(claimed.resources()))));
+        }
+        if (claimed.coins() > 0.0D) {
+            text.send(player, "commands.minion-hopper-claimed", List.of(TextService.raw("coins", text.formatNumber(claimed.coins()))));
+        }
     }
 
     private List<TextService.TextPlaceholder> placeholders(Player player) {

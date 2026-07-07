@@ -2,6 +2,7 @@ package io.github.openskyblock.service;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.ProfileManager;
@@ -38,19 +39,21 @@ public final class MinionService {
     private final CollectionService collections;
     private final UpgradeService upgrades;
     private final CustomItemService customItems;
+    private final EconomyService economy;
     private final NamespacedKey minionIdKey;
     private final Map<String, MinionDefinition> definitions = new HashMap<>();
     private final Map<String, MinionFuelDefinition> fuels = new HashMap<>();
     private final Map<String, MinionUpgradeDefinition> minionUpgrades = new HashMap<>();
     private MayorService mayors;
 
-    public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, UpgradeService upgrades, CustomItemService customItems) {
+    public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, UpgradeService upgrades, CustomItemService customItems, EconomyService economy) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.collections = collections;
         this.upgrades = upgrades;
         this.customItems = customItems;
+        this.economy = economy;
         this.minionIdKey = new NamespacedKey(plugin, "minion_id");
     }
 
@@ -132,6 +135,7 @@ public final class MinionService {
                     Math.max(1.0D, sectionUpgrade.getDouble("speed-multiplier", 1.0D)),
                     Math.max(1.0D, sectionUpgrade.getDouble("output-multiplier", 1.0D)),
                     Math.max(0L, sectionUpgrade.getLong("storage-bonus", 0L)),
+                    Math.max(0.0D, Math.min(1.0D, sectionUpgrade.getDouble("sell-percentage", 0.0D))),
                     loadCompactions(sectionUpgrade)
             ));
         }
@@ -304,38 +308,45 @@ public final class MinionService {
         return Optional.of(new MinionPlacement(profile, slot, placedMinion, definition));
     }
 
-    public long claim(Player player, int slot) {
+    public MinionClaimResult claim(Player player, int slot) {
         SkyBlockProfile profile = profiles.profile(player);
         if (slot < 0 || slot >= profile.minions().size()) {
-            return 0L;
+            return MinionClaimResult.empty();
         }
         PlacedMinion placedMinion = profile.minions().get(slot);
         MinionDefinition definition = definition(placedMinion.id()).orElse(null);
         if (definition == null) {
-            return 0L;
+            return MinionClaimResult.empty();
         }
         return claim(player, new MinionPlacement(profile, slot, placedMinion, definition));
     }
 
-    public long claim(Player player, MinionPlacement placement) {
+    public MinionClaimResult claim(Player player, MinionPlacement placement) {
         updateMinion(placement.placedMinion(), placement.definition(), System.currentTimeMillis());
-        if (placement.placedMinion().generatedAmount() <= 0L) {
-            return 0L;
-        }
         PlacedMinion placedMinion = placement.placedMinion();
         MinionDefinition definition = placement.definition();
         long generated = placedMinion.generatedAmount();
+        double soldCoins = placedMinion.soldCoins();
+        if (generated <= 0L && soldCoins <= 0.0D) {
+            return MinionClaimResult.empty();
+        }
         placedMinion.generatedAmount(0L);
-        collections.addProgress(player, definition.generatedCollection(), generated);
-        addGeneratedItems(player, definition, placedMinion, generated);
-        return generated;
+        placedMinion.soldCoins(0.0D);
+        if (generated > 0L) {
+            collections.addProgress(player, definition.generatedCollection(), generated);
+            addGeneratedItems(player, definition, placedMinion, generated);
+        }
+        if (soldCoins > 0.0D) {
+            economy.addPurse(player, soldCoins);
+        }
+        return new MinionClaimResult(generated, soldCoins);
     }
 
-    public long claimAll(Player player) {
+    public MinionClaimResult claimAll(Player player) {
         SkyBlockProfile profile = profiles.profile(player);
-        long claimed = 0L;
+        MinionClaimResult claimed = MinionClaimResult.empty();
         for (int slot = 0; slot < profile.minions().size(); slot++) {
-            claimed += claim(player, slot);
+            claimed = claimed.add(claim(player, slot));
         }
         return claimed;
     }
@@ -549,9 +560,14 @@ public final class MinionService {
             return;
         }
         long capacity = Math.max(0L, effectiveStorage(definition, placedMinion) - placedMinion.generatedAmount());
-        long generated = Math.min(capacity, generatedAmount(definition, placedMinion, cycles));
-        if (generated > 0L) {
-            placedMinion.generatedAmount(placedMinion.generatedAmount() + generated);
+        long produced = generatedAmount(definition, placedMinion, cycles);
+        long stored = Math.min(capacity, produced);
+        long overflow = produced - stored;
+        if (stored > 0L) {
+            placedMinion.generatedAmount(placedMinion.generatedAmount() + stored);
+        }
+        if (overflow > 0L) {
+            sellOverflow(placedMinion, definition, overflow);
         }
         placedMinion.lastActionMillis(placedMinion.lastActionMillis() + cycles * intervalMillis);
     }
@@ -621,6 +637,31 @@ public final class MinionService {
                 .max(Comparator.comparingLong(active -> active.compaction().inputAmount()));
     }
 
+    private Optional<MinionUpgradeDefinition> activeSeller(PlacedMinion placedMinion) {
+        return activeUpgrades(placedMinion).stream()
+                .filter(upgrade -> upgrade.sellPercentage() > 0.0D)
+                .max(Comparator.comparingDouble(MinionUpgradeDefinition::sellPercentage));
+    }
+
+    private void sellOverflow(PlacedMinion placedMinion, MinionDefinition definition, long amount) {
+        MinionUpgradeDefinition seller = activeSeller(placedMinion).orElse(null);
+        if (seller == null) {
+            return;
+        }
+        double price = sellPrice(definition.generatedCollection());
+        if (price <= 0.0D) {
+            return;
+        }
+        placedMinion.addSoldCoins(amount * price * seller.sellPercentage());
+    }
+
+    private double sellPrice(String collectionId) {
+        if (collectionId == null || collectionId.isBlank()) {
+            return 0.0D;
+        }
+        return Math.max(0.0D, configService.minions().getDouble("settings.sell-prices." + collectionId.toUpperCase(Locale.ROOT), 0.0D));
+    }
+
     private boolean compactionOutputAvailable(MinionCompactionDefinition compaction) {
         if (compaction.customItem()) {
             return customItems.definition(compaction.outputCustomItemId()).isPresent();
@@ -676,6 +717,7 @@ public final class MinionService {
         double outputMultiplier = placedMinion == null ? 1.0D : upgradeOutputMultiplier(placedMinion);
         long storage = placedMinion == null ? definition.storageSize() : effectiveStorage(definition, placedMinion);
         ActiveCompaction compaction = placedMinion == null ? null : activeCompaction(definition, placedMinion).orElse(null);
+        MinionUpgradeDefinition seller = placedMinion == null ? null : activeSeller(placedMinion).orElse(null);
         return List.of(
                 TextService.parsed("minion_name", definition.displayName()),
                 TextService.parsed("collection", collectionDisplayName(definition)),
@@ -690,7 +732,10 @@ public final class MinionService {
                 TextService.raw("upgrade_speed", text.formatNumber((upgradeSpeedMultiplier - 1.0D) * 100.0D)),
                 TextService.raw("upgrade_output", text.formatNumber((outputMultiplier - 1.0D) * 100.0D)),
                 TextService.raw("upgrade_storage", text.formatNumber(Math.max(0L, storage - definition.storageSize()))),
-                TextService.parsed("compaction", compactionLabel(compaction))
+                TextService.parsed("compaction", compactionLabel(compaction)),
+                TextService.parsed("hopper", seller == null ? text.rawMessage("minions.hopper-none") : seller.displayName()),
+                TextService.raw("hopper_percentage", text.formatNumber((seller == null ? 0.0D : seller.sellPercentage()) * 100.0D)),
+                TextService.raw("hopper_coins", text.formatNumber(placedMinion == null ? 0.0D : placedMinion.soldCoins()))
         );
     }
 

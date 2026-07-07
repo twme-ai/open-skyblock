@@ -15,6 +15,7 @@ public final class PlacedMinion {
     private String fuelId;
     private long fuelExpiresAtMillis;
     private final List<String> upgradeIds = new ArrayList<>();
+    private double soldCoins;
 
     public PlacedMinion(String id, long generatedAmount, long lastActionMillis) {
         this(id, generatedAmount, lastActionMillis, null, 0, 0, 0, "", 0L);
@@ -131,5 +132,17 @@ public final class PlacedMinion {
 
     public List<String> upgradeIds() {
         return upgradeIds;
+    }
+
+    public double soldCoins() {
+        return soldCoins;
+    }
+
+    public void soldCoins(double soldCoins) {
+        this.soldCoins = Math.max(0.0D, soldCoins);
+    }
+
+    public void addSoldCoins(double amount) {
+        soldCoins(soldCoins + amount);
     }
 }
