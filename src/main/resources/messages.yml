@@ -123,7 +123,7 @@ commands:
     pet-xp: "Add XP to the active pet."
     profile: "Open your configurable profile viewer."
     purse: "View your purse and bank balance."
-    skills: "View your skill levels."
+    skills: "Open your configurable skill menu."
     collections: "View your collection progress."
     giveitem: "Give a configured custom item."
     minion-add: "Record a placed minion for your profile."
@@ -1255,6 +1255,9 @@ trades:
   reason-cancelled: "A player cancelled the trade."
   reason-quit: "A player disconnected."
   reason-shutdown: "The server is stopping."
+
+skills:
+  maxed: "Maxed"
 
 backpacks:
   empty-slot: "<dark_gray>Empty</dark_gray>"

@@ -3082,16 +3082,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (player == null) {
             return;
         }
-        SkyBlockProfile profile = plugin.profiles().profile(player);
-        plugin.text().send(player, "commands.skills-header");
-        for (SkillDefinition definition : plugin.skills().definitions()) {
-            double xp = profile.skillXp(definition.type());
-            plugin.text().send(player, "commands.skill-line", List.of(
-                    TextService.parsed("skill", definition.displayName()),
-                    TextService.raw("level", Integer.toString(plugin.skills().level(definition.type(), xp))),
-                    TextService.raw("xp", plugin.text().formatNumber(xp))
-            ));
-        }
+        plugin.menus().openSkillMenu(player, 0);
     }
 
     private void stats(CommandSender sender) {

@@ -201,6 +201,36 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openSkillMenu(Player player, int requestedPage) {
+        ConfigurationSection section = configService.menus().getConfigurationSection("skill-menu");
+        if (section == null) {
+            sendSkillSummary(player);
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        List<SkillDefinition> skills = plugin.skills().definitions();
+        List<Integer> contentSlots = contentSlots(section);
+        int maxPage = maxPage(skills.size(), contentSlots.size());
+        int page = clampPage(requestedPage, maxPage);
+        Map<Integer, BrowserMenuAction> actions = new HashMap<>();
+        BrowserMenuHolder holder = new BrowserMenuHolder(BrowserMenuType.SKILLS, page, maxPage, actions);
+        Inventory inventory = browserInventory(holder, section, page, maxPage);
+        fill(inventory, section.getConfigurationSection("filler"));
+
+        addSkillSummary(inventory, section.getConfigurationSection("summary"), profile);
+        int offset = page * contentSlots.size();
+        for (int index = 0; index < contentSlots.size(); index++) {
+            int skillIndex = offset + index;
+            if (skillIndex >= skills.size()) {
+                break;
+            }
+            SkillDefinition definition = skills.get(skillIndex);
+            inventory.setItem(contentSlots.get(index), skillItem(profile, definition, section.getConfigurationSection("skill-item")));
+        }
+        addBrowserNavigation(inventory, section, page, maxPage, actions);
+        player.openInventory(inventory);
+    }
+
     public void openRecipeBook(Player player, int requestedPage) {
         ConfigurationSection section = configService.menus().getConfigurationSection("recipe-book");
         if (section == null) {
@@ -877,7 +907,7 @@ public final class MenuService {
             case PROFILE -> openProfileViewer(player);
             case ISLAND_HOME -> player.performCommand("skyblock island home");
             case BANK -> openBankMenu(player);
-            case SKILLS -> player.performCommand("skyblock skills");
+            case SKILLS -> openSkillMenu(player, 0);
             case STATS -> player.performCommand("skyblock stats");
             case SACKS -> openSacksMenu(player);
             case QUIVER -> openQuiverMenu(player);
@@ -906,8 +936,7 @@ public final class MenuService {
         switch (action) {
             case BACK -> openSkyBlockMenu(player);
             case SKILLS -> {
-                player.closeInventory();
-                player.performCommand("skyblock skills");
+                openSkillMenu(player, 0);
             }
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case STATS -> {
@@ -1303,6 +1332,8 @@ public final class MenuService {
             }
             case COLLECTIONS, RECIPES -> {
             }
+            case SKILLS -> {
+            }
         }
     }
 
@@ -1351,6 +1382,84 @@ public final class MenuService {
         TradeMenuAction action = TradeMenuAction.parse(section.getString("action", fallbackAction.name()));
         inventory.setItem(slot, item(section, tradePlaceholders(player, session)));
         actions.put(slot, action);
+    }
+
+    private void addSkillSummary(Inventory inventory, ConfigurationSection section, SkyBlockProfile profile) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, skillSummaryPlaceholders(profile)));
+    }
+
+    private ItemStack skillItem(SkyBlockProfile profile, SkillDefinition definition, ConfigurationSection section) {
+        Material material = skillMaterial(definition, section);
+        ItemStack itemStack = new ItemStack(material);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = skillPlaceholders(profile, definition);
+        if (section == null) {
+            meta.displayName(text.deserialize("<skill>", placeholders));
+            meta.lore(List.of());
+        } else {
+            meta.displayName(text.deserialize(section.getString("display-name", "<skill>"), placeholders));
+            meta.lore(section.getStringList("lore").stream()
+                    .map(line -> text.deserialize(line, placeholders))
+                    .toList());
+        }
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private Material skillMaterial(SkillDefinition definition, ConfigurationSection section) {
+        String fallback = "EXPERIENCE_BOTTLE";
+        if (section != null) {
+            fallback = section.getString("material", fallback);
+            String configured = section.getString("materials." + definition.type().name(), fallback);
+            Material material = Material.matchMaterial(configured);
+            if (material != null) {
+                return material;
+            }
+        }
+        Material material = Material.matchMaterial(fallback);
+        return material == null ? Material.EXPERIENCE_BOTTLE : material;
+    }
+
+    private List<TextService.TextPlaceholder> skillSummaryPlaceholders(SkyBlockProfile profile) {
+        List<SkillDefinition> skills = plugin.skills().definitions();
+        int totalSkillLevel = skills.stream()
+                .mapToInt(definition -> plugin.skills().level(definition.type(), profile.skillXp(definition.type())))
+                .sum();
+        double skillAverage = skills.isEmpty() ? 0.0D : totalSkillLevel / (double) skills.size();
+        return List.of(
+                TextService.raw("level", Integer.toString(plugin.skills().skyBlockLevel(profile))),
+                TextService.raw("skill_count", text.formatNumber(skills.size())),
+                TextService.raw("total_skill_level", text.formatNumber(totalSkillLevel)),
+                TextService.raw("skill_average", text.formatNumber(skillAverage))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> skillPlaceholders(SkyBlockProfile profile, SkillDefinition definition) {
+        double xp = profile.skillXp(definition.type());
+        int level = plugin.skills().level(definition.type(), xp);
+        double currentXp = plugin.skills().xpIntoCurrentLevel(definition.type(), xp);
+        double requiredXp = plugin.skills().requiredXpForNextLevel(definition.type(), xp);
+        double progress = plugin.skills().progressToNextLevel(definition.type(), xp);
+        int nextLevel = Math.min(definition.maxLevel(), level + 1);
+        return List.of(
+                TextService.parsed("skill", definition.displayName()),
+                TextService.raw("id", definition.type().name()),
+                TextService.raw("level", Integer.toString(level)),
+                TextService.raw("next_level", Integer.toString(nextLevel)),
+                TextService.raw("max_level", Integer.toString(definition.maxLevel())),
+                TextService.raw("xp", text.formatNumber(xp)),
+                TextService.raw("current_xp", text.formatNumber(currentXp)),
+                TextService.raw("required_xp", requiredXp <= 0.0D ? text.rawMessage("skills.maxed") : text.formatNumber(requiredXp)),
+                TextService.raw("progress", text.formatNumber(progress)),
+                TextService.raw("skyblock_xp", text.formatNumber(level * 5))
+        );
     }
 
     private ItemStack tradeItem(ItemStack source, ConfigurationSection section, int index, boolean removable) {
@@ -1424,6 +1533,19 @@ public final class MenuService {
         }
     }
 
+    private void sendSkillSummary(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        text.send(player, "commands.skills-header");
+        for (SkillDefinition definition : plugin.skills().definitions()) {
+            double xp = profile.skillXp(definition.type());
+            text.send(player, "commands.skill-line", List.of(
+                    TextService.parsed("skill", definition.displayName()),
+                    TextService.raw("level", Integer.toString(plugin.skills().level(definition.type(), xp))),
+                    TextService.raw("xp", text.formatNumber(xp))
+            ));
+        }
+    }
+
     private ItemStack item(Player player, ConfigurationSection section) {
         return item(section, placeholders(player));
     }
@@ -1457,6 +1579,7 @@ public final class MenuService {
 
     private void openBrowser(Player player, BrowserMenuType type, int page) {
         switch (type) {
+            case SKILLS -> openSkillMenu(player, page);
             case COLLECTIONS -> openCollectionBrowser(player, page);
             case RECIPES -> openRecipeBook(player, page);
             case AUCTIONS -> openAuctionHouse(player, page);

@@ -244,7 +244,7 @@ public final class SkillService {
             if (nextLevel > definition.maxLevel()) {
                 break;
             }
-            double required = levelXp.getOrDefault(nextLevel, defaultXpForLevel(nextLevel));
+            double required = xpForLevel(nextLevel);
             if (xp < required) {
                 break;
             }
@@ -254,13 +254,42 @@ public final class SkillService {
         return Math.min(level, definition.maxLevel());
     }
 
+    public double xpIntoCurrentLevel(SkillType skillType, double xp) {
+        int currentLevel = level(skillType, xp);
+        double remaining = Math.max(0.0D, xp);
+        for (int nextLevel : sortedLevels()) {
+            if (nextLevel > currentLevel) {
+                break;
+            }
+            remaining -= xpForLevel(nextLevel);
+        }
+        return Math.max(0.0D, remaining);
+    }
+
+    public double requiredXpForNextLevel(SkillType skillType, double xp) {
+        SkillDefinition definition = definition(skillType);
+        int currentLevel = level(skillType, xp);
+        if (currentLevel >= definition.maxLevel()) {
+            return 0.0D;
+        }
+        return xpForLevel(currentLevel + 1);
+    }
+
+    public double progressToNextLevel(SkillType skillType, double xp) {
+        double required = requiredXpForNextLevel(skillType, xp);
+        if (required <= 0.0D) {
+            return 100.0D;
+        }
+        return Math.max(0.0D, Math.min(100.0D, xpIntoCurrentLevel(skillType, xp) / required * 100.0D));
+    }
+
     public SkillDefinition definition(SkillType skillType) {
         return definitions.getOrDefault(skillType, new SkillDefinition(skillType, skillType.name(), 50));
     }
 
     public List<SkillDefinition> definitions() {
         return definitions.values().stream()
-                .sorted(Comparator.comparing(definition -> definition.type().name()))
+                .sorted(Comparator.comparingInt(definition -> definition.type().ordinal()))
                 .toList();
     }
 
@@ -384,14 +413,20 @@ public final class SkillService {
     }
 
     private List<Integer> sortedLevels() {
-        if (levelXp.isEmpty()) {
-            List<Integer> defaults = new ArrayList<>();
-            for (int level = 1; level <= 60; level++) {
-                defaults.add(level);
-            }
-            return defaults;
+        int maxConfiguredLevel = definitions.values().stream()
+                .mapToInt(SkillDefinition::maxLevel)
+                .max()
+                .orElse(60);
+        int maxLevel = Math.max(maxConfiguredLevel, levelXp.keySet().stream().mapToInt(Integer::intValue).max().orElse(0));
+        List<Integer> levels = new ArrayList<>();
+        for (int level = 1; level <= maxLevel; level++) {
+            levels.add(level);
         }
-        return levelXp.keySet().stream().sorted().toList();
+        return levels;
+    }
+
+    private double xpForLevel(int level) {
+        return levelXp.getOrDefault(level, defaultXpForLevel(level));
     }
 
     private double defaultXpForLevel(int level) {

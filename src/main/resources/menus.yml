@@ -269,6 +269,90 @@ profile-viewer:
       lore: []
       action: BACK
 
+skill-menu:
+  title: "<dark_gray>Skills - Page <page></dark_gray>"
+  rows: 6
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 37
+    - 38
+    - 39
+    - 40
+    - 41
+    - 42
+    - 43
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  summary:
+    slot: 4
+    material: EXPERIENCE_BOTTLE
+    display-name: "<aqua>Skills</aqua>"
+    lore:
+      - "<gray>SkyBlock Level:</gray> <yellow><level></yellow>"
+      - "<gray>Skills:</gray> <yellow><skill_count></yellow>"
+      - "<gray>Total Skill Level:</gray> <yellow><total_skill_level></yellow>"
+      - "<gray>Skill Average:</gray> <yellow><skill_average></yellow>"
+  skill-item:
+    material: EXPERIENCE_BOTTLE
+    materials:
+      FARMING: WHEAT
+      MINING: DIAMOND_PICKAXE
+      COMBAT: DIAMOND_SWORD
+      FORAGING: OAK_SAPLING
+      FISHING: FISHING_ROD
+      ENCHANTING: ENCHANTING_TABLE
+      ALCHEMY: BREWING_STAND
+      TAMING: BONE
+      CARPENTRY: CRAFTING_TABLE
+      RUNECRAFTING: MAGMA_CREAM
+      SOCIAL: PLAYER_HEAD
+      DUNGEONEERING: WITHER_SKELETON_SKULL
+    display-name: "<skill>"
+    lore:
+      - "<gray>Level:</gray> <yellow><level></yellow><gray>/</gray><yellow><max_level></yellow>"
+      - "<gray>Total XP:</gray> <white><xp></white>"
+      - "<gray>Progress:</gray> <white><current_xp></white><gray>/</gray><white><required_xp></white> <dark_gray>(</dark_gray><yellow><progress>%</yellow><dark_gray>)</dark_gray>"
+      - "<gray>Next Level:</gray> <yellow><next_level></yellow>"
+      - "<gray>SkyBlock XP:</gray> <aqua><skyblock_xp></aqua>"
+  previous:
+    slot: 45
+    material: ARROW
+    display-name: "<yellow>Previous Page</yellow>"
+    lore: []
+  back:
+    slot: 49
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+  next:
+    slot: 53
+    material: ARROW
+    display-name: "<yellow>Next Page</yellow>"
+    lore: []
+
 minion:
   title: "<dark_gray><minion_name></dark_gray>"
   rows: 3
