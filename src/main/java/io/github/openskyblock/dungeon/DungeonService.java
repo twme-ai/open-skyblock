@@ -3,6 +3,7 @@ package io.github.openskyblock.dungeon;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.economy.EconomyService;
+import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import io.github.openskyblock.service.CustomItemDefinition;
@@ -31,6 +32,7 @@ public final class DungeonService {
     private final EconomyService economy;
     private final SkillService skills;
     private final CustomItemService customItems;
+    private MayorService mayors;
     private final Map<String, DungeonClassDefinition> classes = new HashMap<>();
     private final Map<String, DungeonFloorDefinition> floors = new HashMap<>();
     private int maxScore = 300;
@@ -45,6 +47,10 @@ public final class DungeonService {
         this.economy = economy;
         this.skills = skills;
         this.customItems = customItems;
+    }
+
+    public void mayorService(MayorService mayors) {
+        this.mayors = mayors;
     }
 
     public void reload() {
@@ -185,9 +191,9 @@ public final class DungeonService {
         }
         String classId = selectedClass(profile);
         DungeonClassDefinition selectedClass = dungeonClass(classId).orElse(null);
-        int score = Math.max(0, Math.min(maxScore, requestedScore));
+        int score = effectiveScore(Math.max(0, Math.min(maxScore, requestedScore)));
         DungeonChestDefinition chest = bestChest(floor, score).orElse(null);
-        if (chest != null && !economy.spendPurse(player, chest.cost())) {
+        if (chest != null && !economy.spendPurse(player, effectiveChestCost(chest))) {
             text.send(player, "commands.dungeon-no-money", chestPlaceholders(floor, chest, score, List.of()));
             return false;
         }
@@ -395,7 +401,7 @@ public final class DungeonService {
                 TextService.raw("chest_id", chest.id()),
                 TextService.parsed("chest", chest.displayName()),
                 TextService.raw("min_score", Integer.toString(chest.minScore())),
-                TextService.raw("cost", text.formatNumber(chest.cost())),
+                TextService.raw("cost", text.formatNumber(effectiveChestCost(chest))),
                 TextService.parsed("rewards", rewards.isEmpty() ? "<gray>none</gray>" : String.join("<gray>, </gray>", rewards))
         );
     }
@@ -429,6 +435,16 @@ public final class DungeonService {
 
     private int catacombsLevel(SkyBlockProfile profile) {
         return skills.level(SkillType.DUNGEONEERING, profile.skillXp(SkillType.DUNGEONEERING));
+    }
+
+    private int effectiveScore(int baseScore) {
+        double bonus = mayors == null ? 0.0D : Math.max(0.0D, mayors.modifier("dungeon_score_bonus"));
+        return (int) Math.round(Math.max(0.0D, baseScore + bonus));
+    }
+
+    private double effectiveChestCost(DungeonChestDefinition chest) {
+        double discount = mayors == null ? 0.0D : Math.max(0.0D, Math.min(1.0D, mayors.modifier("dungeon_chest_discount")));
+        return Math.max(0.0D, chest.cost() * (1.0D - discount));
     }
 
     private void resetDaily(SkyBlockProfile profile) {

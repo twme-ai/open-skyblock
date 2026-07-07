@@ -90,14 +90,19 @@ candidates:
     perks:
       dungeon_score:
         display-name: "<blue>EZPZ</blue>"
-        description: "Configured Dungeon score modifier for future Dungeon integrations."
+        description: "Adds score to completed Dungeon runs."
         modifiers:
           dungeon_score_bonus: 10.0
       dungeon_discount:
         display-name: "<green>Marauder</green>"
-        description: "Configured Dungeon chest discount for future Dungeon integrations."
+        description: "Reduces Dungeon reward chest costs."
         modifiers:
           dungeon_chest_discount: 0.20
+      benediction:
+        display-name: "<aqua>Benediction</aqua>"
+        description: "Configured blessing strength modifier for future Dungeon blessing integrations."
+        modifiers:
+          dungeon_blessing_multiplier: 0.25
   DERPY:
     display-name: "<dark_purple>Derpy</dark_purple>"
     description: "A special mayor with disruptive global modifiers."
