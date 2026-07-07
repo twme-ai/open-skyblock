@@ -16,7 +16,7 @@
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <paper.version>1.21.8-R0.1-SNAPSHOT</paper.version>
-        <worldedit.version>7.4.4</worldedit.version>
+        <worldedit.version>7.3.19</worldedit.version>
     </properties>
 
     <repositories>
