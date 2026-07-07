@@ -308,7 +308,13 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(plugin.customItems().definitions().stream().map(CustomItemDefinition::id).toList(), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("island")) {
-            return startsWith(List.of("create", "home", "info"), args[1]);
+            return startsWith(List.of("create", "home", "info", "manage", "menu", "visit", "visitors"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("visit")) {
+            return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("visitors")) {
+            return startsWith(List.of("on", "off", "toggle"), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("bank")) {
             return startsWith(List.of("balance", "deposit", "withdraw", "interest"), args[1]);
@@ -863,7 +869,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         TextService text = plugin.text();
         text.send(sender, "commands.help-header");
         helpLine(sender, label + " menu", "commands.help.menu");
-        helpLine(sender, label + " island create|home|info", "commands.help.island");
+        helpLine(sender, label + " island create|home|info|manage|visit|visitors", "commands.help.island");
         helpLine(sender, label + " bank [deposit|withdraw] [amount|all]", "commands.help.bank");
         helpLine(sender, label + " shops", "commands.help.shop");
         helpLine(sender, label + " shop <id>", "commands.help.shop");
@@ -1006,6 +1012,29 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "create" -> plugin.islands().createOrTeleport(player);
             case "home" -> plugin.islands().teleportHome(player);
             case "info" -> plugin.islands().sendInfo(player);
+            case "manage", "menu" -> plugin.menus().openIslandManagement(player);
+            case "visit" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.island-usage");
+                    return;
+                }
+                plugin.islands().visit(player, args[2]);
+            }
+            case "visitors" -> {
+                if (args.length < 3 || args[2].equalsIgnoreCase("toggle")) {
+                    plugin.islands().toggleVisitors(player);
+                    return;
+                }
+                if (args[2].equalsIgnoreCase("on") || args[2].equalsIgnoreCase("open")) {
+                    plugin.islands().setVisitors(player, true);
+                    return;
+                }
+                if (args[2].equalsIgnoreCase("off") || args[2].equalsIgnoreCase("closed")) {
+                    plugin.islands().setVisitors(player, false);
+                    return;
+                }
+                plugin.text().send(player, "commands.island-usage");
+            }
             default -> plugin.text().send(player, "errors.unknown-command");
         }
     }

@@ -10,6 +10,8 @@ import io.github.openskyblock.menu.BrowserMenuHolder;
 import io.github.openskyblock.menu.EnchantingAnvilHolder;
 import io.github.openskyblock.menu.EnchantingTableHolder;
 import io.github.openskyblock.menu.EquipmentHolder;
+import io.github.openskyblock.menu.IslandMenuAction;
+import io.github.openskyblock.menu.IslandMenuHolder;
 import io.github.openskyblock.menu.MenuAction;
 import io.github.openskyblock.menu.MinionMenuAction;
 import io.github.openskyblock.menu.MinionMenuHolder;
@@ -105,6 +107,9 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof TradeMenuHolder tradeMenuHolder) {
                 handleTradeMenuClick(event, player, tradeMenuHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof IslandMenuHolder islandMenuHolder) {
+                handleIslandMenuClick(event, player, islandMenuHolder);
             }
             if (event.getView().getTopInventory().getHolder() instanceof ProfileMenuHolder profileMenuHolder) {
                 handleProfileMenuClick(event, player, profileMenuHolder);
@@ -224,6 +229,15 @@ public final class MenuListener implements Listener {
         event.setCancelled(true);
         int rawSlot = event.getRawSlot();
         plugin.getServer().getScheduler().runTask(plugin, () -> plugin.menus().runTradeMenuClick(player, holder, rawSlot));
+    }
+
+    private void handleIslandMenuClick(InventoryClickEvent event, Player player, IslandMenuHolder holder) {
+        event.setCancelled(true);
+        IslandMenuAction action = holder.action(event.getRawSlot());
+        if (action == IslandMenuAction.NONE) {
+            return;
+        }
+        plugin.menus().runIslandMenuAction(player, action);
     }
 
     private void handleProfileMenuClick(InventoryClickEvent event, Player player, ProfileMenuHolder holder) {

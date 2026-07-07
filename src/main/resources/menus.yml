@@ -21,8 +21,8 @@ skyblock:
       material: GRASS_BLOCK
       display-name: "<green>Private Island</green>"
       lore:
-        - "<gray>Travel to your private island.</gray>"
-      action: ISLAND_HOME
+        - "<gray>Manage your island, visitors, and home warp.</gray>"
+      action: ISLAND_MENU
     sacks:
       slot: 13
       material: BUNDLE
@@ -171,6 +171,62 @@ skyblock:
       lore:
         - "<gray>Apply configured enchanted books to custom items.</gray>"
       action: ENCHANTING_ANVIL
+
+island-management:
+  title: "<dark_gray>Island Management</dark_gray>"
+  rows: 3
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  items:
+    summary:
+      slot: 4
+      material: GRASS_BLOCK
+      display-name: "<green><owner>'s Island</green>"
+      lore:
+        - "<gray>World:</gray> <yellow><world></yellow>"
+        - "<gray>Visitors:</gray> <visitors_status>"
+        - "<gray>Guests Online:</gray> <yellow><visitors></yellow><gray>/</gray><yellow><visitor_limit></yellow>"
+        - "<gray>Placed Minions:</gray> <yellow><minions></yellow>"
+      action: NONE
+    home:
+      slot: 11
+      material: ENDER_PEARL
+      display-name: "<green>Travel Home</green>"
+      lore:
+        - "<gray>Create or teleport to your private island.</gray>"
+        - ""
+        - "<yellow>Click to travel.</yellow>"
+      action: HOME
+    visitors:
+      slot: 13
+      material: OAK_DOOR
+      display-name: "<aqua>Visitor Access</aqua>"
+      lore:
+        - "<gray>Current:</gray> <visitors_status>"
+        - "<gray>Guest Limit:</gray> <yellow><visitors></yellow><gray>/</gray><yellow><visitor_limit></yellow>"
+        - "<gray>Open islands can be visited with</gray>"
+        - "<yellow>/skyblock island visit <owner></yellow>"
+        - ""
+        - "<yellow>Click to toggle.</yellow>"
+      action: TOGGLE_VISITORS
+    info:
+      slot: 15
+      material: MAP
+      display-name: "<yellow>Island Info</yellow>"
+      lore:
+        - "<gray>Show the current island status in chat.</gray>"
+        - ""
+        - "<yellow>Click to show info.</yellow>"
+      action: INFO
+    back:
+      slot: 22
+      material: NETHER_STAR
+      display-name: "<green>SkyBlock Menu</green>"
+      lore: []
+      action: BACK
 
 profile-viewer:
   title: "<dark_gray><player>'s Profile</dark_gray>"

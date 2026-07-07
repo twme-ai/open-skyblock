@@ -20,6 +20,7 @@ public final class SkyBlockProfile {
     private double bank;
     private long bankInterestLastMillis = System.currentTimeMillis();
     private String islandWorldName;
+    private boolean islandVisitorsEnabled;
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
     private final Set<String> fairySouls = new HashSet<>();
@@ -202,6 +203,14 @@ public final class SkyBlockProfile {
 
     public void islandWorldName(String islandWorldName) {
         this.islandWorldName = islandWorldName;
+    }
+
+    public boolean islandVisitorsEnabled() {
+        return islandVisitorsEnabled;
+    }
+
+    public void islandVisitorsEnabled(boolean islandVisitorsEnabled) {
+        this.islandVisitorsEnabled = islandVisitorsEnabled;
     }
 
     public double skillXp(SkillType skillType) {

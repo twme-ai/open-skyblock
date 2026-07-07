@@ -31,7 +31,7 @@ commands:
   help-line: "<gray>/<command></gray> <white><description></white>"
   help:
     menu: "Open the SkyBlock menu."
-    island: "Create or travel to your private island."
+    island: "Create, manage, visit, or change visitor access for private islands."
     bank: "Open the bank, move coins, or view interest."
     shop: "Open a configured NPC shop."
     shop-npcs: "Refresh or remove configured physical shop NPCs."
@@ -1048,9 +1048,17 @@ commands:
   recipe-blocked: "<prefix><red>You have not unlocked</red> <recipe><red>.</red> <gray>Requires:</gray> <requirement>"
   island-created: "<prefix><green>Your private island has been created.</green>"
   island-home: "<prefix><green>Teleported to your private island.</green>"
-  island-info: "<prefix><gray>Island world:</gray> <yellow><world></yellow>"
+  island-usage: "<prefix><red>Use <yellow>/skyblock island create</yellow>, <yellow>/skyblock island home</yellow>, <yellow>/skyblock island manage</yellow>, <yellow>/skyblock island visit <player></yellow>, or <yellow>/skyblock island visitors <on|off|toggle></yellow>.</red>"
+  island-info: "<prefix><green>Private Island</green> <dark_gray>|</dark_gray> <gray>World:</gray> <yellow><world></yellow> <dark_gray>|</dark_gray> <gray>Visitors:</gray> <visitors_status> <dark_gray>|</dark_gray> <gray>Guests Online:</gray> <yellow><visitors></yellow><gray>/</gray><yellow><visitor_limit></yellow> <dark_gray>|</dark_gray> <gray>Minions:</gray> <yellow><minions></yellow>"
   island-disabled: "<prefix><red>Private islands are disabled on this server.</red>"
   island-protected: "<prefix><red>You cannot modify another player's island.</red>"
+  island-unknown-player: "<prefix><red>Unknown island owner: <yellow><player></yellow>.</red>"
+  island-no-island: "<prefix><red><yellow><player></yellow> does not have a private island yet.</red>"
+  island-visitors-closed: "<prefix><red><yellow><player></yellow>'s island is not open to visitors.</red>"
+  island-visitors-full: "<prefix><red><owner>'s island is at the configured visitor limit.</red> <gray>Guests:</gray> <yellow><visitors></yellow><gray>/</gray><yellow><visitor_limit></yellow>"
+  island-visited: "<prefix><green>Visiting <yellow><player></yellow>'s island.</green>"
+  island-visitor-arrived: "<prefix><yellow><player></yellow> <green>is visiting your island.</green>"
+  island-visitors-updated: "<prefix><green>Visitor access is now</green> <visitors_status><green>.</green>"
 
 progression:
   skill-xp: "<prefix><gray>+<xp> <skill> XP</gray>"
@@ -1267,6 +1275,11 @@ trades:
 quests:
   status-active: "<yellow>Active</yellow>"
   status-complete: "<green>Complete</green>"
+
+islands:
+  no-world: "Not created"
+  visitors-open: "<green>Open</green>"
+  visitors-closed: "<red>Closed</red>"
 
 skills:
   maxed: "Maxed"

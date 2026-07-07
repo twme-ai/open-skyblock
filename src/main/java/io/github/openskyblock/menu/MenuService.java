@@ -138,6 +138,45 @@ public final class MenuService {
         player.openInventory(inventory);
     }
 
+    public void openIslandManagement(Player player) {
+        if (!plugin.islands().enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("island-management");
+        if (section == null) {
+            plugin.islands().sendInfo(player);
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 3)));
+        Map<Integer, IslandMenuAction> actions = new HashMap<>();
+        IslandMenuHolder holder = new IslandMenuHolder(actions);
+        List<TextService.TextPlaceholder> placeholders = plugin.islands().islandPlaceholders(player);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Island Management</dark_gray>"), placeholders)
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        ConfigurationSection items = section.getConfigurationSection("items");
+        if (items != null) {
+            for (String key : items.getKeys(false)) {
+                ConfigurationSection item = items.getConfigurationSection(key);
+                if (item == null) {
+                    continue;
+                }
+                int slot = item.getInt("slot", -1);
+                if (slot < 0 || slot >= inventory.getSize()) {
+                    continue;
+                }
+                inventory.setItem(slot, item(item, placeholders));
+                actions.put(slot, IslandMenuAction.parse(item.getString("action", "NONE")));
+            }
+        }
+        player.openInventory(inventory);
+    }
+
     public void openMinionMenu(Player player, MinionPlacement placement) {
         ConfigurationSection section = configService.menus().getConfigurationSection("minion");
         if (section == null) {
@@ -947,6 +986,7 @@ public final class MenuService {
     public void runAction(Player player, MenuAction action) {
         switch (action) {
             case PROFILE -> openProfileViewer(player);
+            case ISLAND_MENU -> openIslandManagement(player);
             case ISLAND_HOME -> player.performCommand("skyblock island home");
             case BANK -> openBankMenu(player);
             case QUEST_LOG -> openQuestLog(player, 0);
@@ -969,6 +1009,23 @@ public final class MenuService {
             case BAZAAR -> openBazaarMenu(player, 0);
             case SHOPS -> openShopSelector(player);
             case MINIONS -> player.performCommand("skyblock minion list");
+            case NONE -> {
+            }
+        }
+    }
+
+    public void runIslandMenuAction(Player player, IslandMenuAction action) {
+        switch (action) {
+            case HOME -> {
+                player.closeInventory();
+                plugin.islands().teleportHome(player);
+            }
+            case TOGGLE_VISITORS -> {
+                plugin.islands().toggleVisitors(player);
+                openIslandManagement(player);
+            }
+            case INFO -> plugin.islands().sendInfo(player);
+            case BACK -> openSkyBlockMenu(player);
             case NONE -> {
             }
         }

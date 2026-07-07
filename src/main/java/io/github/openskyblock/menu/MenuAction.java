@@ -5,6 +5,7 @@ import java.util.Locale;
 public enum MenuAction {
     NONE,
     PROFILE,
+    ISLAND_MENU,
     ISLAND_HOME,
     BANK,
     QUEST_LOG,

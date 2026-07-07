@@ -101,7 +101,21 @@ public final class ProfileManager {
     private SkyBlockProfile newProfile(UUID uniqueId, String playerName) {
         double purse = configService.main().getDouble("settings.default-purse", 0.0D);
         double bank = configService.main().getDouble("settings.default-bank", 0.0D);
-        return new SkyBlockProfile(uniqueId, playerName, purse, bank);
+        SkyBlockProfile profile = new SkyBlockProfile(uniqueId, playerName, purse, bank);
+        profile.islandVisitorsEnabled(configService.main().getBoolean("islands.default-visitors-enabled", false));
+        return profile;
+    }
+
+    public SkyBlockProfile profileByName(String playerName) {
+        if (playerName == null || playerName.isBlank()) {
+            return null;
+        }
+        for (SkyBlockProfile profile : profiles.values()) {
+            if (profile.playerName().equalsIgnoreCase(playerName)) {
+                return profile;
+            }
+        }
+        return null;
     }
 
     private UUID parseUuid(String raw) {
@@ -127,6 +141,7 @@ public final class ProfileManager {
         );
         profile.bankInterestLastMillis(section.getLong("bank-interest.last-millis", System.currentTimeMillis()));
         profile.islandWorldName(section.getString("island-world", null));
+        profile.islandVisitorsEnabled(section.getBoolean("island.visitors-enabled", configService.main().getBoolean("islands.default-visitors-enabled", false)));
         ConfigurationSection skills = section.getConfigurationSection("skills");
         if (skills != null) {
             for (String key : skills.getKeys(false)) {
@@ -803,6 +818,7 @@ public final class ProfileManager {
         profileData.set(base + ".bank", profile.bank());
         profileData.set(base + ".bank-interest.last-millis", profile.bankInterestLastMillis());
         profileData.set(base + ".island-world", profile.islandWorldName());
+        profileData.set(base + ".island.visitors-enabled", profile.islandVisitorsEnabled());
         for (Map.Entry<SkillType, Double> entry : profile.skillXp().entrySet()) {
             profileData.set(base + ".skills." + entry.getKey().key() + ".xp", entry.getValue());
         }

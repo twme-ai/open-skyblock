@@ -76,6 +76,8 @@ islands:
   starter-radius: 3
   home-yaw: 180.0
   home-pitch: 0.0
+  default-visitors-enabled: false
+  max-visitors: 1
 
 minions:
   max-per-profile: 5

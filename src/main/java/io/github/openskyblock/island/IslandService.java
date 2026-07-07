@@ -4,6 +4,7 @@ import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import java.util.List;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -66,7 +67,80 @@ public final class IslandService {
             createOrTeleport(player);
             return;
         }
-        text.send(player, "commands.island-info", java.util.List.of(TextService.raw("world", profile.islandWorldName())));
+        text.send(player, "commands.island-info", islandPlaceholders(player));
+    }
+
+    public void visit(Player visitor, String ownerName) {
+        if (!enabled()) {
+            text.send(visitor, "commands.island-disabled");
+            return;
+        }
+        SkyBlockProfile owner = profiles.profileByName(ownerName);
+        if (owner == null) {
+            text.send(visitor, "commands.island-unknown-player", List.of(TextService.raw("player", ownerName == null ? "" : ownerName)));
+            return;
+        }
+        if (owner.uniqueId().equals(visitor.getUniqueId())) {
+            teleportHome(visitor);
+            return;
+        }
+        if (owner.islandWorldName() == null || owner.islandWorldName().isBlank()) {
+            text.send(visitor, "commands.island-no-island", List.of(TextService.raw("player", owner.playerName())));
+            return;
+        }
+        if (!owner.islandVisitorsEnabled() && !visitor.hasPermission("openskyblock.admin")) {
+            text.send(visitor, "commands.island-visitors-closed", List.of(TextService.raw("player", owner.playerName())));
+            return;
+        }
+        boolean alreadyVisiting = visitor.getWorld().getName().equals(owner.islandWorldName());
+        if (!alreadyVisiting && !visitor.hasPermission("openskyblock.admin") && visitorCount(owner) >= visitorLimit(owner)) {
+            text.send(visitor, "commands.island-visitors-full", islandPlaceholders(owner));
+            return;
+        }
+        World world = worldFor(owner, owner.uniqueId());
+        ensureStarterIsland(world);
+        visitor.teleport(homeLocation(world));
+        text.send(visitor, "commands.island-visited", List.of(TextService.raw("player", owner.playerName())));
+        Player ownerPlayer = Bukkit.getPlayer(owner.uniqueId());
+        if (ownerPlayer != null) {
+            text.send(ownerPlayer, "commands.island-visitor-arrived", List.of(TextService.raw("player", visitor.getName())));
+        }
+    }
+
+    public void toggleVisitors(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        setVisitors(player, !profile.islandVisitorsEnabled());
+    }
+
+    public void setVisitors(Player player, boolean visitorsEnabled) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        profile.islandVisitorsEnabled(visitorsEnabled);
+        profiles.save(player);
+        text.send(player, "commands.island-visitors-updated", islandPlaceholders(player));
+    }
+
+    public List<TextService.TextPlaceholder> islandPlaceholders(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        return islandPlaceholders(profile);
+    }
+
+    public List<TextService.TextPlaceholder> islandPlaceholders(SkyBlockProfile profile) {
+        return List.of(
+                TextService.raw("owner", profile.playerName()),
+                TextService.raw("world", profile.islandWorldName() == null || profile.islandWorldName().isBlank() ? text.rawMessage("islands.no-world") : profile.islandWorldName()),
+                TextService.parsed("visitors_status", visitorStatus(profile)),
+                TextService.raw("visitors", text.formatNumber(visitorCount(profile))),
+                TextService.raw("visitor_limit", text.formatNumber(visitorLimit(profile))),
+                TextService.raw("minions", text.formatNumber(profile.minions().size()))
+        );
+    }
+
+    public String visitorStatus(SkyBlockProfile profile) {
+        return text.rawMessage(profile.islandVisitorsEnabled() ? "islands.visitors-open" : "islands.visitors-closed");
     }
 
     public boolean isIslandWorld(World world) {
@@ -109,6 +183,27 @@ public final class IslandService {
     private void teleportHome(Player player, World world) {
         player.teleport(homeLocation(world));
         text.send(player, "commands.island-home");
+    }
+
+    private int visitorCount(SkyBlockProfile profile) {
+        if (profile.islandWorldName() == null || profile.islandWorldName().isBlank()) {
+            return 0;
+        }
+        World world = Bukkit.getWorld(profile.islandWorldName());
+        if (world == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Player player : world.getPlayers()) {
+            if (!player.getUniqueId().equals(profile.uniqueId())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int visitorLimit(SkyBlockProfile profile) {
+        return Math.max(1, configService.main().getInt("islands.max-visitors", 1));
     }
 
     private Location homeLocation(World world) {
