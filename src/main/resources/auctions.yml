@@ -6,3 +6,5 @@ settings:
   max-price: 1000000000.0
   cancel-grace-seconds: 60
   listing-fee-percent: 0.01
+  minimum-bid-increment: 1.0
+  minimum-bid-increment-percent: 0.05

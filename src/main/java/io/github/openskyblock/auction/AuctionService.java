@@ -31,6 +31,7 @@ public final class AuctionService {
     private final EconomyService economy;
     private final CustomItemService customItems;
     private final Map<String, AuctionListing> listings = new HashMap<>();
+    private final Map<UUID, Double> pendingBidRefunds = new HashMap<>();
     private MayorService mayors;
     private File dataFile;
     private YamlConfiguration data;
@@ -41,6 +42,8 @@ public final class AuctionService {
     private double maxPrice = 1_000_000_000.0D;
     private long cancelGraceSeconds = 60L;
     private double listingFeePercent = 0.01D;
+    private double minimumBidIncrement = 1.0D;
+    private double minimumBidIncrementPercent = 0.05D;
 
     public AuctionService(JavaPlugin plugin, ConfigService configService, TextService text, EconomyService economy, CustomItemService customItems) {
         this.plugin = plugin;
@@ -62,6 +65,8 @@ public final class AuctionService {
         this.maxPrice = Math.max(minPrice, configService.auctions().getDouble("settings.max-price", 1_000_000_000.0D));
         this.cancelGraceSeconds = Math.max(0L, configService.auctions().getLong("settings.cancel-grace-seconds", 60L));
         this.listingFeePercent = Math.max(0.0D, configService.auctions().getDouble("settings.listing-fee-percent", 0.01D));
+        this.minimumBidIncrement = Math.max(0.01D, configService.auctions().getDouble("settings.minimum-bid-increment", 1.0D));
+        this.minimumBidIncrementPercent = Math.max(0.0D, configService.auctions().getDouble("settings.minimum-bid-increment-percent", 0.05D));
     }
 
     public void load() {
@@ -79,14 +84,28 @@ public final class AuctionService {
         }
         this.data = YamlConfiguration.loadConfiguration(dataFile);
         listings.clear();
+        pendingBidRefunds.clear();
         ConfigurationSection section = data.getConfigurationSection("listings");
-        if (section == null) {
-            return;
+        if (section != null) {
+            for (String id : section.getKeys(false)) {
+                AuctionListing listing = loadListing(id, section.getConfigurationSection(id));
+                if (listing != null) {
+                    listings.put(listing.id(), listing);
+                }
+            }
         }
-        for (String id : section.getKeys(false)) {
-            AuctionListing listing = loadListing(id, section.getConfigurationSection(id));
-            if (listing != null) {
-                listings.put(listing.id(), listing);
+        ConfigurationSection refunds = data.getConfigurationSection("bid-refunds");
+        if (refunds != null) {
+            for (String key : refunds.getKeys(false)) {
+                try {
+                    UUID playerId = UUID.fromString(key);
+                    double coins = refunds.getDouble(key, 0.0D);
+                    if (coins > 0.0D) {
+                        pendingBidRefunds.put(playerId, coins);
+                    }
+                } catch (IllegalArgumentException ignored) {
+                    plugin.getLogger().warning("Skipping invalid auction bid refund owner in auction_house.yml: " + key);
+                }
             }
         }
     }
@@ -99,6 +118,12 @@ public final class AuctionService {
         listings.values().stream()
                 .sorted(Comparator.comparing(AuctionListing::createdMillis))
                 .forEach(this::writeListing);
+        data.set("bid-refunds", null);
+        for (Map.Entry<UUID, Double> entry : pendingBidRefunds.entrySet()) {
+            if (entry.getValue() > 0.0D) {
+                data.set("bid-refunds." + entry.getKey(), entry.getValue());
+            }
+        }
         try {
             data.save(dataFile);
         } catch (IOException exception) {
@@ -120,6 +145,14 @@ public final class AuctionService {
     }
 
     public boolean create(Player player, double price) {
+        return createListing(player, price, true);
+    }
+
+    public boolean createBid(Player player, double startingBid) {
+        return createListing(player, startingBid, false);
+    }
+
+    private boolean createListing(Player player, double price, boolean bin) {
         if (!enabled()) {
             text.send(player, "commands.auction-disabled");
             return false;
@@ -162,15 +195,17 @@ public final class AuctionService {
                 player.getName(),
                 itemStack,
                 price,
+                bin,
                 now,
                 now + listingDurationSeconds * 1000L
         );
         listings.put(listing.id(), listing);
         save();
-        text.send(player, "commands.auction-created", List.of(
+        text.send(player, bin ? "commands.auction-created" : "commands.auction-bid-created", List.of(
                 TextService.raw("id", listing.id()),
                 TextService.parsed("item", itemDisplay(itemStack)),
                 TextService.raw("price", text.formatNumber(price)),
+                TextService.raw("starting_bid", text.formatNumber(price)),
                 TextService.raw("fee", text.formatNumber(fee)),
                 TextService.raw("duration", formatDuration(listingDurationSeconds))
         ));
@@ -227,6 +262,10 @@ public final class AuctionService {
             text.send(buyer, "commands.auction-not-active");
             return false;
         }
+        if (!listing.bin()) {
+            text.send(buyer, "commands.auction-use-bid");
+            return false;
+        }
         if (listing.sellerId().equals(buyer.getUniqueId())) {
             text.send(buyer, "commands.auction-own-buy");
             return false;
@@ -258,6 +297,72 @@ public final class AuctionService {
         return true;
     }
 
+    public boolean bid(Player bidder, String listingId, double bid) {
+        if (!enabled()) {
+            text.send(bidder, "commands.auction-disabled");
+            return false;
+        }
+        AuctionListing listing = findListing(listingId).orElse(null);
+        if (listing == null) {
+            text.send(bidder, "commands.auction-unknown", List.of(TextService.raw("id", listingId == null ? "" : listingId)));
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        if (!listing.active(now)) {
+            text.send(bidder, "commands.auction-not-active");
+            return false;
+        }
+        if (listing.bin()) {
+            text.send(bidder, "commands.auction-use-buy");
+            return false;
+        }
+        if (listing.sellerId().equals(bidder.getUniqueId())) {
+            text.send(bidder, "commands.auction-own-bid");
+            return false;
+        }
+        if (listing.highBidderId() != null && listing.highBidderId().equals(bidder.getUniqueId())) {
+            text.send(bidder, "commands.auction-already-high-bidder");
+            return false;
+        }
+        double required = requiredBid(listing);
+        if (bid < required || bid > maxPrice) {
+            text.send(bidder, "commands.auction-bid-too-low", List.of(
+                    TextService.raw("bid", text.formatNumber(bid)),
+                    TextService.raw("required", text.formatNumber(required)),
+                    TextService.raw("max", text.formatNumber(maxPrice))
+            ));
+            return false;
+        }
+        if (!economy.spendPurse(bidder, bid)) {
+            text.send(bidder, "commands.auction-no-money");
+            return false;
+        }
+        UUID previousBidderId = listing.highBidderId();
+        String previousBidderName = listing.highBidderName();
+        double previousBid = listing.highBid();
+        listing.highBidderId(bidder.getUniqueId());
+        listing.highBidderName(bidder.getName());
+        listing.highBid(bid);
+        refundOutbid(previousBidderId, previousBidderName, previousBid, listing);
+        save();
+        text.send(bidder, "commands.auction-bid-accepted", List.of(
+                TextService.raw("id", listing.id()),
+                TextService.parsed("item", itemDisplay(listing.itemStack())),
+                TextService.raw("bid", text.formatNumber(bid)),
+                TextService.raw("remaining", formatDuration(Math.max(0L, (listing.expiresMillis() - now) / 1000L)))
+        ));
+        Player seller = Bukkit.getPlayer(listing.sellerId());
+        if (seller != null) {
+            text.send(seller, "commands.auction-bid-seller", List.of(
+                    TextService.raw("id", listing.id()),
+                    TextService.parsed("item", itemDisplay(listing.itemStack())),
+                    TextService.raw("bidder", bidder.getName()),
+                    TextService.raw("bid", text.formatNumber(bid))
+            ));
+        }
+        return true;
+    }
+
     public boolean cancel(Player player, String listingId) {
         if (!enabled()) {
             text.send(player, "commands.auction-disabled");
@@ -275,6 +380,10 @@ public final class AuctionService {
         long now = System.currentTimeMillis();
         if (!listing.active(now)) {
             text.send(player, "commands.auction-not-active");
+            return false;
+        }
+        if (!listing.bin() && listing.hasBid()) {
+            text.send(player, "commands.auction-cancel-has-bid");
             return false;
         }
         long waitSeconds = cancelGraceSeconds - ((now - listing.createdMillis()) / 1000L);
@@ -302,18 +411,40 @@ public final class AuctionService {
         double coins = 0.0D;
         int items = 0;
         List<String> removable = new ArrayList<>();
+        Double refundedBid = pendingBidRefunds.remove(player.getUniqueId());
+        if (refundedBid != null && refundedBid > 0.0D) {
+            coins += refundedBid;
+        }
         for (AuctionListing listing : listings.values()) {
-            if (!listing.sellerId().equals(player.getUniqueId()) || listing.sellerClaimed()) {
-                continue;
-            }
-            if (listing.sold()) {
+            if (listing.sellerId().equals(player.getUniqueId()) && !listing.sellerClaimed() && listing.bin() && listing.sold()) {
                 coins += listing.price();
                 listing.sellerClaimed(true);
-                removable.add(listing.id());
-            } else if (listing.expired(now)) {
+            } else if (listing.sellerId().equals(player.getUniqueId()) && !listing.sellerClaimed() && listing.expired(now) && listing.bin()) {
                 giveOrDrop(player, listing.itemStack());
                 items++;
                 listing.sellerClaimed(true);
+            } else if (listing.sellerId().equals(player.getUniqueId()) && !listing.sellerClaimed() && listing.expired(now) && !listing.bin()) {
+                if (listing.hasBid()) {
+                    coins += listing.highBid();
+                    listing.sellerClaimed(true);
+                    listing.buyerId(listing.highBidderId());
+                    listing.buyerName(listing.highBidderName());
+                    listing.soldMillis(now);
+                } else {
+                    giveOrDrop(player, listing.itemStack());
+                    items++;
+                    listing.sellerClaimed(true);
+                }
+            }
+            if (!listing.bin() && listing.hasBid() && listing.expired(now) && !listing.buyerClaimed() && listing.highBidderId().equals(player.getUniqueId())) {
+                giveOrDrop(player, listing.itemStack());
+                items++;
+                listing.buyerClaimed(true);
+                listing.buyerId(player.getUniqueId());
+                listing.buyerName(player.getName());
+                listing.soldMillis(now);
+            }
+            if (listing.fullyClaimed(now)) {
                 removable.add(listing.id());
             }
         }
@@ -370,9 +501,16 @@ public final class AuctionService {
                     section.getString("seller-name", "Unknown"),
                     itemStack,
                     section.getDouble("price", 0.0D),
+                    section.getBoolean("bin", true),
                     section.getLong("created-millis", System.currentTimeMillis()),
                     section.getLong("expires-millis", System.currentTimeMillis())
             );
+            String highBidder = section.getString("high-bidder", null);
+            if (highBidder != null && !highBidder.isBlank()) {
+                listing.highBidderId(UUID.fromString(highBidder));
+            }
+            listing.highBidderName(section.getString("high-bidder-name", null));
+            listing.highBid(section.getDouble("high-bid", 0.0D));
             String buyer = section.getString("buyer", null);
             if (buyer != null && !buyer.isBlank()) {
                 listing.buyerId(UUID.fromString(buyer));
@@ -380,6 +518,7 @@ public final class AuctionService {
             listing.buyerName(section.getString("buyer-name", null));
             listing.soldMillis(section.getLong("sold-millis", 0L));
             listing.sellerClaimed(section.getBoolean("seller-claimed", false));
+            listing.buyerClaimed(section.getBoolean("buyer-claimed", false));
             listing.cancelled(section.getBoolean("cancelled", false));
             return listing;
         } catch (IllegalArgumentException exception) {
@@ -394,12 +533,17 @@ public final class AuctionService {
         data.set(base + ".seller-name", listing.sellerName());
         data.set(base + ".item", listing.itemStack());
         data.set(base + ".price", listing.price());
+        data.set(base + ".bin", listing.bin());
         data.set(base + ".created-millis", listing.createdMillis());
         data.set(base + ".expires-millis", listing.expiresMillis());
+        data.set(base + ".high-bidder", listing.highBidderId() == null ? null : listing.highBidderId().toString());
+        data.set(base + ".high-bidder-name", listing.highBidderName());
+        data.set(base + ".high-bid", listing.highBid());
         data.set(base + ".buyer", listing.buyerId() == null ? null : listing.buyerId().toString());
         data.set(base + ".buyer-name", listing.buyerName());
         data.set(base + ".sold-millis", listing.soldMillis());
         data.set(base + ".seller-claimed", listing.sellerClaimed());
+        data.set(base + ".buyer-claimed", listing.buyerClaimed());
         data.set(base + ".cancelled", listing.cancelled());
     }
 
@@ -440,19 +584,61 @@ public final class AuctionService {
                 TextService.parsed("item", itemDisplay(listing.itemStack())),
                 TextService.raw("seller", listing.sellerName()),
                 TextService.raw("price", text.formatNumber(listing.price())),
+                TextService.parsed("type", listing.bin() ? text.rawMessage("auctions.type-bin") : text.rawMessage("auctions.type-bid")),
+                TextService.raw("starting_bid", text.formatNumber(listing.price())),
+                TextService.raw("high_bid", text.formatNumber(listing.highBid())),
+                TextService.raw("high_bidder", listing.highBidderName() == null ? text.rawMessage("auctions.no-bidder") : listing.highBidderName()),
+                TextService.raw("required_bid", text.formatNumber(requiredBid(listing))),
+                TextService.parsed("sale", saleSummary(listing)),
                 TextService.parsed("status", status(listing, now)),
                 TextService.raw("remaining", formatDuration(Math.max(0L, (listing.expiresMillis() - now) / 1000L)))
         );
+    }
+
+    private String saleSummary(AuctionListing listing) {
+        if (listing.bin()) {
+            return "<gray>BIN:</gray> <gold>" + text.formatNumber(listing.price()) + "</gold><gray> coins</gray>";
+        }
+        if (listing.hasBid()) {
+            return "<gray>High Bid:</gray> <gold>" + text.formatNumber(listing.highBid()) + "</gold><gray> by</gray> <yellow>" + listing.highBidderName() + "</yellow> <dark_gray>|</dark_gray> <gray>Next:</gray> <gold>" + text.formatNumber(requiredBid(listing)) + "</gold>";
+        }
+        return "<gray>Starting Bid:</gray> <gold>" + text.formatNumber(listing.price()) + "</gold><gray> coins</gray> <dark_gray>|</dark_gray> <gray>Next:</gray> <gold>" + text.formatNumber(requiredBid(listing)) + "</gold>";
     }
 
     private String status(AuctionListing listing, long now) {
         if (listing.sold()) {
             return text.rawMessage("auctions.status-sold");
         }
+        if (!listing.bin() && listing.expired(now) && listing.hasBid()) {
+            return text.rawMessage("auctions.status-ended");
+        }
         if (listing.expired(now)) {
             return text.rawMessage("auctions.status-expired");
         }
         return text.rawMessage("auctions.status-active");
+    }
+
+    private double requiredBid(AuctionListing listing) {
+        return listing.hasBid()
+                ? Math.max(listing.highBid() + minimumBidIncrement, listing.highBid() * (1.0D + minimumBidIncrementPercent))
+                : listing.price();
+    }
+
+    private void refundOutbid(UUID bidderId, String bidderName, double coins, AuctionListing listing) {
+        if (bidderId == null || coins <= 0.0D) {
+            return;
+        }
+        Player previous = Bukkit.getPlayer(bidderId);
+        if (previous == null) {
+            pendingBidRefunds.put(bidderId, pendingBidRefunds.getOrDefault(bidderId, 0.0D) + coins);
+            return;
+        }
+        economy.addPurse(previous, coins);
+        text.send(previous, "commands.auction-outbid-refund", List.of(
+                TextService.raw("id", listing.id()),
+                TextService.parsed("item", itemDisplay(listing.itemStack())),
+                TextService.raw("coins", text.formatNumber(coins))
+        ));
     }
 
     private String itemDisplay(ItemStack itemStack) {
