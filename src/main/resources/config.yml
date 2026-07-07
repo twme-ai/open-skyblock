@@ -74,6 +74,8 @@ islands:
   world-prefix: "openskyblock_island_"
   spawn-y: 80
   starter-radius: 3
+  border-size: 160
+  border-warning-blocks: 5
   home-yaw: 180.0
   home-pitch: 0.0
   default-visitors-enabled: false

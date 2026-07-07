@@ -187,6 +187,8 @@ island-management:
       display-name: "<green><owner>'s Island</green>"
       lore:
         - "<gray>World:</gray> <yellow><world></yellow>"
+        - "<gray>Border:</gray> <yellow><border_size></yellow><gray>x</gray><yellow><border_size></yellow>"
+        - "<gray>Home:</gray> <yellow><home_x></yellow><gray>,</gray> <yellow><home_y></yellow><gray>,</gray> <yellow><home_z></yellow>"
         - "<gray>Visitors:</gray> <visitors_status>"
         - "<gray>Guests Online:</gray> <yellow><visitors></yellow><gray>/</gray><yellow><visitor_limit></yellow>"
         - "<gray>Co-op Members:</gray> <yellow><coop_members></yellow><gray>/</gray><yellow><coop_member_limit></yellow>"
@@ -198,9 +200,20 @@ island-management:
       display-name: "<green>Travel Home</green>"
       lore:
         - "<gray>Create or teleport to your private island.</gray>"
+        - "<gray>Home:</gray> <yellow><home_x></yellow><gray>,</gray> <yellow><home_y></yellow><gray>,</gray> <yellow><home_z></yellow>"
         - ""
         - "<yellow>Click to travel.</yellow>"
       action: HOME
+    set-home:
+      slot: 12
+      material: COMPASS
+      display-name: "<green>Set Island Home</green>"
+      lore:
+        - "<gray>Set the shared island home to your current location.</gray>"
+        - "<gray>Co-op members can use this on the island.</gray>"
+        - ""
+        - "<yellow>Click to set home.</yellow>"
+      action: SET_HOME
     visitors:
       slot: 13
       material: OAK_DOOR
@@ -214,11 +227,12 @@ island-management:
         - "<yellow>Click to toggle.</yellow>"
       action: TOGGLE_VISITORS
     info:
-      slot: 15
+      slot: 16
       material: MAP
       display-name: "<yellow>Island Info</yellow>"
       lore:
         - "<gray>Show the current island status in chat.</gray>"
+        - "<gray>Border:</gray> <yellow><border_size></yellow><gray>x</gray><yellow><border_size></yellow>"
         - "<gray>Co-op Members:</gray> <yellow><coop_members></yellow><gray>/</gray><yellow><coop_member_limit></yellow>"
         - ""
         - "<yellow>Click to show info.</yellow>"

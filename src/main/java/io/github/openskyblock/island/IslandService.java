@@ -14,6 +14,7 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.WorldCreator;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -104,7 +105,7 @@ public final class IslandService {
         }
         World world = worldFor(owner, owner.uniqueId());
         ensureStarterIsland(world);
-        visitor.teleport(homeLocation(world));
+        visitor.teleport(homeLocation(owner, world));
         text.send(visitor, "commands.island-visited", List.of(TextService.raw("player", owner.playerName())));
         Player ownerPlayer = Bukkit.getPlayer(owner.uniqueId());
         if (ownerPlayer != null) {
@@ -231,6 +232,23 @@ public final class IslandService {
         }
     }
 
+    public void setHome(Player player) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        SkyBlockProfile owner = ownerForCurrentIsland(player);
+        if (owner == null || !canModify(player, player.getWorld())) {
+            text.send(player, "commands.island-home-set-invalid");
+            return;
+        }
+        Location location = player.getLocation();
+        owner.islandHome(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        profiles.save(owner);
+        player.getWorld().setSpawnLocation(location);
+        text.send(player, "commands.island-home-set", islandPlaceholders(owner));
+    }
+
     public List<TextService.TextPlaceholder> islandPlaceholders(Player player) {
         SkyBlockProfile profile = profiles.profile(player);
         return islandPlaceholders(profile);
@@ -245,6 +263,10 @@ public final class IslandService {
                 TextService.raw("visitor_limit", text.formatNumber(visitorLimit(profile))),
                 TextService.raw("coop_members", text.formatNumber(profile.islandCoopMembers().size())),
                 TextService.raw("coop_member_limit", text.formatNumber(maxCoopMembers())),
+                TextService.raw("border_size", text.formatNumber(borderSize())),
+                TextService.raw("home_x", text.formatNumber(homeX(profile))),
+                TextService.raw("home_y", text.formatNumber(homeY(profile))),
+                TextService.raw("home_z", text.formatNumber(homeZ(profile))),
                 TextService.raw("minions", text.formatNumber(profile.minions().size()))
         );
     }
@@ -273,6 +295,7 @@ public final class IslandService {
         }
         World world = Bukkit.getWorld(worldName);
         if (world != null) {
+            configureWorld(world);
             return world;
         }
         WorldCreator creator = new WorldCreator(worldName)
@@ -283,15 +306,13 @@ public final class IslandService {
         if (created == null) {
             throw new IllegalStateException("Unable to create island world: " + worldName);
         }
-        created.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-        created.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
-        created.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
-        created.setSpawnLocation(homeLocation(created));
+        configureWorld(created);
         return created;
     }
 
     private void teleportHome(Player player, World world) {
-        player.teleport(homeLocation(world));
+        SkyBlockProfile profile = profiles.profileByIslandWorld(world.getName());
+        player.teleport(homeLocation(profile, world));
         text.send(player, "commands.island-home");
     }
 
@@ -314,6 +335,14 @@ public final class IslandService {
 
     private int visitorLimit(SkyBlockProfile profile) {
         return Math.max(1, configService.main().getInt("islands.max-visitors", 1));
+    }
+
+    private int borderSize() {
+        return Math.max(16, configService.main().getInt("islands.border-size", 160));
+    }
+
+    private int borderWarningBlocks() {
+        return Math.max(0, configService.main().getInt("islands.border-warning-blocks", 5));
     }
 
     private int maxCoopMembers() {
@@ -349,6 +378,45 @@ public final class IslandService {
         float yaw = (float) configService.main().getDouble("islands.home-yaw", 180.0D);
         float pitch = (float) configService.main().getDouble("islands.home-pitch", 0.0D);
         return new Location(world, 0.5D, y + 2.0D, 0.5D, yaw, pitch);
+    }
+
+    private Location homeLocation(SkyBlockProfile profile, World world) {
+        if (profile != null && profile.islandHomeSet()) {
+            return new Location(world, profile.islandHomeX(), profile.islandHomeY(), profile.islandHomeZ(), profile.islandHomeYaw(), profile.islandHomePitch());
+        }
+        return homeLocation(world);
+    }
+
+    private double homeX(SkyBlockProfile profile) {
+        return profile.islandHomeSet() ? profile.islandHomeX() : 0.5D;
+    }
+
+    private double homeY(SkyBlockProfile profile) {
+        return profile.islandHomeSet() ? profile.islandHomeY() : configService.main().getDouble("islands.spawn-y", 80.0D) + 2.0D;
+    }
+
+    private double homeZ(SkyBlockProfile profile) {
+        return profile.islandHomeSet() ? profile.islandHomeZ() : 0.5D;
+    }
+
+    private void configureWorld(World world) {
+        world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+        world.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
+        world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
+        SkyBlockProfile profile = profiles.profileByIslandWorld(world.getName());
+        Location home = homeLocation(profile, world);
+        world.setSpawnLocation(home);
+        WorldBorder border = world.getWorldBorder();
+        border.setCenter(0.5D, 0.5D);
+        border.setSize(borderSize());
+        border.setWarningDistance(borderWarningBlocks());
+    }
+
+    private SkyBlockProfile ownerForCurrentIsland(Player player) {
+        if (!isIslandWorld(player.getWorld())) {
+            return null;
+        }
+        return profiles.profileByIslandWorld(player.getWorld().getName());
     }
 
     private boolean ensureStarterIsland(World world) {

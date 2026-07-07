@@ -308,7 +308,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(plugin.customItems().definitions().stream().map(CustomItemDefinition::id).toList(), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("island")) {
-            return startsWith(List.of("create", "home", "info", "manage", "menu", "visit", "visitors", "coop"), args[1]);
+            return startsWith(List.of("create", "home", "sethome", "setspawn", "info", "manage", "menu", "visit", "visitors", "coop"), args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("visit")) {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
@@ -875,7 +875,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         TextService text = plugin.text();
         text.send(sender, "commands.help-header");
         helpLine(sender, label + " menu", "commands.help.menu");
-        helpLine(sender, label + " island create|home|info|manage|visit|visitors|coop", "commands.help.island");
+        helpLine(sender, label + " island create|home|sethome|info|manage|visit|visitors|coop", "commands.help.island");
         helpLine(sender, label + " bank [deposit|withdraw] [amount|all]", "commands.help.bank");
         helpLine(sender, label + " shops", "commands.help.shop");
         helpLine(sender, label + " shop <id>", "commands.help.shop");
@@ -1017,6 +1017,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         switch (args[1].toLowerCase(Locale.ROOT)) {
             case "create" -> plugin.islands().createOrTeleport(player);
             case "home" -> plugin.islands().teleportHome(player);
+            case "sethome", "setspawn" -> plugin.islands().setHome(player);
             case "info" -> plugin.islands().sendInfo(player);
             case "manage", "menu" -> plugin.menus().openIslandManagement(player);
             case "visit" -> {

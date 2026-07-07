@@ -21,6 +21,12 @@ public final class SkyBlockProfile {
     private long bankInterestLastMillis = System.currentTimeMillis();
     private String islandWorldName;
     private boolean islandVisitorsEnabled;
+    private boolean islandHomeSet;
+    private double islandHomeX;
+    private double islandHomeY;
+    private double islandHomeZ;
+    private float islandHomeYaw;
+    private float islandHomePitch;
     private final Set<UUID> islandCoopMembers = new HashSet<>();
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
@@ -228,6 +234,48 @@ public final class SkyBlockProfile {
 
     public boolean removeIslandCoopMember(UUID uniqueId) {
         return islandCoopMembers.remove(uniqueId);
+    }
+
+    public boolean islandHomeSet() {
+        return islandHomeSet;
+    }
+
+    public double islandHomeX() {
+        return islandHomeX;
+    }
+
+    public double islandHomeY() {
+        return islandHomeY;
+    }
+
+    public double islandHomeZ() {
+        return islandHomeZ;
+    }
+
+    public float islandHomeYaw() {
+        return islandHomeYaw;
+    }
+
+    public float islandHomePitch() {
+        return islandHomePitch;
+    }
+
+    public void islandHome(double x, double y, double z, float yaw, float pitch) {
+        this.islandHomeSet = true;
+        this.islandHomeX = x;
+        this.islandHomeY = y;
+        this.islandHomeZ = z;
+        this.islandHomeYaw = yaw;
+        this.islandHomePitch = pitch;
+    }
+
+    public void clearIslandHome() {
+        this.islandHomeSet = false;
+        this.islandHomeX = 0.0D;
+        this.islandHomeY = 0.0D;
+        this.islandHomeZ = 0.0D;
+        this.islandHomeYaw = 0.0F;
+        this.islandHomePitch = 0.0F;
     }
 
     public double skillXp(SkillType skillType) {

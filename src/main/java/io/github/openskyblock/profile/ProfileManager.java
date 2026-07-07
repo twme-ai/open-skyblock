@@ -159,6 +159,16 @@ public final class ProfileManager {
         profile.bankInterestLastMillis(section.getLong("bank-interest.last-millis", System.currentTimeMillis()));
         profile.islandWorldName(section.getString("island-world", null));
         profile.islandVisitorsEnabled(section.getBoolean("island.visitors-enabled", configService.main().getBoolean("islands.default-visitors-enabled", false)));
+        ConfigurationSection islandHome = section.getConfigurationSection("island.home");
+        if (islandHome != null && islandHome.getBoolean("set", false)) {
+            profile.islandHome(
+                    islandHome.getDouble("x", 0.5D),
+                    islandHome.getDouble("y", configService.main().getDouble("islands.spawn-y", 80.0D) + 2.0D),
+                    islandHome.getDouble("z", 0.5D),
+                    (float) islandHome.getDouble("yaw", configService.main().getDouble("islands.home-yaw", 180.0D)),
+                    (float) islandHome.getDouble("pitch", configService.main().getDouble("islands.home-pitch", 0.0D))
+            );
+        }
         for (String rawMember : section.getStringList("island.coop-members")) {
             UUID memberId = parseUuid(rawMember);
             if (memberId != null) {
@@ -843,6 +853,15 @@ public final class ProfileManager {
         profileData.set(base + ".island-world", profile.islandWorldName());
         profileData.set(base + ".island.visitors-enabled", profile.islandVisitorsEnabled());
         profileData.set(base + ".island.coop-members", profile.islandCoopMembers().stream().map(UUID::toString).sorted().toList());
+        profileData.set(base + ".island.home", null);
+        profileData.set(base + ".island.home.set", profile.islandHomeSet());
+        if (profile.islandHomeSet()) {
+            profileData.set(base + ".island.home.x", profile.islandHomeX());
+            profileData.set(base + ".island.home.y", profile.islandHomeY());
+            profileData.set(base + ".island.home.z", profile.islandHomeZ());
+            profileData.set(base + ".island.home.yaw", profile.islandHomeYaw());
+            profileData.set(base + ".island.home.pitch", profile.islandHomePitch());
+        }
         for (Map.Entry<SkillType, Double> entry : profile.skillXp().entrySet()) {
             profileData.set(base + ".skills." + entry.getKey().key() + ".xp", entry.getValue());
         }

@@ -5,6 +5,7 @@ import java.util.Locale;
 public enum IslandMenuAction {
     NONE,
     HOME,
+    SET_HOME,
     TOGGLE_VISITORS,
     INFO,
     BACK;
