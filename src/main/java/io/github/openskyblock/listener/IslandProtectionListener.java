@@ -20,11 +20,18 @@ public final class IslandProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockBreak(BlockBreakEvent event) {
+        if (plugin.islands().breakTeleportPad(event.getPlayer(), event.getBlock().getLocation())) {
+            event.setCancelled(true);
+            return;
+        }
         protect(event.getPlayer(), event.getBlock().getWorld(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event) {
+        if (plugin.islands().isTeleportPadItem(event.getItemInHand()) && plugin.islands().canManageTeleportPads(event.getPlayer(), event.getBlock().getWorld())) {
+            return;
+        }
         protect(event.getPlayer(), event.getBlock().getWorld(), event);
     }
 
@@ -43,7 +50,11 @@ public final class IslandProtectionListener implements Listener {
         if (event.getClickedBlock() == null) {
             return;
         }
-        protect(event.getPlayer(), event.getClickedBlock().getWorld(), event);
+        if (plugin.islands().canInteract(event.getPlayer(), event.getClickedBlock().getWorld())) {
+            return;
+        }
+        event.setCancelled(true);
+        plugin.text().send(event.getPlayer(), "commands.island-protected");
     }
 
     private void protect(Player player, org.bukkit.World world, org.bukkit.event.Cancellable event) {

@@ -99,6 +99,14 @@ islands:
   coop:
     max-members: 5
     invite-expire-seconds: 60
+    permissions:
+      build: true
+      interact: true
+      set-home: true
+      manage-warps: true
+      manage-teleport-pads: true
+      manage-coop: false
+      reset: false
 
 minions:
   max-per-profile: 5

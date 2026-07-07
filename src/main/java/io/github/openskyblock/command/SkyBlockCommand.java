@@ -351,7 +351,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(List.of("on", "off", "toggle"), args[2]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("coop")) {
-            return startsWith(List.of("invite", "accept", "remove", "members", "list"), args[2]);
+            return startsWith(List.of("invite", "accept", "remove", "members", "list", "permissions", "perms"), args[2]);
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("coop") && (args[2].equalsIgnoreCase("invite") || args[2].equalsIgnoreCase("accept") || args[2].equalsIgnoreCase("remove"))) {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[3]);
@@ -1195,6 +1195,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.islands().removeCoopMember(player, args[3]);
             }
             case "members", "list" -> plugin.islands().sendCoopMembers(player);
+            case "permissions", "perms" -> plugin.islands().sendCoopPermissions(player);
             default -> plugin.text().send(player, "commands.island-coop-usage");
         }
     }

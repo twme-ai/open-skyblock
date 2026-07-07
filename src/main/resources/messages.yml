@@ -1087,10 +1087,10 @@ commands:
   recipe-blocked: "<prefix><red>You have not unlocked</red> <recipe><red>.</red> <gray>Requires:</gray> <requirement>"
   island-created: "<prefix><green>Your private island has been created.</green>"
   island-home: "<prefix><green>Teleported to your private island.</green>"
-  island-usage: "<prefix><red>Use <yellow>/skyblock island create</yellow>, <yellow>/skyblock island home</yellow>, <yellow>/skyblock island sethome</yellow>, <yellow>/skyblock island warps</yellow>, <yellow>/skyblock island warp <name></yellow>, <yellow>/skyblock island setwarp <name></yellow>, <yellow>/skyblock island delwarp <name></yellow>, <yellow>/skyblock island pads</yellow>, <yellow>/skyblock island pad give</yellow>, <yellow>/skyblock island pad link <pad> <group></yellow>, <yellow>/skyblock island reset</yellow>, <yellow>/skyblock island manage</yellow>, <yellow>/skyblock island visit <player> [warp]</yellow>, <yellow>/skyblock island visitors <on|off|toggle></yellow>, or <yellow>/skyblock island coop <invite|accept|remove|members></yellow>.</red>"
+  island-usage: "<prefix><red>Use <yellow>/skyblock island create</yellow>, <yellow>/skyblock island home</yellow>, <yellow>/skyblock island sethome</yellow>, <yellow>/skyblock island warps</yellow>, <yellow>/skyblock island warp <name></yellow>, <yellow>/skyblock island setwarp <name></yellow>, <yellow>/skyblock island delwarp <name></yellow>, <yellow>/skyblock island pads</yellow>, <yellow>/skyblock island pad give</yellow>, <yellow>/skyblock island pad link <pad> <group></yellow>, <yellow>/skyblock island reset</yellow>, <yellow>/skyblock island manage</yellow>, <yellow>/skyblock island visit <player> [warp]</yellow>, <yellow>/skyblock island visitors <on|off|toggle></yellow>, or <yellow>/skyblock island coop <invite|accept|remove|members|perms></yellow>.</red>"
   island-info: "<prefix><green>Private Island</green> <dark_gray>|</dark_gray> <gray>World:</gray> <yellow><world></yellow> <dark_gray>|</dark_gray> <gray>Border:</gray> <yellow><border_size></yellow><gray>x</gray><yellow><border_size></yellow> <dark_gray>|</dark_gray> <gray>Home:</gray> <yellow><home_x></yellow><gray>,</gray> <yellow><home_y></yellow><gray>,</gray> <yellow><home_z></yellow> <dark_gray>|</dark_gray> <gray>Warps:</gray> <yellow><warps></yellow><gray>/</gray><yellow><warp_limit></yellow> <dark_gray>|</dark_gray> <gray>Pads:</gray> <yellow><teleport_pads></yellow><gray>/</gray><yellow><teleport_pad_limit></yellow> <dark_gray>|</dark_gray> <gray>Visitors:</gray> <visitors_status> <dark_gray>|</dark_gray> <gray>Guests Online:</gray> <yellow><visitors></yellow><gray>/</gray><yellow><visitor_limit></yellow> <dark_gray>|</dark_gray> <gray>Co-op:</gray> <yellow><coop_members></yellow><gray>/</gray><yellow><coop_member_limit></yellow> <dark_gray>|</dark_gray> <gray>Minions:</gray> <yellow><minions></yellow>"
   island-disabled: "<prefix><red>Private islands are disabled on this server.</red>"
-  island-protected: "<prefix><red>You cannot modify another player's island.</red>"
+  island-protected: "<prefix><red>You do not have permission to do that on this island.</red>"
   island-no-own-island: "<prefix><red>You do not have a private island yet.</red>"
   island-home-set: "<prefix><green>Island home set to <yellow><home_x></yellow><gray>,</gray> <yellow><home_y></yellow><gray>,</gray> <yellow><home_z></yellow>.</green>"
   island-home-set-invalid: "<prefix><red>You must be on an island you can modify to set its home.</red>"
@@ -1136,7 +1136,7 @@ commands:
   island-visited: "<prefix><green>Visiting <yellow><player></yellow>'s island.</green>"
   island-visitor-arrived: "<prefix><yellow><player></yellow> <green>is visiting your island.</green>"
   island-visitors-updated: "<prefix><green>Visitor access is now</green> <visitors_status><green>.</green>"
-  island-coop-usage: "<prefix><red>Use <yellow>/skyblock island coop invite <player></yellow>, <yellow>/skyblock island coop accept [owner]</yellow>, <yellow>/skyblock island coop remove <player></yellow>, or <yellow>/skyblock island coop members</yellow>.</red>"
+  island-coop-usage: "<prefix><red>Use <yellow>/skyblock island coop invite <player></yellow>, <yellow>/skyblock island coop accept [owner]</yellow>, <yellow>/skyblock island coop remove <player></yellow>, <yellow>/skyblock island coop members</yellow>, or <yellow>/skyblock island coop perms</yellow>.</red>"
   island-coop-target-offline: "<prefix><red><yellow><player></yellow> must be online to receive a co-op invite.</red>"
   island-coop-self: "<prefix><red>You cannot invite yourself to your own co-op.</red>"
   island-coop-already-member: "<prefix><red><yellow><player></yellow> is already a member of your island co-op.</red>"
@@ -1153,6 +1153,8 @@ commands:
   island-coop-not-member: "<prefix><red><yellow><player></yellow> is not a member of your island co-op.</red>"
   island-coop-members-header: "<prefix><green>Island Co-op</green> <dark_gray>|</dark_gray> <gray>Members:</gray> <yellow><coop_members></yellow><gray>/</gray><yellow><coop_member_limit></yellow>"
   island-coop-member-line: "<gray><player>:</gray> <role>"
+  island-coop-permissions-header: "<prefix><green>Island Co-op Permissions</green>"
+  island-coop-permissions-line: "<gray><permission_key>:</gray> <permission> <dark_gray>|</dark_gray> <status>"
 
 progression:
   skill-xp: "<prefix><gray>+<xp> <skill> XP</gray>"
@@ -1392,6 +1394,16 @@ islands:
   visitors-closed: "<red>Closed</red>"
   coop-role-owner: "<gold>Owner</gold>"
   coop-role-member: "<green>Member</green>"
+  permission-enabled: "<green>Allowed</green>"
+  permission-disabled: "<red>Owner Only</red>"
+  permissions:
+    build: "<yellow>Build and Break Blocks</yellow>"
+    interact: "<yellow>Use Blocks and Minions</yellow>"
+    set-home: "<yellow>Set Island Home</yellow>"
+    manage-warps: "<yellow>Manage Warps</yellow>"
+    manage-teleport-pads: "<yellow>Manage Teleport Pads</yellow>"
+    manage-coop: "<yellow>Manage Visitors and Co-op Members</yellow>"
+    reset: "<yellow>Reset Island</yellow>"
 
 skills:
   maxed: "Maxed"

@@ -83,7 +83,7 @@ public final class MinionListener implements Listener {
             return;
         }
         event.setCancelled(true);
-        if (!plugin.islands().canModify(event.getPlayer(), event.getClickedBlock().getWorld())) {
+        if (!plugin.islands().canInteract(event.getPlayer(), event.getClickedBlock().getWorld())) {
             plugin.text().send(event.getPlayer(), "commands.island-protected");
             return;
         }

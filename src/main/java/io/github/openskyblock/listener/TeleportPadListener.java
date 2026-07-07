@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -24,14 +23,6 @@ public final class TeleportPadListener implements Listener {
         if (!plugin.islands().placeTeleportPad(event.getPlayer(), event.getBlockPlaced().getLocation())) {
             event.setCancelled(true);
         }
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    public void onTeleportPadBreak(BlockBreakEvent event) {
-        if (!plugin.islands().breakTeleportPad(event.getPlayer(), event.getBlock().getLocation())) {
-            return;
-        }
-        event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

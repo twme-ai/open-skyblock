@@ -93,6 +93,7 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock island coop accept [owner]`
 - `/skyblock island coop remove <player>`
 - `/skyblock island coop members`
+- `/skyblock island coop perms`
 - `/skyblock bank`
 - `/skyblock bank deposit <amount|all>`
 - `/skyblock bank withdraw <amount|all>`

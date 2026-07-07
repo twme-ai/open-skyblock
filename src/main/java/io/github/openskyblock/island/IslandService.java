@@ -45,7 +45,7 @@ public final class IslandService {
     private final ProfileManager profiles;
     private final VoidChunkGenerator generator = new VoidChunkGenerator();
     private final Map<UUID, CoopInvite> coopInvites = new HashMap<>();
-    private final Map<UUID, Long> resetConfirmations = new HashMap<>();
+    private final Map<ResetConfirmationKey, Long> resetConfirmations = new HashMap<>();
     private final Map<UUID, Long> teleportPadCooldowns = new HashMap<>();
     private final NamespacedKey teleportPadItemKey;
 
@@ -154,8 +154,8 @@ public final class IslandService {
     }
 
     public void toggleVisitors(Player player) {
-        SkyBlockProfile profile = profiles.profile(player);
-        setVisitors(player, !profile.islandVisitorsEnabled());
+        SkyBlockProfile owner = islandContext(player);
+        setVisitors(player, owner == null || !owner.islandVisitorsEnabled());
     }
 
     public void setVisitors(Player player, boolean visitorsEnabled) {
@@ -163,10 +163,14 @@ public final class IslandService {
             text.send(player, "commands.island-disabled");
             return;
         }
-        SkyBlockProfile profile = profiles.profile(player);
+        SkyBlockProfile profile = editableIslandOwner(player, IslandPermission.MANAGE_COOP);
+        if (profile == null || !hasIsland(profile)) {
+            text.send(player, profile == null ? "commands.island-protected" : "commands.island-no-own-island");
+            return;
+        }
         profile.islandVisitorsEnabled(visitorsEnabled);
-        profiles.save(player);
-        text.send(player, "commands.island-visitors-updated", islandPlaceholders(player));
+        profiles.save(profile);
+        text.send(player, "commands.island-visitors-updated", islandPlaceholders(profile));
     }
 
     public void inviteCoop(Player ownerPlayer, Player target) {
@@ -174,8 +178,12 @@ public final class IslandService {
             text.send(ownerPlayer, "commands.island-disabled");
             return;
         }
+        SkyBlockProfile owner = editableIslandOwner(ownerPlayer, IslandPermission.MANAGE_COOP);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(ownerPlayer, owner == null ? "commands.island-protected" : "commands.island-no-own-island");
+            return;
+        }
         expireCoopInvites();
-        SkyBlockProfile owner = profiles.profile(ownerPlayer);
         if (target.getUniqueId().equals(owner.uniqueId())) {
             text.send(ownerPlayer, "commands.island-coop-self");
             return;
@@ -242,7 +250,11 @@ public final class IslandService {
             text.send(ownerPlayer, "commands.island-disabled");
             return;
         }
-        SkyBlockProfile owner = profiles.profile(ownerPlayer);
+        SkyBlockProfile owner = editableIslandOwner(ownerPlayer, IslandPermission.MANAGE_COOP);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(ownerPlayer, owner == null ? "commands.island-protected" : "commands.island-no-own-island");
+            return;
+        }
         SkyBlockProfile target = profiles.profileByName(targetName);
         if (target == null || !owner.isIslandCoopMember(target.uniqueId())) {
             text.send(ownerPlayer, "commands.island-coop-not-member", List.of(TextService.raw("player", targetName == null ? "" : targetName)));
@@ -258,7 +270,11 @@ public final class IslandService {
     }
 
     public void sendCoopMembers(Player player) {
-        SkyBlockProfile owner = profiles.profile(player);
+        SkyBlockProfile owner = islandContext(player);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(player, "commands.island-no-own-island");
+            return;
+        }
         text.send(player, "commands.island-coop-members-header", islandPlaceholders(owner));
         text.send(player, "commands.island-coop-member-line", List.of(
                 TextService.raw("player", owner.playerName()),
@@ -268,6 +284,22 @@ public final class IslandService {
             text.send(player, "commands.island-coop-member-line", List.of(
                     TextService.raw("player", profiles.name(memberId)),
                     TextService.parsed("role", text.rawMessage("islands.coop-role-member"))
+            ));
+        }
+    }
+
+    public void sendCoopPermissions(Player player) {
+        SkyBlockProfile owner = islandContext(player);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(player, "commands.island-no-own-island");
+            return;
+        }
+        text.send(player, "commands.island-coop-permissions-header", islandPlaceholders(owner));
+        for (IslandPermission permission : IslandPermission.values()) {
+            text.send(player, "commands.island-coop-permissions-line", List.of(
+                    TextService.parsed("permission", permissionDisplay(permission)),
+                    TextService.parsed("status", permissionStatus(coopPermissionEnabled(permission))),
+                    TextService.raw("permission_key", permission.configKey())
             ));
         }
     }
@@ -298,7 +330,7 @@ public final class IslandService {
             return false;
         }
         SkyBlockProfile owner = ownerForCurrentIsland(player);
-        if (owner == null || !canModify(player, location.getWorld())) {
+        if (owner == null || !canModify(player, location.getWorld(), IslandPermission.MANAGE_TELEPORT_PADS)) {
             text.send(player, "commands.island-teleport-pad-place-invalid");
             return false;
         }
@@ -335,7 +367,7 @@ public final class IslandService {
         if (pad == null) {
             return false;
         }
-        if (!canModify(player, location.getWorld())) {
+        if (!canModify(player, location.getWorld(), IslandPermission.MANAGE_TELEPORT_PADS)) {
             text.send(player, "commands.island-protected");
             return true;
         }
@@ -348,7 +380,7 @@ public final class IslandService {
     }
 
     public boolean setTeleportPadGroup(Player player, String padName, String groupName) {
-        SkyBlockProfile owner = editableIslandOwner(player);
+        SkyBlockProfile owner = editableIslandOwner(player, IslandPermission.MANAGE_TELEPORT_PADS);
         if (owner == null || !hasIsland(owner)) {
             text.send(player, "commands.island-no-own-island");
             return false;
@@ -428,7 +460,7 @@ public final class IslandService {
             return;
         }
         SkyBlockProfile owner = ownerForCurrentIsland(player);
-        if (owner == null || !canModify(player, player.getWorld())) {
+        if (owner == null || !canModify(player, player.getWorld(), IslandPermission.SET_HOME)) {
             text.send(player, "commands.island-home-set-invalid");
             return;
         }
@@ -445,7 +477,7 @@ public final class IslandService {
             return;
         }
         SkyBlockProfile owner = ownerForCurrentIsland(player);
-        if (owner == null || !canModify(player, player.getWorld())) {
+        if (owner == null || !canModify(player, player.getWorld(), IslandPermission.MANAGE_WARPS)) {
             text.send(player, "commands.island-warp-set-invalid");
             return;
         }
@@ -471,7 +503,7 @@ public final class IslandService {
             text.send(player, "commands.island-disabled");
             return;
         }
-        SkyBlockProfile owner = editableIslandOwner(player);
+        SkyBlockProfile owner = editableIslandOwner(player, IslandPermission.MANAGE_WARPS);
         if (owner == null || !hasIsland(owner)) {
             text.send(player, "commands.island-no-own-island");
             return;
@@ -564,13 +596,13 @@ public final class IslandService {
             text.send(player, "commands.island-reset-disabled");
             return;
         }
-        SkyBlockProfile profile = profiles.profile(player);
-        if (!hasIsland(profile)) {
-            text.send(player, "commands.island-reset-no-island");
+        SkyBlockProfile profile = editableIslandOwner(player, IslandPermission.RESET);
+        if (profile == null || !hasIsland(profile)) {
+            text.send(player, profile == null ? "commands.island-protected" : "commands.island-reset-no-island");
             return;
         }
         long seconds = resetConfirmationSeconds();
-        resetConfirmations.put(player.getUniqueId(), System.currentTimeMillis() + seconds * 1000L);
+        resetConfirmations.put(new ResetConfirmationKey(player.getUniqueId(), profile.uniqueId()), System.currentTimeMillis() + seconds * 1000L);
         text.send(player, "commands.island-reset-requested", resetPlaceholders(profile));
     }
 
@@ -583,14 +615,15 @@ public final class IslandService {
             text.send(player, "commands.island-reset-disabled");
             return;
         }
-        SkyBlockProfile profile = profiles.profile(player);
-        if (!hasIsland(profile)) {
-            text.send(player, "commands.island-reset-no-island");
+        SkyBlockProfile profile = editableIslandOwner(player, IslandPermission.RESET);
+        if (profile == null || !hasIsland(profile)) {
+            text.send(player, profile == null ? "commands.island-protected" : "commands.island-reset-no-island");
             return;
         }
-        Long expiresAt = resetConfirmations.get(player.getUniqueId());
+        ResetConfirmationKey key = new ResetConfirmationKey(player.getUniqueId(), profile.uniqueId());
+        Long expiresAt = resetConfirmations.get(key);
         if (expiresAt == null || expiresAt <= System.currentTimeMillis()) {
-            resetConfirmations.remove(player.getUniqueId());
+            resetConfirmations.remove(key);
             text.send(player, "commands.island-reset-missing", resetPlaceholders(profile));
             return;
         }
@@ -598,13 +631,12 @@ public final class IslandService {
             text.send(player, "commands.island-reset-token-invalid", resetPlaceholders(profile));
             return;
         }
-        resetConfirmations.remove(player.getUniqueId());
+        resetConfirmations.remove(key);
         resetIsland(player, profile);
     }
 
     public List<TextService.TextPlaceholder> islandPlaceholders(Player player) {
-        SkyBlockProfile profile = profiles.profile(player);
-        return islandPlaceholders(profile);
+        return islandPlaceholders(islandContext(player));
     }
 
     public List<TextService.TextPlaceholder> islandPlaceholders(SkyBlockProfile profile) {
@@ -637,11 +669,23 @@ public final class IslandService {
     }
 
     public boolean canModify(Player player, World world) {
+        return canModify(player, world, IslandPermission.BUILD);
+    }
+
+    public boolean canInteract(Player player, World world) {
+        return canModify(player, world, IslandPermission.INTERACT);
+    }
+
+    public boolean canManageTeleportPads(Player player, World world) {
+        return canModify(player, world, IslandPermission.MANAGE_TELEPORT_PADS);
+    }
+
+    public boolean canModify(Player player, World world, IslandPermission permission) {
         if (!isIslandWorld(world) || player.hasPermission("openskyblock.admin")) {
             return true;
         }
         SkyBlockProfile owner = profiles.profileByIslandWorld(world.getName());
-        return owner != null && (owner.uniqueId().equals(player.getUniqueId()) || owner.isIslandCoopMember(player.getUniqueId()));
+        return hasIslandPermission(player, owner, permission);
     }
 
     private World worldFor(SkyBlockProfile profile, UUID owner) {
@@ -704,6 +748,10 @@ public final class IslandService {
 
     private int maxCoopMembers() {
         return Math.max(1, configService.main().getInt("islands.coop.max-members", 5));
+    }
+
+    private boolean coopPermissionEnabled(IslandPermission permission) {
+        return configService.main().getBoolean("islands.coop.permissions." + permission.configKey(), true);
     }
 
     private int maxIslandWarps() {
@@ -1072,11 +1120,33 @@ public final class IslandService {
     }
 
     private SkyBlockProfile editableIslandOwner(Player player) {
+        return editableIslandOwner(player, IslandPermission.BUILD);
+    }
+
+    private SkyBlockProfile editableIslandOwner(Player player, IslandPermission permission) {
         if (!isIslandWorld(player.getWorld())) {
             return profiles.profile(player);
         }
         SkyBlockProfile owner = ownerForCurrentIsland(player);
-        return owner != null && canModify(player, player.getWorld()) ? owner : null;
+        return owner != null && canModify(player, player.getWorld(), permission) ? owner : null;
+    }
+
+    private boolean hasIslandPermission(Player player, SkyBlockProfile owner, IslandPermission permission) {
+        if (player == null || owner == null) {
+            return false;
+        }
+        if (player.hasPermission("openskyblock.admin") || owner.uniqueId().equals(player.getUniqueId())) {
+            return true;
+        }
+        return owner.isIslandCoopMember(player.getUniqueId()) && coopPermissionEnabled(permission);
+    }
+
+    private String permissionDisplay(IslandPermission permission) {
+        return text.rawMessage("islands.permissions." + permission.configKey());
+    }
+
+    private String permissionStatus(boolean enabled) {
+        return text.rawMessage(enabled ? "islands.permission-enabled" : "islands.permission-disabled");
     }
 
     private String normalizeWarpName(String raw) {
