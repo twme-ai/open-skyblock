@@ -6,6 +6,19 @@ settings:
   minister-enabled: true
   minister-perk-count: 1
   allow-vote-changes: true
+  scorpius-bribe-playtime-tiers:
+    less-than-50:
+      max-hours: 50
+      coins: 50000.0
+    less-than-150:
+      max-hours: 150
+      coins: 250000.0
+    less-than-300:
+      max-hours: 300
+      coins: 500000.0
+    more-than-300:
+      max-hours: -1
+      coins: 1000000.0
 
 candidates:
   AATROX:
@@ -141,6 +154,6 @@ candidates:
           dark_auction_minimum_purse_reduction: 0.25
       bribe:
         display-name: "<gold>Bribe</gold>"
-        description: "Configured coin grant hook for future election reward integrations."
+        description: "Lets Scorpius voters claim a configured playtime-based coin bribe after he is elected."
         modifiers:
           election_bribe_coins: 100000.0

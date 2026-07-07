@@ -701,7 +701,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(plugin.calendar().eventIds(), args[1]);
         }
         if (args.length == 2 && isMayorCommand(args[0])) {
-            return startsWith(List.of("status", "candidates", "vote", "results", "perks"), args[1]);
+            return startsWith(List.of("status", "candidates", "vote", "results", "perks", "bribe"), args[1]);
         }
         if (args.length == 3 && isMayorCommand(args[0]) && args[1].equalsIgnoreCase("vote")) {
             return startsWith(plugin.mayors().candidateIds(), args[2]);
@@ -916,7 +916,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " calendar", "commands.help.calendar");
         helpLine(sender, label + " events", "commands.help.events");
         helpLine(sender, label + " event <id>", "commands.help.event");
-        helpLine(sender, label + " mayor [status|candidates|results|perks]", "commands.help.mayor");
+        helpLine(sender, label + " mayor [status|candidates|results|perks|bribe]", "commands.help.mayor");
         helpLine(sender, label + " mayor vote <id>", "commands.help.mayor-vote");
         helpLine(sender, label + " jacob [status|crops|rewards|medals|leaderboard]", "commands.help.farming-contest");
         helpLine(sender, label + " commissions", "commands.help.commissions");
@@ -2554,6 +2554,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             }
             case "results" -> plugin.mayors().sendResults(player);
             case "perks" -> plugin.mayors().sendPerks(player);
+            case "bribe", "claimbribe" -> plugin.mayors().claimBribe(player);
             default -> plugin.text().send(player, "commands.mayor-usage");
         }
     }

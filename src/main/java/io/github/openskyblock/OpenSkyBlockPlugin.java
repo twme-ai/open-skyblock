@@ -218,7 +218,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.wardrobeService = new WardrobeService(configService, textService, profileManager);
         this.calendarService = new CalendarService(configService, textService);
         this.spookyService = new SpookyService(configService, textService, profileManager, economyService, skillService, customItemService, calendarService);
-        this.mayorService = new MayorService(configService, textService, profileManager);
+        this.mayorService = new MayorService(configService, textService, profileManager, economyService);
         this.skillService.mayorService(mayorService);
         this.dungeonService.mayorService(mayorService);
         this.farmingContestService = new FarmingContestService(configService, textService, profileManager);

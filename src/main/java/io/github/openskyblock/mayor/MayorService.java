@@ -2,6 +2,7 @@ package io.github.openskyblock.mayor;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import java.util.ArrayList;
@@ -12,13 +13,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import org.bukkit.Statistic;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 public final class MayorService {
+    private static final String SCORPIUS_ID = "SCORPIUS";
+
     private final ConfigService configService;
     private final TextService text;
     private final ProfileManager profiles;
+    private final EconomyService economy;
     private final Map<String, MayorCandidateDefinition> candidates = new HashMap<>();
     private long epochMillis = 0L;
     private long cycleSeconds = 446_400L;
@@ -27,11 +32,13 @@ public final class MayorService {
     private boolean ministerEnabled = true;
     private int ministerPerkCount = 1;
     private boolean allowVoteChanges = true;
+    private List<BribeTier> scorpiusBribeTiers = List.of();
 
-    public MayorService(ConfigService configService, TextService text, ProfileManager profiles) {
+    public MayorService(ConfigService configService, TextService text, ProfileManager profiles, EconomyService economy) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
+        this.economy = economy;
     }
 
     public void reload() {
@@ -42,6 +49,7 @@ public final class MayorService {
         this.ministerEnabled = configService.mayors().getBoolean("settings.minister-enabled", true);
         this.ministerPerkCount = Math.max(1, configService.mayors().getInt("settings.minister-perk-count", 1));
         this.allowVoteChanges = configService.mayors().getBoolean("settings.allow-vote-changes", true);
+        this.scorpiusBribeTiers = loadBribeTiers();
         loadCandidates();
     }
 
@@ -188,6 +196,36 @@ public final class MayorService {
         activeMinister().ifPresent(minister -> sendPerkLines(player, minister, text.rawMessage("mayors.role-minister"), minister.perks().stream().limit(ministerPerkCount).toList()));
     }
 
+    public boolean claimBribe(Player player) {
+        if (!enabled()) {
+            text.send(player, "commands.mayor-disabled");
+            return false;
+        }
+        long electionIndex = activeElectionIndex();
+        String electionId = electionId(electionIndex);
+        MayorCandidateDefinition mayor = winner(electionIndex).orElse(null);
+        double playtimeHours = playtimeHours(player);
+        double coins = mayor == null ? 0.0D : bribeCoins(mayor, playtimeHours);
+        if (mayor == null || !SCORPIUS_ID.equals(mayor.id()) || coins <= 0.0D) {
+            text.send(player, "commands.mayor-bribe-unavailable");
+            return false;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        if (!SCORPIUS_ID.equals(profile.mayorVote(electionId))) {
+            text.send(player, "commands.mayor-bribe-vote-required", bribePlaceholders(mayor, electionId, coins, playtimeHours));
+            return false;
+        }
+        if (profile.claimedMayorBribe(electionId)) {
+            text.send(player, "commands.mayor-bribe-already-claimed", bribePlaceholders(mayor, electionId, coins, playtimeHours));
+            return false;
+        }
+        profile.setMayorBribeClaimed(electionId, true);
+        economy.addPurse(player, coins);
+        profiles.save(player);
+        text.send(player, "commands.mayor-bribe-claimed", bribePlaceholders(mayor, electionId, coins, playtimeHours));
+        return true;
+    }
+
     private void loadCandidates() {
         candidates.clear();
         ConfigurationSection section = configService.mayors().getConfigurationSection("candidates");
@@ -235,6 +273,28 @@ public final class MayorService {
             ));
         }
         return List.copyOf(perks);
+    }
+
+    private List<BribeTier> loadBribeTiers() {
+        ConfigurationSection section = configService.mayors().getConfigurationSection("settings.scorpius-bribe-playtime-tiers");
+        if (section == null) {
+            return List.of();
+        }
+        List<BribeTier> tiers = new ArrayList<>();
+        for (String id : section.getKeys(false)) {
+            ConfigurationSection tierSection = section.getConfigurationSection(id);
+            if (tierSection == null) {
+                continue;
+            }
+            double coins = tierSection.getDouble("coins", 0.0D);
+            if (coins <= 0.0D) {
+                continue;
+            }
+            tiers.add(new BribeTier(tierSection.getDouble("max-hours", -1.0D), coins));
+        }
+        return tiers.stream()
+                .sorted(Comparator.comparingDouble(tier -> tier.maxHours() <= 0.0D ? Double.MAX_VALUE : tier.maxHours()))
+                .toList();
     }
 
     private List<MayorCandidateDefinition> candidatePool(long electionIndex) {
@@ -360,6 +420,33 @@ public final class MayorService {
         }
     }
 
+    private double bribeCoins(MayorCandidateDefinition mayor, double playtimeHours) {
+        if (!scorpiusBribeTiers.isEmpty()) {
+            for (BribeTier tier : scorpiusBribeTiers) {
+                if (tier.maxHours() <= 0.0D || playtimeHours < tier.maxHours()) {
+                    return tier.coins();
+                }
+            }
+        }
+        return mayor.perks().stream()
+                .mapToDouble(perk -> perk.modifiers().getOrDefault("election_bribe_coins", 0.0D))
+                .sum();
+    }
+
+    private double playtimeHours(Player player) {
+        return Math.max(0.0D, player.getStatistic(Statistic.PLAY_ONE_MINUTE) / 72000.0D);
+    }
+
+    private List<TextService.TextPlaceholder> bribePlaceholders(MayorCandidateDefinition mayor, String electionId, double coins, double playtimeHours) {
+        return List.of(
+                TextService.raw("election_id", electionId),
+                TextService.raw("id", mayor.id()),
+                TextService.parsed("candidate", mayor.displayName()),
+                TextService.raw("coins", text.formatNumber(coins)),
+                TextService.raw("playtime_hours", text.formatNumber(playtimeHours))
+        );
+    }
+
     private String perkSummary(List<MayorPerkDefinition> perks) {
         if (perks.isEmpty()) {
             return text.rawMessage("mayors.no-perks");
@@ -445,5 +532,8 @@ public final class MayorService {
             return minutes + "m " + seconds + "s";
         }
         return totalSeconds + "s";
+    }
+
+    private record BribeTier(double maxHours, double coins) {
     }
 }

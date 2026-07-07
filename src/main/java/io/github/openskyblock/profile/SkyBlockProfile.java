@@ -71,6 +71,7 @@ public final class SkyBlockProfile {
     private final Map<String, Long> museumDonations = new HashMap<>();
     private final Map<String, Integer> darkAuctionPurchases = new HashMap<>();
     private final Map<String, String> mayorVotes = new HashMap<>();
+    private final Set<String> claimedMayorBribes = new HashSet<>();
     private final Map<String, Long> farmingContestMedals = new HashMap<>();
     private final Map<String, Map<String, Long>> farmingContestScores = new HashMap<>();
     private final Map<String, String> farmingContestRewards = new HashMap<>();
@@ -1568,6 +1569,23 @@ public final class SkyBlockProfile {
             return;
         }
         mayorVotes.put(electionId.toUpperCase(), candidateId.toUpperCase());
+    }
+
+    public Set<String> claimedMayorBribes() {
+        return claimedMayorBribes;
+    }
+
+    public boolean claimedMayorBribe(String electionId) {
+        return claimedMayorBribes.contains(electionId.toUpperCase());
+    }
+
+    public void setMayorBribeClaimed(String electionId, boolean claimed) {
+        String normalized = electionId.toUpperCase();
+        if (claimed) {
+            claimedMayorBribes.add(normalized);
+            return;
+        }
+        claimedMayorBribes.remove(normalized);
     }
 
     public long jacobsTickets() {

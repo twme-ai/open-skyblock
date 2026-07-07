@@ -616,6 +616,11 @@ public final class ProfileManager {
                 }
             }
         }
+        for (String electionId : section.getStringList("mayors.claimed-bribes")) {
+            if (!electionId.isBlank()) {
+                profile.setMayorBribeClaimed(electionId.toUpperCase(), true);
+            }
+        }
         profile.jacobsTickets(section.getLong("farming-contests.jacobs-tickets", 0L));
         ConfigurationSection farmingMedals = section.getConfigurationSection("farming-contests.medals");
         if (farmingMedals != null) {
@@ -1135,6 +1140,9 @@ public final class ProfileManager {
             if (entry.getValue() != null && !entry.getValue().isBlank()) {
                 profileData.set(base + ".mayors.votes." + entry.getKey(), entry.getValue());
             }
+        }
+        if (!profile.claimedMayorBribes().isEmpty()) {
+            profileData.set(base + ".mayors.claimed-bribes", profile.claimedMayorBribes().stream().sorted().toList());
         }
         profileData.set(base + ".farming-contests", null);
         profileData.set(base + ".farming-contests.jacobs-tickets", profile.jacobsTickets());
