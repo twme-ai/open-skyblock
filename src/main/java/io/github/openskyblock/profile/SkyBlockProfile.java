@@ -53,6 +53,7 @@ public final class SkyBlockProfile {
     private final Set<String> hoppityShopPurchases = new HashSet<>();
     private final Map<String, Integer> chocolateShopPurchases = new HashMap<>();
     private final Map<String, Long> miningFiestaBuffs = new HashMap<>();
+    private final Map<String, Long> fishingFestivalSharks = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -134,6 +135,7 @@ public final class SkyBlockProfile {
     private long miningFiestaBlocks;
     private long miningFiestaRefinedMinerals;
     private long miningFiestaGlossyGemstones;
+    private long fishingFestivalSharkCatches;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -1364,6 +1366,40 @@ public final class SkyBlockProfile {
             return;
         }
         miningFiestaBuffs.put(normalized, expiresAtMillis);
+    }
+
+    public long fishingFestivalSharkCatches() {
+        return fishingFestivalSharkCatches;
+    }
+
+    public void fishingFestivalSharkCatches(long fishingFestivalSharkCatches) {
+        this.fishingFestivalSharkCatches = Math.max(0L, fishingFestivalSharkCatches);
+    }
+
+    public void addFishingFestivalSharkCatches(long amount) {
+        fishingFestivalSharkCatches(fishingFestivalSharkCatches + amount);
+    }
+
+    public long fishingFestivalSharkCatches(String sharkId) {
+        return fishingFestivalSharks.getOrDefault(sharkId.toUpperCase(), 0L);
+    }
+
+    public void setFishingFestivalSharkCatches(String sharkId, long amount) {
+        String normalized = sharkId.toUpperCase();
+        if (amount <= 0L) {
+            fishingFestivalSharks.remove(normalized);
+            return;
+        }
+        fishingFestivalSharks.put(normalized, amount);
+    }
+
+    public void addFishingFestivalSharkCatch(String sharkId, long amount) {
+        addFishingFestivalSharkCatches(amount);
+        setFishingFestivalSharkCatches(sharkId, fishingFestivalSharkCatches(sharkId) + amount);
+    }
+
+    public Map<String, Long> fishingFestivalSharks() {
+        return fishingFestivalSharks;
     }
 
     public String shopPurchaseDay() {

@@ -132,6 +132,11 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "miningfiesta",
             "mining-fiesta",
             "fiesta",
+            "fishingfestival",
+            "fishing-festival",
+            "sharkfestival",
+            "shark-festival",
+            "sharks",
             "stars",
             "star",
             "essence",
@@ -245,6 +250,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "newyear", "new-year", "baker", "newyearcake", "newyearcakes" -> newYear(sender, args);
             case "chocolate", "chocolatefactory", "chocolate-factory", "cf", "hoppity" -> chocolate(sender, args);
             case "miningfiesta", "mining-fiesta", "fiesta" -> miningFiesta(sender, args);
+            case "fishingfestival", "fishing-festival", "sharkfestival", "shark-festival", "sharks" -> fishingFestival(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -644,6 +650,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && isMiningFiestaCommand(args[0]) && args[1].equalsIgnoreCase("buy")) {
             return startsWith(plugin.miningFiesta().buffIds(), args[2]);
         }
+        if (args.length == 2 && isFishingFestivalCommand(args[0])) {
+            return startsWith(List.of("status", "sharks"), args[1]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -892,6 +901,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " newyear status|claim|bag|store|cakes", "commands.help.new-year");
         helpLine(sender, label + " chocolate status|click|upgrades|egg|hoppity|shop", "commands.help.chocolate");
         helpLine(sender, label + " miningfiesta status|drops|buffs|buy", "commands.help.mining-fiesta");
+        helpLine(sender, label + " fishingfestival status|sharks", "commands.help.fishing-festival");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -2245,6 +2255,21 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void fishingFestival(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.fishingFestival().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "sharks", "list" -> plugin.fishingFestival().sendSharks(player);
+            default -> plugin.text().send(player, "commands.fishing-festival-usage");
+        }
+    }
+
     private void enchantBook(CommandSender sender, String[] args) {
         if (!sender.hasPermission("openskyblock.admin")) {
             plugin.text().send(sender, "errors.no-permission");
@@ -3437,6 +3462,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isMiningFiestaCommand(String value) {
         return value.equalsIgnoreCase("miningfiesta") || value.equalsIgnoreCase("mining-fiesta") || value.equalsIgnoreCase("fiesta");
+    }
+
+    private boolean isFishingFestivalCommand(String value) {
+        return value.equalsIgnoreCase("fishingfestival") || value.equalsIgnoreCase("fishing-festival") || value.equalsIgnoreCase("sharkfestival") || value.equalsIgnoreCase("shark-festival") || value.equalsIgnoreCase("sharks");
     }
 
     private boolean isUpgradeCommand(String value) {

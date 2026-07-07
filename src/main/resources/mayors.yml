@@ -73,6 +73,11 @@ candidates:
         description: "Configured Sea Creature Chance modifier for future fishing systems."
         modifiers:
           sea_creature_chance_bonus: 15.0
+      fishing_festival:
+        display-name: "<aqua>Fishing Festival</aqua>"
+        description: "Enables scheduled Fishing Festival windows with shark sea creatures."
+        modifiers:
+          fishing_festival_enabled: 1.0
   PAUL:
     display-name: "<blue>Paul</blue>"
     description: "A Dungeon-focused mayor."

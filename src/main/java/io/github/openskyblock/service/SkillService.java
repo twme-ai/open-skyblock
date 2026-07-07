@@ -8,6 +8,7 @@ import io.github.openskyblock.dragon.DragonService;
 import io.github.openskyblock.economy.EconomyService;
 import io.github.openskyblock.faction.FactionService;
 import io.github.openskyblock.fairysoul.FairySoulService;
+import io.github.openskyblock.fishingfestival.FishingFestivalService;
 import io.github.openskyblock.garden.GardenService;
 import io.github.openskyblock.jerry.SeasonOfJerryService;
 import io.github.openskyblock.kuudra.KuudraService;
@@ -59,6 +60,7 @@ public final class SkillService {
     private NewYearService newYearService;
     private ChocolateFactoryService chocolateFactoryService;
     private MiningFiestaService miningFiestaService;
+    private FishingFestivalService fishingFestivalService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -126,6 +128,10 @@ public final class SkillService {
 
     public void miningFiestaService(MiningFiestaService miningFiestaService) {
         this.miningFiestaService = miningFiestaService;
+    }
+
+    public void fishingFestivalService(FishingFestivalService fishingFestivalService) {
+        this.fishingFestivalService = fishingFestivalService;
     }
 
     public void reload() {
@@ -301,6 +307,9 @@ public final class SkillService {
         }
         if (miningFiestaService != null) {
             xp += (int) Math.round(miningFiestaService.skyBlockXp(profile));
+        }
+        if (fishingFestivalService != null) {
+            xp += (int) Math.round(fishingFestivalService.skyBlockXp(profile));
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);

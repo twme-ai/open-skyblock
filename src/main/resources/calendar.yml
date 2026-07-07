@@ -69,3 +69,12 @@ events:
     duration-days: 3
     rewards:
       - "<green>Event pets</green>"
+  FISHING_FESTIVAL:
+    display-name: "<aqua>Fishing Festival</aqua>"
+    description: "A Marina mayor event window with shark sea creatures."
+    first-day: 0
+    recurrence-days: 31
+    duration-days: 3
+    rewards:
+      - "<aqua>Shark sea creatures</aqua>"
+      - "<gold>Megalodon pet token</gold>"

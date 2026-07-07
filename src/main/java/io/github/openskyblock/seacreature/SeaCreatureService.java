@@ -2,6 +2,7 @@ package io.github.openskyblock.seacreature;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.fishingfestival.FishingFestivalService;
 import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.mob.MobService;
 import io.github.openskyblock.mob.SkyBlockMobDefinition;
@@ -30,6 +31,7 @@ public final class SeaCreatureService {
     private final MobService mobs;
     private final MayorService mayors;
     private final Map<String, SeaCreatureDefinition> definitions = new HashMap<>();
+    private FishingFestivalService fishingFestival;
     private double baseChance = 20.0D;
     private boolean removeCaughtItem = true;
 
@@ -41,6 +43,10 @@ public final class SeaCreatureService {
         this.stats = stats;
         this.mobs = mobs;
         this.mayors = mayors;
+    }
+
+    public void fishingFestivalService(FishingFestivalService fishingFestival) {
+        this.fishingFestival = fishingFestival;
     }
 
     public void reload() {
@@ -95,7 +101,8 @@ public final class SeaCreatureService {
         if (ThreadLocalRandom.current().nextDouble(100.0D) >= chance) {
             return false;
         }
-        SeaCreatureDefinition creature = selectCreature(fishingLevel).orElse(null);
+        Optional<SeaCreatureDefinition> festivalShark = fishingFestival == null ? Optional.empty() : fishingFestival.selectShark(fishingLevel);
+        SeaCreatureDefinition creature = festivalShark.orElseGet(() -> selectCreature(fishingLevel).orElse(null));
         if (creature == null) {
             return false;
         }
@@ -105,10 +112,14 @@ public final class SeaCreatureService {
             return false;
         }
         mobs.spawn(spawnLocation(player, hookLocation), mob);
-        text.send(player, "commands.sea-creature-spawned", List.of(
-                TextService.parsed("creature", creature.displayName()),
-                TextService.raw("chance", text.formatNumber(chance))
-        ));
+        if (festivalShark.isPresent()) {
+            fishingFestival.recordSharkCatch(player, creature, chance);
+        } else {
+            text.send(player, "commands.sea-creature-spawned", List.of(
+                    TextService.parsed("creature", creature.displayName()),
+                    TextService.raw("chance", text.formatNumber(chance))
+            ));
+        }
         return true;
     }
 

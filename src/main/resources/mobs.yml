@@ -190,3 +190,122 @@ mobs:
         chance: 25
         min-amount: 1
         max-amount: 2
+  NURSE_SHARK:
+    entity-type: DROWNED
+    display-name: "<green>Nurse Shark</green>"
+    level: 6
+    health: 500
+    damage: 35
+    defense: 5
+    skill: FISHING
+    xp: 18
+    coins: 8
+    collection: RAW_FISH
+    collection-amount: 1
+    vanilla-drops: false
+    drops:
+      SHARK_FIN:
+        type: CUSTOM_ITEM
+        custom-item: SHARK_FIN
+        chance: 100
+        min-amount: 1
+        max-amount: 2
+      NURSE_SHARK_TOOTH:
+        type: CUSTOM_ITEM
+        custom-item: NURSE_SHARK_TOOTH
+        chance: 8
+        min-amount: 1
+        max-amount: 1
+        magic-find: true
+  BLUE_SHARK:
+    entity-type: DROWNED
+    display-name: "<blue>Blue Shark</blue>"
+    level: 18
+    health: 2500
+    damage: 90
+    defense: 20
+    skill: FISHING
+    xp: 50
+    coins: 20
+    collection: RAW_FISH
+    collection-amount: 2
+    vanilla-drops: false
+    drops:
+      SHARK_FIN:
+        type: CUSTOM_ITEM
+        custom-item: SHARK_FIN
+        chance: 100
+        min-amount: 1
+        max-amount: 3
+      BLUE_SHARK_TOOTH:
+        type: CUSTOM_ITEM
+        custom-item: BLUE_SHARK_TOOTH
+        chance: 5
+        min-amount: 1
+        max-amount: 1
+        magic-find: true
+  TIGER_SHARK:
+    entity-type: ELDER_GUARDIAN
+    display-name: "<gold>Tiger Shark</gold>"
+    level: 24
+    health: 10000
+    damage: 160
+    defense: 40
+    skill: FISHING
+    xp: 100
+    coins: 50
+    collection: RAW_FISH
+    collection-amount: 4
+    vanilla-drops: false
+    drops:
+      SHARK_FIN:
+        type: CUSTOM_ITEM
+        custom-item: SHARK_FIN
+        chance: 100
+        min-amount: 2
+        max-amount: 4
+      TIGER_SHARK_TOOTH:
+        type: CUSTOM_ITEM
+        custom-item: TIGER_SHARK_TOOTH
+        chance: 3
+        min-amount: 1
+        max-amount: 1
+        magic-find: true
+        announce: true
+  GREAT_WHITE_SHARK:
+    entity-type: ELDER_GUARDIAN
+    display-name: "<white>Great White Shark</white>"
+    level: 30
+    health: 50000
+    damage: 250
+    defense: 80
+    skill: FISHING
+    xp: 200
+    coins: 125
+    collection: RAW_FISH
+    collection-amount: 8
+    vanilla-drops: false
+    drops:
+      SHARK_FIN:
+        type: CUSTOM_ITEM
+        custom-item: SHARK_FIN
+        chance: 100
+        min-amount: 3
+        max-amount: 6
+      GREAT_WHITE_SHARK_TOOTH:
+        type: CUSTOM_ITEM
+        custom-item: GREAT_WHITE_SHARK_TOOTH
+        chance: 2
+        min-amount: 1
+        max-amount: 1
+        magic-find: true
+        announce: true
+      MEGALODON_PET:
+        type: CUSTOM_ITEM
+        custom-item: MEGALODON_PET
+        chance: 0.5
+        min-amount: 1
+        max-amount: 1
+        magic-find: true
+        announce: true
+        broadcast: true

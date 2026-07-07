@@ -115,6 +115,22 @@ pets:
     stats-per-level:
       health: 2.0
       defense: 0.25
+  MEGALODON:
+    material: COD
+    display-name: "<gold>Megalodon Pet</gold>"
+    rarity: LEGENDARY
+    max-level: 100
+    xp-per-level: 100.0
+    lore:
+      - "<gray>A Fishing Festival combat pet inspired by shark catches.</gray>"
+    base-stats:
+      strength: 5.0
+      magic_find: 1.0
+      sea_creature_chance: 2.0
+    stats-per-level:
+      strength: 0.35
+      magic_find: 0.02
+      sea_creature_chance: 0.08
   TIGER:
     material: ORANGE_WOOL
     display-name: "<gold>Tiger Pet</gold>"

@@ -44,6 +44,7 @@ public final class ConfigService {
             "new_year.yml",
             "chocolate_factory.yml",
             "mining_fiesta.yml",
+            "fishing_festival.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -225,6 +226,10 @@ public final class ConfigService {
 
     public FileConfiguration miningFiesta() {
         return file("mining_fiesta.yml");
+    }
+
+    public FileConfiguration fishingFestival() {
+        return file("fishing_festival.yml");
     }
 
     public FileConfiguration mobSpawns() {

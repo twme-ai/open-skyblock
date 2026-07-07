@@ -599,6 +599,55 @@ items:
       - "<gray>Carry it in your Accessory Bag for configured stat value.</gray>"
     stats:
       mining_fortune: 10
+  SHARK_FIN:
+    material: PRISMARINE_SHARD
+    display-name: "<aqua>Shark Fin</aqua>"
+    category: MATERIAL
+    rarity: UNCOMMON
+    lore:
+      - "<gray>A Fishing Festival material dropped by sharks.</gray>"
+    stats: {}
+  NURSE_SHARK_TOOTH:
+    material: BONE
+    display-name: "<green>Nurse Shark Tooth</green>"
+    category: MATERIAL
+    rarity: UNCOMMON
+    lore:
+      - "<gray>A tooth collected from a Nurse Shark.</gray>"
+    stats: {}
+  BLUE_SHARK_TOOTH:
+    material: PRISMARINE_CRYSTALS
+    display-name: "<blue>Blue Shark Tooth</blue>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A tooth collected from a Blue Shark.</gray>"
+    stats: {}
+  TIGER_SHARK_TOOTH:
+    material: ORANGE_DYE
+    display-name: "<gold>Tiger Shark Tooth</gold>"
+    category: MATERIAL
+    rarity: EPIC
+    lore:
+      - "<gray>A tooth collected from a Tiger Shark.</gray>"
+    stats: {}
+  GREAT_WHITE_SHARK_TOOTH:
+    material: QUARTZ
+    display-name: "<white>Great White Shark Tooth</white>"
+    category: MATERIAL
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A tooth collected from a Great White Shark.</gray>"
+    stats: {}
+  MEGALODON_PET:
+    material: COD
+    display-name: "<gold>Megalodon Pet</gold>"
+    category: PET
+    rarity: LEGENDARY
+    lore:
+      - "<gray>A rare Fishing Festival pet token.</gray>"
+      - "<gray>Server owners can map this token into pet unlock flows.</gray>"
+    stats: {}
   NORTH_STAR:
     material: NETHER_STAR
     display-name: "<aqua>North Star</aqua>"

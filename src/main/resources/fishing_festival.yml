@@ -1,0 +1,30 @@
+settings:
+  require-mayor-perk: true
+  mayor-modifier: fishing_festival_enabled
+  start-day: 1
+  duration-days: 3
+  shark-roll-chance: 100.0
+  skyblock-xp-per-shark: 0.25
+  save-interval-catches: 1
+
+sharks:
+  NURSE_SHARK:
+    display-name: "<green>Nurse Shark</green>"
+    mob: NURSE_SHARK
+    required-fishing-level: 0
+    weight: 60.0
+  BLUE_SHARK:
+    display-name: "<blue>Blue Shark</blue>"
+    mob: BLUE_SHARK
+    required-fishing-level: 15
+    weight: 25.0
+  TIGER_SHARK:
+    display-name: "<gold>Tiger Shark</gold>"
+    mob: TIGER_SHARK
+    required-fishing-level: 20
+    weight: 12.0
+  GREAT_WHITE_SHARK:
+    display-name: "<white>Great White Shark</white>"
+    mob: GREAT_WHITE_SHARK
+    required-fishing-level: 24
+    weight: 3.0

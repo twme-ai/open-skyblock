@@ -368,6 +368,13 @@ public final class ProfileManager {
                 profile.setMiningFiestaBuff(buffId.toUpperCase(), miningFiestaBuffs.getLong(buffId, 0L));
             }
         }
+        profile.fishingFestivalSharkCatches(section.getLong("fishing-festival.shark-catches", 0L));
+        ConfigurationSection fishingFestivalSharks = section.getConfigurationSection("fishing-festival.sharks");
+        if (fishingFestivalSharks != null) {
+            for (String sharkId : fishingFestivalSharks.getKeys(false)) {
+                profile.setFishingFestivalSharkCatches(sharkId.toUpperCase(), fishingFestivalSharks.getLong(sharkId, 0L));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -983,6 +990,13 @@ public final class ProfileManager {
         for (Map.Entry<String, Long> entry : profile.miningFiestaBuffs().entrySet()) {
             if (entry.getValue() > System.currentTimeMillis()) {
                 profileData.set(base + ".mining-fiesta.buffs." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".fishing-festival", null);
+        profileData.set(base + ".fishing-festival.shark-catches", profile.fishingFestivalSharkCatches());
+        for (Map.Entry<String, Long> entry : profile.fishingFestivalSharks().entrySet()) {
+            if (entry.getValue() > 0L) {
+                profileData.set(base + ".fishing-festival.sharks." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());
