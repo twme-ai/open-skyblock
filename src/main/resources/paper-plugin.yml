@@ -5,6 +5,16 @@ description: A configurable PaperMC SkyBlock progression plugin.
 authors:
   - OpenSkyBlock Contributors
 api-version: '1.21'
+dependencies:
+  server:
+    WorldEdit:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    FastAsyncWorldEdit:
+      load: BEFORE
+      required: false
+      join-classpath: true
 commands:
   skyblock:
     description: Main OpenSkyBlock command.

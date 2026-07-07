@@ -74,6 +74,15 @@ islands:
   world-prefix: "openskyblock_island_"
   spawn-y: 80
   starter-radius: 3
+  schematic:
+    enabled: false
+    file: "schematics/starter.schem"
+    paste-x: 0
+    paste-y-offset: -1
+    paste-z: 0
+    paste-air: false
+    paste-entities: false
+    fallback-platform: true
   border-size: 160
   border-warning-blocks: 5
   home-yaw: 180.0

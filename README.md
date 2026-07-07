@@ -10,7 +10,7 @@ The repository currently contains the foundation needed for later full parity wo
 
 - Paper 1.21.8 API Maven project.
 - Persistent player profiles with purse, bank, skills, collections, and SkyBlock level calculation.
-- Private island world creation with starter platform, starter chest, configurable world border, saved island home, named island warps, block-based Teleport Pads, guarded island reset flow, visitor access toggles, configurable visitor limits, basic co-op membership, per-member co-op permission roles, island visiting, management menu, and basic island protection.
+- Private island world creation with generated starter platform or optional WorldEdit/FastAsyncWorldEdit starter schematic placement, starter chest fallback, configurable world border, saved island home, named island warps, block-based Teleport Pads, guarded island reset flow, visitor access toggles, configurable visitor limits, basic co-op membership, per-member co-op permission roles, island visiting, management menu, and basic island protection.
 - Configurable SkyBlock menu GUI and starter menu item.
 - Paged collection browser and category-filtered recipe book menus with configurable layout, lore, and navigation.
 - Configurable MiniMessage messages in `messages.yml`.
@@ -68,6 +68,8 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 2. Place the jar in a Paper server `plugins/` directory.
 3. Start the server once to generate configuration files.
 4. Edit `plugins/OpenSkyBlock/*.yml` to tune messages, rewards, collections, items, and minions.
+
+Optional starter schematics use WorldEdit-compatible `.schem` files. Install WorldEdit or FastAsyncWorldEdit, place the schematic at `plugins/OpenSkyBlock/schematics/starter.schem`, then enable `islands.schematic.enabled` in `config.yml`.
 
 ## Commands
 

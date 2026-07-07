@@ -39,6 +39,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IslandService {
     private static final String PAD_ITEM_MARKER = "teleport_pad";
+    private static final String STARTER_ISLAND_MARKER = "starter_island";
 
     private final JavaPlugin plugin;
     private final ConfigService configService;
@@ -49,6 +50,7 @@ public final class IslandService {
     private final Map<ResetConfirmationKey, Long> resetConfirmations = new HashMap<>();
     private final Map<UUID, Long> teleportPadCooldowns = new HashMap<>();
     private final NamespacedKey teleportPadItemKey;
+    private final NamespacedKey starterIslandKey;
 
     public IslandService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles) {
         this.plugin = plugin;
@@ -56,6 +58,7 @@ public final class IslandService {
         this.text = text;
         this.profiles = profiles;
         this.teleportPadItemKey = new NamespacedKey(plugin, "teleport_pad_item");
+        this.starterIslandKey = new NamespacedKey(plugin, "starter_island");
     }
 
     public boolean enabled() {
@@ -1108,11 +1111,71 @@ public final class IslandService {
 
     private boolean ensureStarterIsland(World world) {
         int y = configService.main().getInt("islands.spawn-y", 80);
-        if (world.getBlockAt(0, y - 1, 0).getType() == Material.GRASS_BLOCK) {
+        if (starterIslandMarked(world) || world.getBlockAt(0, y - 1, 0).getType() == Material.GRASS_BLOCK) {
+            return false;
+        }
+        if (pasteStarterSchematic(world, y)) {
+            markStarterIsland(world);
+            return true;
+        }
+        if (!configService.main().getBoolean("islands.schematic.fallback-platform", true)) {
             return false;
         }
         buildStarterIsland(world, y);
+        markStarterIsland(world);
         return true;
+    }
+
+    private boolean pasteStarterSchematic(World world, int y) {
+        if (!configService.main().getBoolean("islands.schematic.enabled", false)) {
+            return false;
+        }
+        if (!worldEditCompatiblePluginLoaded()) {
+            Bukkit.getLogger().warning("Island schematic placement is enabled, but WorldEdit or FastAsyncWorldEdit is not loaded. Falling back to the generated starter island.");
+            return false;
+        }
+        Path schematicPath = starterSchematicPath();
+        if (schematicPath == null || !Files.isRegularFile(schematicPath)) {
+            Bukkit.getLogger().warning("Island schematic placement is enabled, but the schematic file was not found. Falling back to the generated starter island.");
+            return false;
+        }
+        int pasteX = configService.main().getInt("islands.schematic.paste-x", 0);
+        int pasteY = y + configService.main().getInt("islands.schematic.paste-y-offset", -1);
+        int pasteZ = configService.main().getInt("islands.schematic.paste-z", 0);
+        boolean pasteAir = configService.main().getBoolean("islands.schematic.paste-air", false);
+        boolean pasteEntities = configService.main().getBoolean("islands.schematic.paste-entities", false);
+        try {
+            return WorldEditSchematicAdapter.paste(world, schematicPath, pasteX, pasteY, pasteZ, pasteAir, pasteEntities);
+        } catch (LinkageError error) {
+            Bukkit.getLogger().warning("Island schematic placement could not access the WorldEdit API. Falling back to the generated starter island.");
+        } catch (Exception exception) {
+            Bukkit.getLogger().warning("Unable to paste island schematic '" + schematicPath + "': " + exception.getMessage());
+        }
+        return false;
+    }
+
+    private boolean worldEditCompatiblePluginLoaded() {
+        return Bukkit.getPluginManager().isPluginEnabled("WorldEdit") || Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit");
+    }
+
+    private Path starterSchematicPath() {
+        String configuredPath = configService.main().getString("islands.schematic.file", "schematics/starter.schem");
+        if (configuredPath == null || configuredPath.isBlank()) {
+            return null;
+        }
+        Path path = Path.of(configuredPath.trim());
+        if (!path.isAbsolute()) {
+            path = plugin.getDataFolder().toPath().resolve(path);
+        }
+        return path.normalize();
+    }
+
+    private boolean starterIslandMarked(World world) {
+        return world.getPersistentDataContainer().has(starterIslandKey, PersistentDataType.STRING);
+    }
+
+    private void markStarterIsland(World world) {
+        world.getPersistentDataContainer().set(starterIslandKey, PersistentDataType.STRING, STARTER_ISLAND_MARKER);
     }
 
     private void buildStarterIsland(World world, int y) {
