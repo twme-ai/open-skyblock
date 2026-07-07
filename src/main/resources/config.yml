@@ -78,6 +78,9 @@ islands:
   home-pitch: 0.0
   default-visitors-enabled: false
   max-visitors: 1
+  coop:
+    max-members: 5
+    invite-expire-seconds: 60
 
 minions:
   max-per-profile: 5

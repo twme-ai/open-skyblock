@@ -4,7 +4,10 @@ import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -22,6 +25,7 @@ public final class IslandService {
     private final TextService text;
     private final ProfileManager profiles;
     private final VoidChunkGenerator generator = new VoidChunkGenerator();
+    private final Map<UUID, CoopInvite> coopInvites = new HashMap<>();
 
     public IslandService(ConfigService configService, TextService text, ProfileManager profiles) {
         this.configService = configService;
@@ -88,12 +92,13 @@ public final class IslandService {
             text.send(visitor, "commands.island-no-island", List.of(TextService.raw("player", owner.playerName())));
             return;
         }
-        if (!owner.islandVisitorsEnabled() && !visitor.hasPermission("openskyblock.admin")) {
+        boolean coopMember = owner.isIslandCoopMember(visitor.getUniqueId());
+        if (!coopMember && !owner.islandVisitorsEnabled() && !visitor.hasPermission("openskyblock.admin")) {
             text.send(visitor, "commands.island-visitors-closed", List.of(TextService.raw("player", owner.playerName())));
             return;
         }
         boolean alreadyVisiting = visitor.getWorld().getName().equals(owner.islandWorldName());
-        if (!alreadyVisiting && !visitor.hasPermission("openskyblock.admin") && visitorCount(owner) >= visitorLimit(owner)) {
+        if (!coopMember && !alreadyVisiting && !visitor.hasPermission("openskyblock.admin") && visitorCount(owner) >= visitorLimit(owner)) {
             text.send(visitor, "commands.island-visitors-full", islandPlaceholders(owner));
             return;
         }
@@ -123,6 +128,109 @@ public final class IslandService {
         text.send(player, "commands.island-visitors-updated", islandPlaceholders(player));
     }
 
+    public void inviteCoop(Player ownerPlayer, Player target) {
+        if (!enabled()) {
+            text.send(ownerPlayer, "commands.island-disabled");
+            return;
+        }
+        expireCoopInvites();
+        SkyBlockProfile owner = profiles.profile(ownerPlayer);
+        if (target.getUniqueId().equals(owner.uniqueId())) {
+            text.send(ownerPlayer, "commands.island-coop-self");
+            return;
+        }
+        if (owner.isIslandCoopMember(target.getUniqueId())) {
+            text.send(ownerPlayer, "commands.island-coop-already-member", List.of(TextService.raw("player", target.getName())));
+            return;
+        }
+        if (owner.islandCoopMembers().size() >= maxCoopMembers()) {
+            text.send(ownerPlayer, "commands.island-coop-full", islandPlaceholders(owner));
+            return;
+        }
+        long expiresAt = System.currentTimeMillis() + inviteExpireSeconds() * 1000L;
+        coopInvites.put(target.getUniqueId(), new CoopInvite(owner.uniqueId(), owner.playerName(), expiresAt));
+        text.send(ownerPlayer, "commands.island-coop-invite-sent", List.of(
+                TextService.raw("player", target.getName()),
+                TextService.raw("seconds", Long.toString(inviteExpireSeconds()))
+        ));
+        text.send(target, "commands.island-coop-invite-received", List.of(
+                TextService.raw("player", owner.playerName()),
+                TextService.raw("seconds", Long.toString(inviteExpireSeconds()))
+        ));
+    }
+
+    public void acceptCoopInvite(Player target, String ownerName) {
+        if (!enabled()) {
+            text.send(target, "commands.island-disabled");
+            return;
+        }
+        expireCoopInvites();
+        CoopInvite invite = coopInvites.get(target.getUniqueId());
+        if (invite == null || (ownerName != null && !ownerName.isBlank() && !invite.ownerName().equalsIgnoreCase(ownerName))) {
+            text.send(target, "commands.island-coop-invite-missing");
+            return;
+        }
+        SkyBlockProfile owner = profiles.profile(invite.ownerId());
+        if (owner == null) {
+            text.send(target, "commands.island-coop-invite-missing");
+            coopInvites.remove(target.getUniqueId());
+            return;
+        }
+        if (owner.isIslandCoopMember(target.getUniqueId())) {
+            text.send(target, "commands.island-coop-already-joined", List.of(TextService.raw("player", owner.playerName())));
+            coopInvites.remove(target.getUniqueId());
+            return;
+        }
+        if (owner.islandCoopMembers().size() >= maxCoopMembers()) {
+            text.send(target, "commands.island-coop-full", islandPlaceholders(owner));
+            coopInvites.remove(target.getUniqueId());
+            return;
+        }
+        owner.addIslandCoopMember(target.getUniqueId());
+        profiles.save(owner);
+        coopInvites.remove(target.getUniqueId());
+        text.send(target, "commands.island-coop-accepted", List.of(TextService.raw("player", owner.playerName())));
+        Player ownerPlayer = Bukkit.getPlayer(owner.uniqueId());
+        if (ownerPlayer != null) {
+            text.send(ownerPlayer, "commands.island-coop-joined", List.of(TextService.raw("player", target.getName())));
+        }
+    }
+
+    public void removeCoopMember(Player ownerPlayer, String targetName) {
+        if (!enabled()) {
+            text.send(ownerPlayer, "commands.island-disabled");
+            return;
+        }
+        SkyBlockProfile owner = profiles.profile(ownerPlayer);
+        SkyBlockProfile target = profiles.profileByName(targetName);
+        if (target == null || !owner.isIslandCoopMember(target.uniqueId())) {
+            text.send(ownerPlayer, "commands.island-coop-not-member", List.of(TextService.raw("player", targetName == null ? "" : targetName)));
+            return;
+        }
+        owner.removeIslandCoopMember(target.uniqueId());
+        profiles.save(owner);
+        text.send(ownerPlayer, "commands.island-coop-removed", List.of(TextService.raw("player", target.playerName())));
+        Player targetPlayer = Bukkit.getPlayer(target.uniqueId());
+        if (targetPlayer != null) {
+            text.send(targetPlayer, "commands.island-coop-removed-notify", List.of(TextService.raw("player", owner.playerName())));
+        }
+    }
+
+    public void sendCoopMembers(Player player) {
+        SkyBlockProfile owner = profiles.profile(player);
+        text.send(player, "commands.island-coop-members-header", islandPlaceholders(owner));
+        text.send(player, "commands.island-coop-member-line", List.of(
+                TextService.raw("player", owner.playerName()),
+                TextService.parsed("role", text.rawMessage("islands.coop-role-owner"))
+        ));
+        for (UUID memberId : owner.islandCoopMembers().stream().sorted().toList()) {
+            text.send(player, "commands.island-coop-member-line", List.of(
+                    TextService.raw("player", profiles.name(memberId)),
+                    TextService.parsed("role", text.rawMessage("islands.coop-role-member"))
+            ));
+        }
+    }
+
     public List<TextService.TextPlaceholder> islandPlaceholders(Player player) {
         SkyBlockProfile profile = profiles.profile(player);
         return islandPlaceholders(profile);
@@ -135,6 +243,8 @@ public final class IslandService {
                 TextService.parsed("visitors_status", visitorStatus(profile)),
                 TextService.raw("visitors", text.formatNumber(visitorCount(profile))),
                 TextService.raw("visitor_limit", text.formatNumber(visitorLimit(profile))),
+                TextService.raw("coop_members", text.formatNumber(profile.islandCoopMembers().size())),
+                TextService.raw("coop_member_limit", text.formatNumber(maxCoopMembers())),
                 TextService.raw("minions", text.formatNumber(profile.minions().size()))
         );
     }
@@ -151,8 +261,8 @@ public final class IslandService {
         if (!isIslandWorld(world) || player.hasPermission("openskyblock.admin")) {
             return true;
         }
-        SkyBlockProfile profile = profiles.profile(player);
-        return world.getName().equals(profile.islandWorldName());
+        SkyBlockProfile owner = profiles.profileByIslandWorld(world.getName());
+        return owner != null && (owner.uniqueId().equals(player.getUniqueId()) || owner.isIslandCoopMember(player.getUniqueId()));
     }
 
     private World worldFor(SkyBlockProfile profile, UUID owner) {
@@ -206,6 +316,34 @@ public final class IslandService {
         return Math.max(1, configService.main().getInt("islands.max-visitors", 1));
     }
 
+    private int maxCoopMembers() {
+        return Math.max(1, configService.main().getInt("islands.coop.max-members", 5));
+    }
+
+    private long inviteExpireSeconds() {
+        return Math.max(10L, configService.main().getLong("islands.coop.invite-expire-seconds", 60L));
+    }
+
+    private void expireCoopInvites() {
+        long now = System.currentTimeMillis();
+        Iterator<Map.Entry<UUID, CoopInvite>> iterator = coopInvites.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, CoopInvite> entry = iterator.next();
+            if (entry.getValue().expiresAtMillis() > now) {
+                continue;
+            }
+            iterator.remove();
+            Player target = Bukkit.getPlayer(entry.getKey());
+            if (target != null) {
+                text.send(target, "commands.island-coop-invite-expired", List.of(TextService.raw("player", entry.getValue().ownerName())));
+            }
+            Player owner = Bukkit.getPlayer(entry.getValue().ownerId());
+            if (owner != null) {
+                text.send(owner, "commands.island-coop-invite-expired", List.of(TextService.raw("player", target == null ? entry.getKey().toString() : target.getName())));
+            }
+        }
+    }
+
     private Location homeLocation(World world) {
         double y = configService.main().getDouble("islands.spawn-y", 80.0D);
         float yaw = (float) configService.main().getDouble("islands.home-yaw", 180.0D);
@@ -249,5 +387,8 @@ public final class IslandService {
 
     private String worldPrefix() {
         return configService.main().getString("islands.world-prefix", "openskyblock_island_");
+    }
+
+    private record CoopInvite(UUID ownerId, String ownerName, long expiresAtMillis) {
     }
 }

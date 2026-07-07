@@ -189,6 +189,7 @@ island-management:
         - "<gray>World:</gray> <yellow><world></yellow>"
         - "<gray>Visitors:</gray> <visitors_status>"
         - "<gray>Guests Online:</gray> <yellow><visitors></yellow><gray>/</gray><yellow><visitor_limit></yellow>"
+        - "<gray>Co-op Members:</gray> <yellow><coop_members></yellow><gray>/</gray><yellow><coop_member_limit></yellow>"
         - "<gray>Placed Minions:</gray> <yellow><minions></yellow>"
       action: NONE
     home:
@@ -218,6 +219,7 @@ island-management:
       display-name: "<yellow>Island Info</yellow>"
       lore:
         - "<gray>Show the current island status in chat.</gray>"
+        - "<gray>Co-op Members:</gray> <yellow><coop_members></yellow><gray>/</gray><yellow><coop_member_limit></yellow>"
         - ""
         - "<yellow>Click to show info.</yellow>"
       action: INFO

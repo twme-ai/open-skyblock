@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -118,6 +119,22 @@ public final class ProfileManager {
         return null;
     }
 
+    public String name(UUID uniqueId) {
+        SkyBlockProfile profile = profiles.get(uniqueId);
+        if (profile != null) {
+            return profile.playerName();
+        }
+        String name = Bukkit.getOfflinePlayer(uniqueId).getName();
+        return name == null || name.isBlank() ? uniqueId.toString() : name;
+    }
+
+    public void save(SkyBlockProfile profile) {
+        if (profile != null) {
+            writeProfile(profile);
+            saveFile();
+        }
+    }
+
     private UUID parseUuid(String raw) {
         if (raw == null || raw.isBlank()) {
             return null;
@@ -142,6 +159,12 @@ public final class ProfileManager {
         profile.bankInterestLastMillis(section.getLong("bank-interest.last-millis", System.currentTimeMillis()));
         profile.islandWorldName(section.getString("island-world", null));
         profile.islandVisitorsEnabled(section.getBoolean("island.visitors-enabled", configService.main().getBoolean("islands.default-visitors-enabled", false)));
+        for (String rawMember : section.getStringList("island.coop-members")) {
+            UUID memberId = parseUuid(rawMember);
+            if (memberId != null) {
+                profile.addIslandCoopMember(memberId);
+            }
+        }
         ConfigurationSection skills = section.getConfigurationSection("skills");
         if (skills != null) {
             for (String key : skills.getKeys(false)) {
@@ -819,6 +842,7 @@ public final class ProfileManager {
         profileData.set(base + ".bank-interest.last-millis", profile.bankInterestLastMillis());
         profileData.set(base + ".island-world", profile.islandWorldName());
         profileData.set(base + ".island.visitors-enabled", profile.islandVisitorsEnabled());
+        profileData.set(base + ".island.coop-members", profile.islandCoopMembers().stream().map(UUID::toString).sorted().toList());
         for (Map.Entry<SkillType, Double> entry : profile.skillXp().entrySet()) {
             profileData.set(base + ".skills." + entry.getKey().key() + ".xp", entry.getValue());
         }

@@ -308,13 +308,19 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(plugin.customItems().definitions().stream().map(CustomItemDefinition::id).toList(), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("island")) {
-            return startsWith(List.of("create", "home", "info", "manage", "menu", "visit", "visitors"), args[1]);
+            return startsWith(List.of("create", "home", "info", "manage", "menu", "visit", "visitors", "coop"), args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("visit")) {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("visitors")) {
             return startsWith(List.of("on", "off", "toggle"), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("coop")) {
+            return startsWith(List.of("invite", "accept", "remove", "members", "list"), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("coop") && (args[2].equalsIgnoreCase("invite") || args[2].equalsIgnoreCase("accept") || args[2].equalsIgnoreCase("remove"))) {
+            return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[3]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("bank")) {
             return startsWith(List.of("balance", "deposit", "withdraw", "interest"), args[1]);
@@ -869,7 +875,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         TextService text = plugin.text();
         text.send(sender, "commands.help-header");
         helpLine(sender, label + " menu", "commands.help.menu");
-        helpLine(sender, label + " island create|home|info|manage|visit|visitors", "commands.help.island");
+        helpLine(sender, label + " island create|home|info|manage|visit|visitors|coop", "commands.help.island");
         helpLine(sender, label + " bank [deposit|withdraw] [amount|all]", "commands.help.bank");
         helpLine(sender, label + " shops", "commands.help.shop");
         helpLine(sender, label + " shop <id>", "commands.help.shop");
@@ -1035,7 +1041,39 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 }
                 plugin.text().send(player, "commands.island-usage");
             }
+            case "coop" -> islandCoop(player, args);
             default -> plugin.text().send(player, "errors.unknown-command");
+        }
+    }
+
+    private void islandCoop(Player player, String[] args) {
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.island-coop-usage");
+            return;
+        }
+        switch (args[2].toLowerCase(Locale.ROOT)) {
+            case "invite" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.island-coop-usage");
+                    return;
+                }
+                Player target = Bukkit.getPlayerExact(args[3]);
+                if (target == null) {
+                    plugin.text().send(player, "commands.island-coop-target-offline", List.of(TextService.raw("player", args[3])));
+                    return;
+                }
+                plugin.islands().inviteCoop(player, target);
+            }
+            case "accept" -> plugin.islands().acceptCoopInvite(player, args.length >= 4 ? args[3] : "");
+            case "remove" -> {
+                if (args.length < 4) {
+                    plugin.text().send(player, "commands.island-coop-usage");
+                    return;
+                }
+                plugin.islands().removeCoopMember(player, args[3]);
+            }
+            case "members", "list" -> plugin.islands().sendCoopMembers(player);
+            default -> plugin.text().send(player, "commands.island-coop-usage");
         }
     }
 

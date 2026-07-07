@@ -21,6 +21,7 @@ public final class SkyBlockProfile {
     private long bankInterestLastMillis = System.currentTimeMillis();
     private String islandWorldName;
     private boolean islandVisitorsEnabled;
+    private final Set<UUID> islandCoopMembers = new HashSet<>();
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
     private final Set<String> fairySouls = new HashSet<>();
@@ -211,6 +212,22 @@ public final class SkyBlockProfile {
 
     public void islandVisitorsEnabled(boolean islandVisitorsEnabled) {
         this.islandVisitorsEnabled = islandVisitorsEnabled;
+    }
+
+    public Set<UUID> islandCoopMembers() {
+        return islandCoopMembers;
+    }
+
+    public boolean isIslandCoopMember(UUID uniqueId) {
+        return islandCoopMembers.contains(uniqueId);
+    }
+
+    public boolean addIslandCoopMember(UUID uniqueId) {
+        return islandCoopMembers.add(uniqueId);
+    }
+
+    public boolean removeIslandCoopMember(UUID uniqueId) {
+        return islandCoopMembers.remove(uniqueId);
     }
 
     public double skillXp(SkillType skillType) {
