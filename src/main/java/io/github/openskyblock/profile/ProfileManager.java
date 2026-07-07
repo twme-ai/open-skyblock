@@ -847,7 +847,7 @@ public final class ProfileManager {
             for (String key : minions.getKeys(false)) {
                 ConfigurationSection minion = minions.getConfigurationSection(key);
                 if (minion != null) {
-                    profile.minions().add(new PlacedMinion(
+                    PlacedMinion placedMinion = new PlacedMinion(
                             minion.getString("id", ""),
                             minion.getLong("generated", 0L),
                             minion.getLong("last-action-millis", System.currentTimeMillis()),
@@ -857,7 +857,13 @@ public final class ProfileManager {
                             minion.getInt("z", 0),
                             minion.getString("fuel.id", ""),
                             minion.getLong("fuel.expires-at-millis", 0L)
-                    ));
+                    );
+                    for (String upgradeId : minion.getStringList("upgrades")) {
+                        if (upgradeId != null && !upgradeId.isBlank()) {
+                            placedMinion.upgradeIds().add(upgradeId.toUpperCase(Locale.ROOT));
+                        }
+                    }
+                    profile.minions().add(placedMinion);
                 }
             }
         }
@@ -1347,6 +1353,10 @@ public final class ProfileManager {
                 profileData.set(minionBase + ".fuel.id", minion.fuelId());
                 profileData.set(minionBase + ".fuel.expires-at-millis", minion.fuelExpiresAtMillis());
             }
+            profileData.set(minionBase + ".upgrades", minion.upgradeIds().stream()
+                    .filter(upgradeId -> upgradeId != null && !upgradeId.isBlank())
+                    .map(upgradeId -> upgradeId.toUpperCase(Locale.ROOT))
+                    .toList());
         }
     }
 

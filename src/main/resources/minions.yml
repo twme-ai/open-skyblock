@@ -1,3 +1,6 @@
+settings:
+  upgrade-slots: 2
+
 fuels:
   COAL:
     display-name: "<gray>Coal</gray>"
@@ -14,6 +17,20 @@ fuels:
     material: LAVA_BUCKET
     speed-multiplier: 1.25
     duration-seconds: 0
+
+upgrades:
+  SMALL_STORAGE:
+    display-name: "<green>Small Storage</green>"
+    material: CHEST
+    storage-bonus: 192
+  MINION_EXPANDER:
+    display-name: "<blue>Minion Expander</blue>"
+    material: PISTON
+    speed-multiplier: 1.05
+  DIAMOND_SPREADING:
+    display-name: "<aqua>Diamond Spreading</aqua>"
+    material: DIAMOND
+    output-multiplier: 1.10
 
 minions:
   WHEAT_MINION:

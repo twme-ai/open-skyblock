@@ -1399,6 +1399,10 @@ public final class MenuService {
                 plugin.minions().applyHeldFuel(player, placement);
                 openMinionMenu(player, placement);
             }
+            case UPGRADE -> {
+                plugin.minions().applyHeldUpgrade(player, placement);
+                openMinionMenu(player, placement);
+            }
             case PICKUP -> {
                 plugin.minions().pickup(player, placement);
                 player.closeInventory();

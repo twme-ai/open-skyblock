@@ -1,5 +1,7 @@
 package io.github.openskyblock.profile;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Location;
 
 public final class PlacedMinion {
@@ -12,6 +14,7 @@ public final class PlacedMinion {
     private int z;
     private String fuelId;
     private long fuelExpiresAtMillis;
+    private final List<String> upgradeIds = new ArrayList<>();
 
     public PlacedMinion(String id, long generatedAmount, long lastActionMillis) {
         this(id, generatedAmount, lastActionMillis, null, 0, 0, 0, "", 0L);
@@ -124,5 +127,9 @@ public final class PlacedMinion {
 
     public long fuelExpiresAtMillis() {
         return fuelExpiresAtMillis;
+    }
+
+    public List<String> upgradeIds() {
+        return upgradeIds;
     }
 }

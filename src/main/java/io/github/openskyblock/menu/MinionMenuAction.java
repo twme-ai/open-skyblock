@@ -6,6 +6,7 @@ public enum MinionMenuAction {
     NONE,
     CLAIM,
     FUEL,
+    UPGRADE,
     PICKUP;
 
     public static MinionMenuAction parse(String value) {

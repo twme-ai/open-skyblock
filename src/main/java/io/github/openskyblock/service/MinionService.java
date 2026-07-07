@@ -41,6 +41,7 @@ public final class MinionService {
     private final NamespacedKey minionIdKey;
     private final Map<String, MinionDefinition> definitions = new HashMap<>();
     private final Map<String, MinionFuelDefinition> fuels = new HashMap<>();
+    private final Map<String, MinionUpgradeDefinition> minionUpgrades = new HashMap<>();
     private MayorService mayors;
 
     public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, UpgradeService upgrades, CustomItemService customItems) {
@@ -60,6 +61,7 @@ public final class MinionService {
     public void reload() {
         definitions.clear();
         fuels.clear();
+        minionUpgrades.clear();
         ConfigurationSection section = configService.minions().getConfigurationSection("minions");
         if (section != null) {
             for (String id : section.getKeys(false)) {
@@ -82,6 +84,7 @@ public final class MinionService {
         }
         ConfigurationSection fuelSection = configService.minions().getConfigurationSection("fuels");
         if (fuelSection == null) {
+            loadUpgrades();
             return;
         }
         for (String id : fuelSection.getKeys(false)) {
@@ -101,6 +104,34 @@ public final class MinionService {
                     customItemId,
                     Math.max(1.0D, sectionFuel.getDouble("speed-multiplier", 1.0D)),
                     sectionFuel.getLong("duration-seconds", 0L)
+            ));
+        }
+        loadUpgrades();
+    }
+
+    private void loadUpgrades() {
+        ConfigurationSection upgradeSection = configService.minions().getConfigurationSection("upgrades");
+        if (upgradeSection == null) {
+            return;
+        }
+        for (String id : upgradeSection.getKeys(false)) {
+            ConfigurationSection sectionUpgrade = upgradeSection.getConfigurationSection(id);
+            if (sectionUpgrade == null) {
+                continue;
+            }
+            Material material = Material.matchMaterial(sectionUpgrade.getString("material", ""));
+            String customItemId = sectionUpgrade.getString("custom-item", "").toUpperCase(Locale.ROOT);
+            if (material == null && customItemId.isBlank()) {
+                continue;
+            }
+            minionUpgrades.put(id.toUpperCase(Locale.ROOT), new MinionUpgradeDefinition(
+                    id.toUpperCase(Locale.ROOT),
+                    sectionUpgrade.getString("display-name", id),
+                    material == null ? Material.AIR : material,
+                    customItemId,
+                    Math.max(1.0D, sectionUpgrade.getDouble("speed-multiplier", 1.0D)),
+                    Math.max(1.0D, sectionUpgrade.getDouble("output-multiplier", 1.0D)),
+                    Math.max(0L, sectionUpgrade.getLong("storage-bonus", 0L))
             ));
         }
     }
@@ -131,6 +162,19 @@ public final class MinionService {
                 .toList();
     }
 
+    public Optional<MinionUpgradeDefinition> minionUpgrade(String id) {
+        if (id == null || id.isBlank()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(minionUpgrades.get(id.toUpperCase(Locale.ROOT)));
+    }
+
+    public List<MinionUpgradeDefinition> minionUpgrades() {
+        return minionUpgrades.values().stream()
+                .sorted(Comparator.comparing(MinionUpgradeDefinition::id))
+                .toList();
+    }
+
     public Optional<MinionDefinition> definition(ItemStack itemStack) {
         if (itemStack == null || !itemStack.hasItemMeta()) {
             return Optional.empty();
@@ -145,6 +189,21 @@ public final class MinionService {
         meta.displayName(text.deserialize(definition.displayName()));
         meta.lore(minionItemLore(definition));
         meta.getPersistentDataContainer().set(minionIdKey, PersistentDataType.STRING, definition.id());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    public ItemStack createUpgradeItem(MinionUpgradeDefinition definition) {
+        ItemStack itemStack;
+        if (definition.customItem()) {
+            itemStack = customItems.definition(definition.customItemId())
+                    .map(customItems::createItem)
+                    .orElseGet(() -> new ItemStack(Material.STONE));
+        } else {
+            itemStack = new ItemStack(definition.material());
+        }
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.displayName(text.deserialize(definition.displayName()));
         itemStack.setItemMeta(meta);
         return itemStack;
     }
@@ -308,6 +367,76 @@ public final class MinionService {
         return true;
     }
 
+    public boolean applyHeldUpgrade(Player player, int slot) {
+        SkyBlockProfile profile = profiles.profile(player);
+        if (slot < 0 || slot >= profile.minions().size()) {
+            text.send(player, "commands.minion-not-found");
+            return false;
+        }
+        PlacedMinion placedMinion = profile.minions().get(slot);
+        MinionDefinition definition = definition(placedMinion.id()).orElse(null);
+        if (definition == null) {
+            text.send(player, "commands.minion-not-found");
+            return false;
+        }
+        return applyHeldUpgrade(player, new MinionPlacement(profile, slot, placedMinion, definition));
+    }
+
+    public boolean applyHeldUpgrade(Player player, MinionPlacement placement) {
+        ItemStack held = player.getInventory().getItemInMainHand();
+        if (held.getType().isAir()) {
+            text.send(player, "commands.minion-upgrade-missing");
+            return false;
+        }
+        MinionUpgradeDefinition upgrade = upgradeForItem(held).orElse(null);
+        if (upgrade == null) {
+            text.send(player, "commands.minion-upgrade-invalid");
+            return false;
+        }
+        updateMinion(placement.placedMinion(), placement.definition(), System.currentTimeMillis());
+        if (placement.placedMinion().upgradeIds().stream().anyMatch(id -> id.equalsIgnoreCase(upgrade.id()))) {
+            text.send(player, "commands.minion-upgrade-duplicate", upgradePlaceholders(placement.definition(), placement.placedMinion(), upgrade));
+            return false;
+        }
+        int upgradeSlots = maxUpgradeSlots();
+        if (placement.placedMinion().upgradeIds().size() >= upgradeSlots) {
+            text.send(player, "commands.minion-upgrade-full", minionPlaceholders(placement.definition(), placement.placedMinion()));
+            return false;
+        }
+        placement.placedMinion().upgradeIds().add(upgrade.id());
+        consumeOneMainHand(player, held);
+        profiles.save(placement.profile());
+        text.send(player, "commands.minion-upgrade-applied", upgradePlaceholders(placement.definition(), placement.placedMinion(), upgrade));
+        return true;
+    }
+
+    public boolean removeUpgrade(Player player, int minionSlot, int upgradeSlot) {
+        SkyBlockProfile profile = profiles.profile(player);
+        if (minionSlot < 0 || minionSlot >= profile.minions().size()) {
+            text.send(player, "commands.minion-not-found");
+            return false;
+        }
+        PlacedMinion placedMinion = profile.minions().get(minionSlot);
+        MinionDefinition definition = definition(placedMinion.id()).orElse(null);
+        if (definition == null) {
+            text.send(player, "commands.minion-not-found");
+            return false;
+        }
+        updateMinion(placedMinion, definition, System.currentTimeMillis());
+        if (upgradeSlot < 0 || upgradeSlot >= placedMinion.upgradeIds().size()) {
+            text.send(player, "commands.minion-upgrade-not-found");
+            return false;
+        }
+        String removedId = placedMinion.upgradeIds().remove(upgradeSlot);
+        MinionUpgradeDefinition upgrade = minionUpgrade(removedId).orElse(null);
+        if (upgrade != null) {
+            giveOrDrop(player, createUpgradeItem(upgrade));
+        }
+        profiles.save(profile);
+        text.send(player, "commands.minion-upgrade-removed", upgradePlaceholders(definition, placedMinion, upgrade));
+        return true;
+    }
+
     public boolean pickup(Player player, int slot) {
         SkyBlockProfile profile = profiles.profile(player);
         if (slot < 0 || slot >= profile.minions().size()) {
@@ -336,6 +465,9 @@ public final class MinionService {
             }
         }
         giveOrDrop(player, createMinionItem(definition));
+        for (String upgradeId : placedMinion.upgradeIds()) {
+            minionUpgrade(upgradeId).ifPresent(upgrade -> giveOrDrop(player, createUpgradeItem(upgrade)));
+        }
         text.send(player, "commands.minion-picked-up", List.of(TextService.parsed("minion_name", definition.displayName())));
         return true;
     }
@@ -375,22 +507,23 @@ public final class MinionService {
 
     private void updateMinion(PlacedMinion placedMinion, MinionDefinition definition, long now) {
         MinionFuelDefinition fuel = activeFuel(placedMinion, now).orElse(null);
-        long intervalMillis = intervalMillis(definition, fuel);
+        long intervalMillis = intervalMillis(definition, fuel, placedMinion);
         long elapsed = now - placedMinion.lastActionMillis();
         long cycles = elapsed / intervalMillis;
         if (cycles <= 0L) {
             return;
         }
-        long capacity = Math.max(0L, definition.storageSize() - placedMinion.generatedAmount());
-        long generated = Math.min(capacity, generatedAmount(definition, cycles));
+        long capacity = Math.max(0L, effectiveStorage(definition, placedMinion) - placedMinion.generatedAmount());
+        long generated = Math.min(capacity, generatedAmount(definition, placedMinion, cycles));
         if (generated > 0L) {
             placedMinion.generatedAmount(placedMinion.generatedAmount() + generated);
         }
         placedMinion.lastActionMillis(placedMinion.lastActionMillis() + cycles * intervalMillis);
     }
 
-    private long intervalMillis(MinionDefinition definition, MinionFuelDefinition fuel) {
+    private long intervalMillis(MinionDefinition definition, MinionFuelDefinition fuel, PlacedMinion placedMinion) {
         double multiplier = fuel == null ? 1.0D : Math.max(1.0D, fuel.speedMultiplier());
+        multiplier *= upgradeSpeedMultiplier(placedMinion);
         return Math.max(1L, (long) Math.floor(Math.max(1L, definition.intervalTicks()) * MILLIS_PER_TICK / multiplier));
     }
 
@@ -411,9 +544,42 @@ public final class MinionService {
         return Optional.of(fuel);
     }
 
-    private long generatedAmount(MinionDefinition definition, long cycles) {
-        double amount = cycles * (double) Math.max(1L, definition.generatedAmount()) * minionOutputMultiplier();
+    private long generatedAmount(MinionDefinition definition, PlacedMinion placedMinion, long cycles) {
+        double amount = cycles * (double) Math.max(1L, definition.generatedAmount()) * minionOutputMultiplier() * upgradeOutputMultiplier(placedMinion);
         return Math.max(0L, (long) Math.floor(amount));
+    }
+
+    private long effectiveStorage(MinionDefinition definition, PlacedMinion placedMinion) {
+        long bonus = activeUpgrades(placedMinion).stream()
+                .mapToLong(MinionUpgradeDefinition::storageBonus)
+                .sum();
+        return Math.max(1L, definition.storageSize() + bonus);
+    }
+
+    private double upgradeSpeedMultiplier(PlacedMinion placedMinion) {
+        return activeUpgrades(placedMinion).stream()
+                .mapToDouble(MinionUpgradeDefinition::speedMultiplier)
+                .reduce(1.0D, (left, right) -> left * Math.max(1.0D, right));
+    }
+
+    private double upgradeOutputMultiplier(PlacedMinion placedMinion) {
+        return activeUpgrades(placedMinion).stream()
+                .mapToDouble(MinionUpgradeDefinition::outputMultiplier)
+                .reduce(1.0D, (left, right) -> left * Math.max(1.0D, right));
+    }
+
+    private List<MinionUpgradeDefinition> activeUpgrades(PlacedMinion placedMinion) {
+        if (placedMinion == null) {
+            return List.of();
+        }
+        return placedMinion.upgradeIds().stream()
+                .map(this::minionUpgrade)
+                .flatMap(Optional::stream)
+                .toList();
+    }
+
+    private int maxUpgradeSlots() {
+        return Math.max(0, configService.minions().getInt("settings.upgrade-slots", 2));
     }
 
     private double minionOutputMultiplier() {
@@ -455,16 +621,24 @@ public final class MinionService {
     private List<TextService.TextPlaceholder> minionPlaceholders(MinionDefinition definition, long generated, PlacedMinion placedMinion) {
         long now = System.currentTimeMillis();
         MinionFuelDefinition fuel = placedMinion == null ? null : activeFuel(placedMinion, now).orElse(null);
-        double speedMultiplier = fuel == null ? 1.0D : fuel.speedMultiplier();
+        double fuelSpeedMultiplier = fuel == null ? 1.0D : fuel.speedMultiplier();
+        double upgradeSpeedMultiplier = placedMinion == null ? 1.0D : upgradeSpeedMultiplier(placedMinion);
+        double outputMultiplier = placedMinion == null ? 1.0D : upgradeOutputMultiplier(placedMinion);
+        long storage = placedMinion == null ? definition.storageSize() : effectiveStorage(definition, placedMinion);
         return List.of(
                 TextService.parsed("minion_name", definition.displayName()),
                 TextService.parsed("collection", collectionDisplayName(definition)),
                 TextService.raw("generated", text.formatNumber(generated)),
-                TextService.raw("storage", text.formatNumber(definition.storageSize())),
-                TextService.raw("interval_seconds", text.formatNumber(intervalMillis(definition, fuel) / 1000.0D)),
+                TextService.raw("storage", text.formatNumber(storage)),
+                TextService.raw("interval_seconds", text.formatNumber(intervalMillis(definition, fuel, placedMinion) / 1000.0D)),
                 TextService.parsed("fuel", fuel == null ? text.rawMessage("minions.fuel-empty") : fuel.displayName()),
-                TextService.raw("fuel_speed", text.formatNumber((speedMultiplier - 1.0D) * 100.0D)),
-                TextService.raw("fuel_remaining", fuelRemaining(placedMinion, fuel, now))
+                TextService.raw("fuel_speed", text.formatNumber((fuelSpeedMultiplier - 1.0D) * 100.0D)),
+                TextService.raw("fuel_remaining", fuelRemaining(placedMinion, fuel, now)),
+                TextService.raw("upgrade_slots", text.formatNumber(maxUpgradeSlots())),
+                TextService.parsed("upgrades", upgradeList(placedMinion)),
+                TextService.raw("upgrade_speed", text.formatNumber((upgradeSpeedMultiplier - 1.0D) * 100.0D)),
+                TextService.raw("upgrade_output", text.formatNumber((outputMultiplier - 1.0D) * 100.0D)),
+                TextService.raw("upgrade_storage", text.formatNumber(Math.max(0L, storage - definition.storageSize())))
         );
     }
 
@@ -488,6 +662,28 @@ public final class MinionService {
                     .isPresent();
         }
         return itemStack.getType() == fuel.material() && customItems.definition(itemStack).isEmpty();
+    }
+
+    private Optional<MinionUpgradeDefinition> upgradeForItem(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType().isAir()) {
+            return Optional.empty();
+        }
+        for (MinionUpgradeDefinition upgrade : minionUpgrades()) {
+            if (upgradeMatches(upgrade, itemStack)) {
+                return Optional.of(upgrade);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private boolean upgradeMatches(MinionUpgradeDefinition upgrade, ItemStack itemStack) {
+        if (upgrade.customItem()) {
+            return customItems.definition(itemStack)
+                    .map(CustomItemDefinition::id)
+                    .filter(id -> id.equalsIgnoreCase(upgrade.customItemId()))
+                    .isPresent();
+        }
+        return itemStack.getType() == upgrade.material() && customItems.definition(itemStack).isEmpty();
     }
 
     private void consumeOneMainHand(Player player, ItemStack held) {
@@ -514,6 +710,25 @@ public final class MinionService {
                 .replace("<hours>", text.formatNumber(hours))
                 .replace("<minutes>", text.formatNumber(minutes))
                 .replace("<seconds>", text.formatNumber(remainingSeconds));
+    }
+
+    private String upgradeList(PlacedMinion placedMinion) {
+        if (placedMinion == null || placedMinion.upgradeIds().isEmpty()) {
+            return text.rawMessage("minions.upgrades-empty");
+        }
+        List<String> names = new ArrayList<>();
+        for (String upgradeId : placedMinion.upgradeIds()) {
+            names.add(minionUpgrade(upgradeId)
+                    .map(MinionUpgradeDefinition::displayName)
+                    .orElse("<dark_gray>" + upgradeId + "</dark_gray>"));
+        }
+        return String.join(text.rawMessage("minions.upgrades-separator"), names);
+    }
+
+    private List<TextService.TextPlaceholder> upgradePlaceholders(MinionDefinition definition, PlacedMinion placedMinion, MinionUpgradeDefinition upgrade) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(minionPlaceholders(definition, placedMinion));
+        placeholders.add(TextService.parsed("upgrade", upgrade == null ? text.rawMessage("minions.upgrade-unknown") : upgrade.displayName()));
+        return placeholders;
     }
 
     private void addGeneratedItems(Player player, MinionDefinition definition, long amount) {

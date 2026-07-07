@@ -879,7 +879,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("minion")) {
-            return startsWith(List.of("add", "give", "list", "claim", "fuel", "clearfuel"), args[1]);
+            return startsWith(List.of("add", "give", "list", "claim", "fuel", "clearfuel", "upgrade", "removeupgrade"), args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("minion") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("give"))) {
             return startsWith(plugin.minions().definitions().stream().map(MinionDefinition::id).toList(), args[2]);
@@ -892,6 +892,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("minion") && (args[1].equalsIgnoreCase("fuel") || args[1].equalsIgnoreCase("clearfuel"))) {
             return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("minion") && (args[1].equalsIgnoreCase("upgrade") || args[1].equalsIgnoreCase("removeupgrade"))) {
+            return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("minion") && args[1].equalsIgnoreCase("removeupgrade")) {
+            return startsWith(List.of("1", "2"), args[3]);
         }
         return List.of();
     }
@@ -1006,6 +1012,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " minion list", "commands.help.minion-list");
         helpLine(sender, label + " minion claim [slot|all]", "commands.help.minion-claim");
         helpLine(sender, label + " minion fuel <slot>", "commands.help.minion-fuel");
+        helpLine(sender, label + " minion upgrade <slot>", "commands.help.minion-upgrade");
     }
 
     private void helpLine(CommandSender sender, String command, String descriptionPath) {
@@ -3307,6 +3314,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "claim" -> minionClaim(player, args);
             case "fuel" -> minionFuel(player, args);
             case "clearfuel" -> minionClearFuel(player, args);
+            case "upgrade" -> minionUpgrade(player, args);
+            case "removeupgrade" -> minionRemoveUpgrade(player, args);
             default -> plugin.text().send(player, "errors.unknown-command");
         }
     }
@@ -3373,6 +3382,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             placeholders.add(TextService.parsed("location", plugin.minions().locationLabel(placedMinion)));
             if (definition != null) {
                 placeholders.addAll(plugin.minions().minionPlaceholders(definition, placedMinion));
+            } else {
+                placeholders.add(TextService.parsed("fuel", plugin.text().rawMessage("minions.fuel-empty")));
+                placeholders.add(TextService.parsed("upgrades", plugin.text().rawMessage("minions.upgrades-empty")));
             }
             plugin.text().send(player, "commands.minion-list-line", placeholders);
         }
@@ -3414,6 +3426,33 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         try {
             int slot = Integer.parseInt(args[2]) - 1;
             plugin.minions().clearFuel(player, slot);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(player, "errors.invalid-number");
+        }
+    }
+
+    private void minionUpgrade(Player player, String[] args) {
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.minion-upgrade-usage");
+            return;
+        }
+        try {
+            int slot = Integer.parseInt(args[2]) - 1;
+            plugin.minions().applyHeldUpgrade(player, slot);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(player, "errors.invalid-number");
+        }
+    }
+
+    private void minionRemoveUpgrade(Player player, String[] args) {
+        if (args.length < 4) {
+            plugin.text().send(player, "commands.minion-upgrade-usage");
+            return;
+        }
+        try {
+            int minionSlot = Integer.parseInt(args[2]) - 1;
+            int upgradeSlot = Integer.parseInt(args[3]) - 1;
+            plugin.minions().removeUpgrade(player, minionSlot, upgradeSlot);
         } catch (NumberFormatException ignored) {
             plugin.text().send(player, "errors.invalid-number");
         }

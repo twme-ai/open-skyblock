@@ -544,6 +544,8 @@ minion:
         - "<gray>Interval:</gray> <yellow><interval_seconds>s</yellow>"
         - "<gray>Fuel:</gray> <fuel>"
         - "<gray>Fuel Time:</gray> <yellow><fuel_remaining></yellow>"
+        - "<gray>Upgrades:</gray> <upgrades>"
+        - "<gray>Storage Bonus:</gray> <yellow>+<upgrade_storage></yellow>"
       action: NONE
     fuel:
       slot: 12
@@ -557,6 +559,19 @@ minion:
         - ""
         - "<yellow>Click to apply held fuel.</yellow>"
       action: FUEL
+    upgrade:
+      slot: 14
+      material: ANVIL
+      display-name: "<aqua>Apply Upgrade</aqua>"
+      lore:
+        - "<gray>Hold a configured minion upgrade in your main hand.</gray>"
+        - "<gray>Installed:</gray> <upgrades>"
+        - "<gray>Upgrade Slots:</gray> <yellow><upgrade_slots></yellow>"
+        - "<gray>Speed Bonus:</gray> <yellow>+<upgrade_speed>%</yellow>"
+        - "<gray>Output Bonus:</gray> <yellow>+<upgrade_output>%</yellow>"
+        - ""
+        - "<yellow>Click to install held upgrade.</yellow>"
+      action: UPGRADE
     claim:
       slot: 13
       material: CHEST
