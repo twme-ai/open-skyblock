@@ -21,6 +21,7 @@ public final class PlacedMinion {
     private int storageX;
     private int storageY;
     private int storageZ;
+    private String skinId = "";
 
     public PlacedMinion(String id, long generatedAmount, long lastActionMillis) {
         this(id, generatedAmount, lastActionMillis, null, 0, 0, 0, "", 0L);
@@ -210,5 +211,21 @@ public final class PlacedMinion {
         this.storageX = 0;
         this.storageY = 0;
         this.storageZ = 0;
+    }
+
+    public String skinId() {
+        return skinId == null ? "" : skinId;
+    }
+
+    public boolean hasSkin() {
+        return !skinId().isBlank();
+    }
+
+    public void skinId(String skinId) {
+        this.skinId = skinId == null ? "" : skinId;
+    }
+
+    public void clearSkin() {
+        this.skinId = "";
     }
 }

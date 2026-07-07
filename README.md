@@ -15,7 +15,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Paged collection browser and recipe book menus with configurable layout, lore, and navigation.
 - Configurable MiniMessage messages in `messages.yml`.
 - Configurable skills, skill menu, Quest Log, collection tiers, action XP, coin rewards, custom items, item abilities, mana regeneration, and minion definitions.
-- Placeable minion items with island-only placement, generated storage, adjacent external storage blocks, configurable fuel speed boosts, configurable upgrade slots, compactor-style output conversion, hopper-style overflow selling, claim menu, pickup flow, and offline ticking from persisted timestamps.
+- Placeable minion items with island-only placement, generated storage, adjacent external storage blocks, configurable cosmetic skins, configurable fuel speed boosts, configurable upgrade slots, compactor-style output conversion, hopper-style overflow selling, claim menu, pickup flow, and offline ticking from persisted timestamps.
 - Data-driven shaped recipes for vanilla, custom item, and minion outputs with collection-tier and Slayer-level crafting gates.
 - Configurable profile viewer GUI with economy, skill, collection, stat, pet, accessory, wardrobe, and upgrade summaries.
 - Purse and bank economy with deposit, withdraw, deposit-all, withdraw-all, capacity limits, and a configurable bank menu.
@@ -222,6 +222,7 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock giveitem <id> [player]`
 - `/skyblock minion give <id> [player]`
 - `/skyblock minion storage <id> [player]`
+- `/skyblock minion skin <id> [player]`
 - `/skyblock minion add <id>`
 - `/skyblock minion list`
 - `/skyblock minion claim [slot|all]`

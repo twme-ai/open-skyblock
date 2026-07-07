@@ -36,6 +36,26 @@ storages:
     material: CHEST
     storage-bonus: 960
 
+skins:
+  FARMER_SKIN:
+    display-name: "<yellow>Farmer Minion Skin</yellow>"
+    material: LEATHER_HELMET
+    block-material: JACK_O_LANTERN
+    minions:
+      - WHEAT_MINION
+  MINER_SKIN:
+    display-name: "<gray>Miner Minion Skin</gray>"
+    material: IRON_HELMET
+    block-material: IRON_BLOCK
+    minions:
+      - COBBLESTONE_MINION
+  ZOMBIE_SKIN:
+    display-name: "<dark_green>Zombie Minion Skin</dark_green>"
+    material: ZOMBIE_HEAD
+    block-material: ZOMBIE_HEAD
+    minions:
+      - ZOMBIE_MINION
+
 upgrades:
   MINION_EXPANDER:
     display-name: "<blue>Minion Expander</blue>"

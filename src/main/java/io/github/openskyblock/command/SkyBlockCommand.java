@@ -23,6 +23,7 @@ import io.github.openskyblock.sack.SackItemDefinition;
 import io.github.openskyblock.service.MinionClaimResult;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionDefinition;
+import io.github.openskyblock.service.MinionSkinDefinition;
 import io.github.openskyblock.service.MinionStorageDefinition;
 import io.github.openskyblock.service.SkillDefinition;
 import io.github.openskyblock.slayer.SlayerDefinition;
@@ -881,7 +882,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("minion")) {
-            return startsWith(List.of("add", "give", "storage", "list", "claim", "fuel", "clearfuel", "upgrade", "removeupgrade"), args[1]);
+            return startsWith(List.of("add", "give", "storage", "skin", "list", "claim", "fuel", "clearfuel", "upgrade", "removeupgrade"), args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("minion") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("give"))) {
             return startsWith(plugin.minions().definitions().stream().map(MinionDefinition::id).toList(), args[2]);
@@ -893,6 +894,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(plugin.minions().storages().stream().map(MinionStorageDefinition::id).toList(), args[2]);
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("minion") && args[1].equalsIgnoreCase("storage")) {
+            return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[3]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("minion") && args[1].equalsIgnoreCase("skin")) {
+            return startsWith(plugin.minions().skins().stream().map(MinionSkinDefinition::id).toList(), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("minion") && args[1].equalsIgnoreCase("skin")) {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[3]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("minion") && args[1].equalsIgnoreCase("claim")) {
@@ -1011,6 +1018,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             helpLine(sender, label + " pet xp <amount> [player]", "commands.help.pet-xp");
             helpLine(sender, label + " minion give <id> [player]", "commands.help.minion-give");
             helpLine(sender, label + " minion storage <id> [player]", "commands.help.minion-storage");
+            helpLine(sender, label + " minion skin <id> [player]", "commands.help.minion-skin");
             helpLine(sender, label + " mob spawn <id> [amount]", "commands.help.mob-spawn");
             helpLine(sender, label + " mobzone spawn <id> [amount]", "commands.help.mob-zone-spawn");
             helpLine(sender, label + " backpack give <id> [player]", "commands.help.backpack-give");
@@ -3313,6 +3321,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             minionStorage(sender, args);
             return;
         }
+        if (args.length >= 2 && args[1].equalsIgnoreCase("skin")) {
+            minionSkin(sender, args);
+            return;
+        }
         Player player = requirePlayer(sender);
         if (player == null) {
             return;
@@ -3416,6 +3428,41 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         ));
     }
 
+    private void minionSkin(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("openskyblock.admin")) {
+            plugin.text().send(sender, "errors.no-permission");
+            return;
+        }
+        if (args.length < 3) {
+            plugin.text().send(sender, "errors.unknown-command");
+            return;
+        }
+        Player target;
+        if (args.length >= 4) {
+            target = Bukkit.getPlayerExact(args[3]);
+            if (target == null) {
+                plugin.text().send(sender, "errors.unknown-player");
+                return;
+            }
+        } else if (sender instanceof Player player) {
+            target = player;
+        } else {
+            plugin.text().send(sender, "errors.players-only");
+            return;
+        }
+        MinionSkinDefinition skin = plugin.minions().skin(args[2]).orElse(null);
+        if (skin == null) {
+            plugin.text().send(sender, "commands.minion-skin-unknown", List.of(TextService.raw("skin", args[2])));
+            return;
+        }
+        target.getInventory().addItem(plugin.minions().createSkinItem(skin)).values()
+                .forEach(leftover -> target.getWorld().dropItemNaturally(target.getLocation(), leftover));
+        plugin.text().send(sender, "commands.minion-skin-given", List.of(
+                TextService.parsed("skin_name", skin.displayName()),
+                TextService.raw("player", target.getName())
+        ));
+    }
+
     private void minionList(Player player) {
         SkyBlockProfile profile = plugin.profiles().profile(player);
         plugin.text().send(player, "commands.minion-list-header");
@@ -3434,6 +3481,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 placeholders.add(TextService.parsed("fuel", plugin.text().rawMessage("minions.fuel-empty")));
                 placeholders.add(TextService.parsed("upgrades", plugin.text().rawMessage("minions.upgrades-empty")));
                 placeholders.add(TextService.parsed("hopper", plugin.text().rawMessage("minions.hopper-none")));
+                placeholders.add(TextService.parsed("skin", plugin.text().rawMessage("minions.skin-empty")));
                 placeholders.add(TextService.raw("hopper_coins", plugin.text().formatNumber(placedMinion.soldCoins())));
             }
             plugin.text().send(player, "commands.minion-list-line", placeholders);

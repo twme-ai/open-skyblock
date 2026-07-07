@@ -51,10 +51,12 @@ public final class MinionService {
     private final EconomyService economy;
     private final NamespacedKey minionIdKey;
     private final NamespacedKey minionStorageIdKey;
+    private final NamespacedKey minionSkinIdKey;
     private final Map<String, MinionDefinition> definitions = new HashMap<>();
     private final Map<String, MinionFuelDefinition> fuels = new HashMap<>();
     private final Map<String, MinionUpgradeDefinition> minionUpgrades = new HashMap<>();
     private final Map<String, MinionStorageDefinition> storages = new HashMap<>();
+    private final Map<String, MinionSkinDefinition> skins = new HashMap<>();
     private MayorService mayors;
 
     public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, UpgradeService upgrades, CustomItemService customItems, EconomyService economy) {
@@ -67,6 +69,7 @@ public final class MinionService {
         this.economy = economy;
         this.minionIdKey = new NamespacedKey(plugin, "minion_id");
         this.minionStorageIdKey = new NamespacedKey(plugin, "minion_storage_id");
+        this.minionSkinIdKey = new NamespacedKey(plugin, "minion_skin_id");
     }
 
     public void mayorService(MayorService mayors) {
@@ -78,6 +81,7 @@ public final class MinionService {
         fuels.clear();
         minionUpgrades.clear();
         storages.clear();
+        skins.clear();
         ConfigurationSection section = configService.minions().getConfigurationSection("minions");
         if (section != null) {
             for (String id : section.getKeys(false)) {
@@ -102,6 +106,7 @@ public final class MinionService {
         if (fuelSection == null) {
             loadUpgrades();
             loadStorages();
+            loadSkins();
             return;
         }
         for (String id : fuelSection.getKeys(false)) {
@@ -125,6 +130,7 @@ public final class MinionService {
         }
         loadUpgrades();
         loadStorages();
+        loadSkins();
     }
 
     private void loadUpgrades() {
@@ -215,6 +221,37 @@ public final class MinionService {
         }
     }
 
+    private void loadSkins() {
+        ConfigurationSection skinSection = configService.minions().getConfigurationSection("skins");
+        if (skinSection == null) {
+            return;
+        }
+        for (String id : skinSection.getKeys(false)) {
+            ConfigurationSection sectionSkin = skinSection.getConfigurationSection(id);
+            if (sectionSkin == null) {
+                continue;
+            }
+            Material material = Material.matchMaterial(sectionSkin.getString("material", ""));
+            String customItemId = sectionSkin.getString("custom-item", "").toUpperCase(Locale.ROOT);
+            if (material == null && customItemId.isBlank()) {
+                continue;
+            }
+            Material blockMaterial = Material.matchMaterial(sectionSkin.getString("block-material", ""));
+            List<String> minionIds = sectionSkin.getStringList("minions").stream()
+                    .filter(minionId -> minionId != null && !minionId.isBlank())
+                    .map(minionId -> minionId.toUpperCase(Locale.ROOT))
+                    .toList();
+            skins.put(id.toUpperCase(Locale.ROOT), new MinionSkinDefinition(
+                    id.toUpperCase(Locale.ROOT),
+                    sectionSkin.getString("display-name", id),
+                    material == null ? Material.LEATHER : material,
+                    customItemId,
+                    blockMaterial == null ? Material.AIR : blockMaterial,
+                    minionIds
+            ));
+        }
+    }
+
     public Optional<MinionDefinition> definition(String id) {
         if (id == null) {
             return Optional.empty();
@@ -267,6 +304,19 @@ public final class MinionService {
                 .toList();
     }
 
+    public Optional<MinionSkinDefinition> skin(String id) {
+        if (id == null || id.isBlank()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(skins.get(id.toUpperCase(Locale.ROOT)));
+    }
+
+    public List<MinionSkinDefinition> skins() {
+        return skins.values().stream()
+                .sorted(Comparator.comparing(MinionSkinDefinition::id))
+                .toList();
+    }
+
     public Optional<MinionDefinition> definition(ItemStack itemStack) {
         if (itemStack == null || !itemStack.hasItemMeta()) {
             return Optional.empty();
@@ -316,12 +366,29 @@ public final class MinionService {
         return itemStack;
     }
 
+    public ItemStack createSkinItem(MinionSkinDefinition definition) {
+        ItemStack itemStack;
+        if (definition.customItem()) {
+            itemStack = customItems.definition(definition.customItemId())
+                    .map(customItems::createItem)
+                    .orElseGet(() -> new ItemStack(skinItemMaterial(definition)));
+        } else {
+            itemStack = new ItemStack(skinItemMaterial(definition));
+        }
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.displayName(text.deserialize(definition.displayName()));
+        meta.getPersistentDataContainer().set(minionSkinIdKey, PersistentDataType.STRING, definition.id());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
     public void addMinion(Player player, MinionDefinition definition) {
         SkyBlockProfile profile = profiles.profile(player);
         if (!hasMinionCapacity(player, profile)) {
             return;
         }
         profile.minions().add(new PlacedMinion(definition.id(), 0L, System.currentTimeMillis()));
+        profiles.save(profile);
         text.send(player, "commands.minion-added", List.of(TextService.parsed("minion_name", definition.displayName())));
     }
 
@@ -337,7 +404,7 @@ public final class MinionService {
         PlacedMinion placedMinion = new PlacedMinion(definition.id(), 0L, System.currentTimeMillis());
         placedMinion.location(location);
         profile.minions().add(placedMinion);
-        location.getBlock().setType(definition.material(), false);
+        refreshMinionBlock(placedMinion, definition);
         text.send(player, "commands.minion-placed", List.of(TextService.parsed("minion_name", definition.displayName())));
         return true;
     }
@@ -621,6 +688,7 @@ public final class MinionService {
             }
         }
         giveOrDrop(player, createMinionItem(definition));
+        activeSkin(placedMinion).ifPresent(skin -> giveOrDrop(player, createSkinItem(skin)));
         for (String upgradeId : placedMinion.upgradeIds()) {
             minionUpgrade(upgradeId).ifPresent(upgrade -> giveOrDrop(player, createUpgradeItem(upgrade)));
         }
@@ -641,6 +709,48 @@ public final class MinionService {
         pickupAttachedStorage(player, placement.placedMinion());
         profiles.save(placement.profile());
         text.send(player, "commands.minion-storage-picked-up", storagePlaceholders(placement.definition(), placement.placedMinion(), storage));
+        return true;
+    }
+
+    public boolean applyHeldSkin(Player player, MinionPlacement placement) {
+        ItemStack held = player.getInventory().getItemInMainHand();
+        updateMinion(placement.placedMinion(), placement.definition(), System.currentTimeMillis());
+        if (held.getType().isAir()) {
+            return removeSkin(player, placement);
+        }
+        MinionSkinDefinition skin = skinForItem(held).orElse(null);
+        if (skin == null) {
+            text.send(player, "commands.minion-skin-invalid");
+            return false;
+        }
+        if (!skin.supports(placement.definition().id())) {
+            text.send(player, "commands.minion-skin-incompatible", skinPlaceholders(placement.definition(), placement.placedMinion(), skin));
+            return false;
+        }
+        if (placement.placedMinion().skinId().equalsIgnoreCase(skin.id())) {
+            text.send(player, "commands.minion-skin-duplicate", skinPlaceholders(placement.definition(), placement.placedMinion(), skin));
+            return false;
+        }
+        activeSkin(placement.placedMinion()).ifPresent(active -> giveOrDrop(player, createSkinItem(active)));
+        placement.placedMinion().skinId(skin.id());
+        consumeOneMainHand(player, held);
+        refreshMinionBlock(placement.placedMinion(), placement.definition());
+        profiles.save(placement.profile());
+        text.send(player, "commands.minion-skin-applied", skinPlaceholders(placement.definition(), placement.placedMinion(), skin));
+        return true;
+    }
+
+    public boolean removeSkin(Player player, MinionPlacement placement) {
+        MinionSkinDefinition skin = activeSkin(placement.placedMinion()).orElse(null);
+        if (skin == null) {
+            text.send(player, "commands.minion-skin-none");
+            return false;
+        }
+        placement.placedMinion().clearSkin();
+        refreshMinionBlock(placement.placedMinion(), placement.definition());
+        giveOrDrop(player, createSkinItem(skin));
+        profiles.save(placement.profile());
+        text.send(player, "commands.minion-skin-removed", skinPlaceholders(placement.definition(), placement.placedMinion(), skin));
         return true;
     }
 
@@ -776,6 +886,13 @@ public final class MinionService {
         return storage(placedMinion.storageId());
     }
 
+    private Optional<MinionSkinDefinition> activeSkin(PlacedMinion placedMinion) {
+        if (placedMinion == null || !placedMinion.hasSkin()) {
+            return Optional.empty();
+        }
+        return skin(placedMinion.skinId());
+    }
+
     private long activeStorageBonus(PlacedMinion placedMinion) {
         return activeStorage(placedMinion)
                 .map(MinionStorageDefinition::storageBonus)
@@ -860,6 +977,7 @@ public final class MinionService {
                 .sum();
         MinionStorageDefinition externalStorage = placedMinion == null ? null : activeStorage(placedMinion).orElse(null);
         long externalStorageBonus = externalStorage == null ? 0L : externalStorage.storageBonus();
+        MinionSkinDefinition skin = placedMinion == null ? null : activeSkin(placedMinion).orElse(null);
         ActiveCompaction compaction = placedMinion == null ? null : activeCompaction(definition, placedMinion).orElse(null);
         MinionUpgradeDefinition seller = placedMinion == null ? null : activeSeller(placedMinion).orElse(null);
         return List.of(
@@ -878,6 +996,7 @@ public final class MinionService {
                 TextService.raw("upgrade_storage", text.formatNumber(Math.max(0L, upgradeStorage))),
                 TextService.parsed("external_storage", externalStorage == null ? text.rawMessage("minions.storage-empty") : externalStorage.displayName()),
                 TextService.raw("external_storage_bonus", text.formatNumber(externalStorageBonus)),
+                TextService.parsed("skin", skin == null ? text.rawMessage("minions.skin-empty") : skin.displayName()),
                 TextService.parsed("compaction", compactionLabel(compaction)),
                 TextService.parsed("hopper", seller == null ? text.rawMessage("minions.hopper-none") : seller.displayName()),
                 TextService.raw("hopper_percentage", text.formatNumber((seller == null ? 0.0D : seller.sellPercentage()) * 100.0D)),
@@ -947,6 +1066,34 @@ public final class MinionService {
         return itemStack.getType() == storageBlockMaterial(storage) && customItems.definition(itemStack).isEmpty();
     }
 
+    public Optional<MinionSkinDefinition> skinForItem(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType().isAir()) {
+            return Optional.empty();
+        }
+        if (itemStack.hasItemMeta()) {
+            String id = itemStack.getItemMeta().getPersistentDataContainer().get(minionSkinIdKey, PersistentDataType.STRING);
+            if (id != null && !id.isBlank()) {
+                return skin(id);
+            }
+        }
+        for (MinionSkinDefinition skin : skins()) {
+            if (skin.customItem() && skinMatches(skin, itemStack)) {
+                return Optional.of(skin);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private boolean skinMatches(MinionSkinDefinition skin, ItemStack itemStack) {
+        if (skin.customItem()) {
+            return customItems.definition(itemStack)
+                    .map(CustomItemDefinition::id)
+                    .filter(id -> id.equalsIgnoreCase(skin.customItemId()))
+                    .isPresent();
+        }
+        return itemStack.getType() == skinItemMaterial(skin) && customItems.definition(itemStack).isEmpty();
+    }
+
     private boolean upgradeMatches(MinionUpgradeDefinition upgrade, ItemStack itemStack) {
         if (upgrade.customItem()) {
             return customItems.definition(itemStack)
@@ -1003,6 +1150,12 @@ public final class MinionService {
         return placeholders;
     }
 
+    private List<TextService.TextPlaceholder> skinPlaceholders(MinionDefinition definition, PlacedMinion placedMinion, MinionSkinDefinition skin) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(minionPlaceholders(definition, placedMinion));
+        placeholders.add(TextService.parsed("skin_name", skin == null ? text.rawMessage("minions.skin-empty") : skin.displayName()));
+        return placeholders;
+    }
+
     private AdjacentStorageTarget adjacentStorageTarget(Location storageLocation) {
         if (storageLocation == null || storageLocation.getWorld() == null) {
             return new AdjacentStorageTarget(Optional.empty(), false);
@@ -1043,6 +1196,34 @@ public final class MinionService {
             return Material.CHEST;
         }
         return storage.material();
+    }
+
+    private void refreshMinionBlock(PlacedMinion placedMinion, MinionDefinition definition) {
+        if (!placedMinion.hasLocation()) {
+            return;
+        }
+        Block block = Bukkit.getWorld(placedMinion.worldName()) == null
+                ? null
+                : Bukkit.getWorld(placedMinion.worldName()).getBlockAt(placedMinion.x(), placedMinion.y(), placedMinion.z());
+        if (block == null) {
+            return;
+        }
+        block.setType(displayMaterial(definition, placedMinion), false);
+    }
+
+    private Material displayMaterial(MinionDefinition definition, PlacedMinion placedMinion) {
+        MinionSkinDefinition skin = activeSkin(placedMinion).orElse(null);
+        if (skin != null && skin.blockMaterial() != null && !skin.blockMaterial().isAir() && skin.blockMaterial().isBlock()) {
+            return skin.blockMaterial();
+        }
+        return definition.material();
+    }
+
+    private Material skinItemMaterial(MinionSkinDefinition skin) {
+        if (skin == null || skin.material() == null || skin.material().isAir()) {
+            return Material.LEATHER;
+        }
+        return skin.material();
     }
 
     private String compactionLabel(ActiveCompaction compaction) {

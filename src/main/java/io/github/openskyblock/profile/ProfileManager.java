@@ -872,6 +872,7 @@ public final class ProfileManager {
                                 minion.getInt("storage.z", 0)
                         );
                     }
+                    placedMinion.skinId(minion.getString("skin", "").toUpperCase(Locale.ROOT));
                     placedMinion.soldCoins(minion.getDouble("sold-coins", 0.0D));
                     profile.minions().add(placedMinion);
                 }
@@ -1375,6 +1376,7 @@ public final class ProfileManager {
                 profileData.set(minionBase + ".storage.y", minion.storageY());
                 profileData.set(minionBase + ".storage.z", minion.storageZ());
             }
+            profileData.set(minionBase + ".skin", minion.hasSkin() ? minion.skinId().toUpperCase(Locale.ROOT) : null);
             profileData.set(minionBase + ".sold-coins", minion.soldCoins());
         }
     }

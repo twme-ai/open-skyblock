@@ -527,7 +527,7 @@ skill-menu:
 
 minion:
   title: "<dark_gray><minion_name></dark_gray>"
-  rows: 3
+  rows: 4
   filler:
     enabled: true
     material: GRAY_STAINED_GLASS_PANE
@@ -545,6 +545,7 @@ minion:
         - "<gray>Fuel:</gray> <fuel>"
         - "<gray>Fuel Time:</gray> <yellow><fuel_remaining></yellow>"
         - "<gray>Upgrades:</gray> <upgrades>"
+        - "<gray>Skin:</gray> <skin>"
         - "<gray>Upgrade Storage:</gray> <yellow>+<upgrade_storage></yellow>"
         - "<gray>External Storage:</gray> <external_storage>"
         - "<gray>External Bonus:</gray> <yellow>+<external_storage_bonus></yellow>"
@@ -579,6 +580,17 @@ minion:
         - ""
         - "<yellow>Click to install held upgrade.</yellow>"
       action: UPGRADE
+    skin:
+      slot: 16
+      material: LEATHER_HELMET
+      display-name: "<light_purple>Minion Skin</light_purple>"
+      lore:
+        - "<gray>Hold a configured minion skin in your main hand.</gray>"
+        - "<gray>Current:</gray> <skin>"
+        - ""
+        - "<yellow>Click to apply held skin.</yellow>"
+        - "<yellow>Click with an empty hand to remove.</yellow>"
+      action: SKIN
     claim:
       slot: 13
       material: CHEST

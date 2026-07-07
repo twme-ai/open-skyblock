@@ -1404,6 +1404,10 @@ public final class MenuService {
                 plugin.minions().applyHeldUpgrade(player, placement);
                 openMinionMenu(player, placement);
             }
+            case SKIN -> {
+                plugin.minions().applyHeldSkin(player, placement);
+                openMinionMenu(player, placement);
+            }
             case PICKUP -> {
                 plugin.minions().pickup(player, placement);
                 player.closeInventory();
