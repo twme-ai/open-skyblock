@@ -177,11 +177,12 @@ public final class MobService {
             throw new IllegalStateException("Configured custom mob is not a living entity: " + definition.id());
         }
         livingEntity.getPersistentDataContainer().set(mobIdKey, PersistentDataType.STRING, definition.id());
+        double health = effectiveHealth(definition);
         AttributeInstance maxHealth = livingEntity.getAttribute(Attribute.MAX_HEALTH);
         if (maxHealth != null) {
-            maxHealth.setBaseValue(definition.health());
+            maxHealth.setBaseValue(health);
         }
-        livingEntity.setHealth(Math.min(definition.health(), livingEntity.getMaxHealth()));
+        livingEntity.setHealth(Math.min(health, livingEntity.getMaxHealth()));
         livingEntity.setRemoveWhenFarAway(false);
         livingEntity.setPersistent(false);
         refreshName(livingEntity);
@@ -200,7 +201,7 @@ public final class MobService {
                 TextService.raw("level", Integer.toString(definition.level())),
                 TextService.parsed("mob", definition.displayName()),
                 TextService.raw("health", text.formatNumber(Math.max(0.0D, livingEntity.getHealth()))),
-                TextService.raw("max_health", text.formatNumber(definition.health()))
+                TextService.raw("max_health", text.formatNumber(maxHealth(livingEntity, definition)))
         )));
         livingEntity.setCustomNameVisible(true);
     }
@@ -269,6 +270,26 @@ public final class MobService {
             return 0.0D;
         }
         return Math.max(0.0D, mayorService.modifier("slayer_boss_magic_find_multiplier"));
+    }
+
+    private double effectiveHealth(SkyBlockMobDefinition definition) {
+        return Math.max(1.0D, definition.health() * mobHealthMultiplier());
+    }
+
+    private double maxHealth(LivingEntity entity, SkyBlockMobDefinition definition) {
+        AttributeInstance attribute = entity.getAttribute(Attribute.MAX_HEALTH);
+        if (attribute != null) {
+            return Math.max(1.0D, attribute.getValue());
+        }
+        return effectiveHealth(definition);
+    }
+
+    private double mobHealthMultiplier() {
+        if (mayorService == null) {
+            return 1.0D;
+        }
+        double multiplier = mayorService.modifier("mob_health_multiplier");
+        return multiplier <= 0.0D ? 1.0D : multiplier;
     }
 
     public void sendList(Player player) {

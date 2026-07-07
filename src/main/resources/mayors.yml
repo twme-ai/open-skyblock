@@ -108,9 +108,19 @@ candidates:
     description: "A special mayor with disruptive global modifiers."
     weight: 0.25
     perks:
+      quad_taxes:
+        display-name: "<gold>Quad Taxes</gold>"
+        description: "Multiplies configured Auction House listing fees."
+        modifiers:
+          auction_tax_multiplier: 4.0
+      turbo_minions:
+        display-name: "<yellow>Turbo Minions</yellow>"
+        description: "Doubles generated minion output."
+        modifiers:
+          minion_output_multiplier: 2.0
       double_mobs:
         display-name: "<red>Double Mobs HP</red>"
-        description: "Configured combat difficulty modifier for future mob stat integrations."
+        description: "Doubles custom mob health."
         modifiers:
           mob_health_multiplier: 2.0
       skill_experience:

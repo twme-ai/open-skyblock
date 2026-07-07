@@ -2,6 +2,7 @@ package io.github.openskyblock.service;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.profile.PlacedMinion;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
@@ -38,6 +39,7 @@ public final class MinionService {
     private final UpgradeService upgrades;
     private final NamespacedKey minionIdKey;
     private final Map<String, MinionDefinition> definitions = new HashMap<>();
+    private MayorService mayors;
 
     public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, UpgradeService upgrades) {
         this.configService = configService;
@@ -46,6 +48,10 @@ public final class MinionService {
         this.collections = collections;
         this.upgrades = upgrades;
         this.minionIdKey = new NamespacedKey(plugin, "minion_id");
+    }
+
+    public void mayorService(MayorService mayors) {
+        this.mayors = mayors;
     }
 
     public void reload() {
@@ -274,11 +280,24 @@ public final class MinionService {
             return;
         }
         long capacity = Math.max(0L, definition.storageSize() - placedMinion.generatedAmount());
-        long generated = Math.min(capacity, cycles * Math.max(1L, definition.generatedAmount()));
+        long generated = Math.min(capacity, generatedAmount(definition, cycles));
         if (generated > 0L) {
             placedMinion.generatedAmount(placedMinion.generatedAmount() + generated);
         }
         placedMinion.lastActionMillis(placedMinion.lastActionMillis() + cycles * intervalMillis);
+    }
+
+    private long generatedAmount(MinionDefinition definition, long cycles) {
+        double amount = cycles * (double) Math.max(1L, definition.generatedAmount()) * minionOutputMultiplier();
+        return Math.max(0L, (long) Math.floor(amount));
+    }
+
+    private double minionOutputMultiplier() {
+        if (mayors == null) {
+            return 1.0D;
+        }
+        double multiplier = mayors.modifier("minion_output_multiplier");
+        return multiplier <= 0.0D ? 1.0D : multiplier;
     }
 
     private boolean hasMinionCapacity(Player player, SkyBlockProfile profile) {

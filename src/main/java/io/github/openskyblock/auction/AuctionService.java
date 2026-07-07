@@ -3,6 +3,7 @@ package io.github.openskyblock.auction;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.economy.EconomyService;
+import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.CustomItemService;
 import java.io.File;
@@ -30,6 +31,7 @@ public final class AuctionService {
     private final EconomyService economy;
     private final CustomItemService customItems;
     private final Map<String, AuctionListing> listings = new HashMap<>();
+    private MayorService mayors;
     private File dataFile;
     private YamlConfiguration data;
     private long listingDurationSeconds = 172800L;
@@ -46,6 +48,10 @@ public final class AuctionService {
         this.text = text;
         this.economy = economy;
         this.customItems = customItems;
+    }
+
+    public void mayorService(MayorService mayors) {
+        this.mayors = mayors;
     }
 
     public void reload() {
@@ -142,7 +148,7 @@ public final class AuctionService {
             text.send(player, "commands.auction-too-many", List.of(TextService.raw("limit", Integer.toString(maxActivePerPlayer))));
             return false;
         }
-        double fee = price * listingFeePercent;
+        double fee = listingFee(price);
         if (!economy.spendPurse(player, fee)) {
             text.send(player, "commands.auction-fee-missing", List.of(TextService.raw("fee", text.formatNumber(fee))));
             return false;
@@ -169,6 +175,18 @@ public final class AuctionService {
                 TextService.raw("duration", formatDuration(listingDurationSeconds))
         ));
         return true;
+    }
+
+    private double listingFee(double price) {
+        return Math.max(0.0D, price * listingFeePercent * auctionTaxMultiplier());
+    }
+
+    private double auctionTaxMultiplier() {
+        if (mayors == null) {
+            return 1.0D;
+        }
+        double multiplier = mayors.modifier("auction_tax_multiplier");
+        return multiplier <= 0.0D ? 1.0D : multiplier;
     }
 
     public void sendListings(Player player, int page) {
