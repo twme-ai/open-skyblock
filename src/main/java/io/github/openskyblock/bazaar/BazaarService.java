@@ -667,7 +667,11 @@ public final class BazaarService {
         }
     }
 
-    private List<TextService.TextPlaceholder> productPlaceholders(BazaarProductDefinition product) {
+    public ItemStack displayItem(BazaarProductDefinition product) {
+        return createStack(product, 1);
+    }
+
+    public List<TextService.TextPlaceholder> productPlaceholders(BazaarProductDefinition product) {
         Optional<Double> buyPrice = bestBuyPrice(product.id());
         Optional<Double> sellPrice = bestSellPrice(product.id());
         return List.of(

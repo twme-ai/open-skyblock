@@ -122,6 +122,13 @@ skyblock:
       lore:
         - "<gray>Browse BIN and bid listings.</gray>"
       action: AUCTIONS
+    bazaar:
+      slot: 31
+      material: ENDER_EYE
+      display-name: "<green>Bazaar</green>"
+      lore:
+        - "<gray>Browse market products and order books.</gray>"
+      action: BAZAAR
     pets:
       slot: 24
       material: BONE
@@ -356,6 +363,68 @@ auction-browser:
       - "<sale>"
       - "<gray>Seller:</gray> <yellow><seller></yellow>"
       - "<gray>Status:</gray> <status> <dark_gray>|</dark_gray> <gray>Remaining:</gray> <yellow><remaining></yellow>"
+      - ""
+      - "<yellow>Click for command details.</yellow>"
+  previous:
+    slot: 45
+    material: ARROW
+    display-name: "<yellow>Previous Page</yellow>"
+    lore: []
+  back:
+    slot: 49
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+  next:
+    slot: 53
+    material: ARROW
+    display-name: "<yellow>Next Page</yellow>"
+    lore: []
+
+bazaar-browser:
+  title: "<dark_gray>Bazaar - Page <page></dark_gray>"
+  rows: 6
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 37
+    - 38
+    - 39
+    - 40
+    - 41
+    - 42
+    - 43
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  product-item:
+    display-name: "<product>"
+    lore:
+      - "<gray>Category:</gray> <yellow><category></yellow>"
+      - "<gray>Instant Sell:</gray> <gold><buy_price></gold>"
+      - "<gray>Instant Buy:</gray> <gold><sell_price></gold>"
+      - "<gray>Demand:</gray> <yellow><buy_volume></yellow> <dark_gray>|</dark_gray> <gray>Supply:</gray> <yellow><sell_volume></yellow>"
       - ""
       - "<yellow>Click for command details.</yellow>"
   previous:

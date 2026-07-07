@@ -2,6 +2,7 @@ package io.github.openskyblock.menu;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.auction.AuctionListing;
+import io.github.openskyblock.bazaar.BazaarProductDefinition;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
@@ -208,6 +209,41 @@ public final class MenuService {
             int slot = contentSlots.get(index);
             inventory.setItem(slot, auctionItem(listing, section.getConfigurationSection("listing-item")));
             entries.put(slot, listing.id());
+        }
+        addBrowserNavigation(inventory, section, page, maxPage, actions);
+        player.openInventory(inventory);
+    }
+
+    public void openBazaarMenu(Player player, int requestedPage) {
+        if (!plugin.bazaar().enabled()) {
+            text.send(player, "commands.bazaar-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("bazaar-browser");
+        if (section == null) {
+            plugin.bazaar().sendProducts(player, requestedPage + 1);
+            return;
+        }
+        List<BazaarProductDefinition> products = plugin.bazaar().products();
+        List<Integer> contentSlots = contentSlots(section);
+        int maxPage = maxPage(products.size(), contentSlots.size());
+        int page = clampPage(requestedPage, maxPage);
+        Map<Integer, BrowserMenuAction> actions = new HashMap<>();
+        Map<Integer, String> entries = new HashMap<>();
+        BrowserMenuHolder holder = new BrowserMenuHolder(BrowserMenuType.BAZAAR, page, maxPage, actions, entries);
+        Inventory inventory = browserInventory(holder, section, page, maxPage);
+        fill(inventory, section.getConfigurationSection("filler"));
+
+        int offset = page * contentSlots.size();
+        for (int index = 0; index < contentSlots.size(); index++) {
+            int productIndex = offset + index;
+            if (productIndex >= products.size()) {
+                break;
+            }
+            BazaarProductDefinition product = products.get(productIndex);
+            int slot = contentSlots.get(index);
+            inventory.setItem(slot, bazaarProductItem(product, section.getConfigurationSection("product-item")));
+            entries.put(slot, product.id());
         }
         addBrowserNavigation(inventory, section, page, maxPage, actions);
         player.openInventory(inventory);
@@ -773,6 +809,7 @@ public final class MenuService {
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
             case AUCTIONS -> openAuctionHouse(player, 0);
+            case BAZAAR -> openBazaarMenu(player, 0);
             case SHOPS -> openShopSelector(player);
             case MINIONS -> player.performCommand("skyblock minion list");
             case NONE -> {
@@ -1087,20 +1124,36 @@ public final class MenuService {
     }
 
     public void runBrowserEntryClick(Player player, BrowserMenuHolder holder, int rawSlot) {
-        if (holder.type() != BrowserMenuType.AUCTIONS) {
+        String entryId = holder.entry(rawSlot);
+        if (entryId == null) {
             return;
         }
-        String listingId = holder.entry(rawSlot);
-        if (listingId == null) {
-            return;
+        switch (holder.type()) {
+            case AUCTIONS -> {
+                AuctionListing listing = plugin.auctions().listing(entryId).orElse(null);
+                if (listing == null || !listing.active(System.currentTimeMillis())) {
+                    text.send(player, "commands.auction-not-active");
+                    openAuctionHouse(player, holder.page());
+                    return;
+                }
+                text.send(
+                        player,
+                        listing.bin() ? "commands.auction-browser-click-bin" : "commands.auction-browser-click-bid",
+                        plugin.auctions().listingPlaceholders(listing, System.currentTimeMillis())
+                );
+            }
+            case BAZAAR -> {
+                BazaarProductDefinition product = plugin.bazaar().product(entryId).orElse(null);
+                if (product == null) {
+                    text.send(player, "commands.bazaar-unknown-product", List.of(TextService.raw("product", entryId)));
+                    openBazaarMenu(player, holder.page());
+                    return;
+                }
+                text.send(player, "commands.bazaar-browser-click", plugin.bazaar().productPlaceholders(product));
+            }
+            case COLLECTIONS, RECIPES -> {
+            }
         }
-        AuctionListing listing = plugin.auctions().listing(listingId).orElse(null);
-        if (listing == null || !listing.active(System.currentTimeMillis())) {
-            text.send(player, "commands.auction-not-active");
-            openAuctionHouse(player, holder.page());
-            return;
-        }
-        text.send(player, listing.bin() ? "commands.auction-browser-click-bin" : "commands.auction-browser-click-bid", plugin.auctions().listingPlaceholders(listing, System.currentTimeMillis()));
     }
 
     private void fill(Inventory inventory, ConfigurationSection filler) {
@@ -1149,6 +1202,7 @@ public final class MenuService {
             case COLLECTIONS -> openCollectionBrowser(player, page);
             case RECIPES -> openRecipeBook(player, page);
             case AUCTIONS -> openAuctionHouse(player, page);
+            case BAZAAR -> openBazaarMenu(player, page);
         }
     }
 
@@ -1275,6 +1329,23 @@ public final class MenuService {
             meta.lore(List.of());
         } else {
             meta.displayName(text.deserialize(section.getString("display-name", "<item>"), placeholders));
+            meta.lore(section.getStringList("lore").stream()
+                    .map(line -> text.deserialize(line, placeholders))
+                    .toList());
+        }
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack bazaarProductItem(BazaarProductDefinition product, ConfigurationSection section) {
+        ItemStack itemStack = plugin.bazaar().displayItem(product);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = plugin.bazaar().productPlaceholders(product);
+        if (section == null) {
+            meta.displayName(text.deserialize("<product>", placeholders));
+            meta.lore(List.of());
+        } else {
+            meta.displayName(text.deserialize(section.getString("display-name", "<product>"), placeholders));
             meta.lore(section.getStringList("lore").stream()
                     .map(line -> text.deserialize(line, placeholders))
                     .toList());

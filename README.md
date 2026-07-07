@@ -21,7 +21,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable NPC shops with buy menus, right-click sell flow, daily buy limits, and `/skyblock sell`.
 - Optional physical shop NPCs spawned from `shops.yml` with persistent shop tags and right-click shop opening.
 - Configurable Auction House GUI browser plus BIN and bid listings with persistent item storage, listing fees, bid escrow/refunds, cancellation rules, buy/bid flow, expired item returns, and claim flow.
-- Configurable Bazaar products with persistent buy orders, sell offers, instant buy/sell matching, escrow refunds, cancellation, and claim flow.
+- Configurable Bazaar GUI browser plus products with persistent buy orders, sell offers, instant buy/sell matching, escrow refunds, cancellation, and claim flow.
 - Secure player trading with request/accept flow, item and coin escrow, review/confirm steps, cancellation, and disconnect cleanup.
 - Persistent configurable Storage pages with command and SkyBlock menu access, search, sorting, and inventory-close saving.
 - Configurable installed Backpacks with admin-granted backpack items, right-click install flow, profile-backed contents, open/list/remove commands, and inventory-close saving.
@@ -92,7 +92,7 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock auction cancel <id>`
 - `/skyblock auction claim`
 - `/skyblock auction mine`
-- `/skyblock bazaar`
+- `/skyblock bazaar [page]`
 - `/skyblock bazaar products [page]`
 - `/skyblock bazaar info <product>`
 - `/skyblock bazaar instabuy <product> <amount>`

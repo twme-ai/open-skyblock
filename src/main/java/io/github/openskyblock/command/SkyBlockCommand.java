@@ -1172,11 +1172,11 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 2) {
-            plugin.bazaar().sendProducts(player, 1);
+            plugin.menus().openBazaarMenu(player, 0);
             return;
         }
         if (numeric(args[1])) {
-            parsePositiveInt(player, args[1]).ifPresent(page -> plugin.bazaar().sendProducts(player, page));
+            parsePositiveInt(player, args[1]).ifPresent(page -> plugin.menus().openBazaarMenu(player, page - 1));
             return;
         }
         switch (args[1].toLowerCase(Locale.ROOT)) {
