@@ -245,10 +245,12 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.statService.newYearService(newYearService);
         this.statService.miningFiestaService(miningFiestaService);
         this.mobService = new MobService(this, configService, textService, customItemService, skillService, statService, bestiaryService);
+        this.mobService.mayorService(mayorService);
         this.seaCreatureService = new SeaCreatureService(configService, textService, profileManager, skillService, statService, mobService, mayorService);
         this.seaCreatureService.fishingFestivalService(fishingFestivalService);
         this.trophyFishService = new TrophyFishService(this, configService, textService, profileManager, skillService, collectionService, statService);
-        this.slayerService = new SlayerService(this, configService, textService, profileManager, economyService, skillService, mobService);
+        this.slayerService = new SlayerService(this, configService, textService, profileManager, economyService, skillService, mobService, mayorService);
+        this.mobService.slayerService(slayerService);
         this.statService.slayerService(slayerService);
         this.itemAbilityService = new ItemAbilityService(this, configService, textService, customItemService, statService);
         this.mobSpawnService = new MobSpawnService(this, configService, textService, mobService);

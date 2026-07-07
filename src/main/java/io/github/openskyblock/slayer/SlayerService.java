@@ -3,6 +3,7 @@ package io.github.openskyblock.slayer;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.economy.EconomyService;
+import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.mob.MobService;
 import io.github.openskyblock.mob.SkyBlockMobDefinition;
 import io.github.openskyblock.profile.ActiveSlayerQuest;
@@ -43,6 +44,7 @@ public final class SlayerService {
     private final EconomyService economy;
     private final SkillService skills;
     private final MobService mobs;
+    private final MayorService mayors;
     private final NamespacedKey bossOwnerKey;
     private final NamespacedKey bossSlayerKey;
     private final NamespacedKey bossTierKey;
@@ -53,7 +55,7 @@ public final class SlayerService {
     private BossBar.Color bossBarColor = BossBar.Color.RED;
     private BossBar.Overlay bossBarOverlay = BossBar.Overlay.PROGRESS;
 
-    public SlayerService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, EconomyService economy, SkillService skills, MobService mobs) {
+    public SlayerService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, EconomyService economy, SkillService skills, MobService mobs, MayorService mayors) {
         this.plugin = plugin;
         this.configService = configService;
         this.text = text;
@@ -61,6 +63,7 @@ public final class SlayerService {
         this.economy = economy;
         this.skills = skills;
         this.mobs = mobs;
+        this.mayors = mayors;
         this.bossOwnerKey = new NamespacedKey(plugin, "slayer_boss_owner");
         this.bossSlayerKey = new NamespacedKey(plugin, "slayer_boss_id");
         this.bossTierKey = new NamespacedKey(plugin, "slayer_boss_tier");
@@ -144,8 +147,9 @@ public final class SlayerService {
             ));
             return;
         }
-        if (!economy.spendPurse(player, tier.cost())) {
-            text.send(player, "commands.slayer-no-money", List.of(TextService.raw("cost", text.formatNumber(tier.cost()))));
+        double cost = effectiveCost(tier);
+        if (!economy.spendPurse(player, cost)) {
+            text.send(player, "commands.slayer-no-money", List.of(TextService.raw("cost", text.formatNumber(cost))));
             return;
         }
         profile.activeSlayer(new ActiveSlayerQuest(definition.id(), tier.tier(), 0.0D, false));
@@ -154,7 +158,7 @@ public final class SlayerService {
                 TextService.parsed("slayer", definition.displayName()),
                 TextService.raw("tier", Integer.toString(tier.tier())),
                 TextService.raw("required_xp", text.formatNumber(tier.requiredXp())),
-                TextService.raw("cost", text.formatNumber(tier.cost()))
+                TextService.raw("cost", text.formatNumber(cost))
         ));
     }
 
@@ -300,7 +304,8 @@ public final class SlayerService {
         }
         profile.activeSlayer(null);
         double previousSlayerXp = profile.slayerXp().getOrDefault(definition.id(), 0.0D);
-        double currentSlayerXp = previousSlayerXp + tier.slayerXp();
+        double slayerXp = effectiveSlayerXp(tier);
+        double currentSlayerXp = previousSlayerXp + slayerXp;
         profile.slayerXp().put(definition.id(), currentSlayerXp);
         if (tier.rewardSkill() != null && tier.rewardSkillXp() > 0.0D) {
             skills.addXp(player, tier.rewardSkill(), tier.rewardSkillXp());
@@ -312,10 +317,20 @@ public final class SlayerService {
         text.send(player, "commands.slayer-completed", List.of(
                 TextService.parsed("slayer", definition.displayName()),
                 TextService.raw("tier", Integer.toString(tier.tier())),
-                TextService.raw("slayer_xp", text.formatNumber(tier.slayerXp()))
+                TextService.raw("slayer_xp", text.formatNumber(slayerXp))
         ));
         grantLevels(player, profile, definition, previousSlayerXp, currentSlayerXp);
         profiles.save(player);
+    }
+
+    private double effectiveCost(SlayerTierDefinition tier) {
+        double reduction = mayors == null ? 0.0D : Math.max(0.0D, Math.min(1.0D, mayors.modifier("slayer_cost_reduction")));
+        return Math.max(0.0D, tier.cost() * (1.0D - reduction));
+    }
+
+    private double effectiveSlayerXp(SlayerTierDefinition tier) {
+        double multiplier = mayors == null ? 0.0D : Math.max(0.0D, mayors.modifier("slayer_xp_multiplier"));
+        return Math.max(0.0D, tier.slayerXp() * (1.0D + multiplier));
     }
 
     public Map<String, Double> activeStats(SkyBlockProfile profile) {

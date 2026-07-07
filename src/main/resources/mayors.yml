@@ -15,14 +15,19 @@ candidates:
     perks:
       slayer_xp:
         display-name: "<red>Slayer XP Buff</red>"
-        description: "Configured Slayer XP modifier for future Slayer integrations."
+        description: "Increases Slayer XP from completed Slayer quests."
         modifiers:
           slayer_xp_multiplier: 0.25
       cheaper_slayers:
-        display-name: "<gold>Pathfinder</gold>"
-        description: "Configured Slayer cost reduction for future Slayer integrations."
+        display-name: "<gold>SLASHED Pricing</gold>"
+        description: "Reduces the coin cost of starting Slayer quests."
         modifiers:
           slayer_cost_reduction: 0.50
+      pathfinder:
+        display-name: "<red>Pathfinder</red>"
+        description: "Increases Magic Find affected drops from Slayer bosses."
+        modifiers:
+          slayer_boss_magic_find_multiplier: 0.20
   COLE:
     display-name: "<gold>Cole</gold>"
     description: "A Mining-focused mayor."

@@ -3,11 +3,13 @@ package io.github.openskyblock.mob;
 import io.github.openskyblock.bestiary.BestiaryService;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.service.ActionReward;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.CustomItemService;
 import io.github.openskyblock.service.SkillService;
 import io.github.openskyblock.service.SkillType;
+import io.github.openskyblock.slayer.SlayerService;
 import io.github.openskyblock.stats.StatService;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,6 +47,8 @@ public final class MobService {
     private final BestiaryService bestiary;
     private final NamespacedKey mobIdKey;
     private final Map<String, SkyBlockMobDefinition> definitions = new HashMap<>();
+    private MayorService mayorService;
+    private SlayerService slayerService;
     private String nameFormat = DEFAULT_NAME_FORMAT;
     private int spawnLimitPerCommand = 25;
     private boolean rareDropAnnouncements = true;
@@ -63,6 +67,14 @@ public final class MobService {
         this.stats = stats;
         this.bestiary = bestiary;
         this.mobIdKey = new NamespacedKey(plugin, "mob_id");
+    }
+
+    public void mayorService(MayorService mayorService) {
+        this.mayorService = mayorService;
+    }
+
+    public void slayerService(SlayerService slayerService) {
+        this.slayerService = slayerService;
     }
 
     public void reload() {
@@ -218,18 +230,25 @@ public final class MobService {
                 definition.coins()
         ));
         bestiary.recordKill(killer, definition.id());
-        for (ItemStack itemStack : rollDrops(killer, definition)) {
+        for (ItemStack itemStack : rollDrops(killer, definition, event.getEntity())) {
             event.getDrops().add(itemStack);
         }
     }
 
     public List<ItemStack> rollDrops(Player player, SkyBlockMobDefinition definition) {
+        return rollDrops(player, definition, null);
+    }
+
+    public List<ItemStack> rollDrops(Player player, SkyBlockMobDefinition definition, Entity source) {
         List<ItemStack> results = new ArrayList<>();
         double magicFind = Math.max(0.0D, stats.snapshot(player).stat("magic_find"));
         for (MobDropDefinition drop : definition.drops()) {
             double chance = drop.chance();
             if (drop.magicFind()) {
                 chance *= 1.0D + magicFind / 100.0D;
+                if (slayerService != null && slayerService.isSlayerBoss(source)) {
+                    chance *= 1.0D + slayerBossMagicFindMultiplier();
+                }
             }
             if (chance < 100.0D && ThreadLocalRandom.current().nextDouble(100.0D) >= chance) {
                 continue;
@@ -243,6 +262,13 @@ public final class MobService {
             announceDrop(player, definition, drop, itemStack, Math.min(100.0D, chance));
         }
         return results;
+    }
+
+    private double slayerBossMagicFindMultiplier() {
+        if (mayorService == null) {
+            return 0.0D;
+        }
+        return Math.max(0.0D, mayorService.modifier("slayer_boss_magic_find_multiplier"));
     }
 
     public void sendList(Player player) {
