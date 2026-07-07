@@ -1024,6 +1024,10 @@ public final class MenuService {
                 plugin.islands().setHome(player);
                 openIslandManagement(player);
             }
+            case RESET -> {
+                player.closeInventory();
+                plugin.islands().requestReset(player);
+            }
             case TOGGLE_VISITORS -> {
                 plugin.islands().toggleVisitors(player);
                 openIslandManagement(player);

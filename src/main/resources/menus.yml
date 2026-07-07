@@ -226,6 +226,17 @@ island-management:
         - ""
         - "<yellow>Click to toggle.</yellow>"
       action: TOGGLE_VISITORS
+    reset:
+      slot: 15
+      material: TNT
+      display-name: "<red>Reset Island</red>"
+      lore:
+        - "<gray>Delete this island world and rebuild</gray>"
+        - "<gray>the starter island.</gray>"
+        - "<gray>Requires typed confirmation.</gray>"
+        - ""
+        - "<yellow>Click for reset instructions.</yellow>"
+      action: RESET
     info:
       slot: 16
       material: MAP

@@ -80,6 +80,12 @@ islands:
   home-pitch: 0.0
   default-visitors-enabled: false
   max-visitors: 1
+  reset:
+    enabled: true
+    confirmation-word: "RESET"
+    confirmation-seconds: 60
+    clear-minions: true
+    clear-cakes: true
   coop:
     max-members: 5
     invite-expire-seconds: 60

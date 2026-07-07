@@ -4,6 +4,13 @@ import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +34,7 @@ public final class IslandService {
     private final ProfileManager profiles;
     private final VoidChunkGenerator generator = new VoidChunkGenerator();
     private final Map<UUID, CoopInvite> coopInvites = new HashMap<>();
+    private final Map<UUID, Long> resetConfirmations = new HashMap<>();
 
     public IslandService(ConfigService configService, TextService text, ProfileManager profiles) {
         this.configService = configService;
@@ -249,6 +257,53 @@ public final class IslandService {
         text.send(player, "commands.island-home-set", islandPlaceholders(owner));
     }
 
+    public void requestReset(Player player) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        if (!resetEnabled()) {
+            text.send(player, "commands.island-reset-disabled");
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        if (!hasIsland(profile)) {
+            text.send(player, "commands.island-reset-no-island");
+            return;
+        }
+        long seconds = resetConfirmationSeconds();
+        resetConfirmations.put(player.getUniqueId(), System.currentTimeMillis() + seconds * 1000L);
+        text.send(player, "commands.island-reset-requested", resetPlaceholders(profile));
+    }
+
+    public void confirmReset(Player player, String confirmationWord) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        if (!resetEnabled()) {
+            text.send(player, "commands.island-reset-disabled");
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        if (!hasIsland(profile)) {
+            text.send(player, "commands.island-reset-no-island");
+            return;
+        }
+        Long expiresAt = resetConfirmations.get(player.getUniqueId());
+        if (expiresAt == null || expiresAt <= System.currentTimeMillis()) {
+            resetConfirmations.remove(player.getUniqueId());
+            text.send(player, "commands.island-reset-missing", resetPlaceholders(profile));
+            return;
+        }
+        if (!resetConfirmationWord().equalsIgnoreCase(confirmationWord == null ? "" : confirmationWord)) {
+            text.send(player, "commands.island-reset-token-invalid", resetPlaceholders(profile));
+            return;
+        }
+        resetConfirmations.remove(player.getUniqueId());
+        resetIsland(player, profile);
+    }
+
     public List<TextService.TextPlaceholder> islandPlaceholders(Player player) {
         SkyBlockProfile profile = profiles.profile(player);
         return islandPlaceholders(profile);
@@ -453,8 +508,134 @@ public final class IslandService {
         world.getBlockAt(-2, y, -2).setType(Material.OAK_SAPLING, false);
     }
 
+    private void resetIsland(Player player, SkyBlockProfile profile) {
+        String worldName = profile.islandWorldName();
+        if (worldName == null || worldName.isBlank() || !worldName.startsWith(worldPrefix())) {
+            text.send(player, "commands.island-reset-failed");
+            return;
+        }
+        text.send(player, "commands.island-reset-started", resetPlaceholders(profile));
+        World loadedWorld = Bukkit.getWorld(worldName);
+        if (loadedWorld != null && !unloadResetWorld(player, profile, loadedWorld)) {
+            text.send(player, "commands.island-reset-failed");
+            return;
+        }
+        Path worldPath = worldPath(worldName);
+        if (worldPath == null) {
+            text.send(player, "commands.island-reset-failed");
+            return;
+        }
+        try {
+            deleteDirectory(worldPath);
+        } catch (IOException exception) {
+            Bukkit.getLogger().warning("Unable to delete island world '" + worldName + "': " + exception.getMessage());
+            text.send(player, "commands.island-reset-failed");
+            return;
+        }
+        clearResetState(profile, worldName);
+        profile.islandWorldName(null);
+        World freshWorld = worldFor(profile, profile.uniqueId());
+        ensureStarterIsland(freshWorld);
+        profiles.save(profile);
+        player.teleport(homeLocation(profile, freshWorld));
+        text.send(player, "commands.island-reset-complete", islandPlaceholders(profile));
+    }
+
+    private boolean unloadResetWorld(Player requester, SkyBlockProfile profile, World world) {
+        World fallback = resetFallbackWorld(world);
+        if (fallback == null) {
+            return false;
+        }
+        Location fallbackLocation = fallback.getSpawnLocation();
+        for (Player worldPlayer : List.copyOf(world.getPlayers())) {
+            worldPlayer.teleport(fallbackLocation);
+            if (!worldPlayer.getUniqueId().equals(requester.getUniqueId())) {
+                text.send(worldPlayer, "commands.island-reset-player-moved", List.of(TextService.raw("owner", profile.playerName())));
+            }
+        }
+        world.setAutoSave(false);
+        return Bukkit.unloadWorld(world, false);
+    }
+
+    private World resetFallbackWorld(World resetWorld) {
+        for (World world : Bukkit.getWorlds()) {
+            if (!world.getName().equals(resetWorld.getName()) && !isIslandWorld(world)) {
+                return world;
+            }
+        }
+        for (World world : Bukkit.getWorlds()) {
+            if (!world.getName().equals(resetWorld.getName())) {
+                return world;
+            }
+        }
+        return null;
+    }
+
+    private void clearResetState(SkyBlockProfile profile, String worldName) {
+        profile.clearIslandHome();
+        if (configService.main().getBoolean("islands.reset.clear-minions", true)) {
+            profile.minions().clear();
+        }
+        if (configService.main().getBoolean("islands.reset.clear-cakes", true)) {
+            profile.placedCakes().removeIf(cake -> worldName.equals(cake.worldName()));
+        }
+    }
+
+    private void deleteDirectory(Path root) throws IOException {
+        if (!Files.exists(root)) {
+            return;
+        }
+        Files.walkFileTree(root, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.deleteIfExists(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exception) throws IOException {
+                if (exception != null) {
+                    throw exception;
+                }
+                Files.deleteIfExists(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    private Path worldPath(String worldName) {
+        Path container = Bukkit.getWorldContainer().toPath().toAbsolutePath().normalize();
+        Path worldPath = container.resolve(worldName).normalize();
+        return worldPath.startsWith(container) ? worldPath : null;
+    }
+
+    private List<TextService.TextPlaceholder> resetPlaceholders(SkyBlockProfile profile) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(islandPlaceholders(profile));
+        placeholders.add(TextService.raw("reset_token", resetConfirmationWord()));
+        placeholders.add(TextService.raw("reset_seconds", text.formatNumber(resetConfirmationSeconds())));
+        return placeholders;
+    }
+
+    private boolean hasIsland(SkyBlockProfile profile) {
+        return profile.islandWorldName() != null && !profile.islandWorldName().isBlank();
+    }
+
+    private boolean resetEnabled() {
+        return configService.main().getBoolean("islands.reset.enabled", true);
+    }
+
+    private long resetConfirmationSeconds() {
+        return Math.max(10L, configService.main().getLong("islands.reset.confirmation-seconds", 60L));
+    }
+
+    private String resetConfirmationWord() {
+        String configured = configService.main().getString("islands.reset.confirmation-word", "RESET");
+        return configured == null || configured.isBlank() ? "RESET" : configured.trim();
+    }
+
     private String worldPrefix() {
-        return configService.main().getString("islands.world-prefix", "openskyblock_island_");
+        String configured = configService.main().getString("islands.world-prefix", "openskyblock_island_");
+        return configured == null || configured.isBlank() ? "openskyblock_island_" : configured;
     }
 
     private record CoopInvite(UUID ownerId, String ownerName, long expiresAtMillis) {
