@@ -311,7 +311,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(plugin.customItems().definitions().stream().map(CustomItemDefinition::id).toList(), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("island")) {
-            return startsWith(List.of("create", "home", "sethome", "setspawn", "warps", "warp", "setwarp", "delwarp", "reset", "info", "manage", "menu", "visit", "visitors", "coop"), args[1]);
+            return startsWith(List.of("create", "home", "sethome", "setspawn", "warps", "warp", "setwarp", "delwarp", "pads", "pad", "reset", "info", "manage", "menu", "visit", "visitors", "coop"), args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("warp")) {
             return startsWith(plugin.islands().warpIds(sender instanceof Player player ? player : null), args[2]);
@@ -321,6 +321,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("setwarp")) {
             return startsWith(List.of("farm", "storage", "minions"), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("pad")) {
+            return startsWith(List.of("give", "link"), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("pad") && args[2].equalsIgnoreCase("link")) {
+            return startsWith(plugin.islands().teleportPadIds(sender instanceof Player player ? player : null), args[3]);
+        }
+        if (args.length == 5 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("pad") && args[2].equalsIgnoreCase("link")) {
+            return startsWith(List.of("group_1", "group_2", "storage", "farm"), args[4]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("reset")) {
             return startsWith(List.of("confirm"), args[2]);
@@ -1090,6 +1099,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 }
                 plugin.islands().removeWarp(player, args[2]);
             }
+            case "pads", "teleportpads", "teleport-pads" -> plugin.islands().sendTeleportPads(player);
+            case "pad", "teleportpad", "teleport-pad" -> islandTeleportPad(player, args);
             case "reset" -> islandReset(player, args);
             case "info" -> plugin.islands().sendInfo(player);
             case "manage", "menu" -> plugin.menus().openIslandManagement(player);
@@ -1117,6 +1128,28 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             }
             case "coop" -> islandCoop(player, args);
             default -> plugin.text().send(player, "errors.unknown-command");
+        }
+    }
+
+    private void islandTeleportPad(Player player, String[] args) {
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.island-teleport-pad-usage");
+            return;
+        }
+        switch (args[2].toLowerCase(Locale.ROOT)) {
+            case "give" -> {
+                player.getInventory().addItem(plugin.islands().createTeleportPadItem()).values()
+                        .forEach(leftover -> player.getWorld().dropItemNaturally(player.getLocation(), leftover));
+                plugin.text().send(player, "commands.island-teleport-pad-given");
+            }
+            case "link" -> {
+                if (args.length < 5) {
+                    plugin.text().send(player, "commands.island-teleport-pad-usage");
+                    return;
+                }
+                plugin.islands().setTeleportPadGroup(player, args[3], args[4]);
+            }
+            default -> plugin.text().send(player, "commands.island-teleport-pad-usage");
         }
     }
 

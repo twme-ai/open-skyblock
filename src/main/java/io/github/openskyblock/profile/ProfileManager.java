@@ -187,6 +187,24 @@ public final class ProfileManager {
                 ));
             }
         }
+        ConfigurationSection islandPads = section.getConfigurationSection("island.teleport-pads");
+        if (islandPads != null) {
+            for (String padId : islandPads.getKeys(false)) {
+                ConfigurationSection pad = islandPads.getConfigurationSection(padId);
+                if (pad == null || padId.isBlank()) {
+                    continue;
+                }
+                profile.setIslandTeleportPad(new IslandTeleportPad(
+                        padId.toLowerCase(Locale.ROOT),
+                        pad.getString("group", "default").toLowerCase(Locale.ROOT),
+                        pad.getInt("x", 0),
+                        pad.getInt("y", configService.main().getInt("islands.spawn-y", 80) + 1),
+                        pad.getInt("z", 0),
+                        (float) pad.getDouble("yaw", configService.main().getDouble("islands.home-yaw", 180.0D)),
+                        (float) pad.getDouble("pitch", configService.main().getDouble("islands.home-pitch", 0.0D))
+                ));
+            }
+        }
         for (String rawMember : section.getStringList("island.coop-members")) {
             UUID memberId = parseUuid(rawMember);
             if (memberId != null) {
@@ -909,6 +927,18 @@ public final class ProfileManager {
             profileData.set(warpBase + ".z", warp.z());
             profileData.set(warpBase + ".yaw", warp.yaw());
             profileData.set(warpBase + ".pitch", warp.pitch());
+        }
+        profileData.set(base + ".island.teleport-pads", null);
+        for (IslandTeleportPad pad : profile.islandTeleportPads().values().stream()
+                .sorted((first, second) -> first.id().compareTo(second.id()))
+                .toList()) {
+            String padBase = base + ".island.teleport-pads." + pad.id();
+            profileData.set(padBase + ".group", pad.group());
+            profileData.set(padBase + ".x", pad.x());
+            profileData.set(padBase + ".y", pad.y());
+            profileData.set(padBase + ".z", pad.z());
+            profileData.set(padBase + ".yaw", pad.yaw());
+            profileData.set(padBase + ".pitch", pad.pitch());
         }
         for (Map.Entry<SkillType, Double> entry : profile.skillXp().entrySet()) {
             profileData.set(base + ".skills." + entry.getKey().key() + ".xp", entry.getValue());

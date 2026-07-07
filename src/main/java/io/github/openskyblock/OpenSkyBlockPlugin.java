@@ -48,6 +48,7 @@ import io.github.openskyblock.listener.RecipeListener;
 import io.github.openskyblock.listener.SackListener;
 import io.github.openskyblock.listener.SeaCreatureListener;
 import io.github.openskyblock.listener.ShopNpcListener;
+import io.github.openskyblock.listener.TeleportPadListener;
 import io.github.openskyblock.listener.TrophyFishListener;
 import io.github.openskyblock.kuudra.KuudraService;
 import io.github.openskyblock.mayor.MayorService;
@@ -261,7 +262,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.mobSpawnService = new MobSpawnService(this, configService, textService, mobService);
         this.minionService = new MinionService(this, configService, textService, profileManager, collectionService, upgradeService, customItemService, economyService);
         this.minionService.mayorService(mayorService);
-        this.islandService = new IslandService(configService, textService, profileManager);
+        this.islandService = new IslandService(this, configService, textService, profileManager);
         this.menuService = new MenuService(this, configService, textService, profileManager);
         this.recipeService = new RecipeService(this, configService, textService, profileManager, collectionService, customItemService, minionService, slayerService);
         this.shopService = new ShopService(configService, textService, profileManager, economyService, customItemService);
@@ -447,6 +448,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CookieListener(this), this);
         getServer().getPluginManager().registerEvents(new MobListener(this), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
+        getServer().getPluginManager().registerEvents(new TeleportPadListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new MinionListener(this), this);
         getServer().getPluginManager().registerEvents(new RecipeListener(this), this);

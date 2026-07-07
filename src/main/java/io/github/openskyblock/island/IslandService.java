@@ -2,6 +2,7 @@ package io.github.openskyblock.island;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.profile.IslandTeleportPad;
 import io.github.openskyblock.profile.IslandWarp;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
@@ -17,11 +18,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.WorldCreator;
@@ -29,19 +32,29 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IslandService {
+    private static final String PAD_ITEM_MARKER = "teleport_pad";
+
+    private final JavaPlugin plugin;
     private final ConfigService configService;
     private final TextService text;
     private final ProfileManager profiles;
     private final VoidChunkGenerator generator = new VoidChunkGenerator();
     private final Map<UUID, CoopInvite> coopInvites = new HashMap<>();
     private final Map<UUID, Long> resetConfirmations = new HashMap<>();
+    private final Map<UUID, Long> teleportPadCooldowns = new HashMap<>();
+    private final NamespacedKey teleportPadItemKey;
 
-    public IslandService(ConfigService configService, TextService text, ProfileManager profiles) {
+    public IslandService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles) {
+        this.plugin = plugin;
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
+        this.teleportPadItemKey = new NamespacedKey(plugin, "teleport_pad_item");
     }
 
     public boolean enabled() {
@@ -259,6 +272,156 @@ public final class IslandService {
         }
     }
 
+    public ItemStack createTeleportPadItem() {
+        ItemStack itemStack = new ItemStack(teleportPadMaterial());
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.displayName(text.message("islands.teleport-pad-item-name"));
+        meta.lore(configService.messages().getStringList("islands.teleport-pad-item-lore").stream()
+                .map(text::deserialize)
+                .toList());
+        meta.getPersistentDataContainer().set(teleportPadItemKey, PersistentDataType.STRING, PAD_ITEM_MARKER);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    public boolean isTeleportPadItem(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType().isAir() || !itemStack.hasItemMeta()) {
+            return false;
+        }
+        String marker = itemStack.getItemMeta().getPersistentDataContainer().get(teleportPadItemKey, PersistentDataType.STRING);
+        return PAD_ITEM_MARKER.equals(marker);
+    }
+
+    public boolean placeTeleportPad(Player player, Location location) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return false;
+        }
+        SkyBlockProfile owner = ownerForCurrentIsland(player);
+        if (owner == null || !canModify(player, location.getWorld())) {
+            text.send(player, "commands.island-teleport-pad-place-invalid");
+            return false;
+        }
+        if (findTeleportPad(owner, location).isPresent()) {
+            text.send(player, "commands.island-teleport-pad-location-used", teleportPadPlaceholders(owner, null));
+            return false;
+        }
+        if (owner.islandTeleportPads().size() >= maxTeleportPads()) {
+            text.send(player, "commands.island-teleport-pad-limit", islandPlaceholders(owner));
+            return false;
+        }
+        IslandTeleportPad pad = new IslandTeleportPad(
+                nextTeleportPadId(owner),
+                defaultTeleportPadGroup(owner),
+                location.getBlockX(),
+                location.getBlockY(),
+                location.getBlockZ(),
+                player.getLocation().getYaw(),
+                player.getLocation().getPitch()
+        );
+        owner.setIslandTeleportPad(pad);
+        location.getBlock().setType(teleportPadMaterial(), false);
+        profiles.save(owner);
+        text.send(player, "commands.island-teleport-pad-placed", teleportPadPlaceholders(owner, pad));
+        return true;
+    }
+
+    public boolean breakTeleportPad(Player player, Location location) {
+        SkyBlockProfile owner = profiles.profileByIslandWorld(location.getWorld().getName());
+        if (owner == null) {
+            return false;
+        }
+        IslandTeleportPad pad = findTeleportPad(owner, location).orElse(null);
+        if (pad == null) {
+            return false;
+        }
+        if (!canModify(player, location.getWorld())) {
+            text.send(player, "commands.island-protected");
+            return true;
+        }
+        owner.removeIslandTeleportPad(pad.id());
+        location.getBlock().setType(Material.AIR, false);
+        giveOrDrop(player, createTeleportPadItem());
+        profiles.save(owner);
+        text.send(player, "commands.island-teleport-pad-removed", teleportPadPlaceholders(owner, pad));
+        return true;
+    }
+
+    public boolean setTeleportPadGroup(Player player, String padName, String groupName) {
+        SkyBlockProfile owner = editableIslandOwner(player);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(player, "commands.island-no-own-island");
+            return false;
+        }
+        IslandTeleportPad pad = owner.islandTeleportPad(normalizePadName(padName));
+        if (pad == null) {
+            text.send(player, "commands.island-teleport-pad-unknown", teleportPadPlaceholders(owner, padName, groupName));
+            return false;
+        }
+        String group = normalizePadGroup(groupName);
+        if (group.isBlank()) {
+            text.send(player, "commands.island-teleport-pad-group-invalid", teleportPadPlaceholders(owner, padName, groupName));
+            return false;
+        }
+        IslandTeleportPad updated = new IslandTeleportPad(pad.id(), group, pad.x(), pad.y(), pad.z(), pad.yaw(), pad.pitch());
+        owner.setIslandTeleportPad(updated);
+        profiles.save(owner);
+        text.send(player, "commands.island-teleport-pad-linked", teleportPadPlaceholders(owner, updated));
+        return true;
+    }
+
+    public void sendTeleportPads(Player player) {
+        SkyBlockProfile owner = islandContext(player);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(player, "commands.island-no-own-island");
+            return;
+        }
+        if (owner.islandTeleportPads().isEmpty()) {
+            text.send(player, "commands.island-teleport-pads-empty", islandPlaceholders(owner));
+            return;
+        }
+        text.send(player, "commands.island-teleport-pads-header", islandPlaceholders(owner));
+        sortedTeleportPads(owner).forEach(pad -> text.send(player, "commands.island-teleport-pads-line", teleportPadPlaceholders(owner, pad)));
+    }
+
+    public List<String> teleportPadIds(Player player) {
+        if (player == null) {
+            return List.of();
+        }
+        SkyBlockProfile owner = islandContext(player);
+        if (owner == null) {
+            return List.of();
+        }
+        return sortedTeleportPads(owner).stream().map(IslandTeleportPad::id).toList();
+    }
+
+    public void handleTeleportPadMove(Player player) {
+        if (!enabled() || !configService.main().getBoolean("islands.teleport-pads.enabled", true) || !isIslandWorld(player.getWorld())) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (teleportPadCooldowns.getOrDefault(player.getUniqueId(), 0L) > now) {
+            return;
+        }
+        SkyBlockProfile owner = profiles.profileByIslandWorld(player.getWorld().getName());
+        if (owner == null || owner.islandTeleportPads().size() < 2) {
+            return;
+        }
+        IslandTeleportPad source = currentTeleportPad(owner, player.getLocation()).orElse(null);
+        if (source == null) {
+            return;
+        }
+        IslandTeleportPad target = nextTeleportPad(owner, source).orElse(null);
+        if (target == null) {
+            text.send(player, "commands.island-teleport-pad-unlinked", teleportPadPlaceholders(owner, source));
+            teleportPadCooldowns.put(player.getUniqueId(), now + teleportPadCooldownMillis());
+            return;
+        }
+        teleportPadCooldowns.put(player.getUniqueId(), now + teleportPadCooldownMillis());
+        player.teleport(target.location(player.getWorld()));
+        text.send(player, "commands.island-teleport-pad-teleported", teleportPadPlaceholders(owner, target));
+    }
+
     public void setHome(Player player) {
         if (!enabled()) {
             text.send(player, "commands.island-disabled");
@@ -459,6 +622,8 @@ public final class IslandService {
                 TextService.raw("home_z", text.formatNumber(homeZ(profile))),
                 TextService.raw("warps", text.formatNumber(profile.islandWarps().size())),
                 TextService.raw("warp_limit", text.formatNumber(maxIslandWarps())),
+                TextService.raw("teleport_pads", text.formatNumber(profile.islandTeleportPads().size())),
+                TextService.raw("teleport_pad_limit", text.formatNumber(maxTeleportPads())),
                 TextService.raw("minions", text.formatNumber(profile.minions().size()))
         );
     }
@@ -547,6 +712,93 @@ public final class IslandService {
 
     private int maxWarpNameLength() {
         return Math.max(3, configService.main().getInt("islands.warps.max-name-length", 24));
+    }
+
+    private int maxTeleportPads() {
+        return Math.max(0, configService.main().getInt("islands.teleport-pads.max", 12));
+    }
+
+    private long teleportPadCooldownMillis() {
+        return Math.max(1L, configService.main().getLong("islands.teleport-pads.cooldown-ticks", 20L)) * 50L;
+    }
+
+    private Material teleportPadMaterial() {
+        Material material = Material.matchMaterial(configService.main().getString("islands.teleport-pads.material", "LIGHT_WEIGHTED_PRESSURE_PLATE"));
+        if (material == null || material.isAir() || !material.isBlock()) {
+            return Material.LIGHT_WEIGHTED_PRESSURE_PLATE;
+        }
+        return material;
+    }
+
+    private String normalizePadName(String value) {
+        if (value == null) {
+            return "";
+        }
+        String normalized = value.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_-]", "");
+        int maxLength = maxWarpNameLength();
+        return normalized.length() > maxLength ? normalized.substring(0, maxLength) : normalized;
+    }
+
+    private String normalizePadGroup(String value) {
+        String normalized = normalizePadName(value);
+        return normalized.isBlank() ? "" : normalized;
+    }
+
+    private String defaultTeleportPadGroup(SkyBlockProfile owner) {
+        int group = owner.islandTeleportPads().size() / 2 + 1;
+        return "group_" + group;
+    }
+
+    private String nextTeleportPadId(SkyBlockProfile owner) {
+        int index = owner.islandTeleportPads().size() + 1;
+        String candidate = "pad_" + index;
+        while (owner.islandTeleportPad(candidate) != null) {
+            index++;
+            candidate = "pad_" + index;
+        }
+        return candidate;
+    }
+
+    private Optional<IslandTeleportPad> findTeleportPad(SkyBlockProfile owner, Location location) {
+        if (owner == null || location == null) {
+            return Optional.empty();
+        }
+        return owner.islandTeleportPads().values().stream()
+                .filter(pad -> pad.matches(location))
+                .findFirst();
+    }
+
+    private Optional<IslandTeleportPad> currentTeleportPad(SkyBlockProfile owner, Location location) {
+        Optional<IslandTeleportPad> footBlock = findTeleportPad(owner, location.getBlock().getLocation());
+        if (footBlock.isPresent()) {
+            return footBlock;
+        }
+        return findTeleportPad(owner, location.clone().subtract(0.0D, 1.0D, 0.0D));
+    }
+
+    private Optional<IslandTeleportPad> nextTeleportPad(SkyBlockProfile owner, IslandTeleportPad source) {
+        List<IslandTeleportPad> linked = sortedTeleportPads(owner).stream()
+                .filter(pad -> pad.group().equalsIgnoreCase(source.group()))
+                .toList();
+        if (linked.size() < 2) {
+            return Optional.empty();
+        }
+        int sourceIndex = linked.indexOf(source);
+        if (sourceIndex < 0) {
+            return Optional.empty();
+        }
+        return Optional.of(linked.get((sourceIndex + 1) % linked.size()));
+    }
+
+    private List<IslandTeleportPad> sortedTeleportPads(SkyBlockProfile profile) {
+        return profile.islandTeleportPads().values().stream()
+                .sorted((first, second) -> first.id().compareTo(second.id()))
+                .toList();
+    }
+
+    private void giveOrDrop(Player player, ItemStack itemStack) {
+        player.getInventory().addItem(itemStack).values()
+                .forEach(leftover -> player.getWorld().dropItemNaturally(player.getLocation(), leftover));
     }
 
     private long inviteExpireSeconds() {
@@ -721,6 +973,9 @@ public final class IslandService {
         if (configService.main().getBoolean("islands.reset.clear-warps", true)) {
             profile.islandWarps().clear();
         }
+        if (configService.main().getBoolean("islands.reset.clear-teleport-pads", true)) {
+            profile.islandTeleportPads().clear();
+        }
         if (configService.main().getBoolean("islands.reset.clear-minions", true)) {
             profile.minions().clear();
         }
@@ -779,6 +1034,29 @@ public final class IslandService {
         placeholders.add(TextService.raw("warp_x", ""));
         placeholders.add(TextService.raw("warp_y", ""));
         placeholders.add(TextService.raw("warp_z", ""));
+        return placeholders;
+    }
+
+    private List<TextService.TextPlaceholder> teleportPadPlaceholders(SkyBlockProfile profile, IslandTeleportPad pad) {
+        return teleportPadPlaceholders(profile, pad == null ? "" : pad.id(), pad == null ? "" : pad.group(),
+                pad == null ? "" : text.formatNumber(pad.x()),
+                pad == null ? "" : text.formatNumber(pad.y()),
+                pad == null ? "" : text.formatNumber(pad.z()));
+    }
+
+    private List<TextService.TextPlaceholder> teleportPadPlaceholders(SkyBlockProfile profile, String padName, String groupName) {
+        return teleportPadPlaceholders(profile, padName, groupName, "", "", "");
+    }
+
+    private List<TextService.TextPlaceholder> teleportPadPlaceholders(SkyBlockProfile profile, String padName, String groupName, String x, String y, String z) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(islandPlaceholders(profile));
+        placeholders.add(TextService.raw("pad", padName == null ? "" : padName));
+        placeholders.add(TextService.raw("pad_group", groupName == null ? "" : groupName));
+        placeholders.add(TextService.raw("pad_x", x));
+        placeholders.add(TextService.raw("pad_y", y));
+        placeholders.add(TextService.raw("pad_z", z));
+        placeholders.add(TextService.raw("teleport_pads", text.formatNumber(profile == null ? 0 : profile.islandTeleportPads().size())));
+        placeholders.add(TextService.raw("teleport_pad_limit", text.formatNumber(maxTeleportPads())));
         return placeholders;
     }
 

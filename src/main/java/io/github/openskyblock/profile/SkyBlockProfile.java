@@ -30,6 +30,7 @@ public final class SkyBlockProfile {
     private float islandHomePitch;
     private final Set<UUID> islandCoopMembers = new HashSet<>();
     private final Map<String, IslandWarp> islandWarps = new HashMap<>();
+    private final Map<String, IslandTeleportPad> islandTeleportPads = new HashMap<>();
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
     private final Set<String> fairySouls = new HashSet<>();
@@ -255,6 +256,25 @@ public final class SkyBlockProfile {
 
     public IslandWarp removeIslandWarp(String id) {
         return id == null ? null : islandWarps.remove(id.toLowerCase(Locale.ROOT));
+    }
+
+    public Map<String, IslandTeleportPad> islandTeleportPads() {
+        return islandTeleportPads;
+    }
+
+    public IslandTeleportPad islandTeleportPad(String id) {
+        return id == null ? null : islandTeleportPads.get(id.toLowerCase(Locale.ROOT));
+    }
+
+    public void setIslandTeleportPad(IslandTeleportPad pad) {
+        if (pad == null || pad.id() == null || pad.id().isBlank()) {
+            return;
+        }
+        islandTeleportPads.put(pad.id().toLowerCase(Locale.ROOT), pad);
+    }
+
+    public IslandTeleportPad removeIslandTeleportPad(String id) {
+        return id == null ? null : islandTeleportPads.remove(id.toLowerCase(Locale.ROOT));
     }
 
     public boolean islandHomeSet() {

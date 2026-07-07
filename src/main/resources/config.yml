@@ -83,11 +83,17 @@ islands:
   warps:
     max: 56
     max-name-length: 24
+  teleport-pads:
+    enabled: true
+    max: 12
+    material: LIGHT_WEIGHTED_PRESSURE_PLATE
+    cooldown-ticks: 20
   reset:
     enabled: true
     confirmation-word: "RESET"
     confirmation-seconds: 60
     clear-warps: true
+    clear-teleport-pads: true
     clear-minions: true
     clear-cakes: true
   coop:
