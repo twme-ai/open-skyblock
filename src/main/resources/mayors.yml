@@ -68,12 +68,12 @@ candidates:
     perks:
       pet_luck:
         display-name: "<light_purple>Pet Luck</light_purple>"
-        description: "Configured Pet Luck modifier for pet reward integrations."
+        description: "Adds Pet Luck to the shared stat snapshot."
         modifiers:
           pet_luck_bonus: 25.0
       mythological:
         display-name: "<gold>Mythological Ritual</gold>"
-        description: "Enables a configurable mythological event hook."
+        description: "Enables configured mythological burrows, creatures, and treasures."
         modifiers:
           mythological_event_enabled: 1.0
   MARINA:
@@ -88,7 +88,7 @@ candidates:
           fishing_wisdom_bonus: 50.0
       sea_creatures:
         display-name: "<blue>Luck of the Sea</blue>"
-        description: "Configured Sea Creature Chance modifier for future fishing systems."
+        description: "Adds Sea Creature Chance used by fishing spawn rolls."
         modifiers:
           sea_creature_chance_bonus: 15.0
       fishing_festival:

@@ -3,7 +3,6 @@ package io.github.openskyblock.seacreature;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.fishingfestival.FishingFestivalService;
-import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.mob.MobService;
 import io.github.openskyblock.mob.SkyBlockMobDefinition;
 import io.github.openskyblock.profile.ProfileManager;
@@ -29,20 +28,18 @@ public final class SeaCreatureService {
     private final SkillService skills;
     private final StatService stats;
     private final MobService mobs;
-    private final MayorService mayors;
     private final Map<String, SeaCreatureDefinition> definitions = new HashMap<>();
     private FishingFestivalService fishingFestival;
     private double baseChance = 20.0D;
     private boolean removeCaughtItem = true;
 
-    public SeaCreatureService(ConfigService configService, TextService text, ProfileManager profiles, SkillService skills, StatService stats, MobService mobs, MayorService mayors) {
+    public SeaCreatureService(ConfigService configService, TextService text, ProfileManager profiles, SkillService skills, StatService stats, MobService mobs) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.skills = skills;
         this.stats = stats;
         this.mobs = mobs;
-        this.mayors = mayors;
     }
 
     public void fishingFestivalService(FishingFestivalService fishingFestival) {
@@ -180,7 +177,6 @@ public final class SeaCreatureService {
 
     private double effectiveChance(Player player) {
         double chance = baseChance + Math.max(0.0D, stats.snapshot(player).stat("sea_creature_chance"));
-        chance += Math.max(0.0D, mayors.modifier("sea_creature_chance_bonus"));
         return Math.max(0.0D, Math.min(100.0D, chance));
     }
 

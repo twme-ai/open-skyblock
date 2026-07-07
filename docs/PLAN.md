@@ -49,6 +49,8 @@ Verified reference links:
 - Official pet score reference: https://wiki.hypixel.net/Pets#Pet_Score
 - Official pet items reference: https://wiki.hypixel.net/Pet_Items
 - Official Autopet reference: https://wiki.hypixel.net/Autopet
+- Official Pet Luck reference: https://wiki.hypixel.net/Pet_Luck
+- Official Diana reference: https://wiki.hypixel.net/Diana
 - Official quiver reference: https://wiki.hypixel.net/Quiver
 - Official God Potion reference: https://wiki.hypixel.net/God_Potion
 - Official potions reference: https://wiki.hypixel.net/Potions
@@ -64,6 +66,8 @@ Verified reference links:
 - Official trading reference: https://wiki.hypixel.net/Trading
 - Official NPC reference: https://wiki.hypixel.net/NPCs
 - Official mobs reference: https://wiki.hypixel.net/Mobs
+- Official Sea Creature Chance reference: https://wiki.hypixel.net/Sea_Creature_Chance
+- Official Marina reference: https://wiki.hypixel.net/Marina
 - Official Bestiary reference: https://wiki.hypixel.net/Bestiary
 - Official slayer reference: https://wiki.hypixel.net/Slayer
 - Official Mining Fortune reference: https://wiki.hypixel.net/Mining_Fortune
