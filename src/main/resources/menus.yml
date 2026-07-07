@@ -668,7 +668,7 @@ collection-browser:
     lore: []
 
 recipe-book:
-  title: "<dark_gray>Recipe Book - Page <page></dark_gray>"
+  title: "<dark_gray>Recipe Book - <category> - Page <page></dark_gray>"
   rows: 6
   content-slots:
     - 10
@@ -708,9 +708,27 @@ recipe-book:
     locked-material: BARRIER
     display-name: "<recipe>"
     lore:
+      - "<gray>Category:</gray> <yellow><category></yellow>"
       - "<gray>Status:</gray> <status>"
       - "<gray>Requires:</gray> <requirement>"
       - "<gray>Result:</gray> <result>"
+  categories:
+    enabled: true
+    include-all: true
+    slots:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+    material: BOOK
+    selected-material: ENCHANTED_BOOK
+    display-name: "<yellow><category></yellow>"
+    lore:
+      - "<gray>Status:</gray> <status>"
+      - "<yellow>Click to filter recipes.</yellow>"
   previous:
     slot: 45
     material: ARROW

@@ -135,7 +135,7 @@ commands:
     minion-upgrade: "Apply or remove held minion upgrades."
     minion-storage: "Give a configured minion storage item."
     minion-skin: "Give a configured minion skin item."
-    recipes: "View configured recipe unlock status."
+    recipes: "View configured recipe unlock status, optionally filtered by category."
     reload: "Reload configuration files."
   profile-summary: "<prefix><aqua><player></aqua> <gray>Level</gray> <yellow><level></yellow> <gray>| Purse</gray> <gold><purse></gold> <gray>| Bank</gray> <gold><bank></gold>"
   purse-summary: "<prefix><gray>Purse:</gray> <gold><purse></gold> <dark_gray>|</dark_gray> <gray>Bank:</gray> <gold><bank></gold>"
@@ -1076,7 +1076,8 @@ commands:
   minion-upgrade-removed: "<prefix><green>Removed</green> <upgrade><green> from</green> <minion_name><green>.</green>"
   minion-upgrade-not-found: "<prefix><red>That minion upgrade slot is empty.</red>"
   recipes-header: "<prefix><aqua>Recipes</aqua>"
-  recipe-line: "<gray><recipe>:</gray> <status> <dark_gray>|</dark_gray> <gray>Requires:</gray> <requirement>"
+  recipe-line: "<gray><recipe>:</gray> <status> <dark_gray>|</dark_gray> <gray>Category:</gray> <yellow><category></yellow> <dark_gray>|</dark_gray> <gray>Requires:</gray> <requirement>"
+  recipe-category-empty: "<prefix><gray>No configured recipes in category <yellow><category></yellow>.</gray>"
   recipe-unlocked: "<green>Unlocked</green>"
   recipe-locked: "<red>Locked</red>"
   recipe-no-requirement: "<gray>None</gray>"
@@ -1415,6 +1416,9 @@ wardrobe:
   status-stored: "<green><pieces>/4 armor pieces</green>"
 
 menus:
+  recipe-category-all: "All"
+  recipe-category-selected: "<green>Selected</green>"
+  recipe-category-available: "<yellow>Available</yellow>"
   collection-next-tier: "<yellow>Tier <tier></yellow> <gray>at</gray> <white><amount></white>"
   collection-maxed: "<gold>Maxed</gold>"
   collection-no-rewards: "<dark_gray>No rewards configured.</dark_gray>"

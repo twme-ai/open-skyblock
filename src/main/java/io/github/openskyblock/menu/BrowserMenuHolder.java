@@ -11,6 +11,7 @@ public final class BrowserMenuHolder implements InventoryHolder {
     private final int maxPage;
     private final Map<Integer, BrowserMenuAction> actions;
     private final Map<Integer, String> entries;
+    private final String filter;
     private Inventory inventory;
 
     public BrowserMenuHolder(BrowserMenuType type, int page, int maxPage, Map<Integer, BrowserMenuAction> actions) {
@@ -18,11 +19,16 @@ public final class BrowserMenuHolder implements InventoryHolder {
     }
 
     public BrowserMenuHolder(BrowserMenuType type, int page, int maxPage, Map<Integer, BrowserMenuAction> actions, Map<Integer, String> entries) {
+        this(type, page, maxPage, actions, entries, "");
+    }
+
+    public BrowserMenuHolder(BrowserMenuType type, int page, int maxPage, Map<Integer, BrowserMenuAction> actions, Map<Integer, String> entries, String filter) {
         this.type = type;
         this.page = page;
         this.maxPage = maxPage;
         this.actions = actions;
         this.entries = entries;
+        this.filter = filter == null ? "" : filter;
     }
 
     public BrowserMenuType type() {
@@ -43,6 +49,10 @@ public final class BrowserMenuHolder implements InventoryHolder {
 
     public String entry(int rawSlot) {
         return entries.get(rawSlot);
+    }
+
+    public String filter() {
+        return filter;
     }
 
     public void inventory(Inventory inventory) {

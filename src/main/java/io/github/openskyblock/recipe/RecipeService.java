@@ -94,8 +94,31 @@ public final class RecipeService {
 
     public List<SkyBlockRecipe> recipes() {
         return recipesById.values().stream()
-                .sorted(Comparator.comparing(SkyBlockRecipe::id))
+                .sorted(Comparator.comparing(SkyBlockRecipe::category).thenComparing(SkyBlockRecipe::id))
                 .toList();
+    }
+
+    public List<SkyBlockRecipe> recipes(String category) {
+        String normalized = normalizeCategory(category);
+        if (normalized.isBlank()) {
+            return recipes();
+        }
+        return recipes().stream()
+                .filter(recipe -> recipe.category().equals(normalized))
+                .toList();
+    }
+
+    public List<String> categories() {
+        return recipesById.values().stream()
+                .map(SkyBlockRecipe::category)
+                .distinct()
+                .sorted()
+                .toList();
+    }
+
+    public boolean hasCategory(String category) {
+        String normalized = normalizeCategory(category);
+        return !normalized.isBlank() && recipesById.values().stream().anyMatch(recipe -> recipe.category().equals(normalized));
     }
 
     public boolean canCraft(Player player, SkyBlockRecipe recipe) {
@@ -115,11 +138,22 @@ public final class RecipeService {
     }
 
     public void sendRecipes(Player player) {
+        sendRecipes(player, "");
+    }
+
+    public void sendRecipes(Player player, String category) {
+        String normalizedCategory = normalizeCategory(category);
+        List<SkyBlockRecipe> recipes = recipes(normalizedCategory);
         text.send(player, "commands.recipes-header");
-        for (SkyBlockRecipe recipe : recipes()) {
+        if (!normalizedCategory.isBlank() && recipes.isEmpty()) {
+            text.send(player, "commands.recipe-category-empty", List.of(TextService.raw("category", normalizedCategory)));
+            return;
+        }
+        for (SkyBlockRecipe recipe : recipes) {
             boolean unlocked = canCraft(player, recipe);
             text.send(player, "commands.recipe-line", List.of(
                     TextService.parsed("recipe", recipe.displayName()),
+                    TextService.raw("category", recipe.category()),
                     TextService.parsed("status", text.rawMessage(unlocked ? "commands.recipe-unlocked" : "commands.recipe-locked")),
                     TextService.parsed("requirement", requirementText(recipe))
             ));
@@ -182,6 +216,7 @@ public final class RecipeService {
         SkyBlockRecipe skyBlockRecipe = new SkyBlockRecipe(
                 id,
                 section.getString("display-name", id),
+                normalizeCategory(section.getString("category", inferCategory(section))),
                 key,
                 result,
                 section.getString("requirement.collection", ""),
@@ -190,6 +225,22 @@ public final class RecipeService {
         );
         recipesByKey.put(key, skyBlockRecipe);
         recipesById.put(id, skyBlockRecipe);
+    }
+
+    public String normalizeCategory(String category) {
+        return category == null ? "" : category.trim().toUpperCase(Locale.ROOT).replace('-', '_').replace(' ', '_');
+    }
+
+    private String inferCategory(ConfigurationSection section) {
+        String collection = section.getString("requirement.collection", "");
+        if (collection != null && !collection.isBlank()) {
+            return collection;
+        }
+        ConfigurationSection slayerRequirements = section.getConfigurationSection("requirement.slayers");
+        if (slayerRequirements != null && !slayerRequirements.getKeys(false).isEmpty()) {
+            return "SLAYER";
+        }
+        return "SPECIAL";
     }
 
     private Map<String, Integer> readSlayerRequirements(ConfigurationSection section) {

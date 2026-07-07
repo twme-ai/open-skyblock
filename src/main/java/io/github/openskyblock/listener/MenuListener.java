@@ -137,7 +137,7 @@ public final class MenuListener implements Listener {
     private void handleBrowserClick(InventoryClickEvent event, Player player, BrowserMenuHolder holder) {
         event.setCancelled(true);
         BrowserMenuAction action = holder.action(event.getRawSlot());
-        if (action == BrowserMenuAction.NONE) {
+        if (action == BrowserMenuAction.NONE || action == BrowserMenuAction.CATEGORY) {
             plugin.menus().runBrowserEntryClick(player, holder, event.getRawSlot());
             return;
         }

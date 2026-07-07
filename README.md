@@ -12,11 +12,11 @@ The repository currently contains the foundation needed for later full parity wo
 - Persistent player profiles with purse, bank, skills, collections, and SkyBlock level calculation.
 - Private island world creation with starter platform, starter chest, configurable world border, saved island home, named island warps, block-based Teleport Pads, guarded island reset flow, visitor access toggles, configurable visitor limits, basic co-op membership, island visiting, management menu, and basic island protection.
 - Configurable SkyBlock menu GUI and starter menu item.
-- Paged collection browser and recipe book menus with configurable layout, lore, and navigation.
+- Paged collection browser and category-filtered recipe book menus with configurable layout, lore, and navigation.
 - Configurable MiniMessage messages in `messages.yml`.
 - Configurable skills, skill menu, Quest Log, collection tiers, action XP, coin rewards, custom items, item abilities, mana regeneration, and minion definitions.
 - Placeable minion items with island-only placement, generated storage, adjacent external storage blocks, configurable cosmetic skins, configurable fuel speed boosts, configurable upgrade slots, compactor-style output conversion, hopper-style overflow selling, claim menu, pickup flow, and offline ticking from persisted timestamps.
-- Data-driven shaped recipes for vanilla, custom item, and minion outputs with collection-tier and Slayer-level crafting gates.
+- Data-driven shaped recipes for vanilla, custom item, and minion outputs with categories, collection-tier gates, and Slayer-level crafting gates.
 - Configurable profile viewer GUI with economy, skill, collection, stat, pet, accessory, wardrobe, and upgrade summaries.
 - Purse and bank economy with deposit, withdraw, deposit-all, withdraw-all, capacity limits, and a configurable bank menu.
 - Configurable NPC shops with buy menus, right-click sell flow, daily buy limits, and `/skyblock sell`.
@@ -221,7 +221,7 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock pet give <id> [player]`
 - `/skyblock pet xp <amount> [player]`
 - `/skyblock collections`
-- `/skyblock recipes`
+- `/skyblock recipes [category]`
 - `/skyblock giveitem <id> [player]`
 - `/skyblock minion give <id> [player]`
 - `/skyblock minion storage <id> [player]`

@@ -293,7 +293,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "skills" -> skills(sender);
             case "stats" -> stats(sender);
             case "collections" -> collections(sender);
-            case "recipes" -> recipes(sender);
+            case "recipes" -> recipes(sender, args);
             case "giveitem" -> giveItem(sender, args);
             case "minion" -> minion(sender, args);
             case "reload" -> reload(sender);
@@ -776,6 +776,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("forge")) {
             return startsWith(List.of("status", "list", "start", "collect"), args[1]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("recipes")) {
+            return startsWith(plugin.recipes().categories(), args[1]);
+        }
         if (args.length == 3 && args[0].equalsIgnoreCase("forge") && args[1].equalsIgnoreCase("start")) {
             return startsWith(plugin.forge().recipeIds(), args[2]);
         }
@@ -1018,7 +1021,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " skills", "commands.help.skills");
         helpLine(sender, label + " stats", "commands.help.stats");
         helpLine(sender, label + " collections", "commands.help.collections");
-        helpLine(sender, label + " recipes", "commands.help.recipes");
+        helpLine(sender, label + " recipes [category]", "commands.help.recipes");
         if (sender.hasPermission("openskyblock.admin")) {
             helpLine(sender, label + " giveitem <id> [player]", "commands.help.giveitem");
             helpLine(sender, label + " enchant book <id> [level] [player]", "commands.help.enchant-book");
@@ -3302,12 +3305,16 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         plugin.menus().openCollectionBrowser(player, 0);
     }
 
-    private void recipes(CommandSender sender) {
+    private void recipes(CommandSender sender, String[] args) {
         Player player = requirePlayer(sender);
         if (player == null) {
             return;
         }
-        plugin.menus().openRecipeBook(player, 0);
+        if (args.length > 1 && !plugin.recipes().hasCategory(args[1])) {
+            plugin.text().send(player, "commands.recipe-category-empty", List.of(TextService.raw("category", args[1])));
+            return;
+        }
+        plugin.menus().openRecipeBook(player, 0, args.length > 1 ? args[1] : "");
     }
 
     private void giveItem(CommandSender sender, String[] args) {

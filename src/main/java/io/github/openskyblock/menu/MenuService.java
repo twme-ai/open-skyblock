@@ -314,19 +314,26 @@ public final class MenuService {
     }
 
     public void openRecipeBook(Player player, int requestedPage) {
+        openRecipeBook(player, requestedPage, "");
+    }
+
+    public void openRecipeBook(Player player, int requestedPage, String category) {
         ConfigurationSection section = configService.menus().getConfigurationSection("recipe-book");
         if (section == null) {
             return;
         }
-        List<SkyBlockRecipe> recipes = plugin.recipes().recipes();
+        String normalizedCategory = plugin.recipes().normalizeCategory(category);
+        List<SkyBlockRecipe> recipes = plugin.recipes().recipes(normalizedCategory);
         List<Integer> contentSlots = contentSlots(section);
         int maxPage = maxPage(recipes.size(), contentSlots.size());
         int page = clampPage(requestedPage, maxPage);
         Map<Integer, BrowserMenuAction> actions = new HashMap<>();
-        BrowserMenuHolder holder = new BrowserMenuHolder(BrowserMenuType.RECIPES, page, maxPage, actions);
-        Inventory inventory = browserInventory(holder, section, page, maxPage);
+        Map<Integer, String> entries = new HashMap<>();
+        BrowserMenuHolder holder = new BrowserMenuHolder(BrowserMenuType.RECIPES, page, maxPage, actions, entries, normalizedCategory);
+        Inventory inventory = browserInventory(holder, section, page, maxPage, List.of(TextService.raw("category", recipeCategoryLabel(normalizedCategory))));
         fill(inventory, section.getConfigurationSection("filler"));
 
+        addRecipeCategoryItems(inventory, section.getConfigurationSection("categories"), normalizedCategory, actions, entries);
         int offset = page * contentSlots.size();
         for (int index = 0; index < contentSlots.size(); index++) {
             int recipeIndex = offset + index;
@@ -1419,8 +1426,10 @@ public final class MenuService {
 
     public void runBrowserAction(Player player, BrowserMenuHolder holder, BrowserMenuAction action) {
         switch (action) {
-            case PREVIOUS_PAGE -> openBrowser(player, holder.type(), holder.page() - 1);
-            case NEXT_PAGE -> openBrowser(player, holder.type(), holder.page() + 1);
+            case PREVIOUS_PAGE -> openBrowser(player, holder.type(), holder.page() - 1, holder.filter());
+            case NEXT_PAGE -> openBrowser(player, holder.type(), holder.page() + 1, holder.filter());
+            case CATEGORY -> {
+            }
             case BACK -> openSkyBlockMenu(player);
             case NONE -> {
             }
@@ -1429,6 +1438,12 @@ public final class MenuService {
 
     public void runBrowserEntryClick(Player player, BrowserMenuHolder holder, int rawSlot) {
         String entryId = holder.entry(rawSlot);
+        if (holder.action(rawSlot) == BrowserMenuAction.CATEGORY) {
+            if (holder.type() == BrowserMenuType.RECIPES) {
+                openRecipeBook(player, 0, entryId == null ? "" : entryId);
+            }
+            return;
+        }
         if (entryId == null) {
             return;
         }
@@ -1738,11 +1753,15 @@ public final class MenuService {
     }
 
     private Inventory browserInventory(BrowserMenuHolder holder, ConfigurationSection section, int page, int maxPage) {
+        return browserInventory(holder, section, page, maxPage, List.of());
+    }
+
+    private Inventory browserInventory(BrowserMenuHolder holder, ConfigurationSection section, int page, int maxPage, List<TextService.TextPlaceholder> extraPlaceholders) {
         int rows = Math.max(1, Math.min(6, section.getInt("rows", 6)));
-        List<TextService.TextPlaceholder> placeholders = List.of(
-                TextService.raw("page", Integer.toString(page + 1)),
-                TextService.raw("max_page", Integer.toString(maxPage + 1))
-        );
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>();
+        placeholders.add(TextService.raw("page", Integer.toString(page + 1)));
+        placeholders.add(TextService.raw("max_page", Integer.toString(maxPage + 1)));
+        placeholders.addAll(extraPlaceholders);
         Inventory inventory = Bukkit.createInventory(
                 holder,
                 rows * 9,
@@ -1753,11 +1772,15 @@ public final class MenuService {
     }
 
     private void openBrowser(Player player, BrowserMenuType type, int page) {
+        openBrowser(player, type, page, "");
+    }
+
+    private void openBrowser(Player player, BrowserMenuType type, int page, String filter) {
         switch (type) {
             case QUEST_LOG -> openQuestLog(player, page);
             case SKILLS -> openSkillMenu(player, page);
             case COLLECTIONS -> openCollectionBrowser(player, page);
-            case RECIPES -> openRecipeBook(player, page);
+            case RECIPES -> openRecipeBook(player, page, filter);
             case AUCTIONS -> openAuctionHouse(player, page);
             case BAZAAR -> openBazaarMenu(player, page);
         }
@@ -1863,6 +1886,7 @@ public final class MenuService {
         ItemMeta meta = itemStack.getItemMeta();
         List<TextService.TextPlaceholder> placeholders = List.of(
                 TextService.parsed("recipe", recipe.displayName()),
+                TextService.raw("category", recipe.category()),
                 TextService.parsed("status", text.rawMessage(unlocked ? "commands.recipe-unlocked" : "commands.recipe-locked")),
                 TextService.parsed("requirement", plugin.recipes().requirementText(recipe)),
                 TextService.parsed("result", text.rawMessage("menus.recipe-result")
@@ -1875,6 +1899,53 @@ public final class MenuService {
                 .toList());
         itemStack.setItemMeta(meta);
         return itemStack;
+    }
+
+    private void addRecipeCategoryItems(Inventory inventory, ConfigurationSection section, String selectedCategory, Map<Integer, BrowserMenuAction> actions, Map<Integer, String> entries) {
+        if (section == null || !section.getBoolean("enabled", true)) {
+            return;
+        }
+        List<Integer> slots = section.getIntegerList("slots");
+        if (slots.isEmpty()) {
+            return;
+        }
+        List<String> categories = new ArrayList<>();
+        if (section.getBoolean("include-all", true)) {
+            categories.add("");
+        }
+        categories.addAll(plugin.recipes().categories());
+        for (int index = 0; index < categories.size() && index < slots.size(); index++) {
+            String category = categories.get(index);
+            int slot = slots.get(index);
+            if (slot < 0 || slot >= inventory.getSize()) {
+                continue;
+            }
+            inventory.setItem(slot, recipeCategoryItem(section, category, selectedCategory));
+            actions.put(slot, BrowserMenuAction.CATEGORY);
+            entries.put(slot, category);
+        }
+    }
+
+    private ItemStack recipeCategoryItem(ConfigurationSection section, String category, String selectedCategory) {
+        boolean selected = category.equals(selectedCategory);
+        String materialName = selected ? section.getString("selected-material", "BOOK") : section.getString("material", "BOOK");
+        Material material = Material.matchMaterial(materialName);
+        ItemStack itemStack = new ItemStack(material == null ? Material.BOOK : material);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = List.of(
+                TextService.raw("category", recipeCategoryLabel(category)),
+                TextService.parsed("status", text.rawMessage(selected ? "menus.recipe-category-selected" : "menus.recipe-category-available"))
+        );
+        meta.displayName(text.deserialize(section.getString("display-name", "<yellow><category></yellow>"), placeholders));
+        meta.lore(section.getStringList("lore").stream()
+                .map(line -> text.deserialize(line, placeholders))
+                .toList());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private String recipeCategoryLabel(String category) {
+        return category == null || category.isBlank() ? text.rawMessage("menus.recipe-category-all") : category;
     }
 
     private ItemStack auctionItem(AuctionListing listing, ConfigurationSection section) {

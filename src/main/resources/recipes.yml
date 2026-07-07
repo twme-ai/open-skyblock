@@ -1,6 +1,7 @@
 recipes:
   WHEAT_MINION:
     display-name: "<yellow>Wheat Minion Recipe</yellow>"
+    category: FARMING
     result:
       type: MINION
       id: WHEAT_MINION
@@ -16,6 +17,7 @@ recipes:
       tier: 1
   COBBLESTONE_MINION:
     display-name: "<gray>Cobblestone Minion Recipe</gray>"
+    category: MINING
     result:
       type: MINION
       id: COBBLESTONE_MINION
@@ -31,6 +33,7 @@ recipes:
       tier: 1
   ZOMBIE_MINION:
     display-name: "<dark_green>Zombie Minion Recipe</dark_green>"
+    category: COMBAT
     result:
       type: MINION
       id: ZOMBIE_MINION
@@ -46,6 +49,7 @@ recipes:
       tier: 1
   ROGUE_SWORD:
     display-name: "<green>Rogue Sword Recipe</green>"
+    category: COMBAT
     result:
       type: CUSTOM_ITEM
       id: ROGUE_SWORD
@@ -62,6 +66,7 @@ recipes:
       tier: 0
   SPEED_TALISMAN:
     display-name: "<green>Speed Talisman Recipe</green>"
+    category: FARMING
     result:
       type: CUSTOM_ITEM
       id: SPEED_TALISMAN
@@ -77,6 +82,7 @@ recipes:
       tier: 1
   FARM_SUIT_HELMET:
     display-name: "<green>Farm Suit Helmet Recipe</green>"
+    category: FARMING
     result:
       type: CUSTOM_ITEM
       id: FARM_SUIT_HELMET
@@ -92,6 +98,7 @@ recipes:
       tier: 2
   FARM_SUIT_CHESTPLATE:
     display-name: "<green>Farm Suit Chestplate Recipe</green>"
+    category: FARMING
     result:
       type: CUSTOM_ITEM
       id: FARM_SUIT_CHESTPLATE
@@ -107,6 +114,7 @@ recipes:
       tier: 2
   FARM_SUIT_LEGGINGS:
     display-name: "<green>Farm Suit Leggings Recipe</green>"
+    category: FARMING
     result:
       type: CUSTOM_ITEM
       id: FARM_SUIT_LEGGINGS
@@ -122,6 +130,7 @@ recipes:
       tier: 2
   FARM_SUIT_BOOTS:
     display-name: "<green>Farm Suit Boots Recipe</green>"
+    category: FARMING
     result:
       type: CUSTOM_ITEM
       id: FARM_SUIT_BOOTS
@@ -137,6 +146,7 @@ recipes:
       tier: 2
   UNDEAD_CHARM:
     display-name: "<green>Undead Charm Recipe</green>"
+    category: SLAYER
     result:
       type: CUSTOM_ITEM
       id: UNDEAD_CHARM

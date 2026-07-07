@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 public record SkyBlockRecipe(
         String id,
         String displayName,
+        String category,
         NamespacedKey key,
         ItemStack result,
         String requiredCollection,
