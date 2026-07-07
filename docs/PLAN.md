@@ -66,6 +66,9 @@ Verified reference links:
 - Official mobs reference: https://wiki.hypixel.net/Mobs
 - Official Bestiary reference: https://wiki.hypixel.net/Bestiary
 - Official slayer reference: https://wiki.hypixel.net/Slayer
+- Official Mining Fortune reference: https://wiki.hypixel.net/Mining_Fortune
+- Official Farming Fortune reference: https://wiki.hypixel.net/Farming_Fortune
+- Official Foraging Fortune reference: https://wiki.hypixel.net/Foraging_Fortune
 - Open-source Bazaar plugin reference: https://github.com/MatejLorinc/bazaar
 - Paper ItemStack API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/inventory/ItemStack.html
 - Paper YamlConfiguration API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/configuration/file/YamlConfiguration.html

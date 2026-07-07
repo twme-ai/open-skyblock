@@ -2,7 +2,10 @@ package io.github.openskyblock.listener;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
 import io.github.openskyblock.pet.AutoPetTrigger;
+import io.github.openskyblock.service.ActionReward;
+import io.github.openskyblock.service.SkillType;
 import io.github.openskyblock.stats.StatSnapshot;
+import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Entity;
@@ -29,13 +32,75 @@ public final class ProgressionListener implements Listener {
         if (event.getBlock().getBlockData() instanceof Ageable ageable && ageable.getAge() < ageable.getMaximumAge()) {
             return;
         }
-        plugin.skills()
+        long gatheredAmount = plugin.skills()
                 .blockReward(event.getBlock().getType())
-                .ifPresent(reward -> plugin.skills().grantActionReward(event.getPlayer(), reward));
+                .map(reward -> grantBlockReward(event, reward))
+                .orElse(1L);
         plugin.commissions().recordBlockBreak(event.getPlayer(), event.getBlock().getType(), 1L);
-        plugin.farmingContests().recordCrop(event.getPlayer(), event.getBlock().getType(), 1L);
+        plugin.farmingContests().recordCrop(event.getPlayer(), event.getBlock().getType(), gatheredAmount);
         plugin.miningFiesta().recordBlockBreak(event.getPlayer(), event.getBlock().getType(), event.getBlock().getDrops(event.getPlayer().getInventory().getItemInMainHand(), event.getPlayer()));
         plugin.pets().triggerAutoPet(event.getPlayer(), AutoPetTrigger.BLOCK_BREAK);
+    }
+
+    private long grantBlockReward(BlockBreakEvent event, ActionReward reward) {
+        Player player = event.getPlayer();
+        int extraCopies = fortuneExtraCopies(player, reward.skillType());
+        long gatheredAmount = 1L + extraCopies;
+        long collectionAmount = reward.collectionAmount() * gatheredAmount;
+        plugin.skills().grantActionReward(player, new ActionReward(
+                reward.skillType(),
+                reward.skillXp(),
+                reward.collectionId(),
+                collectionAmount,
+                reward.coins()
+        ));
+        if (extraCopies > 0) {
+            giveExtraDrops(player, event.getBlock().getDrops(player.getInventory().getItemInMainHand(), player), extraCopies);
+        }
+        return gatheredAmount;
+    }
+
+    private int fortuneExtraCopies(Player player, SkillType skillType) {
+        String stat = fortuneStat(skillType);
+        if (stat == null) {
+            return 0;
+        }
+        double fortune = Math.max(0.0D, plugin.stats().snapshot(player).stat(stat));
+        int extraCopies = (int) Math.floor(fortune / 100.0D);
+        double fractionalChance = fortune % 100.0D;
+        if (ThreadLocalRandom.current().nextDouble(100.0D) < fractionalChance) {
+            extraCopies++;
+        }
+        return extraCopies;
+    }
+
+    private String fortuneStat(SkillType skillType) {
+        if (skillType == null) {
+            return null;
+        }
+        return switch (skillType) {
+            case FARMING -> "farming_fortune";
+            case MINING -> "mining_fortune";
+            case FORAGING -> "foraging_fortune";
+            default -> null;
+        };
+    }
+
+    private void giveExtraDrops(Player player, Collection<ItemStack> naturalDrops, int extraCopies) {
+        for (ItemStack drop : naturalDrops) {
+            if (drop == null || drop.getType().isAir()) {
+                continue;
+            }
+            int remaining = drop.getAmount() * extraCopies;
+            while (remaining > 0) {
+                ItemStack extraDrop = drop.clone();
+                int amount = Math.min(extraDrop.getMaxStackSize(), remaining);
+                extraDrop.setAmount(amount);
+                player.getInventory().addItem(extraDrop).values()
+                        .forEach(leftover -> player.getWorld().dropItemNaturally(player.getLocation(), leftover));
+                remaining -= amount;
+            }
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

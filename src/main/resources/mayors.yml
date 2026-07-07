@@ -53,7 +53,7 @@ candidates:
           mining_wisdom_bonus: 60.0
       mining_fortune:
         display-name: "<yellow>Prospection</yellow>"
-        description: "Configured Mining Fortune modifier for future stat integrations."
+        description: "Adds Mining Fortune that improves configured mining block drops."
         modifiers:
           mining_fortune_bonus: 50.0
       mining_fiesta:
