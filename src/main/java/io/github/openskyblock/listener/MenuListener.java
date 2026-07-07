@@ -24,6 +24,7 @@ import io.github.openskyblock.menu.ShopSelectorHolder;
 import io.github.openskyblock.menu.SkyBlockMenuHolder;
 import io.github.openskyblock.menu.StorageHolder;
 import io.github.openskyblock.menu.TuningHolder;
+import io.github.openskyblock.menu.TradeMenuHolder;
 import io.github.openskyblock.menu.WardrobeHolder;
 import io.github.openskyblock.service.CustomItemDefinition;
 import org.bukkit.entity.Player;
@@ -100,6 +101,9 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof EnchantingAnvilHolder enchantingAnvilHolder) {
                 handleEnchantingAnvilClick(event, player, enchantingAnvilHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof TradeMenuHolder tradeMenuHolder) {
+                handleTradeMenuClick(event, player, tradeMenuHolder);
             }
             return;
         }
@@ -210,6 +214,12 @@ public final class MenuListener implements Listener {
         if (plugin.menus().runEnchantingAnvilClick(player, holder, event.getRawSlot(), event.getCursor())) {
             consumeCursorItem(event);
         }
+    }
+
+    private void handleTradeMenuClick(InventoryClickEvent event, Player player, TradeMenuHolder holder) {
+        event.setCancelled(true);
+        int rawSlot = event.getRawSlot();
+        plugin.getServer().getScheduler().runTask(plugin, () -> plugin.menus().runTradeMenuClick(player, holder, rawSlot));
     }
 
     private void consumeCursorItem(InventoryClickEvent event) {

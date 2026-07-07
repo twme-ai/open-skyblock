@@ -46,6 +46,35 @@ public final class TradeService {
         return configService.main().getBoolean("features.player-trading", true);
     }
 
+    public Optional<TradeSession> session(Player player) {
+        return Optional.ofNullable(sessions.get(player.getUniqueId()));
+    }
+
+    public String statusLabel(TradeSession session, UUID playerId) {
+        if (session.confirmed(playerId)) {
+            return text.rawMessage("trades.status-confirmed");
+        }
+        if (session.ready(playerId)) {
+            return text.rawMessage("trades.status-ready");
+        }
+        return text.rawMessage("trades.status-reviewing");
+    }
+
+    public String itemDisplay(ItemStack itemStack) {
+        String amount = itemStack.getAmount() > 1 ? itemStack.getAmount() + "x " : "";
+        Optional<CustomItemDefinition> definition = customItems.definition(itemStack);
+        if (definition.isPresent()) {
+            return "<white>" + amount + "</white>" + definition.get().displayName();
+        }
+        String materialName = itemStack.getType().name().toLowerCase(Locale.ROOT).replace('_', ' ');
+        if (materialName.isBlank()) {
+            materialName = itemStack.getType().name();
+        } else {
+            materialName = Character.toUpperCase(materialName.charAt(0)) + materialName.substring(1);
+        }
+        return "<white>" + amount + materialName + "</white>";
+    }
+
     public void request(Player requester, Player target) {
         if (!enabled()) {
             text.send(requester, "commands.trade-disabled");
@@ -82,27 +111,28 @@ public final class TradeService {
         ));
     }
 
-    public void accept(Player target, Player requester) {
+    public boolean accept(Player target, Player requester) {
         if (!enabled()) {
             text.send(target, "commands.trade-disabled");
-            return;
+            return false;
         }
         expireRequests();
         if (session(target).isPresent() || session(requester).isPresent()) {
             text.send(target, "commands.trade-busy");
-            return;
+            return false;
         }
         String key = requestKey(requester.getUniqueId(), target.getUniqueId());
         TradeRequest request = requests.remove(key);
         if (request == null) {
             text.send(target, "commands.trade-request-missing", List.of(TextService.raw("player", requester.getName())));
-            return;
+            return false;
         }
         TradeSession session = new TradeSession(requester.getUniqueId(), requester.getName(), target.getUniqueId(), target.getName(), System.currentTimeMillis());
         sessions.put(requester.getUniqueId(), session);
         sessions.put(target.getUniqueId(), session);
         text.send(requester, "commands.trade-started", List.of(TextService.raw("player", target.getName())));
         text.send(target, "commands.trade-started", List.of(TextService.raw("player", requester.getName())));
+        return true;
     }
 
     public void deny(Player target, Player requester) {
@@ -273,10 +303,6 @@ public final class TradeService {
         return session;
     }
 
-    private Optional<TradeSession> session(Player player) {
-        return Optional.ofNullable(sessions.get(player.getUniqueId()));
-    }
-
     private void complete(TradeSession session) {
         Player first = Bukkit.getPlayer(session.firstId());
         Player second = Bukkit.getPlayer(session.secondId());
@@ -370,16 +396,6 @@ public final class TradeService {
         return requesterId + ":" + targetId;
     }
 
-    private String statusLabel(TradeSession session, UUID playerId) {
-        if (session.confirmed(playerId)) {
-            return text.rawMessage("trades.status-confirmed");
-        }
-        if (session.ready(playerId)) {
-            return text.rawMessage("trades.status-ready");
-        }
-        return text.rawMessage("trades.status-reviewing");
-    }
-
     private String itemsDisplay(List<ItemStack> items) {
         if (items.isEmpty()) {
             return text.rawMessage("trades.no-items");
@@ -389,21 +405,6 @@ public final class TradeService {
             display.add("<gray>" + (index + 1) + ".</gray> " + itemDisplay(items.get(index)));
         }
         return String.join("<gray>, </gray>", display);
-    }
-
-    private String itemDisplay(ItemStack itemStack) {
-        String amount = itemStack.getAmount() > 1 ? itemStack.getAmount() + "x " : "";
-        Optional<CustomItemDefinition> definition = customItems.definition(itemStack);
-        if (definition.isPresent()) {
-            return "<white>" + amount + "</white>" + definition.get().displayName();
-        }
-        String materialName = itemStack.getType().name().toLowerCase(Locale.ROOT).replace('_', ' ');
-        if (materialName.isBlank()) {
-            materialName = itemStack.getType().name();
-        } else {
-            materialName = Character.toUpperCase(materialName.charAt(0)) + materialName.substring(1);
-        }
-        return "<white>" + amount + materialName + "</white>";
     }
 
     private void giveOrDrop(Player player, ItemStack itemStack) {

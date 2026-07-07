@@ -350,7 +350,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(List.of("1", "2.5", "10", "100"), args[4]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("trade")) {
-            List<String> values = new ArrayList<>(List.of("accept", "deny", "offerhand", "offercoins", "remove", "ready", "confirm", "cancel", "status"));
+            List<String> values = new ArrayList<>(List.of("accept", "deny", "offerhand", "offercoins", "remove", "ready", "confirm", "menu", "cancel", "status"));
             values.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
             return startsWith(values, args[1]);
         }
@@ -868,7 +868,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " bazaar", "commands.help.bazaar");
         helpLine(sender, label + " bazaar instabuy|instasell|buyorder|selloffer", "commands.help.bazaar-order");
         helpLine(sender, label + " trade <player>", "commands.help.trade");
-        helpLine(sender, label + " trade offerhand|offercoins|ready|confirm", "commands.help.trade-session");
+        helpLine(sender, label + " trade menu|offerhand|offercoins|ready|confirm", "commands.help.trade-session");
         helpLine(sender, label + " storage [page]", "commands.help.storage");
         helpLine(sender, label + " backpack [slot|list|install]", "commands.help.backpack");
         helpLine(sender, label + " sell <hand|all>", "commands.help.sell");
@@ -1257,7 +1257,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "accept" -> {
                 Player requester = tradePlayer(player, args);
                 if (requester != null) {
-                    plugin.trades().accept(player, requester);
+                    if (plugin.trades().accept(player, requester)) {
+                        plugin.menus().openTradeMenu(player);
+                        plugin.menus().openTradeMenu(requester);
+                    }
                 }
             }
             case "deny" -> {
@@ -1284,6 +1287,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "ready" -> plugin.trades().ready(player);
             case "confirm" -> plugin.trades().confirm(player);
             case "cancel" -> plugin.trades().cancel(player);
+            case "menu" -> plugin.menus().openTradeMenu(player);
             case "status" -> plugin.trades().status(player);
             default -> {
                 Player target = Bukkit.getPlayerExact(args[1]);

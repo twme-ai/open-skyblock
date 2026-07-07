@@ -22,12 +22,14 @@ import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionPlacement;
 import io.github.openskyblock.shop.ShopDefinition;
 import io.github.openskyblock.shop.ShopItemDefinition;
+import io.github.openskyblock.trade.TradeSession;
 import io.github.openskyblock.wardrobe.WardrobeSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -246,6 +248,45 @@ public final class MenuService {
             entries.put(slot, product.id());
         }
         addBrowserNavigation(inventory, section, page, maxPage, actions);
+        player.openInventory(inventory);
+    }
+
+    public void openTradeMenu(Player player) {
+        if (!plugin.trades().enabled()) {
+            text.send(player, "commands.trade-disabled");
+            return;
+        }
+        TradeSession session = plugin.trades().session(player).orElse(null);
+        if (session == null) {
+            text.send(player, "commands.trade-no-session");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("trade");
+        if (section == null) {
+            plugin.trades().status(player);
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 6)));
+        Map<Integer, TradeMenuAction> actions = new HashMap<>();
+        Map<Integer, Integer> offeredItemIndexes = new HashMap<>();
+        TradeMenuHolder holder = new TradeMenuHolder(player.getUniqueId(), actions, offeredItemIndexes);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray>Trade with <partner></dark_gray>"), tradePlaceholders(player, session))
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+
+        addTradeItems(inventory, section.getIntegerList("your-slots"), section.getConfigurationSection("your-item"), session.items(player.getUniqueId()), offeredItemIndexes, true);
+        addTradeItems(inventory, section.getIntegerList("partner-slots"), section.getConfigurationSection("partner-item"), session.items(session.partnerId(player.getUniqueId())), offeredItemIndexes, false);
+        addTradeSummary(inventory, section.getConfigurationSection("your-summary"), player, session, true);
+        addTradeSummary(inventory, section.getConfigurationSection("partner-summary"), player, session, false);
+        addTradeAction(inventory, section.getConfigurationSection("offer-hand"), TradeMenuAction.OFFER_HAND, actions, player, session);
+        addTradeAction(inventory, section.getConfigurationSection("ready"), TradeMenuAction.READY, actions, player, session);
+        addTradeAction(inventory, section.getConfigurationSection("confirm"), TradeMenuAction.CONFIRM, actions, player, session);
+        addTradeAction(inventory, section.getConfigurationSection("status"), TradeMenuAction.STATUS, actions, player, session);
+        addTradeAction(inventory, section.getConfigurationSection("cancel"), TradeMenuAction.CANCEL, actions, player, session);
         player.openInventory(inventory);
     }
 
@@ -857,6 +898,48 @@ public final class MenuService {
         openShop(player, shop);
     }
 
+    public void runTradeMenuClick(Player player, TradeMenuHolder holder, int rawSlot) {
+        if (!holder.viewerId().equals(player.getUniqueId())) {
+            return;
+        }
+        TradeSession session = plugin.trades().session(player).orElse(null);
+        if (session == null) {
+            closeTradeMenu(player);
+            return;
+        }
+        Integer itemIndex = holder.offeredItemIndex(rawSlot);
+        if (itemIndex != null) {
+            plugin.trades().removeItem(player, itemIndex + 1);
+            refreshTradeMenus(session);
+            return;
+        }
+        TradeMenuAction action = holder.action(rawSlot);
+        switch (action) {
+            case OFFER_HAND -> {
+                plugin.trades().offerHand(player);
+                refreshTradeMenus(session);
+            }
+            case READY -> {
+                plugin.trades().ready(player);
+                refreshTradeMenus(session);
+            }
+            case CONFIRM -> {
+                plugin.trades().confirm(player);
+                refreshTradeMenus(session);
+            }
+            case STATUS -> {
+                plugin.trades().status(player);
+                refreshTradeMenus(session);
+            }
+            case CANCEL -> {
+                plugin.trades().cancel(player);
+                refreshTradeMenus(session);
+            }
+            case NONE -> {
+            }
+        }
+    }
+
     public void runSackSelectorClick(Player player, SackSelectorHolder holder, int rawSlot) {
         String sackId = holder.sackId(rawSlot);
         if (sackId == null) {
@@ -1163,6 +1246,114 @@ public final class MenuService {
         ItemStack itemStack = item(null, filler);
         for (int slot = 0; slot < inventory.getSize(); slot++) {
             inventory.setItem(slot, itemStack);
+        }
+    }
+
+    private void addTradeItems(Inventory inventory, List<Integer> slots, ConfigurationSection section, List<ItemStack> items, Map<Integer, Integer> offeredItemIndexes, boolean removable) {
+        for (int index = 0; index < slots.size() && index < items.size(); index++) {
+            int slot = slots.get(index);
+            if (slot < 0 || slot >= inventory.getSize()) {
+                continue;
+            }
+            inventory.setItem(slot, tradeItem(items.get(index), section, index, removable));
+            if (removable) {
+                offeredItemIndexes.put(slot, index);
+            }
+        }
+    }
+
+    private void addTradeSummary(Inventory inventory, ConfigurationSection section, Player player, TradeSession session, boolean ownSide) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, tradeSidePlaceholders(player, session, ownSide)));
+    }
+
+    private void addTradeAction(Inventory inventory, ConfigurationSection section, TradeMenuAction fallbackAction, Map<Integer, TradeMenuAction> actions, Player player, TradeSession session) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        TradeMenuAction action = TradeMenuAction.parse(section.getString("action", fallbackAction.name()));
+        inventory.setItem(slot, item(section, tradePlaceholders(player, session)));
+        actions.put(slot, action);
+    }
+
+    private ItemStack tradeItem(ItemStack source, ConfigurationSection section, int index, boolean removable) {
+        ItemStack itemStack = source.clone();
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = List.of(
+                TextService.raw("index", Integer.toString(index + 1)),
+                TextService.parsed("item", plugin.trades().itemDisplay(source)),
+                TextService.parsed("action_hint", text.rawMessage(removable ? "trades.item-remove-hint" : "trades.item-view-hint"))
+        );
+        if (section == null) {
+            meta.displayName(text.deserialize("<item>", placeholders));
+            meta.lore(List.of());
+        } else {
+            meta.displayName(text.deserialize(section.getString("display-name", "<item>"), placeholders));
+            meta.lore(section.getStringList("lore").stream()
+                    .map(line -> text.deserialize(line, placeholders))
+                    .toList());
+        }
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private List<TextService.TextPlaceholder> tradePlaceholders(Player player, TradeSession session) {
+        UUID playerId = player.getUniqueId();
+        UUID partnerId = session.partnerId(playerId);
+        Player partner = Bukkit.getPlayer(partnerId);
+        return List.of(
+                TextService.raw("player", player.getName()),
+                TextService.raw("partner", partner == null ? session.partnerName(playerId) : partner.getName()),
+                TextService.raw("your_coins", text.formatNumber(session.coins(playerId))),
+                TextService.raw("their_coins", text.formatNumber(session.coins(partnerId))),
+                TextService.raw("your_items", text.formatNumber(session.items(playerId).size())),
+                TextService.raw("their_items", text.formatNumber(session.items(partnerId).size())),
+                TextService.parsed("your_status", plugin.trades().statusLabel(session, playerId)),
+                TextService.parsed("their_status", plugin.trades().statusLabel(session, partnerId))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> tradeSidePlaceholders(Player player, TradeSession session, boolean ownSide) {
+        UUID playerId = player.getUniqueId();
+        UUID sideId = ownSide ? playerId : session.partnerId(playerId);
+        Player sidePlayer = Bukkit.getPlayer(sideId);
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(tradePlaceholders(player, session));
+        placeholders.add(TextService.parsed("side", ownSide ? text.rawMessage("trades.side-you") : (sidePlayer == null ? session.partnerName(playerId) : sidePlayer.getName())));
+        placeholders.add(TextService.raw("side_coins", text.formatNumber(session.coins(sideId))));
+        placeholders.add(TextService.raw("side_items", text.formatNumber(session.items(sideId).size())));
+        placeholders.add(TextService.parsed("side_status", plugin.trades().statusLabel(session, sideId)));
+        return placeholders;
+    }
+
+    private void refreshTradeMenus(TradeSession session) {
+        refreshTradeMenu(Bukkit.getPlayer(session.firstId()));
+        refreshTradeMenu(Bukkit.getPlayer(session.secondId()));
+    }
+
+    private void refreshTradeMenu(Player player) {
+        if (player == null || !(player.getOpenInventory().getTopInventory().getHolder() instanceof TradeMenuHolder)) {
+            return;
+        }
+        if (plugin.trades().session(player).isEmpty()) {
+            player.closeInventory();
+            return;
+        }
+        openTradeMenu(player);
+    }
+
+    private void closeTradeMenu(Player player) {
+        if (player.getOpenInventory().getTopInventory().getHolder() instanceof TradeMenuHolder) {
+            player.closeInventory();
         }
     }
 
