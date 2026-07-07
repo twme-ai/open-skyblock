@@ -43,6 +43,7 @@ public final class ConfigService {
             "season_jerry.yml",
             "new_year.yml",
             "chocolate_factory.yml",
+            "mining_fiesta.yml",
             "mob_spawns.yml",
             "bestiary.yml",
             "museum.yml",
@@ -220,6 +221,10 @@ public final class ConfigService {
 
     public FileConfiguration chocolateFactory() {
         return file("chocolate_factory.yml");
+    }
+
+    public FileConfiguration miningFiesta() {
+        return file("mining_fiesta.yml");
     }
 
     public FileConfiguration mobSpawns() {

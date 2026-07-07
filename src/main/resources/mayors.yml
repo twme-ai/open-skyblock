@@ -38,6 +38,11 @@ candidates:
         description: "Configured Mining Fortune modifier for future stat integrations."
         modifiers:
           mining_fortune_bonus: 50.0
+      mining_fiesta:
+        display-name: "<gold>Mining Fiesta</gold>"
+        description: "Enables scheduled Mining Fiesta windows with mining drops and wisdom."
+        modifiers:
+          mining_fiesta_enabled: 1.0
   DIANA:
     display-name: "<light_purple>Diana</light_purple>"
     description: "A Mythological event mayor."

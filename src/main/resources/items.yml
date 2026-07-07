@@ -571,6 +571,34 @@ items:
     lore:
       - "<gray>A rich Chocolate Factory shop reward.</gray>"
     stats: {}
+  REFINED_MINERAL:
+    material: QUARTZ
+    display-name: "<aqua>Refined Mineral</aqua>"
+    category: MATERIAL
+    rarity: RARE
+    lore:
+      - "<gray>A rare material found during Mining Fiesta.</gray>"
+      - "<gray>Used for configured Fiesta rewards and buffs.</gray>"
+    stats: {}
+  GLOSSY_GEMSTONE:
+    material: AMETHYST_SHARD
+    display-name: "<light_purple>Glossy Gemstone</light_purple>"
+    category: MATERIAL
+    rarity: EPIC
+    lore:
+      - "<gray>A polished gemstone found during Mining Fiesta.</gray>"
+      - "<gray>Used for configured Fiesta rewards and buffs.</gray>"
+    stats: {}
+  MINERAL_TALISMAN:
+    material: NETHER_STAR
+    display-name: "<aqua>Mineral Talisman</aqua>"
+    category: ACCESSORY
+    rarity: RARE
+    lore:
+      - "<gray>A Mining Fiesta accessory.</gray>"
+      - "<gray>Carry it in your Accessory Bag for configured stat value.</gray>"
+    stats:
+      mining_fortune: 10
   NORTH_STAR:
     material: NETHER_STAR
     display-name: "<aqua>North Star</aqua>"

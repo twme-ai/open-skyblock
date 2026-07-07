@@ -52,6 +52,7 @@ public final class SkyBlockProfile {
     private final Map<String, Integer> chocolateRabbits = new HashMap<>();
     private final Set<String> hoppityShopPurchases = new HashSet<>();
     private final Map<String, Integer> chocolateShopPurchases = new HashMap<>();
+    private final Map<String, Long> miningFiestaBuffs = new HashMap<>();
     private final Map<String, Integer> dailyShopPurchases = new HashMap<>();
     private final Map<String, Integer> tuning = new HashMap<>();
     private final Map<String, ItemStack> equipment = new HashMap<>();
@@ -130,6 +131,9 @@ public final class SkyBlockProfile {
     private String hoppityEggClaimKey;
     private int hoppityShopYear;
     private int chocolateShopYear;
+    private long miningFiestaBlocks;
+    private long miningFiestaRefinedMinerals;
+    private long miningFiestaGlossyGemstones;
     private String activePetInstanceId;
     private String selectedQuiverItem;
     private ActiveSlayerQuest activeSlayer;
@@ -1307,6 +1311,59 @@ public final class SkyBlockProfile {
 
     public Map<String, Integer> chocolateShopPurchases() {
         return chocolateShopPurchases;
+    }
+
+    public long miningFiestaBlocks() {
+        return miningFiestaBlocks;
+    }
+
+    public void miningFiestaBlocks(long miningFiestaBlocks) {
+        this.miningFiestaBlocks = Math.max(0L, miningFiestaBlocks);
+    }
+
+    public void addMiningFiestaBlocks(long amount) {
+        miningFiestaBlocks(miningFiestaBlocks + amount);
+    }
+
+    public long miningFiestaRefinedMinerals() {
+        return miningFiestaRefinedMinerals;
+    }
+
+    public void miningFiestaRefinedMinerals(long miningFiestaRefinedMinerals) {
+        this.miningFiestaRefinedMinerals = Math.max(0L, miningFiestaRefinedMinerals);
+    }
+
+    public void addMiningFiestaRefinedMinerals(long amount) {
+        miningFiestaRefinedMinerals(miningFiestaRefinedMinerals + amount);
+    }
+
+    public long miningFiestaGlossyGemstones() {
+        return miningFiestaGlossyGemstones;
+    }
+
+    public void miningFiestaGlossyGemstones(long miningFiestaGlossyGemstones) {
+        this.miningFiestaGlossyGemstones = Math.max(0L, miningFiestaGlossyGemstones);
+    }
+
+    public void addMiningFiestaGlossyGemstones(long amount) {
+        miningFiestaGlossyGemstones(miningFiestaGlossyGemstones + amount);
+    }
+
+    public Map<String, Long> miningFiestaBuffs() {
+        return miningFiestaBuffs;
+    }
+
+    public long miningFiestaBuffExpiresAt(String buffId) {
+        return miningFiestaBuffs.getOrDefault(buffId.toUpperCase(), 0L);
+    }
+
+    public void setMiningFiestaBuff(String buffId, long expiresAtMillis) {
+        String normalized = buffId.toUpperCase();
+        if (expiresAtMillis <= System.currentTimeMillis()) {
+            miningFiestaBuffs.remove(normalized);
+            return;
+        }
+        miningFiestaBuffs.put(normalized, expiresAtMillis);
     }
 
     public String shopPurchaseDay() {

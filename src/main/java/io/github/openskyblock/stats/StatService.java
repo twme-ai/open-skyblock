@@ -9,6 +9,7 @@ import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.EnchantmentService;
 import io.github.openskyblock.equipment.EquipmentService;
 import io.github.openskyblock.gemstone.GemstoneService;
+import io.github.openskyblock.miningfiesta.MiningFiestaService;
 import io.github.openskyblock.newyear.NewYearService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.potion.PotionService;
@@ -48,6 +49,7 @@ public final class StatService {
     private final GemstoneService gemstones;
     private SlayerService slayer;
     private NewYearService newYear;
+    private MiningFiestaService miningFiesta;
 
     public StatService(ConfigService configService, TextService text, ProfileManager profiles, CustomItemService customItems, AccessoryService accessories, TuningService tuning, EquipmentService equipment, ArmorSetService armorSets, CakeService cakes, PotionService potions, UpgradeService upgrades, PetService pets, BestiaryService bestiary, ReforgeService reforges, EnchantmentService enchantments, StarService stars, GemstoneService gemstones) {
         this.configService = configService;
@@ -77,6 +79,10 @@ public final class StatService {
         this.newYear = newYear;
     }
 
+    public void miningFiestaService(MiningFiestaService miningFiesta) {
+        this.miningFiesta = miningFiesta;
+    }
+
     public StatSnapshot snapshot(Player player) {
         Map<String, Double> stats = baseStats();
         SkyBlockProfile profile = profiles.profile(player);
@@ -89,6 +95,7 @@ public final class StatService {
         addPotionStats(stats, profile);
         addUpgradeStats(stats, profile);
         addNewYearStats(stats, profile);
+        addMiningFiestaStats(stats, profile);
         addPetStats(stats, profile);
         addPetScoreStats(stats, profile);
         addBestiaryStats(stats, profile);
@@ -248,6 +255,15 @@ public final class StatService {
             return;
         }
         for (Map.Entry<String, Double> entry : newYear.activeStats(profile).entrySet()) {
+            stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
+        }
+    }
+
+    private void addMiningFiestaStats(Map<String, Double> stats, SkyBlockProfile profile) {
+        if (miningFiesta == null) {
+            return;
+        }
+        for (Map.Entry<String, Double> entry : miningFiesta.activeStats(profile).entrySet()) {
             stats.put(entry.getKey(), stats.getOrDefault(entry.getKey(), 0.0D) + entry.getValue());
         }
     }

@@ -129,6 +129,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "chocolate-factory",
             "cf",
             "hoppity",
+            "miningfiesta",
+            "mining-fiesta",
+            "fiesta",
             "stars",
             "star",
             "essence",
@@ -241,6 +244,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "jerry", "seasonofjerry", "season-jerry", "winter" -> seasonOfJerry(sender, args);
             case "newyear", "new-year", "baker", "newyearcake", "newyearcakes" -> newYear(sender, args);
             case "chocolate", "chocolatefactory", "chocolate-factory", "cf", "hoppity" -> chocolate(sender, args);
+            case "miningfiesta", "mining-fiesta", "fiesta" -> miningFiesta(sender, args);
             case "stars" -> stars(sender);
             case "star" -> star(sender, args);
             case "essence", "essences" -> essence(sender, args);
@@ -634,6 +638,12 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (args.length == 4 && isChocolateCommand(args[0]) && args[1].equalsIgnoreCase("shop") && args[2].equalsIgnoreCase("buy")) {
             return startsWith(plugin.chocolateFactory().shopItemIds(), args[3]);
         }
+        if (args.length == 2 && isMiningFiestaCommand(args[0])) {
+            return startsWith(List.of("status", "drops", "buffs", "buy"), args[1]);
+        }
+        if (args.length == 3 && isMiningFiestaCommand(args[0]) && args[1].equalsIgnoreCase("buy")) {
+            return startsWith(plugin.miningFiesta().buffIds(), args[2]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("star")) {
             return startsWith(List.of("add", "set", "clear"), args[1]);
         }
@@ -881,6 +891,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " jerry status|gifts|find|defend|open", "commands.help.jerry");
         helpLine(sender, label + " newyear status|claim|bag|store|cakes", "commands.help.new-year");
         helpLine(sender, label + " chocolate status|click|upgrades|egg|hoppity|shop", "commands.help.chocolate");
+        helpLine(sender, label + " miningfiesta status|drops|buffs|buy", "commands.help.mining-fiesta");
         helpLine(sender, label + " stars", "commands.help.stars");
         helpLine(sender, label + " star add|set|clear [amount]", "commands.help.star");
         helpLine(sender, label + " essence", "commands.help.essence");
@@ -2211,6 +2222,29 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void miningFiesta(CommandSender sender, String[] args) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        if (args.length < 2 || args[1].equalsIgnoreCase("status")) {
+            plugin.miningFiesta().sendStatus(player);
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "drops" -> plugin.miningFiesta().sendDrops(player);
+            case "buffs", "buff" -> plugin.miningFiesta().sendBuffs(player);
+            case "buy" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.mining-fiesta-usage");
+                    return;
+                }
+                plugin.miningFiesta().buyBuff(player, args[2]);
+            }
+            default -> plugin.text().send(player, "commands.mining-fiesta-usage");
+        }
+    }
+
     private void enchantBook(CommandSender sender, String[] args) {
         if (!sender.hasPermission("openskyblock.admin")) {
             plugin.text().send(sender, "errors.no-permission");
@@ -3399,6 +3433,10 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
 
     private boolean isChocolateCommand(String value) {
         return value.equalsIgnoreCase("chocolate") || value.equalsIgnoreCase("chocolatefactory") || value.equalsIgnoreCase("chocolate-factory") || value.equalsIgnoreCase("cf") || value.equalsIgnoreCase("hoppity");
+    }
+
+    private boolean isMiningFiestaCommand(String value) {
+        return value.equalsIgnoreCase("miningfiesta") || value.equalsIgnoreCase("mining-fiesta") || value.equalsIgnoreCase("fiesta");
     }
 
     private boolean isUpgradeCommand(String value) {

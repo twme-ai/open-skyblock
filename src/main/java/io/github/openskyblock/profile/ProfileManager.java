@@ -359,6 +359,15 @@ public final class ProfileManager {
                 profile.setChocolateShopPurchases(itemId.toUpperCase(), chocolateShopPurchases.getInt(itemId, 0));
             }
         }
+        profile.miningFiestaBlocks(section.getLong("mining-fiesta.blocks", 0L));
+        profile.miningFiestaRefinedMinerals(section.getLong("mining-fiesta.refined-minerals", 0L));
+        profile.miningFiestaGlossyGemstones(section.getLong("mining-fiesta.glossy-gemstones", 0L));
+        ConfigurationSection miningFiestaBuffs = section.getConfigurationSection("mining-fiesta.buffs");
+        if (miningFiestaBuffs != null) {
+            for (String buffId : miningFiestaBuffs.getKeys(false)) {
+                profile.setMiningFiestaBuff(buffId.toUpperCase(), miningFiestaBuffs.getLong(buffId, 0L));
+            }
+        }
         profile.shopPurchaseDay(section.getString("shop-purchases.day", null));
         ConfigurationSection shopPurchases = section.getConfigurationSection("shop-purchases.items");
         if (shopPurchases != null) {
@@ -965,6 +974,15 @@ public final class ProfileManager {
         for (Map.Entry<String, Integer> entry : profile.chocolateShopPurchases().entrySet()) {
             if (entry.getValue() > 0) {
                 profileData.set(base + ".chocolate-factory.shop-purchases." + entry.getKey(), entry.getValue());
+            }
+        }
+        profileData.set(base + ".mining-fiesta", null);
+        profileData.set(base + ".mining-fiesta.blocks", profile.miningFiestaBlocks());
+        profileData.set(base + ".mining-fiesta.refined-minerals", profile.miningFiestaRefinedMinerals());
+        profileData.set(base + ".mining-fiesta.glossy-gemstones", profile.miningFiestaGlossyGemstones());
+        for (Map.Entry<String, Long> entry : profile.miningFiestaBuffs().entrySet()) {
+            if (entry.getValue() > System.currentTimeMillis()) {
+                profileData.set(base + ".mining-fiesta.buffs." + entry.getKey(), entry.getValue());
             }
         }
         profileData.set(base + ".shop-purchases.day", profile.shopPurchaseDay());

@@ -54,6 +54,7 @@ features:
   new-year-celebration: true
   chocolate-factory: true
   hoppity-hunt: true
+  mining-fiesta: true
   fairy-souls: true
   sea-creatures: true
   trophy-fishing: true
@@ -133,6 +134,8 @@ stats:
     - pet_luck
     - farming_fortune
     - mining_fortune
+    - mining_wisdom
+    - pristine
     - foraging_fortune
     - sea_creature_chance
     - trophy_fish_chance

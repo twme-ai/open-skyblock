@@ -12,6 +12,7 @@ import io.github.openskyblock.garden.GardenService;
 import io.github.openskyblock.jerry.SeasonOfJerryService;
 import io.github.openskyblock.kuudra.KuudraService;
 import io.github.openskyblock.museum.MuseumService;
+import io.github.openskyblock.miningfiesta.MiningFiestaService;
 import io.github.openskyblock.mythological.MythologicalService;
 import io.github.openskyblock.newyear.NewYearService;
 import io.github.openskyblock.pet.PetService;
@@ -57,6 +58,7 @@ public final class SkillService {
     private SeasonOfJerryService seasonOfJerryService;
     private NewYearService newYearService;
     private ChocolateFactoryService chocolateFactoryService;
+    private MiningFiestaService miningFiestaService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -120,6 +122,10 @@ public final class SkillService {
 
     public void chocolateFactoryService(ChocolateFactoryService chocolateFactoryService) {
         this.chocolateFactoryService = chocolateFactoryService;
+    }
+
+    public void miningFiestaService(MiningFiestaService miningFiestaService) {
+        this.miningFiestaService = miningFiestaService;
     }
 
     public void reload() {
@@ -292,6 +298,9 @@ public final class SkillService {
         }
         if (chocolateFactoryService != null) {
             xp += (int) Math.round(chocolateFactoryService.skyBlockXp(profile));
+        }
+        if (miningFiestaService != null) {
+            xp += (int) Math.round(miningFiestaService.skyBlockXp(profile));
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);
