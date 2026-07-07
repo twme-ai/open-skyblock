@@ -181,6 +181,8 @@ commands:
   auction-bid-accepted: "<prefix><green>Bid accepted:</green> <item> <dark_gray>|</dark_gray> <gold><bid></gold><gray> coins</gray> <dark_gray>|</dark_gray> <gray>Ends:</gray> <yellow><remaining></yellow>"
   auction-bid-seller: "<prefix><yellow><bidder></yellow> <gray>bid</gray> <gold><bid></gold> <gray>coins on your listing <yellow>#<id></yellow>:</gray> <item>"
   auction-outbid-refund: "<prefix><gray>You were outbid on <yellow>#<id></yellow>:</gray> <item> <dark_gray>|</dark_gray> <green>Refunded <gold><coins></gold> coins.</green>"
+  auction-browser-click-bin: "<prefix><gray>BIN listing <yellow>#<id></yellow>:</gray> <item> <dark_gray>|</dark_gray> <gray>Buy with</gray> <yellow>/skyblock auction buy <id></yellow><gray>.</gray>"
+  auction-browser-click-bid: "<prefix><gray>Bid listing <yellow>#<id></yellow>:</gray> <item> <dark_gray>|</dark_gray> <gray>Next bid:</gray> <gold><required_bid></gold> <dark_gray>|</dark_gray> <gray>Bid with</gray> <yellow>/skyblock auction bid <id> <required_bid_raw></yellow><gray>.</gray>"
   auction-bought: "<prefix><green>Bought</green> <item> <green>from <yellow><seller></yellow> for <gold><price></gold> coins.</green>"
   auction-sold-seller: "<prefix><green>Your listing <yellow>#<id></yellow> sold to <yellow><buyer></yellow> for <gold><price></gold> coins.</green> <gray>Use <yellow>/skyblock auction claim</yellow>.</gray>"
   auction-cancel-wait: "<prefix><red>You can cancel that listing in <yellow><remaining></yellow>.</red>"

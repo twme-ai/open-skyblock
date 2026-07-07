@@ -23,6 +23,7 @@ public enum MenuAction {
     COLLECTIONS,
     RECIPES,
     SHOPS,
+    AUCTIONS,
     MINIONS;
 
     public static MenuAction parse(String value) {

@@ -547,12 +547,16 @@ public final class AuctionService {
         data.set(base + ".cancelled", listing.cancelled());
     }
 
-    private List<AuctionListing> activeListings() {
+    public List<AuctionListing> activeListings() {
         long now = System.currentTimeMillis();
         return listings.values().stream()
                 .filter(listing -> listing.active(now))
                 .sorted(Comparator.comparing(AuctionListing::createdMillis).reversed())
                 .toList();
+    }
+
+    public Optional<AuctionListing> listing(String rawId) {
+        return findListing(rawId);
     }
 
     private Optional<AuctionListing> findListing(String rawId) {
@@ -578,7 +582,7 @@ public final class AuctionService {
         return id;
     }
 
-    private List<TextService.TextPlaceholder> listingPlaceholders(AuctionListing listing, long now) {
+    public List<TextService.TextPlaceholder> listingPlaceholders(AuctionListing listing, long now) {
         return List.of(
                 TextService.raw("id", listing.id()),
                 TextService.parsed("item", itemDisplay(listing.itemStack())),
@@ -589,6 +593,7 @@ public final class AuctionService {
                 TextService.raw("high_bid", text.formatNumber(listing.highBid())),
                 TextService.raw("high_bidder", listing.highBidderName() == null ? text.rawMessage("auctions.no-bidder") : listing.highBidderName()),
                 TextService.raw("required_bid", text.formatNumber(requiredBid(listing))),
+                TextService.raw("required_bid_raw", rawAmount(requiredBid(listing))),
                 TextService.parsed("sale", saleSummary(listing)),
                 TextService.parsed("status", status(listing, now)),
                 TextService.raw("remaining", formatDuration(Math.max(0L, (listing.expiresMillis() - now) / 1000L)))
@@ -624,6 +629,13 @@ public final class AuctionService {
                 : listing.price();
     }
 
+    private String rawAmount(double amount) {
+        if (amount == Math.rint(amount)) {
+            return Long.toString((long) amount);
+        }
+        return Double.toString(amount);
+    }
+
     private void refundOutbid(UUID bidderId, String bidderName, double coins, AuctionListing listing) {
         if (bidderId == null || coins <= 0.0D) {
             return;
@@ -641,7 +653,7 @@ public final class AuctionService {
         ));
     }
 
-    private String itemDisplay(ItemStack itemStack) {
+    public String itemDisplay(ItemStack itemStack) {
         String amount = itemStack.getAmount() > 1 ? itemStack.getAmount() + "x " : "";
         Optional<CustomItemDefinition> definition = customItems.definition(itemStack);
         if (definition.isPresent()) {

@@ -1,6 +1,7 @@
 package io.github.openskyblock.menu;
 
 import io.github.openskyblock.OpenSkyBlockPlugin;
+import io.github.openskyblock.auction.AuctionListing;
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
 import io.github.openskyblock.enchant.SkyBlockEnchantmentDefinition;
@@ -176,6 +177,37 @@ public final class MenuService {
             }
             SkyBlockRecipe recipe = recipes.get(recipeIndex);
             inventory.setItem(contentSlots.get(index), recipeItem(player, recipe, section.getConfigurationSection("recipe-item")));
+        }
+        addBrowserNavigation(inventory, section, page, maxPage, actions);
+        player.openInventory(inventory);
+    }
+
+    public void openAuctionHouse(Player player, int requestedPage) {
+        ConfigurationSection section = configService.menus().getConfigurationSection("auction-browser");
+        if (section == null) {
+            plugin.auctions().sendListings(player, requestedPage + 1);
+            return;
+        }
+        List<AuctionListing> listings = plugin.auctions().activeListings();
+        List<Integer> contentSlots = contentSlots(section);
+        int maxPage = maxPage(listings.size(), contentSlots.size());
+        int page = clampPage(requestedPage, maxPage);
+        Map<Integer, BrowserMenuAction> actions = new HashMap<>();
+        Map<Integer, String> entries = new HashMap<>();
+        BrowserMenuHolder holder = new BrowserMenuHolder(BrowserMenuType.AUCTIONS, page, maxPage, actions, entries);
+        Inventory inventory = browserInventory(holder, section, page, maxPage);
+        fill(inventory, section.getConfigurationSection("filler"));
+
+        int offset = page * contentSlots.size();
+        for (int index = 0; index < contentSlots.size(); index++) {
+            int listingIndex = offset + index;
+            if (listingIndex >= listings.size()) {
+                break;
+            }
+            AuctionListing listing = listings.get(listingIndex);
+            int slot = contentSlots.get(index);
+            inventory.setItem(slot, auctionItem(listing, section.getConfigurationSection("listing-item")));
+            entries.put(slot, listing.id());
         }
         addBrowserNavigation(inventory, section, page, maxPage, actions);
         player.openInventory(inventory);
@@ -740,6 +772,7 @@ public final class MenuService {
             case PETS -> openPetMenu(player);
             case COLLECTIONS -> openCollectionBrowser(player, 0);
             case RECIPES -> openRecipeBook(player, 0);
+            case AUCTIONS -> openAuctionHouse(player, 0);
             case SHOPS -> openShopSelector(player);
             case MINIONS -> player.performCommand("skyblock minion list");
             case NONE -> {
@@ -1053,6 +1086,23 @@ public final class MenuService {
         }
     }
 
+    public void runBrowserEntryClick(Player player, BrowserMenuHolder holder, int rawSlot) {
+        if (holder.type() != BrowserMenuType.AUCTIONS) {
+            return;
+        }
+        String listingId = holder.entry(rawSlot);
+        if (listingId == null) {
+            return;
+        }
+        AuctionListing listing = plugin.auctions().listing(listingId).orElse(null);
+        if (listing == null || !listing.active(System.currentTimeMillis())) {
+            text.send(player, "commands.auction-not-active");
+            openAuctionHouse(player, holder.page());
+            return;
+        }
+        text.send(player, listing.bin() ? "commands.auction-browser-click-bin" : "commands.auction-browser-click-bid", plugin.auctions().listingPlaceholders(listing, System.currentTimeMillis()));
+    }
+
     private void fill(Inventory inventory, ConfigurationSection filler) {
         if (filler == null || !filler.getBoolean("enabled", false)) {
             return;
@@ -1098,6 +1148,7 @@ public final class MenuService {
         switch (type) {
             case COLLECTIONS -> openCollectionBrowser(player, page);
             case RECIPES -> openRecipeBook(player, page);
+            case AUCTIONS -> openAuctionHouse(player, page);
         }
     }
 
@@ -1211,6 +1262,23 @@ public final class MenuService {
         meta.lore(section.getStringList("lore").stream()
                 .map(line -> text.deserialize(line, placeholders))
                 .toList());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private ItemStack auctionItem(AuctionListing listing, ConfigurationSection section) {
+        ItemStack itemStack = listing.itemStack().clone();
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = plugin.auctions().listingPlaceholders(listing, System.currentTimeMillis());
+        if (section == null) {
+            meta.displayName(text.deserialize("<item>", placeholders));
+            meta.lore(List.of());
+        } else {
+            meta.displayName(text.deserialize(section.getString("display-name", "<item>"), placeholders));
+            meta.lore(section.getStringList("lore").stream()
+                    .map(line -> text.deserialize(line, placeholders))
+                    .toList());
+        }
         itemStack.setItemMeta(meta);
         return itemStack;
     }
