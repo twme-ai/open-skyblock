@@ -129,6 +129,13 @@ skyblock:
       lore:
         - "<gray>Browse market products and order books.</gray>"
       action: BAZAAR
+    quest-log:
+      slot: 32
+      material: WRITABLE_BOOK
+      display-name: "<green>Quest Log</green>"
+      lore:
+        - "<gray>Track configured SkyBlock objectives.</gray>"
+      action: QUEST_LOG
     pets:
       slot: 24
       material: BONE
@@ -268,6 +275,76 @@ profile-viewer:
       display-name: "<green>SkyBlock Menu</green>"
       lore: []
       action: BACK
+
+quest-log:
+  title: "<dark_gray>Quest Log - Page <page></dark_gray>"
+  rows: 6
+  content-slots:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 37
+    - 38
+    - 39
+    - 40
+    - 41
+    - 42
+    - 43
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  summary:
+    slot: 4
+    material: WRITABLE_BOOK
+    display-name: "<green>Quest Log</green>"
+    lore:
+      - "<gray>Completed:</gray> <green><completed></green><gray>/</gray><yellow><total></yellow>"
+      - "<gray>Active:</gray> <yellow><active></yellow>"
+  quest-item:
+    material: BOOK
+    display-name: "<quest>"
+    lore:
+      - ""
+      - "<gray>Category:</gray> <yellow><category></yellow>"
+      - "<gray>Status:</gray> <status>"
+      - "<gray>Progress:</gray> <white><current></white><gray>/</gray><white><required></white> <dark_gray>(</dark_gray><yellow><progress>%</yellow><dark_gray>)</dark_gray>"
+      - ""
+      - "<yellow>Click to show details.</yellow>"
+  previous:
+    slot: 45
+    material: ARROW
+    display-name: "<yellow>Previous Page</yellow>"
+    lore: []
+  back:
+    slot: 49
+    material: NETHER_STAR
+    display-name: "<green>SkyBlock Menu</green>"
+    lore: []
+  next:
+    slot: 53
+    material: ARROW
+    display-name: "<yellow>Next Page</yellow>"
+    lore: []
 
 skill-menu:
   title: "<dark_gray>Skills - Page <page></dark_gray>"

@@ -63,6 +63,7 @@ public final class ConfigService {
             "stars.yml",
             "gemstones.yml",
             "pets.yml",
+            "quests.yml",
             "minions.yml",
             "menus.yml",
             "recipes.yml",
@@ -302,6 +303,10 @@ public final class ConfigService {
 
     public FileConfiguration pets() {
         return file("pets.yml");
+    }
+
+    public FileConfiguration quests() {
+        return file("quests.yml");
     }
 
     public FileConfiguration minions() {

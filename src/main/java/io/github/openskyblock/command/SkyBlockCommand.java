@@ -179,6 +179,11 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             "pet",
             "profile",
             "purse",
+            "quests",
+            "questlog",
+            "quest-log",
+            "viewquestlog",
+            "view-quest-log",
             "skills",
             "stats",
             "collections",
@@ -281,6 +286,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "pets" -> pets(sender);
             case "pet" -> pet(sender, args);
             case "purse" -> purse(sender);
+            case "quests", "questlog", "quest-log", "viewquestlog", "view-quest-log" -> quests(sender);
             case "skills" -> skills(sender);
             case "stats" -> stats(sender);
             case "collections" -> collections(sender);
@@ -941,6 +947,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " pet activate <slot>", "commands.help.pet-activate");
         helpLine(sender, label + " profile", "commands.help.profile");
         helpLine(sender, label + " purse", "commands.help.purse");
+        helpLine(sender, label + " quests", "commands.help.quest-log");
         helpLine(sender, label + " skills", "commands.help.skills");
         helpLine(sender, label + " stats", "commands.help.stats");
         helpLine(sender, label + " collections", "commands.help.collections");
@@ -3075,6 +3082,14 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 TextService.raw("purse", plugin.text().formatNumber(profile.purse())),
                 TextService.raw("bank", plugin.text().formatNumber(profile.bank()))
         ));
+    }
+
+    private void quests(CommandSender sender) {
+        Player player = requirePlayer(sender);
+        if (player == null) {
+            return;
+        }
+        plugin.menus().openQuestLog(player, 0);
     }
 
     private void skills(CommandSender sender) {

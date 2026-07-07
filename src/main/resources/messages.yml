@@ -123,6 +123,7 @@ commands:
     pet-xp: "Add XP to the active pet."
     profile: "Open your configurable profile viewer."
     purse: "View your purse and bank balance."
+    quest-log: "Open your configurable Quest Log."
     skills: "Open your configurable skill menu."
     collections: "View your collection progress."
     giveitem: "Give a configured custom item."
@@ -138,6 +139,13 @@ commands:
   bank-disabled: "<prefix><red>The bank is disabled on this server.</red>"
   bank-deposit: "<prefix><green>Deposited <gold><amount></gold> coins.</green>"
   bank-withdraw: "<prefix><green>Withdrew <gold><amount></gold> coins.</green>"
+  quest-log-disabled: "<prefix><red>The Quest Log is disabled on this server.</red>"
+  quest-log-empty: "<prefix><gray>There are no configured quests.</gray>"
+  quest-log-unknown: "<prefix><red>Unknown quest: <yellow><quest></yellow>.</red>"
+  quest-log-header: "<prefix><green>Quest Log</green> <dark_gray>|</dark_gray> <gray>Completed:</gray> <green><completed></green><gray>/</gray><yellow><total></yellow> <dark_gray>|</dark_gray> <gray>Active:</gray> <yellow><active></yellow>"
+  quest-log-line: "<gray><id>:</gray> <quest> <dark_gray>|</dark_gray> <gray>Category:</gray> <yellow><category></yellow> <dark_gray>|</dark_gray> <status> <dark_gray>|</dark_gray> <gray>Progress:</gray> <white><current></white><gray>/</gray><white><required></white> <dark_gray>(</dark_gray><yellow><progress>%</yellow><dark_gray>)</dark_gray>"
+  quest-log-detail: "<prefix><quest> <dark_gray>|</dark_gray> <gray>Category:</gray> <yellow><category></yellow> <dark_gray>|</dark_gray> <status> <dark_gray>|</dark_gray> <gray>Progress:</gray> <white><current></white><gray>/</gray><white><required></white> <dark_gray>|</dark_gray> <gray>Remaining:</gray> <yellow><remaining></yellow>"
+  quest-log-description: "<prefix><description>"
   bank-interest-paid: "<prefix><gold>Bank interest:</gold> <green>+<amount> coins</green> <gray>(<accruals> payout(s))</gray> <dark_gray>|</dark_gray> <gray>Next:</gray> <yellow><next_interest></yellow>"
   bank-interest-info: "<prefix><aqua>Bank Interest</aqua> <dark_gray>|</dark_gray> <gray>Next:</gray> <yellow><next_interest></yellow> <dark_gray>|</dark_gray> <gray>Estimate:</gray> <gold><interest></gold> <dark_gray>|</dark_gray> <gray>Museum Bonus:</gray> <yellow><interest_bonus></yellow>"
   bank-no-purse: "<prefix><red>You do not have enough coins in your purse.</red>"
@@ -1255,6 +1263,10 @@ trades:
   reason-cancelled: "A player cancelled the trade."
   reason-quit: "A player disconnected."
   reason-shutdown: "The server is stopping."
+
+quests:
+  status-active: "<yellow>Active</yellow>"
+  status-complete: "<green>Complete</green>"
 
 skills:
   maxed: "Maxed"

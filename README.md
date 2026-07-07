@@ -14,7 +14,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Configurable SkyBlock menu GUI and starter menu item.
 - Paged collection browser and recipe book menus with configurable layout, lore, and navigation.
 - Configurable MiniMessage messages in `messages.yml`.
-- Configurable skills, skill menu, collection tiers, action XP, coin rewards, custom items, item abilities, mana regeneration, and minion definitions.
+- Configurable skills, skill menu, Quest Log, collection tiers, action XP, coin rewards, custom items, item abilities, mana regeneration, and minion definitions.
 - Placeable minion items with island-only placement, generated storage, claim menu, pickup flow, and offline ticking from persisted timestamps.
 - Data-driven shaped recipes for vanilla, custom item, and minion outputs with collection-tier and Slayer-level crafting gates.
 - Configurable profile viewer GUI with economy, skill, collection, stat, pet, accessory, wardrobe, and upgrade summaries.
@@ -183,6 +183,7 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock wardrobe summary`
 - `/skyblock profile`
 - `/skyblock purse`
+- `/skyblock quests`
 - `/skyblock skills`
 - `/skyblock stats`
 - `/skyblock accessorybag`

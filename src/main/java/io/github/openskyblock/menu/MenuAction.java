@@ -7,6 +7,7 @@ public enum MenuAction {
     PROFILE,
     ISLAND_HOME,
     BANK,
+    QUEST_LOG,
     SKILLS,
     STATS,
     SACKS,

@@ -31,6 +31,7 @@ features:
   equipment: true
   wardrobe: true
   pets: true
+  quest-log: true
   accessory-bag: true
   accessory-tuning: true
   skills: true

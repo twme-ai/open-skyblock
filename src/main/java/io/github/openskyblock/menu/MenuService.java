@@ -11,6 +11,7 @@ import io.github.openskyblock.pet.PetDefinition;
 import io.github.openskyblock.profile.OwnedPet;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
+import io.github.openskyblock.quest.QuestDefinition;
 import io.github.openskyblock.quiver.QuiverItemDefinition;
 import io.github.openskyblock.recipe.SkyBlockRecipe;
 import io.github.openskyblock.reforge.ReforgeDefinition;
@@ -170,6 +171,47 @@ public final class MenuService {
                 actions.put(slot, MinionMenuAction.parse(item.getString("action", "NONE")));
             }
         }
+        player.openInventory(inventory);
+    }
+
+    public void openQuestLog(Player player, int requestedPage) {
+        if (!plugin.quests().enabled()) {
+            text.send(player, "commands.quest-log-disabled");
+            return;
+        }
+        ConfigurationSection section = configService.menus().getConfigurationSection("quest-log");
+        if (section == null) {
+            plugin.quests().sendSummary(player);
+            return;
+        }
+        SkyBlockProfile profile = profiles.profile(player);
+        List<QuestDefinition> quests = plugin.quests().definitions();
+        if (quests.isEmpty()) {
+            text.send(player, "commands.quest-log-empty");
+            return;
+        }
+        List<Integer> contentSlots = contentSlots(section);
+        int maxPage = maxPage(quests.size(), contentSlots.size());
+        int page = clampPage(requestedPage, maxPage);
+        Map<Integer, BrowserMenuAction> actions = new HashMap<>();
+        Map<Integer, String> entries = new HashMap<>();
+        BrowserMenuHolder holder = new BrowserMenuHolder(BrowserMenuType.QUEST_LOG, page, maxPage, actions, entries);
+        Inventory inventory = browserInventory(holder, section, page, maxPage);
+        fill(inventory, section.getConfigurationSection("filler"));
+
+        addQuestSummary(inventory, section.getConfigurationSection("summary"), profile);
+        int offset = page * contentSlots.size();
+        for (int index = 0; index < contentSlots.size(); index++) {
+            int questIndex = offset + index;
+            if (questIndex >= quests.size()) {
+                break;
+            }
+            QuestDefinition definition = quests.get(questIndex);
+            int slot = contentSlots.get(index);
+            inventory.setItem(slot, questItem(profile, definition, section.getConfigurationSection("quest-item")));
+            entries.put(slot, definition.id());
+        }
+        addBrowserNavigation(inventory, section, page, maxPage, actions);
         player.openInventory(inventory);
     }
 
@@ -907,6 +949,7 @@ public final class MenuService {
             case PROFILE -> openProfileViewer(player);
             case ISLAND_HOME -> player.performCommand("skyblock island home");
             case BANK -> openBankMenu(player);
+            case QUEST_LOG -> openQuestLog(player, 0);
             case SKILLS -> openSkillMenu(player, 0);
             case STATS -> player.performCommand("skyblock stats");
             case SACKS -> openSacksMenu(player);
@@ -1308,6 +1351,9 @@ public final class MenuService {
             return;
         }
         switch (holder.type()) {
+            case QUEST_LOG -> {
+                plugin.quests().sendDetail(player, entryId);
+            }
             case AUCTIONS -> {
                 AuctionListing listing = plugin.auctions().listing(entryId).orElse(null);
                 if (listing == null || !listing.active(System.currentTimeMillis())) {
@@ -1382,6 +1428,53 @@ public final class MenuService {
         TradeMenuAction action = TradeMenuAction.parse(section.getString("action", fallbackAction.name()));
         inventory.setItem(slot, item(section, tradePlaceholders(player, session)));
         actions.put(slot, action);
+    }
+
+    private void addQuestSummary(Inventory inventory, ConfigurationSection section, SkyBlockProfile profile) {
+        if (section == null) {
+            return;
+        }
+        int slot = section.getInt("slot", -1);
+        if (slot < 0 || slot >= inventory.getSize()) {
+            return;
+        }
+        inventory.setItem(slot, item(section, plugin.quests().summaryPlaceholders(profile)));
+    }
+
+    private ItemStack questItem(SkyBlockProfile profile, QuestDefinition definition, ConfigurationSection section) {
+        Material material = questMaterial(definition, section);
+        ItemStack itemStack = new ItemStack(material);
+        ItemMeta meta = itemStack.getItemMeta();
+        List<TextService.TextPlaceholder> placeholders = plugin.quests().placeholders(profile, definition);
+        if (section == null) {
+            meta.displayName(text.deserialize("<quest>", placeholders));
+            meta.lore(definition.description().stream()
+                    .map(line -> text.deserialize(line, placeholders))
+                    .toList());
+        } else {
+            meta.displayName(text.deserialize(section.getString("display-name", "<quest>"), placeholders));
+            List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+            for (String line : definition.description()) {
+                lore.add(text.deserialize(line, placeholders));
+            }
+            for (String line : section.getStringList("lore")) {
+                lore.add(text.deserialize(line, placeholders));
+            }
+            meta.lore(lore);
+        }
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    private Material questMaterial(QuestDefinition definition, ConfigurationSection section) {
+        String fallback = section == null ? "BOOK" : section.getString("material", "BOOK");
+        String configuredName = definition.material() == null ? "" : definition.material();
+        Material configured = Material.matchMaterial(configuredName);
+        if (configured != null) {
+            return configured;
+        }
+        Material material = Material.matchMaterial(fallback);
+        return material == null ? Material.BOOK : material;
     }
 
     private void addSkillSummary(Inventory inventory, ConfigurationSection section, SkyBlockProfile profile) {
@@ -1579,6 +1672,7 @@ public final class MenuService {
 
     private void openBrowser(Player player, BrowserMenuType type, int page) {
         switch (type) {
+            case QUEST_LOG -> openQuestLog(player, page);
             case SKILLS -> openSkillMenu(player, page);
             case COLLECTIONS -> openCollectionBrowser(player, page);
             case RECIPES -> openRecipeBook(player, page);

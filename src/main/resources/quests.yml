@@ -1,0 +1,127 @@
+quests:
+  CREATE_PRIVATE_ISLAND:
+    sort: 10
+    display-name: "<green>Create a Private Island</green>"
+    category: "Getting Started"
+    material: GRASS_BLOCK
+    description:
+      - "<gray>Create or visit your private island.</gray>"
+      - "<dark_gray>Use /skyblock island create.</dark_gray>"
+    objective:
+      type: ISLAND_CREATED
+      required: 1
+  REACH_SKYBLOCK_LEVEL_5:
+    sort: 20
+    display-name: "<aqua>Reach SkyBlock Level 5</aqua>"
+    category: "Progression"
+    material: NETHER_STAR
+    description:
+      - "<gray>Earn SkyBlock XP from skills, collections, and milestones.</gray>"
+    objective:
+      type: SKYBLOCK_LEVEL
+      required: 5
+  TRAIN_SKILLS:
+    sort: 30
+    display-name: "<yellow>Train Your Skills</yellow>"
+    category: "Skills"
+    material: EXPERIENCE_BOTTLE
+    description:
+      - "<gray>Gain levels across configured skills.</gray>"
+    objective:
+      type: TOTAL_SKILL_LEVEL
+      required: 10
+  FARMING_APPRENTICE:
+    sort: 40
+    display-name: "<gold>Farming Apprentice</gold>"
+    category: "Skills"
+    material: WHEAT
+    description:
+      - "<gray>Reach Farming Level 5.</gray>"
+    objective:
+      type: SKILL_LEVEL
+      target: FARMING
+      required: 5
+  WHEAT_COLLECTION:
+    sort: 50
+    display-name: "<yellow>Wheat Collection I</yellow>"
+    category: "Collections"
+    material: WHEAT
+    description:
+      - "<gray>Reach Wheat Collection Tier I.</gray>"
+    objective:
+      type: COLLECTION_TIER
+      target: WHEAT
+      required: 1
+  COBBLESTONE_COLLECTION:
+    sort: 60
+    display-name: "<gray>Cobblestone Collector</gray>"
+    category: "Collections"
+    material: COBBLESTONE
+    description:
+      - "<gray>Collect 100 Cobblestone.</gray>"
+    objective:
+      type: COLLECTION_AMOUNT
+      target: COBBLESTONE
+      required: 100
+  PLACE_MINIONS:
+    sort: 70
+    display-name: "<yellow>Place Minions</yellow>"
+    category: "Island"
+    material: HAY_BLOCK
+    description:
+      - "<gray>Place recorded minions on your private island.</gray>"
+    objective:
+      type: MINIONS_PLACED
+      required: 3
+  FIRST_BESTIARY_TIER:
+    sort: 80
+    display-name: "<green>Study the Graveyard</green>"
+    category: "Combat"
+    material: ZOMBIE_HEAD
+    description:
+      - "<gray>Reach Graveyard Zombie Bestiary Tier I.</gray>"
+    objective:
+      type: BESTIARY_TIER
+      target: GRAVEYARD_ZOMBIE
+      required: 1
+  REVENANT_INITIATE:
+    sort: 90
+    display-name: "<dark_green>Revenant Initiate</dark_green>"
+    category: "Slayer"
+    material: ROTTEN_FLESH
+    description:
+      - "<gray>Reach Revenant Slayer Level 1.</gray>"
+    objective:
+      type: SLAYER_LEVEL
+      target: REVENANT
+      required: 1
+  PET_COLLECTOR:
+    sort: 100
+    display-name: "<aqua>Pet Collector</aqua>"
+    category: "Pets"
+    material: BONE
+    description:
+      - "<gray>Own two configured pets.</gray>"
+    objective:
+      type: PETS_OWNED
+      required: 2
+  FAIRY_SOUL_HUNTER:
+    sort: 110
+    display-name: "<light_purple>Fairy Soul Hunter</light_purple>"
+    category: "Exploration"
+    material: PINK_DYE
+    description:
+      - "<gray>Find five configured Fairy Souls.</gray>"
+    objective:
+      type: FAIRY_SOULS
+      required: 5
+  MUSEUM_DONOR:
+    sort: 120
+    display-name: "<gold>Museum Donor</gold>"
+    category: "Museum"
+    material: ITEM_FRAME
+    description:
+      - "<gray>Donate three configured items to the Museum.</gray>"
+    objective:
+      type: MUSEUM_DONATIONS
+      required: 3

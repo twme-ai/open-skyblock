@@ -61,6 +61,7 @@ import io.github.openskyblock.newyear.NewYearService;
 import io.github.openskyblock.pet.PetService;
 import io.github.openskyblock.potion.PotionService;
 import io.github.openskyblock.profile.ProfileManager;
+import io.github.openskyblock.quest.QuestLogService;
 import io.github.openskyblock.quiver.QuiverService;
 import io.github.openskyblock.reforge.ReforgeService;
 import io.github.openskyblock.recipe.RecipeService;
@@ -132,6 +133,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private StarService starService;
     private GemstoneService gemstoneService;
     private PetService petService;
+    private QuestLogService questLogService;
     private MinionService minionService;
     private IslandService islandService;
     private MenuService menuService;
@@ -276,6 +278,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.storageService = new StorageService(configService, textService, profileManager, customItemService);
         this.backpackService = new BackpackService(this, configService, textService, profileManager);
         this.backpackService.fairySoulService(fairySoulService);
+        this.questLogService = new QuestLogService(this, configService, textService, profileManager);
 
         reloadServices();
         registerCommands();
@@ -417,6 +420,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         trophyFishService.reload();
         slayerService.reload();
         mobSpawnService.reload();
+        questLogService.reload();
     }
 
     private void registerCommands() {
@@ -615,6 +619,10 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
 
     public PetService pets() {
         return petService;
+    }
+
+    public QuestLogService quests() {
+        return questLogService;
     }
 
     public TravelingZooService travelingZoo() {
