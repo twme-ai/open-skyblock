@@ -14,6 +14,7 @@ import io.github.openskyblock.menu.MenuAction;
 import io.github.openskyblock.menu.MinionMenuAction;
 import io.github.openskyblock.menu.MinionMenuHolder;
 import io.github.openskyblock.menu.PetMenuHolder;
+import io.github.openskyblock.menu.ProfileMenuHolder;
 import io.github.openskyblock.menu.QuiverHolder;
 import io.github.openskyblock.menu.ReforgeAnvilHolder;
 import io.github.openskyblock.menu.SackMenuAction;
@@ -104,6 +105,9 @@ public final class MenuListener implements Listener {
             }
             if (event.getView().getTopInventory().getHolder() instanceof TradeMenuHolder tradeMenuHolder) {
                 handleTradeMenuClick(event, player, tradeMenuHolder);
+            }
+            if (event.getView().getTopInventory().getHolder() instanceof ProfileMenuHolder profileMenuHolder) {
+                handleProfileMenuClick(event, player, profileMenuHolder);
             }
             return;
         }
@@ -220,6 +224,11 @@ public final class MenuListener implements Listener {
         event.setCancelled(true);
         int rawSlot = event.getRawSlot();
         plugin.getServer().getScheduler().runTask(plugin, () -> plugin.menus().runTradeMenuClick(player, holder, rawSlot));
+    }
+
+    private void handleProfileMenuClick(InventoryClickEvent event, Player player, ProfileMenuHolder holder) {
+        event.setCancelled(true);
+        plugin.menus().runProfileMenuClick(player, holder, event.getRawSlot());
     }
 
     private void consumeCursorItem(InventoryClickEvent event) {

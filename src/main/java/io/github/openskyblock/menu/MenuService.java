@@ -20,8 +20,10 @@ import io.github.openskyblock.service.CollectionDefinition;
 import io.github.openskyblock.service.CollectionTier;
 import io.github.openskyblock.service.CustomItemDefinition;
 import io.github.openskyblock.service.MinionPlacement;
+import io.github.openskyblock.service.SkillDefinition;
 import io.github.openskyblock.shop.ShopDefinition;
 import io.github.openskyblock.shop.ShopItemDefinition;
+import io.github.openskyblock.stats.StatSnapshot;
 import io.github.openskyblock.trade.TradeSession;
 import io.github.openskyblock.wardrobe.WardrobeSet;
 import java.util.ArrayList;
@@ -59,6 +61,47 @@ public final class MenuService {
 
     public boolean enabled() {
         return configService.main().getBoolean("features.skyblock-menu", true);
+    }
+
+    public void openProfileViewer(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        ConfigurationSection section = configService.menus().getConfigurationSection("profile-viewer");
+        if (section == null) {
+            text.send(player, "commands.profile-summary", List.of(
+                    TextService.raw("player", profile.playerName()),
+                    TextService.raw("level", Integer.toString(plugin.skills().skyBlockLevel(profile))),
+                    TextService.raw("purse", text.formatNumber(profile.purse())),
+                    TextService.raw("bank", text.formatNumber(profile.bank()))
+            ));
+            return;
+        }
+        int rows = Math.max(1, Math.min(6, section.getInt("rows", 4)));
+        Map<Integer, ProfileMenuAction> actions = new HashMap<>();
+        ProfileMenuHolder holder = new ProfileMenuHolder(actions);
+        List<TextService.TextPlaceholder> placeholders = profileViewerPlaceholders(player);
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                rows * 9,
+                text.deserialize(section.getString("title", "<dark_gray><player>'s Profile</dark_gray>"), placeholders)
+        );
+        holder.inventory(inventory);
+        fill(inventory, section.getConfigurationSection("filler"));
+        ConfigurationSection items = section.getConfigurationSection("items");
+        if (items != null) {
+            for (String key : items.getKeys(false)) {
+                ConfigurationSection item = items.getConfigurationSection(key);
+                if (item == null) {
+                    continue;
+                }
+                int slot = item.getInt("slot", -1);
+                if (slot < 0 || slot >= inventory.getSize()) {
+                    continue;
+                }
+                inventory.setItem(slot, item(item, placeholders));
+                actions.put(slot, ProfileMenuAction.parse(item.getString("action", "NONE")));
+            }
+        }
+        player.openInventory(inventory);
     }
 
     public void openSkyBlockMenu(Player player) {
@@ -831,7 +874,7 @@ public final class MenuService {
 
     public void runAction(Player player, MenuAction action) {
         switch (action) {
-            case PROFILE -> player.performCommand("skyblock profile");
+            case PROFILE -> openProfileViewer(player);
             case ISLAND_HOME -> player.performCommand("skyblock island home");
             case BANK -> openBankMenu(player);
             case SKILLS -> player.performCommand("skyblock skills");
@@ -853,6 +896,30 @@ public final class MenuService {
             case BAZAAR -> openBazaarMenu(player, 0);
             case SHOPS -> openShopSelector(player);
             case MINIONS -> player.performCommand("skyblock minion list");
+            case NONE -> {
+            }
+        }
+    }
+
+    public void runProfileMenuClick(Player player, ProfileMenuHolder holder, int rawSlot) {
+        ProfileMenuAction action = holder.action(rawSlot);
+        switch (action) {
+            case BACK -> openSkyBlockMenu(player);
+            case SKILLS -> {
+                player.closeInventory();
+                player.performCommand("skyblock skills");
+            }
+            case COLLECTIONS -> openCollectionBrowser(player, 0);
+            case STATS -> {
+                player.closeInventory();
+                player.performCommand("skyblock stats");
+            }
+            case BANK -> openBankMenu(player);
+            case PETS -> openPetMenu(player);
+            case UPGRADES -> {
+                player.closeInventory();
+                player.performCommand("skyblock upgrades");
+            }
             case NONE -> {
             }
         }
@@ -2078,6 +2145,59 @@ public final class MenuService {
                 TextService.raw("level", Integer.toString(plugin.skills().skyBlockLevel(profile))),
                 TextService.raw("purse", text.formatNumber(profile.purse())),
                 TextService.raw("bank", text.formatNumber(profile.bank()))
+        );
+    }
+
+    private List<TextService.TextPlaceholder> profileViewerPlaceholders(Player player) {
+        SkyBlockProfile profile = profiles.profile(player);
+        List<SkillDefinition> skills = plugin.skills().definitions();
+        int totalSkillLevel = skills.stream()
+                .mapToInt(definition -> plugin.skills().level(definition.type(), profile.skillXp(definition.type())))
+                .sum();
+        double skillAverage = skills.isEmpty() ? 0.0D : totalSkillLevel / (double) skills.size();
+        int unlockedCollections = (int) plugin.collections().definitions().stream()
+                .filter(definition -> profile.collectionAmount(definition.id()) > 0L)
+                .count();
+        int totalCollectionTiers = plugin.collections().definitions().stream()
+                .mapToInt(definition -> plugin.collections().tier(definition, profile.collectionAmount(definition.id())))
+                .sum();
+        int purchasedUpgradeLevels = plugin.upgrades().definitions().stream()
+                .mapToInt(definition -> plugin.upgrades().level(profile, definition.id()))
+                .sum();
+        StatSnapshot stats = plugin.stats().snapshot(player);
+        String activePet = plugin.pets().activeDefinition(profile)
+                .map(PetDefinition::displayName)
+                .orElse(text.rawMessage("pets.no-active"));
+        return List.of(
+                TextService.raw("player", profile.playerName()),
+                TextService.raw("level", Integer.toString(plugin.skills().skyBlockLevel(profile))),
+                TextService.raw("purse", text.formatNumber(profile.purse())),
+                TextService.raw("bank", text.formatNumber(profile.bank())),
+                TextService.raw("bank_capacity", text.formatNumber(plugin.economy().bankCapacity(profile))),
+                TextService.raw("total_skill_level", text.formatNumber(totalSkillLevel)),
+                TextService.raw("skill_average", text.formatNumber(skillAverage)),
+                TextService.raw("collections_unlocked", text.formatNumber(unlockedCollections)),
+                TextService.raw("collections_total", text.formatNumber(plugin.collections().definitions().size())),
+                TextService.raw("collection_tiers", text.formatNumber(totalCollectionTiers)),
+                TextService.raw("minions", text.formatNumber(profile.minions().size())),
+                TextService.raw("pets", text.formatNumber(profile.pets().size())),
+                TextService.raw("pet_score", text.formatNumber(plugin.pets().score(profile))),
+                TextService.parsed("active_pet", activePet),
+                TextService.raw("accessories", text.formatNumber(profile.accessoryBag().size())),
+                TextService.raw("accessory_capacity", text.formatNumber(plugin.accessories().capacity(profile))),
+                TextService.raw("magical_power", text.formatNumber(plugin.accessories().magicalPower(profile))),
+                TextService.raw("equipment", text.formatNumber(plugin.equipment().equippedCount(profile))),
+                TextService.raw("wardrobe_sets", text.formatNumber(profile.wardrobe().size())),
+                TextService.raw("upgrades", text.formatNumber(purchasedUpgradeLevels)),
+                TextService.raw("health", text.formatNumber(stats.health())),
+                TextService.raw("defense", text.formatNumber(stats.defense())),
+                TextService.raw("damage", text.formatNumber(stats.damage())),
+                TextService.raw("strength", text.formatNumber(stats.strength())),
+                TextService.raw("crit_chance", text.formatNumber(stats.critChance())),
+                TextService.raw("crit_damage", text.formatNumber(stats.critDamage())),
+                TextService.raw("intelligence", text.formatNumber(stats.intelligence())),
+                TextService.raw("speed", text.formatNumber(stats.speed())),
+                TextService.raw("ferocity", text.formatNumber(stats.ferocity()))
         );
     }
 

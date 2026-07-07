@@ -121,7 +121,7 @@ commands:
     pet-activate: "Summon one of your owned pets."
     pet-give: "Give a configured pet."
     pet-xp: "Add XP to the active pet."
-    profile: "View your profile summary."
+    profile: "Open your configurable profile viewer."
     purse: "View your purse and bank balance."
     skills: "View your skill levels."
     collections: "View your collection progress."

@@ -165,6 +165,110 @@ skyblock:
         - "<gray>Apply configured enchanted books to custom items.</gray>"
       action: ENCHANTING_ANVIL
 
+profile-viewer:
+  title: "<dark_gray><player>'s Profile</dark_gray>"
+  rows: 4
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "<dark_gray></dark_gray>"
+    lore: []
+  items:
+    summary:
+      slot: 4
+      material: PLAYER_HEAD
+      display-name: "<green><player>'s Profile</green>"
+      lore:
+        - "<gray>SkyBlock Level:</gray> <yellow><level></yellow>"
+        - "<gray>Purse:</gray> <gold><purse></gold>"
+        - "<gray>Bank:</gray> <gold><bank></gold><gray>/</gray><gold><bank_capacity></gold>"
+        - "<gray>Minions:</gray> <yellow><minions></yellow>"
+      action: NONE
+    skills:
+      slot: 10
+      material: DIAMOND_PICKAXE
+      display-name: "<aqua>Skills</aqua>"
+      lore:
+        - "<gray>Total Skill Level:</gray> <yellow><total_skill_level></yellow>"
+        - "<gray>Skill Average:</gray> <yellow><skill_average></yellow>"
+        - ""
+        - "<yellow>Click to view skill details.</yellow>"
+      action: SKILLS
+    collections:
+      slot: 11
+      material: CHEST
+      display-name: "<gold>Collections</gold>"
+      lore:
+        - "<gray>Unlocked:</gray> <yellow><collections_unlocked></yellow><gray>/</gray><yellow><collections_total></yellow>"
+        - "<gray>Total Tiers:</gray> <yellow><collection_tiers></yellow>"
+        - ""
+        - "<yellow>Click to browse collections.</yellow>"
+      action: COLLECTIONS
+    stats:
+      slot: 12
+      material: DIAMOND_SWORD
+      display-name: "<red>Combat Stats</red>"
+      lore:
+        - "<gray>Health:</gray> <red><health></red> <dark_gray>|</dark_gray> <gray>Defense:</gray> <green><defense></green>"
+        - "<gray>Damage:</gray> <red><damage></red> <dark_gray>|</dark_gray> <gray>Strength:</gray> <red><strength></red>"
+        - "<gray>Crit:</gray> <yellow><crit_chance>%</yellow><gray>/</gray><yellow><crit_damage>%</yellow>"
+        - "<gray>Intelligence:</gray> <aqua><intelligence></aqua> <dark_gray>|</dark_gray> <gray>Speed:</gray> <white><speed></white>"
+        - ""
+        - "<yellow>Click to list all stats.</yellow>"
+      action: STATS
+    pets:
+      slot: 13
+      material: BONE
+      display-name: "<aqua>Pets</aqua>"
+      lore:
+        - "<gray>Owned:</gray> <yellow><pets></yellow>"
+        - "<gray>Pet Score:</gray> <yellow><pet_score></yellow>"
+        - "<gray>Active:</gray> <active_pet>"
+        - ""
+        - "<yellow>Click to open Pets.</yellow>"
+      action: PETS
+    accessories:
+      slot: 14
+      material: ENDER_CHEST
+      display-name: "<light_purple>Accessories</light_purple>"
+      lore:
+        - "<gray>Accessory Bag:</gray> <yellow><accessories></yellow><gray>/</gray><yellow><accessory_capacity></yellow>"
+        - "<gray>Magical Power:</gray> <light_purple><magical_power></light_purple>"
+        - "<gray>Equipment Pieces:</gray> <yellow><equipment></yellow>"
+      action: NONE
+    wardrobe:
+      slot: 15
+      material: ARMOR_STAND
+      display-name: "<aqua>Wardrobe</aqua>"
+      lore:
+        - "<gray>Stored Sets:</gray> <yellow><wardrobe_sets></yellow>"
+      action: NONE
+    bank:
+      slot: 20
+      material: GOLD_INGOT
+      display-name: "<gold>Bank</gold>"
+      lore:
+        - "<gray>Purse:</gray> <gold><purse></gold>"
+        - "<gray>Bank:</gray> <gold><bank></gold><gray>/</gray><gold><bank_capacity></gold>"
+        - ""
+        - "<yellow>Click to open the Bank.</yellow>"
+      action: BANK
+    upgrades:
+      slot: 22
+      material: EXPERIENCE_BOTTLE
+      display-name: "<green>Profile Upgrades</green>"
+      lore:
+        - "<gray>Purchased Levels:</gray> <yellow><upgrades></yellow>"
+        - ""
+        - "<yellow>Click to list upgrades.</yellow>"
+      action: UPGRADES
+    back:
+      slot: 31
+      material: NETHER_STAR
+      display-name: "<green>SkyBlock Menu</green>"
+      lore: []
+      action: BACK
+
 minion:
   title: "<dark_gray><minion_name></dark_gray>"
   rows: 3

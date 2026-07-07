@@ -975,13 +975,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         if (player == null) {
             return;
         }
-        SkyBlockProfile profile = plugin.profiles().profile(player);
-        plugin.text().send(player, "commands.profile-summary", List.of(
-                TextService.raw("player", profile.playerName()),
-                TextService.raw("level", Integer.toString(plugin.skills().skyBlockLevel(profile))),
-                TextService.raw("purse", plugin.text().formatNumber(profile.purse())),
-                TextService.raw("bank", plugin.text().formatNumber(profile.bank()))
-        ));
+        plugin.menus().openProfileViewer(player);
     }
 
     private void menu(CommandSender sender) {
