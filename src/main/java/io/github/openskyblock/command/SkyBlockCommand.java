@@ -351,10 +351,19 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(List.of("on", "off", "toggle"), args[2]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("coop")) {
-            return startsWith(List.of("invite", "accept", "remove", "members", "list", "permissions", "perms"), args[2]);
+            return startsWith(List.of("invite", "accept", "remove", "members", "list", "role", "roles", "permissions", "perms"), args[2]);
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("coop") && (args[2].equalsIgnoreCase("invite") || args[2].equalsIgnoreCase("accept") || args[2].equalsIgnoreCase("remove"))) {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[3]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("coop") && args[2].equalsIgnoreCase("role")) {
+            return startsWith(plugin.islands().coopMemberNames(sender instanceof Player player ? player : null), args[3]);
+        }
+        if (args.length == 5 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("coop") && args[2].equalsIgnoreCase("role")) {
+            return startsWith(plugin.islands().coopRoleIds(), args[4]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("coop") && (args[2].equalsIgnoreCase("permissions") || args[2].equalsIgnoreCase("perms"))) {
+            return startsWith(plugin.islands().coopRoleIds(), args[3]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("bank")) {
             return startsWith(List.of("balance", "deposit", "withdraw", "interest"), args[1]);
@@ -1195,7 +1204,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 plugin.islands().removeCoopMember(player, args[3]);
             }
             case "members", "list" -> plugin.islands().sendCoopMembers(player);
-            case "permissions", "perms" -> plugin.islands().sendCoopPermissions(player);
+            case "role" -> {
+                if (args.length < 5) {
+                    plugin.text().send(player, "commands.island-coop-usage");
+                    return;
+                }
+                plugin.islands().setCoopRole(player, args[3], args[4]);
+            }
+            case "roles" -> plugin.islands().sendCoopRoles(player);
+            case "permissions", "perms" -> plugin.islands().sendCoopPermissions(player, args.length >= 4 ? args[3] : "");
             default -> plugin.text().send(player, "commands.island-coop-usage");
         }
     }

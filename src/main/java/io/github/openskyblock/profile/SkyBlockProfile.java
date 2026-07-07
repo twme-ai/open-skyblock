@@ -29,6 +29,7 @@ public final class SkyBlockProfile {
     private float islandHomeYaw;
     private float islandHomePitch;
     private final Set<UUID> islandCoopMembers = new HashSet<>();
+    private final Map<UUID, String> islandCoopRoles = new HashMap<>();
     private final Map<String, IslandWarp> islandWarps = new HashMap<>();
     private final Map<String, IslandTeleportPad> islandTeleportPads = new HashMap<>();
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
@@ -236,7 +237,38 @@ public final class SkyBlockProfile {
     }
 
     public boolean removeIslandCoopMember(UUID uniqueId) {
+        islandCoopRoles.remove(uniqueId);
         return islandCoopMembers.remove(uniqueId);
+    }
+
+    public Map<UUID, String> islandCoopRoles() {
+        return islandCoopRoles;
+    }
+
+    public String islandCoopRole(UUID uniqueId) {
+        return islandCoopRoles.get(uniqueId);
+    }
+
+    public void setIslandCoopRole(UUID uniqueId, String roleId) {
+        if (uniqueId == null || roleId == null || roleId.isBlank() || !islandCoopMembers.contains(uniqueId)) {
+            return;
+        }
+        String normalized = normalizeIslandCoopRole(roleId);
+        if (!normalized.isBlank()) {
+            islandCoopRoles.put(uniqueId, normalized);
+        }
+    }
+
+    private String normalizeIslandCoopRole(String roleId) {
+        String input = roleId.trim().toLowerCase(Locale.ROOT);
+        StringBuilder normalized = new StringBuilder();
+        for (int index = 0; index < input.length(); index++) {
+            char character = input.charAt(index);
+            if (Character.isLetterOrDigit(character) || character == '_' || character == '-') {
+                normalized.append(character);
+            }
+        }
+        return normalized.toString();
     }
 
     public Map<String, IslandWarp> islandWarps() {

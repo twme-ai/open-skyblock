@@ -99,6 +99,7 @@ islands:
   coop:
     max-members: 5
     invite-expire-seconds: 60
+    default-role: member
     permissions:
       build: true
       interact: true
@@ -107,6 +108,37 @@ islands:
       manage-teleport-pads: true
       manage-coop: false
       reset: false
+    roles:
+      member:
+        display-name: "<green>Member</green>"
+        permissions:
+          build: true
+          interact: true
+          set-home: true
+          manage-warps: true
+          manage-teleport-pads: true
+          manage-coop: false
+          reset: false
+      trusted:
+        display-name: "<aqua>Trusted</aqua>"
+        permissions:
+          build: true
+          interact: true
+          set-home: true
+          manage-warps: true
+          manage-teleport-pads: true
+          manage-coop: false
+          reset: false
+      manager:
+        display-name: "<gold>Manager</gold>"
+        permissions:
+          build: true
+          interact: true
+          set-home: true
+          manage-warps: true
+          manage-teleport-pads: true
+          manage-coop: true
+          reset: false
 
 minions:
   max-per-profile: 5

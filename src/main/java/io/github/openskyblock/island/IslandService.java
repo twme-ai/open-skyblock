@@ -30,6 +30,7 @@ import org.bukkit.WorldBorder;
 import org.bukkit.WorldCreator;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -236,6 +237,7 @@ public final class IslandService {
             return;
         }
         owner.addIslandCoopMember(target.getUniqueId());
+        owner.setIslandCoopRole(target.getUniqueId(), defaultCoopRoleId());
         profiles.save(owner);
         coopInvites.remove(target.getUniqueId());
         text.send(target, "commands.island-coop-accepted", List.of(TextService.raw("player", owner.playerName())));
@@ -283,23 +285,87 @@ public final class IslandService {
         for (UUID memberId : owner.islandCoopMembers().stream().sorted().toList()) {
             text.send(player, "commands.island-coop-member-line", List.of(
                     TextService.raw("player", profiles.name(memberId)),
-                    TextService.parsed("role", text.rawMessage("islands.coop-role-member"))
+                    TextService.parsed("role", coopRoleDisplay(coopRoleId(owner, memberId)))
             ));
         }
     }
 
     public void sendCoopPermissions(Player player) {
+        sendCoopPermissions(player, "");
+    }
+
+    public void sendCoopPermissions(Player player, String roleId) {
         SkyBlockProfile owner = islandContext(player);
         if (owner == null || !hasIsland(owner)) {
             text.send(player, "commands.island-no-own-island");
             return;
         }
-        text.send(player, "commands.island-coop-permissions-header", islandPlaceholders(owner));
+        String normalizedRole = normalizeCoopRoleId(roleId == null || roleId.isBlank() ? defaultCoopRoleId() : roleId);
+        if (!coopRoleExists(normalizedRole)) {
+            text.send(player, "commands.island-coop-role-unknown", List.of(TextService.raw("role", roleId == null ? "" : roleId)));
+            return;
+        }
+        text.send(player, "commands.island-coop-permissions-header", List.of(
+                TextService.raw("role", normalizedRole),
+                TextService.parsed("role_display", coopRoleDisplay(normalizedRole))
+        ));
         for (IslandPermission permission : IslandPermission.values()) {
             text.send(player, "commands.island-coop-permissions-line", List.of(
                     TextService.parsed("permission", permissionDisplay(permission)),
-                    TextService.parsed("status", permissionStatus(coopPermissionEnabled(permission))),
+                    TextService.parsed("status", permissionStatus(coopPermissionEnabled(normalizedRole, permission))),
                     TextService.raw("permission_key", permission.configKey())
+            ));
+        }
+    }
+
+    public void sendCoopRoles(Player player) {
+        SkyBlockProfile owner = islandContext(player);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(player, "commands.island-no-own-island");
+            return;
+        }
+        text.send(player, "commands.island-coop-roles-header");
+        for (String roleId : coopRoleIds()) {
+            text.send(player, "commands.island-coop-role-line", List.of(
+                    TextService.raw("role", roleId),
+                    TextService.parsed("role_display", coopRoleDisplay(roleId))
+            ));
+        }
+    }
+
+    public void setCoopRole(Player player, String targetName, String roleId) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        SkyBlockProfile owner = editableIslandOwner(player, IslandPermission.MANAGE_COOP);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(player, owner == null ? "commands.island-protected" : "commands.island-no-own-island");
+            return;
+        }
+        String normalizedRole = normalizeCoopRoleId(roleId);
+        if (!coopRoleExists(normalizedRole)) {
+            text.send(player, "commands.island-coop-role-unknown", List.of(TextService.raw("role", roleId == null ? "" : roleId)));
+            return;
+        }
+        SkyBlockProfile target = profiles.profileByName(targetName);
+        if (target == null || !owner.isIslandCoopMember(target.uniqueId())) {
+            text.send(player, "commands.island-coop-not-member", List.of(TextService.raw("player", targetName == null ? "" : targetName)));
+            return;
+        }
+        owner.setIslandCoopRole(target.uniqueId(), normalizedRole);
+        profiles.save(owner);
+        text.send(player, "commands.island-coop-role-set", List.of(
+                TextService.raw("player", target.playerName()),
+                TextService.raw("role", normalizedRole),
+                TextService.parsed("role_display", coopRoleDisplay(normalizedRole))
+        ));
+        Player targetPlayer = Bukkit.getPlayer(target.uniqueId());
+        if (targetPlayer != null) {
+            text.send(targetPlayer, "commands.island-coop-role-updated", List.of(
+                    TextService.raw("player", owner.playerName()),
+                    TextService.raw("role", normalizedRole),
+                    TextService.parsed("role_display", coopRoleDisplay(normalizedRole))
             ));
         }
     }
@@ -587,6 +653,24 @@ public final class IslandService {
         return sortedWarps(owner).stream().map(IslandWarp::id).toList();
     }
 
+    public List<String> coopMemberNames(Player player) {
+        if (player == null) {
+            return List.of();
+        }
+        SkyBlockProfile owner = islandContext(player);
+        if (owner == null) {
+            return List.of();
+        }
+        return owner.islandCoopMembers().stream()
+                .map(profiles::name)
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
+    }
+
+    public List<String> coopRoleIds() {
+        return configuredCoopRoleIds();
+    }
+
     public void requestReset(Player player) {
         if (!enabled()) {
             text.send(player, "commands.island-disabled");
@@ -750,8 +834,111 @@ public final class IslandService {
         return Math.max(1, configService.main().getInt("islands.coop.max-members", 5));
     }
 
-    private boolean coopPermissionEnabled(IslandPermission permission) {
+    private boolean coopPermissionEnabled(SkyBlockProfile owner, UUID memberId, IslandPermission permission) {
+        return coopPermissionEnabled(coopRoleId(owner, memberId), permission);
+    }
+
+    private boolean coopPermissionEnabled(String roleId, IslandPermission permission) {
+        ConfigurationSection role = coopRoleSection(roleId);
+        if (role != null && role.contains("permissions." + permission.configKey())) {
+            return role.getBoolean("permissions." + permission.configKey(), true);
+        }
         return configService.main().getBoolean("islands.coop.permissions." + permission.configKey(), true);
+    }
+
+    private String coopRoleId(SkyBlockProfile owner, UUID memberId) {
+        if (owner == null || memberId == null) {
+            return defaultCoopRoleId();
+        }
+        String roleId = normalizeCoopRoleId(owner.islandCoopRole(memberId));
+        return coopRoleExists(roleId) ? roleId : defaultCoopRoleId();
+    }
+
+    private String defaultCoopRoleId() {
+        List<String> configuredRoles = configuredCoopRoleIds();
+        String configuredDefault = normalizeCoopRoleId(configService.main().getString("islands.coop.default-role", "member"));
+        if (!configuredDefault.isBlank() && configuredRoles.contains(configuredDefault)) {
+            return configuredDefault;
+        }
+        if (configuredRoles.contains("member")) {
+            return "member";
+        }
+        return configuredRoles.isEmpty() ? "member" : configuredRoles.get(0);
+    }
+
+    private boolean coopRoleExists(String roleId) {
+        return configuredCoopRoleIds().contains(normalizeCoopRoleId(roleId));
+    }
+
+    private List<String> configuredCoopRoleIds() {
+        ConfigurationSection roles = configService.main().getConfigurationSection("islands.coop.roles");
+        if (roles == null) {
+            return List.of("member");
+        }
+        List<String> roleIds = roles.getKeys(false).stream()
+                .map(this::normalizeCoopRoleId)
+                .filter(roleId -> !roleId.isBlank())
+                .distinct()
+                .sorted()
+                .toList();
+        return roleIds.isEmpty() ? List.of("member") : roleIds;
+    }
+
+    private ConfigurationSection coopRoleSection(String roleId) {
+        String normalized = normalizeCoopRoleId(roleId);
+        return normalized.isBlank() ? null : configService.main().getConfigurationSection("islands.coop.roles." + normalized);
+    }
+
+    private String coopRoleDisplay(String roleId) {
+        String normalized = normalizeCoopRoleId(roleId);
+        ConfigurationSection role = coopRoleSection(normalized);
+        if (role != null) {
+            String display = role.getString("display-name", "");
+            if (!display.isBlank()) {
+                return display;
+            }
+        }
+        String legacy = configService.messages().getString("islands.coop-role-" + normalized, "");
+        if (!legacy.isBlank()) {
+            return legacy;
+        }
+        if (normalized.isBlank()) {
+            return text.rawMessage("islands.coop-role-member");
+        }
+        return "<green>" + readableRoleName(normalized) + "</green>";
+    }
+
+    private String normalizeCoopRoleId(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        String input = raw.trim().toLowerCase(Locale.ROOT);
+        StringBuilder normalized = new StringBuilder();
+        for (int index = 0; index < input.length(); index++) {
+            char character = input.charAt(index);
+            if (Character.isLetterOrDigit(character) || character == '_' || character == '-') {
+                normalized.append(character);
+            }
+        }
+        return normalized.toString();
+    }
+
+    private String readableRoleName(String roleId) {
+        String normalized = roleId.replace('-', ' ').replace('_', ' ').trim();
+        if (normalized.isBlank()) {
+            return "Member";
+        }
+        StringBuilder readable = new StringBuilder();
+        for (String part : normalized.split(" ")) {
+            if (part.isBlank()) {
+                continue;
+            }
+            if (readable.length() > 0) {
+                readable.append(' ');
+            }
+            readable.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+        }
+        return readable.toString();
     }
 
     private int maxIslandWarps() {
@@ -1138,7 +1325,7 @@ public final class IslandService {
         if (player.hasPermission("openskyblock.admin") || owner.uniqueId().equals(player.getUniqueId())) {
             return true;
         }
-        return owner.isIslandCoopMember(player.getUniqueId()) && coopPermissionEnabled(permission);
+        return owner.isIslandCoopMember(player.getUniqueId()) && coopPermissionEnabled(owner, player.getUniqueId(), permission);
     }
 
     private String permissionDisplay(IslandPermission permission) {

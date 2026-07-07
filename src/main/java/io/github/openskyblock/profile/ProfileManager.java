@@ -211,6 +211,16 @@ public final class ProfileManager {
                 profile.addIslandCoopMember(memberId);
             }
         }
+        ConfigurationSection coopRoles = section.getConfigurationSection("island.coop-roles");
+        if (coopRoles != null) {
+            for (String rawMemberId : coopRoles.getKeys(false)) {
+                UUID memberId = parseUuid(rawMemberId);
+                String roleId = coopRoles.getString(rawMemberId);
+                if (memberId != null && roleId != null && !roleId.isBlank()) {
+                    profile.setIslandCoopRole(memberId, roleId);
+                }
+            }
+        }
         ConfigurationSection skills = section.getConfigurationSection("skills");
         if (skills != null) {
             for (String key : skills.getKeys(false)) {
@@ -908,6 +918,13 @@ public final class ProfileManager {
         profileData.set(base + ".island-world", profile.islandWorldName());
         profileData.set(base + ".island.visitors-enabled", profile.islandVisitorsEnabled());
         profileData.set(base + ".island.coop-members", profile.islandCoopMembers().stream().map(UUID::toString).sorted().toList());
+        profileData.set(base + ".island.coop-roles", null);
+        for (UUID memberId : profile.islandCoopMembers().stream().sorted().toList()) {
+            String roleId = profile.islandCoopRole(memberId);
+            if (roleId != null && !roleId.isBlank()) {
+                profileData.set(base + ".island.coop-roles." + memberId, roleId);
+            }
+        }
         profileData.set(base + ".island.home", null);
         profileData.set(base + ".island.home.set", profile.islandHomeSet());
         if (profile.islandHomeSet()) {
