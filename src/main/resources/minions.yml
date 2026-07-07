@@ -1,3 +1,20 @@
+fuels:
+  COAL:
+    display-name: "<gray>Coal</gray>"
+    material: COAL
+    speed-multiplier: 1.05
+    duration-seconds: 1800
+  ENCHANTED_BREAD:
+    display-name: "<yellow>Enchanted Bread</yellow>"
+    material: BREAD
+    speed-multiplier: 1.05
+    duration-seconds: 43200
+  ENCHANTED_LAVA_BUCKET:
+    display-name: "<gold>Enchanted Lava Bucket</gold>"
+    material: LAVA_BUCKET
+    speed-multiplier: 1.25
+    duration-seconds: 0
+
 minions:
   WHEAT_MINION:
     display-name: "<yellow>Wheat Minion</yellow>"

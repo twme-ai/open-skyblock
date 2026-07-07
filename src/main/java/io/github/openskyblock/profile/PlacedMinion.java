@@ -10,12 +10,18 @@ public final class PlacedMinion {
     private int x;
     private int y;
     private int z;
+    private String fuelId;
+    private long fuelExpiresAtMillis;
 
     public PlacedMinion(String id, long generatedAmount, long lastActionMillis) {
-        this(id, generatedAmount, lastActionMillis, null, 0, 0, 0);
+        this(id, generatedAmount, lastActionMillis, null, 0, 0, 0, "", 0L);
     }
 
     public PlacedMinion(String id, long generatedAmount, long lastActionMillis, String worldName, int x, int y, int z) {
+        this(id, generatedAmount, lastActionMillis, worldName, x, y, z, "", 0L);
+    }
+
+    public PlacedMinion(String id, long generatedAmount, long lastActionMillis, String worldName, int x, int y, int z, String fuelId, long fuelExpiresAtMillis) {
         this.id = id;
         this.generatedAmount = Math.max(0L, generatedAmount);
         this.lastActionMillis = lastActionMillis;
@@ -23,6 +29,8 @@ public final class PlacedMinion {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.fuelId = fuelId == null ? "" : fuelId;
+        this.fuelExpiresAtMillis = Math.max(0L, fuelExpiresAtMillis);
     }
 
     public String id() {
@@ -98,5 +106,23 @@ public final class PlacedMinion {
         this.x = location.getBlockX();
         this.y = location.getBlockY();
         this.z = location.getBlockZ();
+    }
+
+    public String fuelId() {
+        return fuelId == null ? "" : fuelId;
+    }
+
+    public void fuel(String fuelId, long expiresAtMillis) {
+        this.fuelId = fuelId == null ? "" : fuelId;
+        this.fuelExpiresAtMillis = Math.max(0L, expiresAtMillis);
+    }
+
+    public void clearFuel() {
+        this.fuelId = "";
+        this.fuelExpiresAtMillis = 0L;
+    }
+
+    public long fuelExpiresAtMillis() {
+        return fuelExpiresAtMillis;
     }
 }

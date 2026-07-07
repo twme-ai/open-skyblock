@@ -187,7 +187,7 @@ public final class MenuService {
         Map<Integer, MinionMenuAction> actions = new HashMap<>();
         MinionMenuHolder holder = new MinionMenuHolder(placement.profile().uniqueId(), placement.slot(), actions);
         List<TextService.TextPlaceholder> placeholders = plugin.minions()
-                .minionPlaceholders(placement.definition(), placement.placedMinion().generatedAmount());
+                .minionPlaceholders(placement.definition(), placement.placedMinion());
         Inventory inventory = Bukkit.createInventory(
                 holder,
                 size,
@@ -1394,6 +1394,10 @@ public final class MenuService {
                 long claimed = plugin.minions().claim(player, placement);
                 sendClaimResult(player, claimed);
                 player.closeInventory();
+            }
+            case FUEL -> {
+                plugin.minions().applyHeldFuel(player, placement);
+                openMinionMenu(player, placement);
             }
             case PICKUP -> {
                 plugin.minions().pickup(player, placement);

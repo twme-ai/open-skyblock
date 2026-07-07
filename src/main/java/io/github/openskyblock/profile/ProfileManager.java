@@ -854,7 +854,9 @@ public final class ProfileManager {
                             minion.getString("world", null),
                             minion.getInt("x", 0),
                             minion.getInt("y", 0),
-                            minion.getInt("z", 0)
+                            minion.getInt("z", 0),
+                            minion.getString("fuel.id", ""),
+                            minion.getLong("fuel.expires-at-millis", 0L)
                     ));
                 }
             }
@@ -1340,6 +1342,11 @@ public final class ProfileManager {
             profileData.set(minionBase + ".x", minion.x());
             profileData.set(minionBase + ".y", minion.y());
             profileData.set(minionBase + ".z", minion.z());
+            profileData.set(minionBase + ".fuel", null);
+            if (!minion.fuelId().isBlank()) {
+                profileData.set(minionBase + ".fuel.id", minion.fuelId());
+                profileData.set(minionBase + ".fuel.expires-at-millis", minion.fuelExpiresAtMillis());
+            }
         }
     }
 

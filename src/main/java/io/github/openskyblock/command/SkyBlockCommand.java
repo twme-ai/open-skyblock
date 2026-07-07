@@ -879,7 +879,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("minion")) {
-            return startsWith(List.of("add", "give", "list", "claim"), args[1]);
+            return startsWith(List.of("add", "give", "list", "claim", "fuel", "clearfuel"), args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("minion") && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("give"))) {
             return startsWith(plugin.minions().definitions().stream().map(MinionDefinition::id).toList(), args[2]);
@@ -889,6 +889,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("minion") && args[1].equalsIgnoreCase("claim")) {
             return startsWith(List.of("all", "1", "2", "3", "4", "5"), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("minion") && (args[1].equalsIgnoreCase("fuel") || args[1].equalsIgnoreCase("clearfuel"))) {
+            return startsWith(List.of("1", "2", "3", "4", "5"), args[2]);
         }
         return List.of();
     }
@@ -1002,6 +1005,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " minion add <id>", "commands.help.minion-add");
         helpLine(sender, label + " minion list", "commands.help.minion-list");
         helpLine(sender, label + " minion claim [slot|all]", "commands.help.minion-claim");
+        helpLine(sender, label + " minion fuel <slot>", "commands.help.minion-fuel");
     }
 
     private void helpLine(CommandSender sender, String command, String descriptionPath) {
@@ -3301,6 +3305,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "add" -> minionAdd(player, args);
             case "list" -> minionList(player);
             case "claim" -> minionClaim(player, args);
+            case "fuel" -> minionFuel(player, args);
+            case "clearfuel" -> minionClearFuel(player, args);
             default -> plugin.text().send(player, "errors.unknown-command");
         }
     }
@@ -3360,12 +3366,15 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             PlacedMinion placedMinion = profile.minions().get(index);
             MinionDefinition definition = plugin.minions().definition(placedMinion.id()).orElse(null);
             String displayName = definition == null ? placedMinion.id() : definition.displayName();
-            plugin.text().send(player, "commands.minion-list-line", List.of(
-                    TextService.raw("slot", Integer.toString(index + 1)),
-                    TextService.parsed("minion_name", displayName),
-                    TextService.raw("generated", plugin.text().formatNumber(placedMinion.generatedAmount())),
-                    TextService.parsed("location", plugin.minions().locationLabel(placedMinion))
-            ));
+            List<TextService.TextPlaceholder> placeholders = new ArrayList<>();
+            placeholders.add(TextService.raw("slot", Integer.toString(index + 1)));
+            placeholders.add(TextService.parsed("minion_name", displayName));
+            placeholders.add(TextService.raw("generated", plugin.text().formatNumber(placedMinion.generatedAmount())));
+            placeholders.add(TextService.parsed("location", plugin.minions().locationLabel(placedMinion)));
+            if (definition != null) {
+                placeholders.addAll(plugin.minions().minionPlaceholders(definition, placedMinion));
+            }
+            plugin.text().send(player, "commands.minion-list-line", placeholders);
         }
     }
 
@@ -3379,6 +3388,32 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             int slot = Integer.parseInt(args[2]) - 1;
             long claimed = plugin.minions().claim(player, slot);
             sendClaimResult(player, claimed);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(player, "errors.invalid-number");
+        }
+    }
+
+    private void minionFuel(Player player, String[] args) {
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.minion-fuel-usage");
+            return;
+        }
+        try {
+            int slot = Integer.parseInt(args[2]) - 1;
+            plugin.minions().applyHeldFuel(player, slot);
+        } catch (NumberFormatException ignored) {
+            plugin.text().send(player, "errors.invalid-number");
+        }
+    }
+
+    private void minionClearFuel(Player player, String[] args) {
+        if (args.length < 3) {
+            plugin.text().send(player, "commands.minion-fuel-usage");
+            return;
+        }
+        try {
+            int slot = Integer.parseInt(args[2]) - 1;
+            plugin.minions().clearFuel(player, slot);
         } catch (NumberFormatException ignored) {
             plugin.text().send(player, "errors.invalid-number");
         }

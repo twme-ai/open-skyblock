@@ -37,16 +37,19 @@ public final class MinionService {
     private final ProfileManager profiles;
     private final CollectionService collections;
     private final UpgradeService upgrades;
+    private final CustomItemService customItems;
     private final NamespacedKey minionIdKey;
     private final Map<String, MinionDefinition> definitions = new HashMap<>();
+    private final Map<String, MinionFuelDefinition> fuels = new HashMap<>();
     private MayorService mayors;
 
-    public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, UpgradeService upgrades) {
+    public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, UpgradeService upgrades, CustomItemService customItems) {
         this.configService = configService;
         this.text = text;
         this.profiles = profiles;
         this.collections = collections;
         this.upgrades = upgrades;
+        this.customItems = customItems;
         this.minionIdKey = new NamespacedKey(plugin, "minion_id");
     }
 
@@ -56,25 +59,48 @@ public final class MinionService {
 
     public void reload() {
         definitions.clear();
+        fuels.clear();
         ConfigurationSection section = configService.minions().getConfigurationSection("minions");
-        if (section == null) {
+        if (section != null) {
+            for (String id : section.getKeys(false)) {
+                ConfigurationSection minionSection = section.getConfigurationSection(id);
+                if (minionSection == null) {
+                    continue;
+                }
+                Material material = Material.matchMaterial(minionSection.getString("material", "STONE"));
+                definitions.put(id.toUpperCase(Locale.ROOT), new MinionDefinition(
+                        id.toUpperCase(Locale.ROOT),
+                        minionSection.getString("display-name", id),
+                        material == null ? Material.STONE : material,
+                        minionSection.getString("generated-collection", "").toUpperCase(Locale.ROOT),
+                        minionSection.getLong("generated-amount", 1L),
+                        minionSection.getLong("interval-ticks", 400L),
+                        minionSection.getLong("storage-size", 64L),
+                        minionSection.getInt("required-collection-tier", 0)
+                ));
+            }
+        }
+        ConfigurationSection fuelSection = configService.minions().getConfigurationSection("fuels");
+        if (fuelSection == null) {
             return;
         }
-        for (String id : section.getKeys(false)) {
-            ConfigurationSection minionSection = section.getConfigurationSection(id);
-            if (minionSection == null) {
+        for (String id : fuelSection.getKeys(false)) {
+            ConfigurationSection sectionFuel = fuelSection.getConfigurationSection(id);
+            if (sectionFuel == null) {
                 continue;
             }
-            Material material = Material.matchMaterial(minionSection.getString("material", "STONE"));
-            definitions.put(id.toUpperCase(Locale.ROOT), new MinionDefinition(
+            Material material = Material.matchMaterial(sectionFuel.getString("material", ""));
+            String customItemId = sectionFuel.getString("custom-item", "").toUpperCase(Locale.ROOT);
+            if (material == null && customItemId.isBlank()) {
+                continue;
+            }
+            fuels.put(id.toUpperCase(Locale.ROOT), new MinionFuelDefinition(
                     id.toUpperCase(Locale.ROOT),
-                    minionSection.getString("display-name", id),
-                    material == null ? Material.STONE : material,
-                    minionSection.getString("generated-collection", "").toUpperCase(Locale.ROOT),
-                    minionSection.getLong("generated-amount", 1L),
-                    minionSection.getLong("interval-ticks", 400L),
-                    minionSection.getLong("storage-size", 64L),
-                    minionSection.getInt("required-collection-tier", 0)
+                    sectionFuel.getString("display-name", id),
+                    material == null ? Material.AIR : material,
+                    customItemId,
+                    Math.max(1.0D, sectionFuel.getDouble("speed-multiplier", 1.0D)),
+                    sectionFuel.getLong("duration-seconds", 0L)
             ));
         }
     }
@@ -89,6 +115,19 @@ public final class MinionService {
     public List<MinionDefinition> definitions() {
         return definitions.values().stream()
                 .sorted(Comparator.comparing(MinionDefinition::id))
+                .toList();
+    }
+
+    public Optional<MinionFuelDefinition> fuel(String id) {
+        if (id == null || id.isBlank()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(fuels.get(id.toUpperCase(Locale.ROOT)));
+    }
+
+    public List<MinionFuelDefinition> fuels() {
+        return fuels.values().stream()
+                .sorted(Comparator.comparing(MinionFuelDefinition::id))
                 .toList();
     }
 
@@ -207,6 +246,68 @@ public final class MinionService {
         return claimed;
     }
 
+    public boolean applyHeldFuel(Player player, int slot) {
+        SkyBlockProfile profile = profiles.profile(player);
+        if (slot < 0 || slot >= profile.minions().size()) {
+            text.send(player, "commands.minion-not-found");
+            return false;
+        }
+        PlacedMinion placedMinion = profile.minions().get(slot);
+        MinionDefinition definition = definition(placedMinion.id()).orElse(null);
+        if (definition == null) {
+            text.send(player, "commands.minion-not-found");
+            return false;
+        }
+        return applyHeldFuel(player, new MinionPlacement(profile, slot, placedMinion, definition));
+    }
+
+    public boolean applyHeldFuel(Player player, MinionPlacement placement) {
+        ItemStack held = player.getInventory().getItemInMainHand();
+        if (held.getType().isAir()) {
+            text.send(player, "commands.minion-fuel-missing");
+            return false;
+        }
+        MinionFuelDefinition fuel = fuelForItem(held).orElse(null);
+        if (fuel == null) {
+            text.send(player, "commands.minion-fuel-invalid");
+            return false;
+        }
+        updateMinion(placement.placedMinion(), placement.definition(), System.currentTimeMillis());
+        if (!placement.placedMinion().fuelId().isBlank()) {
+            text.send(player, "commands.minion-fuel-active", minionPlaceholders(placement.definition(), placement.placedMinion()));
+            return false;
+        }
+        long expiresAt = fuel.permanent() ? 0L : System.currentTimeMillis() + fuel.durationSeconds() * 1000L;
+        placement.placedMinion().fuel(fuel.id(), expiresAt);
+        consumeOneMainHand(player, held);
+        profiles.save(placement.profile());
+        text.send(player, "commands.minion-fuel-applied", minionPlaceholders(placement.definition(), placement.placedMinion()));
+        return true;
+    }
+
+    public boolean clearFuel(Player player, int slot) {
+        SkyBlockProfile profile = profiles.profile(player);
+        if (slot < 0 || slot >= profile.minions().size()) {
+            text.send(player, "commands.minion-not-found");
+            return false;
+        }
+        PlacedMinion placedMinion = profile.minions().get(slot);
+        MinionDefinition definition = definition(placedMinion.id()).orElse(null);
+        if (definition == null) {
+            text.send(player, "commands.minion-not-found");
+            return false;
+        }
+        updateMinion(placedMinion, definition, System.currentTimeMillis());
+        if (placedMinion.fuelId().isBlank()) {
+            text.send(player, "commands.minion-fuel-none");
+            return false;
+        }
+        placedMinion.clearFuel();
+        profiles.save(profile);
+        text.send(player, "commands.minion-fuel-cleared");
+        return true;
+    }
+
     public boolean pickup(Player player, int slot) {
         SkyBlockProfile profile = profiles.profile(player);
         if (slot < 0 || slot >= profile.minions().size()) {
@@ -273,7 +374,8 @@ public final class MinionService {
     }
 
     private void updateMinion(PlacedMinion placedMinion, MinionDefinition definition, long now) {
-        long intervalMillis = Math.max(1L, definition.intervalTicks()) * MILLIS_PER_TICK;
+        MinionFuelDefinition fuel = activeFuel(placedMinion, now).orElse(null);
+        long intervalMillis = intervalMillis(definition, fuel);
         long elapsed = now - placedMinion.lastActionMillis();
         long cycles = elapsed / intervalMillis;
         if (cycles <= 0L) {
@@ -285,6 +387,28 @@ public final class MinionService {
             placedMinion.generatedAmount(placedMinion.generatedAmount() + generated);
         }
         placedMinion.lastActionMillis(placedMinion.lastActionMillis() + cycles * intervalMillis);
+    }
+
+    private long intervalMillis(MinionDefinition definition, MinionFuelDefinition fuel) {
+        double multiplier = fuel == null ? 1.0D : Math.max(1.0D, fuel.speedMultiplier());
+        return Math.max(1L, (long) Math.floor(Math.max(1L, definition.intervalTicks()) * MILLIS_PER_TICK / multiplier));
+    }
+
+    private Optional<MinionFuelDefinition> activeFuel(PlacedMinion placedMinion, long now) {
+        if (placedMinion.fuelId().isBlank()) {
+            return Optional.empty();
+        }
+        MinionFuelDefinition fuel = fuel(placedMinion.fuelId()).orElse(null);
+        if (fuel == null) {
+            placedMinion.clearFuel();
+            return Optional.empty();
+        }
+        long expiresAt = placedMinion.fuelExpiresAtMillis();
+        if (expiresAt > 0L && expiresAt <= now) {
+            placedMinion.clearFuel();
+            return Optional.empty();
+        }
+        return Optional.of(fuel);
     }
 
     private long generatedAmount(MinionDefinition definition, long cycles) {
@@ -321,13 +445,75 @@ public final class MinionService {
     }
 
     public List<TextService.TextPlaceholder> minionPlaceholders(MinionDefinition definition, long generated) {
+        return minionPlaceholders(definition, generated, null);
+    }
+
+    public List<TextService.TextPlaceholder> minionPlaceholders(MinionDefinition definition, PlacedMinion placedMinion) {
+        return minionPlaceholders(definition, placedMinion.generatedAmount(), placedMinion);
+    }
+
+    private List<TextService.TextPlaceholder> minionPlaceholders(MinionDefinition definition, long generated, PlacedMinion placedMinion) {
+        long now = System.currentTimeMillis();
+        MinionFuelDefinition fuel = placedMinion == null ? null : activeFuel(placedMinion, now).orElse(null);
+        double speedMultiplier = fuel == null ? 1.0D : fuel.speedMultiplier();
         return List.of(
                 TextService.parsed("minion_name", definition.displayName()),
                 TextService.parsed("collection", collectionDisplayName(definition)),
                 TextService.raw("generated", text.formatNumber(generated)),
                 TextService.raw("storage", text.formatNumber(definition.storageSize())),
-                TextService.raw("interval_seconds", text.formatNumber(definition.intervalTicks() / 20.0D))
+                TextService.raw("interval_seconds", text.formatNumber(intervalMillis(definition, fuel) / 1000.0D)),
+                TextService.parsed("fuel", fuel == null ? text.rawMessage("minions.fuel-empty") : fuel.displayName()),
+                TextService.raw("fuel_speed", text.formatNumber((speedMultiplier - 1.0D) * 100.0D)),
+                TextService.raw("fuel_remaining", fuelRemaining(placedMinion, fuel, now))
         );
+    }
+
+    private Optional<MinionFuelDefinition> fuelForItem(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType().isAir()) {
+            return Optional.empty();
+        }
+        for (MinionFuelDefinition fuel : fuels()) {
+            if (fuelMatches(fuel, itemStack)) {
+                return Optional.of(fuel);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private boolean fuelMatches(MinionFuelDefinition fuel, ItemStack itemStack) {
+        if (fuel.customItem()) {
+            return customItems.definition(itemStack)
+                    .map(CustomItemDefinition::id)
+                    .filter(id -> id.equalsIgnoreCase(fuel.customItemId()))
+                    .isPresent();
+        }
+        return itemStack.getType() == fuel.material() && customItems.definition(itemStack).isEmpty();
+    }
+
+    private void consumeOneMainHand(Player player, ItemStack held) {
+        int amount = held.getAmount();
+        if (amount <= 1) {
+            player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+            return;
+        }
+        held.setAmount(amount - 1);
+    }
+
+    private String fuelRemaining(PlacedMinion placedMinion, MinionFuelDefinition fuel, long now) {
+        if (placedMinion == null || fuel == null) {
+            return text.rawMessage("minions.fuel-remaining-none");
+        }
+        if (fuel.permanent() || placedMinion.fuelExpiresAtMillis() <= 0L) {
+            return text.rawMessage("minions.fuel-remaining-permanent");
+        }
+        long seconds = Math.max(0L, (placedMinion.fuelExpiresAtMillis() - now) / 1000L);
+        long hours = seconds / 3600L;
+        long minutes = (seconds % 3600L) / 60L;
+        long remainingSeconds = seconds % 60L;
+        return text.rawMessage("minions.fuel-remaining-format")
+                .replace("<hours>", text.formatNumber(hours))
+                .replace("<minutes>", text.formatNumber(minutes))
+                .replace("<seconds>", text.formatNumber(remainingSeconds));
     }
 
     private void addGeneratedItems(Player player, MinionDefinition definition, long amount) {

@@ -5,6 +5,7 @@ import java.util.Locale;
 public enum MinionMenuAction {
     NONE,
     CLAIM,
+    FUEL,
     PICKUP;
 
     public static MinionMenuAction parse(String value) {

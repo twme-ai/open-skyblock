@@ -542,7 +542,21 @@ minion:
         - "<gray>Generated:</gray> <yellow><generated></yellow><gray>/<storage></gray>"
         - "<gray>Resource:</gray> <collection>"
         - "<gray>Interval:</gray> <yellow><interval_seconds>s</yellow>"
+        - "<gray>Fuel:</gray> <fuel>"
+        - "<gray>Fuel Time:</gray> <yellow><fuel_remaining></yellow>"
       action: NONE
+    fuel:
+      slot: 12
+      material: FURNACE
+      display-name: "<yellow>Apply Fuel</yellow>"
+      lore:
+        - "<gray>Hold a configured fuel item in your main hand.</gray>"
+        - "<gray>Current:</gray> <fuel>"
+        - "<gray>Speed Bonus:</gray> <yellow>+<fuel_speed>%</yellow>"
+        - "<gray>Remaining:</gray> <yellow><fuel_remaining></yellow>"
+        - ""
+        - "<yellow>Click to apply held fuel.</yellow>"
+      action: FUEL
     claim:
       slot: 13
       material: CHEST
