@@ -31,6 +31,17 @@ upgrades:
     display-name: "<aqua>Diamond Spreading</aqua>"
     material: DIAMOND
     output-multiplier: 1.10
+  COMPACTOR:
+    display-name: "<green>Compactor</green>"
+    material: CRAFTING_TABLE
+    compact:
+      input-amount: 9
+      output-amount: 1
+      outputs:
+        WHEAT:
+          material: HAY_BLOCK
+        COAL:
+          material: COAL_BLOCK
 
 minions:
   WHEAT_MINION:

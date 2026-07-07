@@ -1,5 +1,6 @@
 package io.github.openskyblock.service;
 
+import java.util.Map;
 import org.bukkit.Material;
 
 public record MinionUpgradeDefinition(
@@ -9,7 +10,8 @@ public record MinionUpgradeDefinition(
         String customItemId,
         double speedMultiplier,
         double outputMultiplier,
-        long storageBonus
+        long storageBonus,
+        Map<String, MinionCompactionDefinition> compactions
 ) {
     public boolean customItem() {
         return customItemId != null && !customItemId.isBlank();

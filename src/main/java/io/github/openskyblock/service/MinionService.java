@@ -131,9 +131,44 @@ public final class MinionService {
                     customItemId,
                     Math.max(1.0D, sectionUpgrade.getDouble("speed-multiplier", 1.0D)),
                     Math.max(1.0D, sectionUpgrade.getDouble("output-multiplier", 1.0D)),
-                    Math.max(0L, sectionUpgrade.getLong("storage-bonus", 0L))
+                    Math.max(0L, sectionUpgrade.getLong("storage-bonus", 0L)),
+                    loadCompactions(sectionUpgrade)
             ));
         }
+    }
+
+    private Map<String, MinionCompactionDefinition> loadCompactions(ConfigurationSection upgradeSection) {
+        ConfigurationSection compact = upgradeSection.getConfigurationSection("compact");
+        if (compact == null) {
+            return Map.of();
+        }
+        ConfigurationSection outputs = compact.getConfigurationSection("outputs");
+        if (outputs == null) {
+            return Map.of();
+        }
+        Map<String, MinionCompactionDefinition> compactions = new HashMap<>();
+        long defaultInput = Math.max(1L, compact.getLong("input-amount", 9L));
+        long defaultOutput = Math.max(1L, compact.getLong("output-amount", 1L));
+        for (String collectionId : outputs.getKeys(false)) {
+            ConfigurationSection output = outputs.getConfigurationSection(collectionId);
+            if (output == null) {
+                continue;
+            }
+            Material material = Material.matchMaterial(output.getString("material", ""));
+            String customItemId = output.getString("custom-item", "").toUpperCase(Locale.ROOT);
+            if (material == null && customItemId.isBlank()) {
+                continue;
+            }
+            String normalized = collectionId.toUpperCase(Locale.ROOT);
+            compactions.put(normalized, new MinionCompactionDefinition(
+                    normalized,
+                    Math.max(1L, output.getLong("input-amount", defaultInput)),
+                    Math.max(1L, output.getLong("output-amount", defaultOutput)),
+                    material == null ? Material.AIR : material,
+                    customItemId
+            ));
+        }
+        return Map.copyOf(compactions);
     }
 
     public Optional<MinionDefinition> definition(String id) {
@@ -292,7 +327,7 @@ public final class MinionService {
         long generated = placedMinion.generatedAmount();
         placedMinion.generatedAmount(0L);
         collections.addProgress(player, definition.generatedCollection(), generated);
-        addGeneratedItems(player, definition, generated);
+        addGeneratedItems(player, definition, placedMinion, generated);
         return generated;
     }
 
@@ -578,6 +613,21 @@ public final class MinionService {
                 .toList();
     }
 
+    private Optional<ActiveCompaction> activeCompaction(MinionDefinition definition, PlacedMinion placedMinion) {
+        String collectionId = definition.generatedCollection().toUpperCase(Locale.ROOT);
+        return activeUpgrades(placedMinion).stream()
+                .map(upgrade -> new ActiveCompaction(upgrade, upgrade.compactions().get(collectionId)))
+                .filter(active -> active.compaction() != null && compactionOutputAvailable(active.compaction()))
+                .max(Comparator.comparingLong(active -> active.compaction().inputAmount()));
+    }
+
+    private boolean compactionOutputAvailable(MinionCompactionDefinition compaction) {
+        if (compaction.customItem()) {
+            return customItems.definition(compaction.outputCustomItemId()).isPresent();
+        }
+        return compaction.outputMaterial() != null && !compaction.outputMaterial().isAir();
+    }
+
     private int maxUpgradeSlots() {
         return Math.max(0, configService.minions().getInt("settings.upgrade-slots", 2));
     }
@@ -625,6 +675,7 @@ public final class MinionService {
         double upgradeSpeedMultiplier = placedMinion == null ? 1.0D : upgradeSpeedMultiplier(placedMinion);
         double outputMultiplier = placedMinion == null ? 1.0D : upgradeOutputMultiplier(placedMinion);
         long storage = placedMinion == null ? definition.storageSize() : effectiveStorage(definition, placedMinion);
+        ActiveCompaction compaction = placedMinion == null ? null : activeCompaction(definition, placedMinion).orElse(null);
         return List.of(
                 TextService.parsed("minion_name", definition.displayName()),
                 TextService.parsed("collection", collectionDisplayName(definition)),
@@ -638,7 +689,8 @@ public final class MinionService {
                 TextService.parsed("upgrades", upgradeList(placedMinion)),
                 TextService.raw("upgrade_speed", text.formatNumber((upgradeSpeedMultiplier - 1.0D) * 100.0D)),
                 TextService.raw("upgrade_output", text.formatNumber((outputMultiplier - 1.0D) * 100.0D)),
-                TextService.raw("upgrade_storage", text.formatNumber(Math.max(0L, storage - definition.storageSize())))
+                TextService.raw("upgrade_storage", text.formatNumber(Math.max(0L, storage - definition.storageSize()))),
+                TextService.parsed("compaction", compactionLabel(compaction))
         );
     }
 
@@ -725,21 +777,101 @@ public final class MinionService {
         return String.join(text.rawMessage("minions.upgrades-separator"), names);
     }
 
+    private String compactionLabel(ActiveCompaction compaction) {
+        if (compaction == null) {
+            return text.rawMessage("minions.compaction-none");
+        }
+        return text.rawMessage("minions.compaction-format")
+                .replace("<upgrade>", compaction.upgrade().displayName())
+                .replace("<output>", compactionOutputName(compaction.compaction()));
+    }
+
+    private String compactionOutputName(MinionCompactionDefinition compaction) {
+        if (compaction.customItem()) {
+            return customItems.definition(compaction.outputCustomItemId())
+                    .map(CustomItemDefinition::displayName)
+                    .orElse(compaction.outputCustomItemId());
+        }
+        return readableMaterialName(compaction.outputMaterial());
+    }
+
+    private String readableMaterialName(Material material) {
+        if (material == null || material.isAir()) {
+            return "";
+        }
+        String[] parts = material.name().toLowerCase(Locale.ROOT).split("_");
+        List<String> words = new ArrayList<>();
+        for (String part : parts) {
+            if (part.isBlank()) {
+                continue;
+            }
+            words.add(Character.toUpperCase(part.charAt(0)) + part.substring(1));
+        }
+        return String.join(" ", words);
+    }
+
     private List<TextService.TextPlaceholder> upgradePlaceholders(MinionDefinition definition, PlacedMinion placedMinion, MinionUpgradeDefinition upgrade) {
         List<TextService.TextPlaceholder> placeholders = new ArrayList<>(minionPlaceholders(definition, placedMinion));
         placeholders.add(TextService.parsed("upgrade", upgrade == null ? text.rawMessage("minions.upgrade-unknown") : upgrade.displayName()));
         return placeholders;
     }
 
-    private void addGeneratedItems(Player player, MinionDefinition definition, long amount) {
+    private record ActiveCompaction(MinionUpgradeDefinition upgrade, MinionCompactionDefinition compaction) {
+    }
+
+    private void addGeneratedItems(Player player, MinionDefinition definition, PlacedMinion placedMinion, long amount) {
+        ActiveCompaction compaction = activeCompaction(definition, placedMinion).orElse(null);
+        if (compaction != null && compaction.compaction().inputAmount() > 0L) {
+            long compacted = amount / compaction.compaction().inputAmount();
+            long remainder = amount % compaction.compaction().inputAmount();
+            if (compacted > 0L) {
+                addCompactedItems(player, compaction.compaction(), compacted * compaction.compaction().outputAmount());
+            }
+            if (remainder <= 0L) {
+                return;
+            }
+            amount = remainder;
+        }
         Material material = collections.definition(definition.generatedCollection())
                 .map(CollectionDefinition::material)
                 .orElse(definition.material());
+        addMaterialItems(player, material, amount);
+    }
+
+    private void addCompactedItems(Player player, MinionCompactionDefinition compaction, long amount) {
+        if (compaction.customItem()) {
+            CustomItemDefinition definition = customItems.definition(compaction.outputCustomItemId()).orElse(null);
+            if (definition == null) {
+                return;
+            }
+            addCustomItems(player, definition, amount);
+            return;
+        }
+        addMaterialItems(player, compaction.outputMaterial(), amount);
+    }
+
+    private void addMaterialItems(Player player, Material material, long amount) {
+        if (material == null || material.isAir()) {
+            return;
+        }
         long remaining = amount;
         int stackSize = Math.max(1, material.getMaxStackSize());
         while (remaining > 0L) {
             int next = (int) Math.min(stackSize, remaining);
             giveOrDrop(player, new ItemStack(material, next));
+            remaining -= next;
+        }
+    }
+
+    private void addCustomItems(Player player, CustomItemDefinition definition, long amount) {
+        ItemStack template = customItems.createItem(definition);
+        long remaining = amount;
+        int stackSize = Math.max(1, template.getMaxStackSize());
+        while (remaining > 0L) {
+            int next = (int) Math.min(stackSize, remaining);
+            ItemStack itemStack = template.clone();
+            itemStack.setAmount(next);
+            giveOrDrop(player, itemStack);
             remaining -= next;
         }
     }

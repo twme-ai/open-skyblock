@@ -546,6 +546,7 @@ minion:
         - "<gray>Fuel Time:</gray> <yellow><fuel_remaining></yellow>"
         - "<gray>Upgrades:</gray> <upgrades>"
         - "<gray>Storage Bonus:</gray> <yellow>+<upgrade_storage></yellow>"
+        - "<gray>Compaction:</gray> <compaction>"
       action: NONE
     fuel:
       slot: 12
@@ -569,6 +570,7 @@ minion:
         - "<gray>Upgrade Slots:</gray> <yellow><upgrade_slots></yellow>"
         - "<gray>Speed Bonus:</gray> <yellow>+<upgrade_speed>%</yellow>"
         - "<gray>Output Bonus:</gray> <yellow>+<upgrade_output>%</yellow>"
+        - "<gray>Compaction:</gray> <compaction>"
         - ""
         - "<yellow>Click to install held upgrade.</yellow>"
       action: UPGRADE

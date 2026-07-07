@@ -1193,6 +1193,8 @@ minions:
   upgrades-empty: "<dark_gray>None</dark_gray>"
   upgrades-separator: "<gray>, </gray>"
   upgrade-unknown: "<dark_gray>Unknown Upgrade</dark_gray>"
+  compaction-none: "<dark_gray>None</dark_gray>"
+  compaction-format: "<upgrade> <gray>to</gray> <yellow><output></yellow>"
 
 pets:
   no-active: "<gray>None</gray>"
