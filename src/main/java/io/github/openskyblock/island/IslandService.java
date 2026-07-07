@@ -2,6 +2,7 @@ package io.github.openskyblock.island;
 
 import io.github.openskyblock.config.ConfigService;
 import io.github.openskyblock.config.TextService;
+import io.github.openskyblock.profile.IslandWarp;
 import io.github.openskyblock.profile.ProfileManager;
 import io.github.openskyblock.profile.SkyBlockProfile;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
@@ -84,6 +86,10 @@ public final class IslandService {
     }
 
     public void visit(Player visitor, String ownerName) {
+        visit(visitor, ownerName, "");
+    }
+
+    public void visit(Player visitor, String ownerName, String warpName) {
         if (!enabled()) {
             text.send(visitor, "commands.island-disabled");
             return;
@@ -101,6 +107,19 @@ public final class IslandService {
             text.send(visitor, "commands.island-no-island", List.of(TextService.raw("player", owner.playerName())));
             return;
         }
+        IslandWarp warp = null;
+        if (warpName != null && !warpName.isBlank()) {
+            String id = normalizeWarpName(warpName);
+            if (id.isBlank()) {
+                text.send(visitor, "commands.island-warp-name-invalid", warpPlaceholders(owner, warpName));
+                return;
+            }
+            warp = owner.islandWarp(id);
+            if (warp == null) {
+                text.send(visitor, "commands.island-warp-unknown", warpPlaceholders(owner, warpName));
+                return;
+            }
+        }
         boolean coopMember = owner.isIslandCoopMember(visitor.getUniqueId());
         if (!coopMember && !owner.islandVisitorsEnabled() && !visitor.hasPermission("openskyblock.admin")) {
             text.send(visitor, "commands.island-visitors-closed", List.of(TextService.raw("player", owner.playerName())));
@@ -113,7 +132,7 @@ public final class IslandService {
         }
         World world = worldFor(owner, owner.uniqueId());
         ensureStarterIsland(world);
-        visitor.teleport(homeLocation(owner, world));
+        visitor.teleport(warp == null ? homeLocation(owner, world) : warp.location(world));
         text.send(visitor, "commands.island-visited", List.of(TextService.raw("player", owner.playerName())));
         Player ownerPlayer = Bukkit.getPlayer(owner.uniqueId());
         if (ownerPlayer != null) {
@@ -257,6 +276,122 @@ public final class IslandService {
         text.send(player, "commands.island-home-set", islandPlaceholders(owner));
     }
 
+    public void setWarp(Player player, String warpName) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        SkyBlockProfile owner = ownerForCurrentIsland(player);
+        if (owner == null || !canModify(player, player.getWorld())) {
+            text.send(player, "commands.island-warp-set-invalid");
+            return;
+        }
+        String id = normalizeWarpName(warpName);
+        if (id.isBlank()) {
+            text.send(player, "commands.island-warp-name-invalid", warpPlaceholders(owner, warpName));
+            return;
+        }
+        IslandWarp existing = owner.islandWarp(id);
+        if (existing == null && owner.islandWarps().size() >= maxIslandWarps()) {
+            text.send(player, "commands.island-warp-limit", warpPlaceholders(owner, id));
+            return;
+        }
+        Location location = player.getLocation();
+        IslandWarp warp = new IslandWarp(id, location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        owner.setIslandWarp(warp);
+        profiles.save(owner);
+        text.send(player, "commands.island-warp-set", warpPlaceholders(owner, warp));
+    }
+
+    public void removeWarp(Player player, String warpName) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        SkyBlockProfile owner = editableIslandOwner(player);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(player, "commands.island-no-own-island");
+            return;
+        }
+        String id = normalizeWarpName(warpName);
+        if (id.isBlank()) {
+            text.send(player, "commands.island-warp-name-invalid", warpPlaceholders(owner, warpName));
+            return;
+        }
+        IslandWarp removed = owner.removeIslandWarp(id);
+        if (removed == null) {
+            text.send(player, "commands.island-warp-unknown", warpPlaceholders(owner, id));
+            return;
+        }
+        profiles.save(owner);
+        text.send(player, "commands.island-warp-removed", warpPlaceholders(owner, removed));
+    }
+
+    public void teleportWarp(Player player, String warpName) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        SkyBlockProfile owner = islandContext(player);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(player, "commands.island-no-own-island");
+            return;
+        }
+        String id = normalizeWarpName(warpName);
+        if (id.isBlank()) {
+            text.send(player, "commands.island-warp-name-invalid", warpPlaceholders(owner, warpName));
+            return;
+        }
+        IslandWarp warp = owner.islandWarp(id);
+        if (warp == null) {
+            text.send(player, "commands.island-warp-unknown", warpPlaceholders(owner, id));
+            return;
+        }
+        World world = worldFor(owner, owner.uniqueId());
+        ensureStarterIsland(world);
+        player.teleport(warp.location(world));
+        text.send(player, "commands.island-warp-teleported", warpPlaceholders(owner, warp));
+    }
+
+    public void sendWarps(Player player) {
+        if (!enabled()) {
+            text.send(player, "commands.island-disabled");
+            return;
+        }
+        SkyBlockProfile owner = islandContext(player);
+        if (owner == null || !hasIsland(owner)) {
+            text.send(player, "commands.island-no-own-island");
+            return;
+        }
+        if (owner.islandWarps().isEmpty()) {
+            text.send(player, "commands.island-warps-empty", islandPlaceholders(owner));
+            return;
+        }
+        text.send(player, "commands.island-warps-header", islandPlaceholders(owner));
+        for (IslandWarp warp : sortedWarps(owner)) {
+            text.send(player, "commands.island-warps-line", warpPlaceholders(owner, warp));
+        }
+    }
+
+    public List<String> warpIds(Player player) {
+        if (player == null) {
+            return List.of();
+        }
+        SkyBlockProfile owner = islandContext(player);
+        if (owner == null) {
+            return List.of();
+        }
+        return sortedWarps(owner).stream().map(IslandWarp::id).toList();
+    }
+
+    public List<String> warpIds(String ownerName) {
+        SkyBlockProfile owner = profiles.profileByName(ownerName);
+        if (owner == null) {
+            return List.of();
+        }
+        return sortedWarps(owner).stream().map(IslandWarp::id).toList();
+    }
+
     public void requestReset(Player player) {
         if (!enabled()) {
             text.send(player, "commands.island-disabled");
@@ -322,6 +457,8 @@ public final class IslandService {
                 TextService.raw("home_x", text.formatNumber(homeX(profile))),
                 TextService.raw("home_y", text.formatNumber(homeY(profile))),
                 TextService.raw("home_z", text.formatNumber(homeZ(profile))),
+                TextService.raw("warps", text.formatNumber(profile.islandWarps().size())),
+                TextService.raw("warp_limit", text.formatNumber(maxIslandWarps())),
                 TextService.raw("minions", text.formatNumber(profile.minions().size()))
         );
     }
@@ -402,6 +539,14 @@ public final class IslandService {
 
     private int maxCoopMembers() {
         return Math.max(1, configService.main().getInt("islands.coop.max-members", 5));
+    }
+
+    private int maxIslandWarps() {
+        return Math.max(1, configService.main().getInt("islands.warps.max", 56));
+    }
+
+    private int maxWarpNameLength() {
+        return Math.max(3, configService.main().getInt("islands.warps.max-name-length", 24));
     }
 
     private long inviteExpireSeconds() {
@@ -573,6 +718,9 @@ public final class IslandService {
 
     private void clearResetState(SkyBlockProfile profile, String worldName) {
         profile.clearIslandHome();
+        if (configService.main().getBoolean("islands.reset.clear-warps", true)) {
+            profile.islandWarps().clear();
+        }
         if (configService.main().getBoolean("islands.reset.clear-minions", true)) {
             profile.minions().clear();
         }
@@ -616,8 +764,63 @@ public final class IslandService {
         return placeholders;
     }
 
+    private List<TextService.TextPlaceholder> warpPlaceholders(SkyBlockProfile profile, IslandWarp warp) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(islandPlaceholders(profile));
+        placeholders.add(TextService.raw("warp", warp == null ? "" : warp.id()));
+        placeholders.add(TextService.raw("warp_x", warp == null ? "" : text.formatNumber(warp.x())));
+        placeholders.add(TextService.raw("warp_y", warp == null ? "" : text.formatNumber(warp.y())));
+        placeholders.add(TextService.raw("warp_z", warp == null ? "" : text.formatNumber(warp.z())));
+        return placeholders;
+    }
+
+    private List<TextService.TextPlaceholder> warpPlaceholders(SkyBlockProfile profile, String warpName) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(islandPlaceholders(profile));
+        placeholders.add(TextService.raw("warp", warpName == null ? "" : warpName));
+        placeholders.add(TextService.raw("warp_x", ""));
+        placeholders.add(TextService.raw("warp_y", ""));
+        placeholders.add(TextService.raw("warp_z", ""));
+        return placeholders;
+    }
+
+    private List<IslandWarp> sortedWarps(SkyBlockProfile profile) {
+        return profile.islandWarps().values().stream()
+                .sorted((first, second) -> first.id().compareTo(second.id()))
+                .toList();
+    }
+
+    private SkyBlockProfile islandContext(Player player) {
+        SkyBlockProfile owner = ownerForCurrentIsland(player);
+        return owner == null ? profiles.profile(player) : owner;
+    }
+
+    private SkyBlockProfile editableIslandOwner(Player player) {
+        if (!isIslandWorld(player.getWorld())) {
+            return profiles.profile(player);
+        }
+        SkyBlockProfile owner = ownerForCurrentIsland(player);
+        return owner != null && canModify(player, player.getWorld()) ? owner : null;
+    }
+
+    private String normalizeWarpName(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        String input = raw.trim().toLowerCase(Locale.ROOT);
+        StringBuilder normalized = new StringBuilder();
+        int limit = maxWarpNameLength();
+        for (int index = 0; index < input.length() && normalized.length() < limit; index++) {
+            char character = input.charAt(index);
+            boolean letter = character >= 'a' && character <= 'z';
+            boolean digit = character >= '0' && character <= '9';
+            if (letter || digit || character == '_' || character == '-') {
+                normalized.append(character);
+            }
+        }
+        return normalized.toString();
+    }
+
     private boolean hasIsland(SkyBlockProfile profile) {
-        return profile.islandWorldName() != null && !profile.islandWorldName().isBlank();
+        return profile != null && profile.islandWorldName() != null && !profile.islandWorldName().isBlank();
     }
 
     private boolean resetEnabled() {

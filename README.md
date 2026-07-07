@@ -10,7 +10,7 @@ The repository currently contains the foundation needed for later full parity wo
 
 - Paper 1.21.8 API Maven project.
 - Persistent player profiles with purse, bank, skills, collections, and SkyBlock level calculation.
-- Private island world creation with starter platform, starter chest, configurable world border, saved island home, guarded island reset flow, visitor access toggles, configurable visitor limits, basic co-op membership, island visiting, management menu, and basic island protection.
+- Private island world creation with starter platform, starter chest, configurable world border, saved island home, named island warps, guarded island reset flow, visitor access toggles, configurable visitor limits, basic co-op membership, island visiting, management menu, and basic island protection.
 - Configurable SkyBlock menu GUI and starter menu item.
 - Paged collection browser and recipe book menus with configurable layout, lore, and navigation.
 - Configurable MiniMessage messages in `messages.yml`.
@@ -76,11 +76,15 @@ target/OpenSkyBlock-0.1.0-SNAPSHOT.jar
 - `/skyblock island create`
 - `/skyblock island home`
 - `/skyblock island sethome`
+- `/skyblock island warps`
+- `/skyblock island warp <name>`
+- `/skyblock island setwarp <name>`
+- `/skyblock island delwarp <name>`
 - `/skyblock island reset`
 - `/skyblock island reset confirm <token>`
 - `/skyblock island info`
 - `/skyblock island manage`
-- `/skyblock island visit <player>`
+- `/skyblock island visit <player> [warp]`
 - `/skyblock island visitors <on|off|toggle>`
 - `/skyblock island coop invite <player>`
 - `/skyblock island coop accept [owner]`

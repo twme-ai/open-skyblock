@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public final class SkyBlockProfile {
     private float islandHomeYaw;
     private float islandHomePitch;
     private final Set<UUID> islandCoopMembers = new HashSet<>();
+    private final Map<String, IslandWarp> islandWarps = new HashMap<>();
     private final Map<SkillType, Double> skillXp = new EnumMap<>(SkillType.class);
     private final Map<String, Long> collections = new HashMap<>();
     private final Set<String> fairySouls = new HashSet<>();
@@ -234,6 +236,25 @@ public final class SkyBlockProfile {
 
     public boolean removeIslandCoopMember(UUID uniqueId) {
         return islandCoopMembers.remove(uniqueId);
+    }
+
+    public Map<String, IslandWarp> islandWarps() {
+        return islandWarps;
+    }
+
+    public IslandWarp islandWarp(String id) {
+        return id == null ? null : islandWarps.get(id.toLowerCase(Locale.ROOT));
+    }
+
+    public void setIslandWarp(IslandWarp warp) {
+        if (warp == null || warp.id() == null || warp.id().isBlank()) {
+            return;
+        }
+        islandWarps.put(warp.id().toLowerCase(Locale.ROOT), warp);
+    }
+
+    public IslandWarp removeIslandWarp(String id) {
+        return id == null ? null : islandWarps.remove(id.toLowerCase(Locale.ROOT));
     }
 
     public boolean islandHomeSet() {

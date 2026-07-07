@@ -80,10 +80,14 @@ islands:
   home-pitch: 0.0
   default-visitors-enabled: false
   max-visitors: 1
+  warps:
+    max: 56
+    max-name-length: 24
   reset:
     enabled: true
     confirmation-word: "RESET"
     confirmation-seconds: 60
+    clear-warps: true
     clear-minions: true
     clear-cakes: true
   coop:

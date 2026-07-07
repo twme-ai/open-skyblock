@@ -6,6 +6,7 @@ public enum IslandMenuAction {
     NONE,
     HOME,
     SET_HOME,
+    WARPS,
     RESET,
     TOGGLE_VISITORS,
     INFO,

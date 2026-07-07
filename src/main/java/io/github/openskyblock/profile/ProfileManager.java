@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
@@ -168,6 +169,23 @@ public final class ProfileManager {
                     (float) islandHome.getDouble("yaw", configService.main().getDouble("islands.home-yaw", 180.0D)),
                     (float) islandHome.getDouble("pitch", configService.main().getDouble("islands.home-pitch", 0.0D))
             );
+        }
+        ConfigurationSection islandWarps = section.getConfigurationSection("island.warps");
+        if (islandWarps != null) {
+            for (String warpId : islandWarps.getKeys(false)) {
+                ConfigurationSection warp = islandWarps.getConfigurationSection(warpId);
+                if (warp == null || warpId.isBlank()) {
+                    continue;
+                }
+                profile.setIslandWarp(new IslandWarp(
+                        warpId.toLowerCase(Locale.ROOT),
+                        warp.getDouble("x", 0.5D),
+                        warp.getDouble("y", configService.main().getDouble("islands.spawn-y", 80.0D) + 2.0D),
+                        warp.getDouble("z", 0.5D),
+                        (float) warp.getDouble("yaw", configService.main().getDouble("islands.home-yaw", 180.0D)),
+                        (float) warp.getDouble("pitch", configService.main().getDouble("islands.home-pitch", 0.0D))
+                ));
+            }
         }
         for (String rawMember : section.getStringList("island.coop-members")) {
             UUID memberId = parseUuid(rawMember);
@@ -861,6 +879,17 @@ public final class ProfileManager {
             profileData.set(base + ".island.home.z", profile.islandHomeZ());
             profileData.set(base + ".island.home.yaw", profile.islandHomeYaw());
             profileData.set(base + ".island.home.pitch", profile.islandHomePitch());
+        }
+        profileData.set(base + ".island.warps", null);
+        for (IslandWarp warp : profile.islandWarps().values().stream()
+                .sorted((first, second) -> first.id().compareTo(second.id()))
+                .toList()) {
+            String warpBase = base + ".island.warps." + warp.id();
+            profileData.set(warpBase + ".x", warp.x());
+            profileData.set(warpBase + ".y", warp.y());
+            profileData.set(warpBase + ".z", warp.z());
+            profileData.set(warpBase + ".yaw", warp.yaw());
+            profileData.set(warpBase + ".pitch", warp.pitch());
         }
         for (Map.Entry<SkillType, Double> entry : profile.skillXp().entrySet()) {
             profileData.set(base + ".skills." + entry.getKey().key() + ".xp", entry.getValue());

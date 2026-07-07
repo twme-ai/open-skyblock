@@ -308,7 +308,16 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(plugin.customItems().definitions().stream().map(CustomItemDefinition::id).toList(), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("island")) {
-            return startsWith(List.of("create", "home", "sethome", "setspawn", "reset", "info", "manage", "menu", "visit", "visitors", "coop"), args[1]);
+            return startsWith(List.of("create", "home", "sethome", "setspawn", "warps", "warp", "setwarp", "delwarp", "reset", "info", "manage", "menu", "visit", "visitors", "coop"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("warp")) {
+            return startsWith(plugin.islands().warpIds(sender instanceof Player player ? player : null), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("delwarp")) {
+            return startsWith(plugin.islands().warpIds(sender instanceof Player player ? player : null), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("setwarp")) {
+            return startsWith(List.of("farm", "storage", "minions"), args[2]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("reset")) {
             return startsWith(List.of("confirm"), args[2]);
@@ -322,6 +331,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("visit")) {
             return startsWith(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[2]);
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("visit")) {
+            return startsWith(plugin.islands().warpIds(args[2]), args[3]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("island") && args[1].equalsIgnoreCase("visitors")) {
             return startsWith(List.of("on", "off", "toggle"), args[2]);
@@ -885,7 +897,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         TextService text = plugin.text();
         text.send(sender, "commands.help-header");
         helpLine(sender, label + " menu", "commands.help.menu");
-        helpLine(sender, label + " island create|home|sethome|reset|info|manage|visit|visitors|coop", "commands.help.island");
+        helpLine(sender, label + " island create|home|sethome|warp|reset|info|manage|visit|visitors|coop", "commands.help.island");
         helpLine(sender, label + " bank [deposit|withdraw] [amount|all]", "commands.help.bank");
         helpLine(sender, label + " shops", "commands.help.shop");
         helpLine(sender, label + " shop <id>", "commands.help.shop");
@@ -1028,6 +1040,28 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             case "create" -> plugin.islands().createOrTeleport(player);
             case "home" -> plugin.islands().teleportHome(player);
             case "sethome", "setspawn" -> plugin.islands().setHome(player);
+            case "warps" -> plugin.islands().sendWarps(player);
+            case "warp" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.island-warp-usage");
+                    return;
+                }
+                plugin.islands().teleportWarp(player, args[2]);
+            }
+            case "setwarp" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.island-warp-usage");
+                    return;
+                }
+                plugin.islands().setWarp(player, args[2]);
+            }
+            case "delwarp", "deletewarp", "removewarp" -> {
+                if (args.length < 3) {
+                    plugin.text().send(player, "commands.island-warp-usage");
+                    return;
+                }
+                plugin.islands().removeWarp(player, args[2]);
+            }
             case "reset" -> islandReset(player, args);
             case "info" -> plugin.islands().sendInfo(player);
             case "manage", "menu" -> plugin.menus().openIslandManagement(player);
@@ -1036,7 +1070,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                     plugin.text().send(player, "commands.island-usage");
                     return;
                 }
-                plugin.islands().visit(player, args[2]);
+                plugin.islands().visit(player, args[2], args.length >= 4 ? args[3] : "");
             }
             case "visitors" -> {
                 if (args.length < 3 || args[2].equalsIgnoreCase("toggle")) {

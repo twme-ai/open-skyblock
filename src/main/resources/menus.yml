@@ -192,6 +192,7 @@ island-management:
         - "<gray>Visitors:</gray> <visitors_status>"
         - "<gray>Guests Online:</gray> <yellow><visitors></yellow><gray>/</gray><yellow><visitor_limit></yellow>"
         - "<gray>Co-op Members:</gray> <yellow><coop_members></yellow><gray>/</gray><yellow><coop_member_limit></yellow>"
+        - "<gray>Warps:</gray> <yellow><warps></yellow><gray>/</gray><yellow><warp_limit></yellow>"
         - "<gray>Placed Minions:</gray> <yellow><minions></yellow>"
       action: NONE
     home:
@@ -226,6 +227,17 @@ island-management:
         - ""
         - "<yellow>Click to toggle.</yellow>"
       action: TOGGLE_VISITORS
+    warps:
+      slot: 14
+      material: ENDER_EYE
+      display-name: "<light_purple>Island Warps</light_purple>"
+      lore:
+        - "<gray>Warps:</gray> <yellow><warps></yellow><gray>/</gray><yellow><warp_limit></yellow>"
+        - "<gray>Use named warp points to move around</gray>"
+        - "<gray>your private island.</gray>"
+        - ""
+        - "<yellow>Click to list warps.</yellow>"
+      action: WARPS
     reset:
       slot: 15
       material: TNT
