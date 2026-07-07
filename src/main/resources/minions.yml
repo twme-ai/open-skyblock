@@ -22,11 +22,21 @@ fuels:
     speed-multiplier: 1.25
     duration-seconds: 0
 
-upgrades:
+storages:
   SMALL_STORAGE:
     display-name: "<green>Small Storage</green>"
     material: CHEST
     storage-bonus: 192
+  MEDIUM_STORAGE:
+    display-name: "<blue>Medium Storage</blue>"
+    material: CHEST
+    storage-bonus: 576
+  LARGE_STORAGE:
+    display-name: "<gold>Large Storage</gold>"
+    material: CHEST
+    storage-bonus: 960
+
+upgrades:
   MINION_EXPANDER:
     display-name: "<blue>Minion Expander</blue>"
     material: PISTON

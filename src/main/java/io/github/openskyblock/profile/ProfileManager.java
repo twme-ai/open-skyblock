@@ -863,6 +863,15 @@ public final class ProfileManager {
                             placedMinion.upgradeIds().add(upgradeId.toUpperCase(Locale.ROOT));
                         }
                     }
+                    if (!minion.getString("storage.id", "").isBlank()) {
+                        placedMinion.storage(
+                                minion.getString("storage.id", "").toUpperCase(Locale.ROOT),
+                                minion.getString("storage.world", ""),
+                                minion.getInt("storage.x", 0),
+                                minion.getInt("storage.y", 0),
+                                minion.getInt("storage.z", 0)
+                        );
+                    }
                     placedMinion.soldCoins(minion.getDouble("sold-coins", 0.0D));
                     profile.minions().add(placedMinion);
                 }
@@ -1358,6 +1367,14 @@ public final class ProfileManager {
                     .filter(upgradeId -> upgradeId != null && !upgradeId.isBlank())
                     .map(upgradeId -> upgradeId.toUpperCase(Locale.ROOT))
                     .toList());
+            profileData.set(minionBase + ".storage", null);
+            if (minion.hasStorage()) {
+                profileData.set(minionBase + ".storage.id", minion.storageId().toUpperCase(Locale.ROOT));
+                profileData.set(minionBase + ".storage.world", minion.storageWorldName());
+                profileData.set(minionBase + ".storage.x", minion.storageX());
+                profileData.set(minionBase + ".storage.y", minion.storageY());
+                profileData.set(minionBase + ".storage.z", minion.storageZ());
+            }
             profileData.set(minionBase + ".sold-coins", minion.soldCoins());
         }
     }

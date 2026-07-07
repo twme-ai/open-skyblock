@@ -16,6 +16,11 @@ public final class PlacedMinion {
     private long fuelExpiresAtMillis;
     private final List<String> upgradeIds = new ArrayList<>();
     private double soldCoins;
+    private String storageId = "";
+    private String storageWorldName;
+    private int storageX;
+    private int storageY;
+    private int storageZ;
 
     public PlacedMinion(String id, long generatedAmount, long lastActionMillis) {
         this(id, generatedAmount, lastActionMillis, null, 0, 0, 0, "", 0L);
@@ -68,6 +73,19 @@ public final class PlacedMinion {
                 && x == location.getBlockX()
                 && y == location.getBlockY()
                 && z == location.getBlockZ();
+    }
+
+    public boolean hasStorage() {
+        return storageId != null && !storageId.isBlank() && storageWorldName != null && !storageWorldName.isBlank();
+    }
+
+    public boolean storageMatches(Location location) {
+        return hasStorage()
+                && location.getWorld() != null
+                && storageWorldName.equals(location.getWorld().getName())
+                && storageX == location.getBlockX()
+                && storageY == location.getBlockY()
+                && storageZ == location.getBlockZ();
     }
 
     public String worldName() {
@@ -144,5 +162,53 @@ public final class PlacedMinion {
 
     public void addSoldCoins(double amount) {
         soldCoins(soldCoins + amount);
+    }
+
+    public String storageId() {
+        return storageId == null ? "" : storageId;
+    }
+
+    public String storageWorldName() {
+        return storageWorldName;
+    }
+
+    public int storageX() {
+        return storageX;
+    }
+
+    public int storageY() {
+        return storageY;
+    }
+
+    public int storageZ() {
+        return storageZ;
+    }
+
+    public void storage(String storageId, Location location) {
+        if (location == null || location.getWorld() == null) {
+            clearStorage();
+            return;
+        }
+        storage(storageId, location.getWorld().getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
+    public void storage(String storageId, String worldName, int x, int y, int z) {
+        if (storageId == null || storageId.isBlank() || worldName == null || worldName.isBlank()) {
+            clearStorage();
+            return;
+        }
+        this.storageId = storageId == null ? "" : storageId;
+        this.storageWorldName = worldName;
+        this.storageX = x;
+        this.storageY = y;
+        this.storageZ = z;
+    }
+
+    public void clearStorage() {
+        this.storageId = "";
+        this.storageWorldName = null;
+        this.storageX = 0;
+        this.storageY = 0;
+        this.storageZ = 0;
     }
 }

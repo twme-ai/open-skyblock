@@ -23,6 +23,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -32,6 +33,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MinionService {
     private static final long MILLIS_PER_TICK = 50L;
+    private static final List<BlockFace> STORAGE_FACES = List.of(
+            BlockFace.NORTH,
+            BlockFace.SOUTH,
+            BlockFace.EAST,
+            BlockFace.WEST,
+            BlockFace.UP,
+            BlockFace.DOWN
+    );
 
     private final ConfigService configService;
     private final TextService text;
@@ -41,9 +50,11 @@ public final class MinionService {
     private final CustomItemService customItems;
     private final EconomyService economy;
     private final NamespacedKey minionIdKey;
+    private final NamespacedKey minionStorageIdKey;
     private final Map<String, MinionDefinition> definitions = new HashMap<>();
     private final Map<String, MinionFuelDefinition> fuels = new HashMap<>();
     private final Map<String, MinionUpgradeDefinition> minionUpgrades = new HashMap<>();
+    private final Map<String, MinionStorageDefinition> storages = new HashMap<>();
     private MayorService mayors;
 
     public MinionService(JavaPlugin plugin, ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, UpgradeService upgrades, CustomItemService customItems, EconomyService economy) {
@@ -55,6 +66,7 @@ public final class MinionService {
         this.customItems = customItems;
         this.economy = economy;
         this.minionIdKey = new NamespacedKey(plugin, "minion_id");
+        this.minionStorageIdKey = new NamespacedKey(plugin, "minion_storage_id");
     }
 
     public void mayorService(MayorService mayors) {
@@ -65,6 +77,7 @@ public final class MinionService {
         definitions.clear();
         fuels.clear();
         minionUpgrades.clear();
+        storages.clear();
         ConfigurationSection section = configService.minions().getConfigurationSection("minions");
         if (section != null) {
             for (String id : section.getKeys(false)) {
@@ -88,6 +101,7 @@ public final class MinionService {
         ConfigurationSection fuelSection = configService.minions().getConfigurationSection("fuels");
         if (fuelSection == null) {
             loadUpgrades();
+            loadStorages();
             return;
         }
         for (String id : fuelSection.getKeys(false)) {
@@ -110,6 +124,7 @@ public final class MinionService {
             ));
         }
         loadUpgrades();
+        loadStorages();
     }
 
     private void loadUpgrades() {
@@ -175,6 +190,31 @@ public final class MinionService {
         return Map.copyOf(compactions);
     }
 
+    private void loadStorages() {
+        ConfigurationSection storageSection = configService.minions().getConfigurationSection("storages");
+        if (storageSection == null) {
+            return;
+        }
+        for (String id : storageSection.getKeys(false)) {
+            ConfigurationSection sectionStorage = storageSection.getConfigurationSection(id);
+            if (sectionStorage == null) {
+                continue;
+            }
+            Material material = Material.matchMaterial(sectionStorage.getString("material", ""));
+            String customItemId = sectionStorage.getString("custom-item", "").toUpperCase(Locale.ROOT);
+            if (material == null && customItemId.isBlank()) {
+                continue;
+            }
+            storages.put(id.toUpperCase(Locale.ROOT), new MinionStorageDefinition(
+                    id.toUpperCase(Locale.ROOT),
+                    sectionStorage.getString("display-name", id),
+                    material == null ? Material.CHEST : material,
+                    customItemId,
+                    Math.max(0L, sectionStorage.getLong("storage-bonus", 0L))
+            ));
+        }
+    }
+
     public Optional<MinionDefinition> definition(String id) {
         if (id == null) {
             return Optional.empty();
@@ -214,6 +254,19 @@ public final class MinionService {
                 .toList();
     }
 
+    public Optional<MinionStorageDefinition> storage(String id) {
+        if (id == null || id.isBlank()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(storages.get(id.toUpperCase(Locale.ROOT)));
+    }
+
+    public List<MinionStorageDefinition> storages() {
+        return storages.values().stream()
+                .sorted(Comparator.comparing(MinionStorageDefinition::id))
+                .toList();
+    }
+
     public Optional<MinionDefinition> definition(ItemStack itemStack) {
         if (itemStack == null || !itemStack.hasItemMeta()) {
             return Optional.empty();
@@ -247,6 +300,22 @@ public final class MinionService {
         return itemStack;
     }
 
+    public ItemStack createStorageItem(MinionStorageDefinition definition) {
+        ItemStack itemStack;
+        if (definition.customItem()) {
+            itemStack = customItems.definition(definition.customItemId())
+                    .map(customItems::createItem)
+                    .orElseGet(() -> new ItemStack(storageBlockMaterial(definition)));
+        } else {
+            itemStack = new ItemStack(storageBlockMaterial(definition));
+        }
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.displayName(text.deserialize(definition.displayName()));
+        meta.getPersistentDataContainer().set(minionStorageIdKey, PersistentDataType.STRING, definition.id());
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
     public void addMinion(Player player, MinionDefinition definition) {
         SkyBlockProfile profile = profiles.profile(player);
         if (!hasMinionCapacity(player, profile)) {
@@ -273,6 +342,25 @@ public final class MinionService {
         return true;
     }
 
+    public boolean placeStorage(Player player, MinionStorageDefinition storage, Location location) {
+        if (findStorage(location).isPresent()) {
+            text.send(player, "commands.minion-storage-location-used");
+            return false;
+        }
+        AdjacentStorageTarget target = adjacentStorageTarget(location);
+        MinionPlacement placement = target.available().orElse(null);
+        if (placement == null) {
+            text.send(player, target.blockedByAttachedStorage() ? "commands.minion-storage-already-adjacent" : "commands.minion-storage-no-minion");
+            return false;
+        }
+        updateMinion(placement.placedMinion(), placement.definition(), System.currentTimeMillis());
+        placement.placedMinion().storage(storage.id(), location);
+        location.getBlock().setType(storageBlockMaterial(storage), false);
+        profiles.save(placement.profile());
+        text.send(player, "commands.minion-storage-attached", storagePlaceholders(placement.definition(), placement.placedMinion(), storage));
+        return true;
+    }
+
     public Optional<MinionPlacement> find(Location location) {
         if (location == null || location.getWorld() == null) {
             return Optional.empty();
@@ -281,6 +369,27 @@ public final class MinionService {
             for (int slot = 0; slot < profile.minions().size(); slot++) {
                 PlacedMinion placedMinion = profile.minions().get(slot);
                 if (!placedMinion.matches(location)) {
+                    continue;
+                }
+                MinionDefinition definition = definition(placedMinion.id()).orElse(null);
+                if (definition == null) {
+                    continue;
+                }
+                updateMinion(placedMinion, definition, System.currentTimeMillis());
+                return Optional.of(new MinionPlacement(profile, slot, placedMinion, definition));
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<MinionPlacement> findStorage(Location location) {
+        if (location == null || location.getWorld() == null) {
+            return Optional.empty();
+        }
+        for (SkyBlockProfile profile : profiles.loadedProfiles()) {
+            for (int slot = 0; slot < profile.minions().size(); slot++) {
+                PlacedMinion placedMinion = profile.minions().get(slot);
+                if (!placedMinion.storageMatches(location)) {
                     continue;
                 }
                 MinionDefinition definition = definition(placedMinion.id()).orElse(null);
@@ -502,6 +611,7 @@ public final class MinionService {
         claim(player, placement);
         PlacedMinion placedMinion = placement.profile().minions().remove(placement.slot());
         MinionDefinition definition = placement.definition();
+        pickupAttachedStorage(player, placedMinion);
         if (placedMinion.hasLocation()) {
             Block block = Bukkit.getWorld(placedMinion.worldName()) == null
                     ? null
@@ -514,7 +624,23 @@ public final class MinionService {
         for (String upgradeId : placedMinion.upgradeIds()) {
             minionUpgrade(upgradeId).ifPresent(upgrade -> giveOrDrop(player, createUpgradeItem(upgrade)));
         }
+        profiles.save(placement.profile());
         text.send(player, "commands.minion-picked-up", List.of(TextService.parsed("minion_name", definition.displayName())));
+        return true;
+    }
+
+    public boolean pickupStorage(Player player, MinionPlacement placement) {
+        updateMinion(placement.placedMinion(), placement.definition(), System.currentTimeMillis());
+        MinionStorageDefinition storage = activeStorage(placement.placedMinion()).orElse(null);
+        if (storage == null) {
+            placement.placedMinion().clearStorage();
+            profiles.save(placement.profile());
+            text.send(player, "commands.minion-storage-not-found");
+            return false;
+        }
+        pickupAttachedStorage(player, placement.placedMinion());
+        profiles.save(placement.profile());
+        text.send(player, "commands.minion-storage-picked-up", storagePlaceholders(placement.definition(), placement.placedMinion(), storage));
         return true;
     }
 
@@ -601,10 +727,10 @@ public final class MinionService {
     }
 
     private long effectiveStorage(MinionDefinition definition, PlacedMinion placedMinion) {
-        long bonus = activeUpgrades(placedMinion).stream()
+        long upgradeBonus = activeUpgrades(placedMinion).stream()
                 .mapToLong(MinionUpgradeDefinition::storageBonus)
                 .sum();
-        return Math.max(1L, definition.storageSize() + bonus);
+        return Math.max(1L, definition.storageSize() + upgradeBonus + activeStorageBonus(placedMinion));
     }
 
     private double upgradeSpeedMultiplier(PlacedMinion placedMinion) {
@@ -641,6 +767,19 @@ public final class MinionService {
         return activeUpgrades(placedMinion).stream()
                 .filter(upgrade -> upgrade.sellPercentage() > 0.0D)
                 .max(Comparator.comparingDouble(MinionUpgradeDefinition::sellPercentage));
+    }
+
+    private Optional<MinionStorageDefinition> activeStorage(PlacedMinion placedMinion) {
+        if (placedMinion == null || !placedMinion.hasStorage()) {
+            return Optional.empty();
+        }
+        return storage(placedMinion.storageId());
+    }
+
+    private long activeStorageBonus(PlacedMinion placedMinion) {
+        return activeStorage(placedMinion)
+                .map(MinionStorageDefinition::storageBonus)
+                .orElse(0L);
     }
 
     private void sellOverflow(PlacedMinion placedMinion, MinionDefinition definition, long amount) {
@@ -716,6 +855,11 @@ public final class MinionService {
         double upgradeSpeedMultiplier = placedMinion == null ? 1.0D : upgradeSpeedMultiplier(placedMinion);
         double outputMultiplier = placedMinion == null ? 1.0D : upgradeOutputMultiplier(placedMinion);
         long storage = placedMinion == null ? definition.storageSize() : effectiveStorage(definition, placedMinion);
+        long upgradeStorage = placedMinion == null ? 0L : activeUpgrades(placedMinion).stream()
+                .mapToLong(MinionUpgradeDefinition::storageBonus)
+                .sum();
+        MinionStorageDefinition externalStorage = placedMinion == null ? null : activeStorage(placedMinion).orElse(null);
+        long externalStorageBonus = externalStorage == null ? 0L : externalStorage.storageBonus();
         ActiveCompaction compaction = placedMinion == null ? null : activeCompaction(definition, placedMinion).orElse(null);
         MinionUpgradeDefinition seller = placedMinion == null ? null : activeSeller(placedMinion).orElse(null);
         return List.of(
@@ -731,7 +875,9 @@ public final class MinionService {
                 TextService.parsed("upgrades", upgradeList(placedMinion)),
                 TextService.raw("upgrade_speed", text.formatNumber((upgradeSpeedMultiplier - 1.0D) * 100.0D)),
                 TextService.raw("upgrade_output", text.formatNumber((outputMultiplier - 1.0D) * 100.0D)),
-                TextService.raw("upgrade_storage", text.formatNumber(Math.max(0L, storage - definition.storageSize()))),
+                TextService.raw("upgrade_storage", text.formatNumber(Math.max(0L, upgradeStorage))),
+                TextService.parsed("external_storage", externalStorage == null ? text.rawMessage("minions.storage-empty") : externalStorage.displayName()),
+                TextService.raw("external_storage_bonus", text.formatNumber(externalStorageBonus)),
                 TextService.parsed("compaction", compactionLabel(compaction)),
                 TextService.parsed("hopper", seller == null ? text.rawMessage("minions.hopper-none") : seller.displayName()),
                 TextService.raw("hopper_percentage", text.formatNumber((seller == null ? 0.0D : seller.sellPercentage()) * 100.0D)),
@@ -771,6 +917,34 @@ public final class MinionService {
             }
         }
         return Optional.empty();
+    }
+
+    public Optional<MinionStorageDefinition> storageForItem(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType().isAir()) {
+            return Optional.empty();
+        }
+        if (itemStack.hasItemMeta()) {
+            String id = itemStack.getItemMeta().getPersistentDataContainer().get(minionStorageIdKey, PersistentDataType.STRING);
+            if (id != null && !id.isBlank()) {
+                return storage(id);
+            }
+        }
+        for (MinionStorageDefinition storage : storages()) {
+            if (storage.customItem() && storageMatches(storage, itemStack)) {
+                return Optional.of(storage);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private boolean storageMatches(MinionStorageDefinition storage, ItemStack itemStack) {
+        if (storage.customItem()) {
+            return customItems.definition(itemStack)
+                    .map(CustomItemDefinition::id)
+                    .filter(id -> id.equalsIgnoreCase(storage.customItemId()))
+                    .isPresent();
+        }
+        return itemStack.getType() == storageBlockMaterial(storage) && customItems.definition(itemStack).isEmpty();
     }
 
     private boolean upgradeMatches(MinionUpgradeDefinition upgrade, ItemStack itemStack) {
@@ -822,6 +996,55 @@ public final class MinionService {
         return String.join(text.rawMessage("minions.upgrades-separator"), names);
     }
 
+    private List<TextService.TextPlaceholder> storagePlaceholders(MinionDefinition definition, PlacedMinion placedMinion, MinionStorageDefinition storage) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(minionPlaceholders(definition, placedMinion));
+        placeholders.add(TextService.parsed("storage_name", storage == null ? text.rawMessage("minions.storage-empty") : storage.displayName()));
+        placeholders.add(TextService.raw("storage_bonus", text.formatNumber(storage == null ? 0L : storage.storageBonus())));
+        return placeholders;
+    }
+
+    private AdjacentStorageTarget adjacentStorageTarget(Location storageLocation) {
+        if (storageLocation == null || storageLocation.getWorld() == null) {
+            return new AdjacentStorageTarget(Optional.empty(), false);
+        }
+        boolean blockedByAttachedStorage = false;
+        for (BlockFace face : STORAGE_FACES) {
+            Optional<MinionPlacement> placement = find(storageLocation.getBlock().getRelative(face).getLocation());
+            if (placement.isEmpty()) {
+                continue;
+            }
+            if (!placement.get().placedMinion().hasStorage()) {
+                return new AdjacentStorageTarget(placement, false);
+            }
+            blockedByAttachedStorage = true;
+        }
+        return new AdjacentStorageTarget(Optional.empty(), blockedByAttachedStorage);
+    }
+
+    private void pickupAttachedStorage(Player player, PlacedMinion placedMinion) {
+        if (!placedMinion.hasStorage()) {
+            return;
+        }
+        MinionStorageDefinition storage = activeStorage(placedMinion).orElse(null);
+        Block block = Bukkit.getWorld(placedMinion.storageWorldName()) == null
+                ? null
+                : Bukkit.getWorld(placedMinion.storageWorldName()).getBlockAt(placedMinion.storageX(), placedMinion.storageY(), placedMinion.storageZ());
+        if (block != null) {
+            block.setType(Material.AIR, false);
+        }
+        placedMinion.clearStorage();
+        if (storage != null) {
+            giveOrDrop(player, createStorageItem(storage));
+        }
+    }
+
+    private Material storageBlockMaterial(MinionStorageDefinition storage) {
+        if (storage == null || storage.material() == null || storage.material().isAir() || !storage.material().isBlock()) {
+            return Material.CHEST;
+        }
+        return storage.material();
+    }
+
     private String compactionLabel(ActiveCompaction compaction) {
         if (compaction == null) {
             return text.rawMessage("minions.compaction-none");
@@ -862,6 +1085,9 @@ public final class MinionService {
     }
 
     private record ActiveCompaction(MinionUpgradeDefinition upgrade, MinionCompactionDefinition compaction) {
+    }
+
+    private record AdjacentStorageTarget(Optional<MinionPlacement> available, boolean blockedByAttachedStorage) {
     }
 
     private void addGeneratedItems(Player player, MinionDefinition definition, PlacedMinion placedMinion, long amount) {
