@@ -12,6 +12,7 @@ import io.github.openskyblock.fishingfestival.FishingFestivalService;
 import io.github.openskyblock.garden.GardenService;
 import io.github.openskyblock.jerry.SeasonOfJerryService;
 import io.github.openskyblock.kuudra.KuudraService;
+import io.github.openskyblock.mayor.MayorService;
 import io.github.openskyblock.museum.MuseumService;
 import io.github.openskyblock.miningfiesta.MiningFiestaService;
 import io.github.openskyblock.mythological.MythologicalService;
@@ -61,6 +62,7 @@ public final class SkillService {
     private ChocolateFactoryService chocolateFactoryService;
     private MiningFiestaService miningFiestaService;
     private FishingFestivalService fishingFestivalService;
+    private MayorService mayorService;
 
     public SkillService(ConfigService configService, TextService text, ProfileManager profiles, CollectionService collections, EconomyService economy) {
         this.configService = configService;
@@ -132,6 +134,10 @@ public final class SkillService {
 
     public void fishingFestivalService(FishingFestivalService fishingFestivalService) {
         this.fishingFestivalService = fishingFestivalService;
+    }
+
+    public void mayorService(MayorService mayorService) {
+        this.mayorService = mayorService;
     }
 
     public void reload() {
@@ -213,13 +219,14 @@ public final class SkillService {
         if (!configService.main().getBoolean("features.skills", true)) {
             return;
         }
+        double effectiveAmount = effectiveSkillXp(skillType, amount);
         SkyBlockProfile profile = profiles.profile(player);
         int before = level(skillType, profile.skillXp(skillType));
-        profile.addSkillXp(skillType, amount);
+        profile.addSkillXp(skillType, effectiveAmount);
         int after = level(skillType, profile.skillXp(skillType));
         SkillDefinition definition = definition(skillType);
         text.send(player, "progression.skill-xp", List.of(
-                TextService.raw("xp", text.formatNumber(amount)),
+                TextService.raw("xp", text.formatNumber(effectiveAmount)),
                 TextService.parsed("skill", definition.displayName())
         ));
         if (after > before) {
@@ -313,6 +320,17 @@ public final class SkillService {
         }
         int xpPerLevel = Math.max(1, configService.main().getInt("settings.skyblock-level-xp-per-level", 100));
         return Math.max(1, xp / xpPerLevel + 1);
+    }
+
+    private double effectiveSkillXp(SkillType skillType, double amount) {
+        if (amount <= 0.0D || mayorService == null) {
+            return Math.max(0.0D, amount);
+        }
+        String key = skillType.name().toLowerCase(Locale.ROOT);
+        double multiplier = Math.max(0.0D, mayorService.modifier("global_skill_xp_multiplier"));
+        multiplier += Math.max(0.0D, mayorService.modifier(key + "_xp_multiplier"));
+        multiplier += Math.max(0.0D, mayorService.modifier(key + "_wisdom_bonus")) / 100.0D;
+        return Math.max(0.0D, amount * (1.0D + multiplier));
     }
 
     private void loadMaterialRewards(String path, Map<Material, ActionReward> target) {
