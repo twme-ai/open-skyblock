@@ -11,6 +11,7 @@ import io.github.openskyblock.service.SkillService;
 import io.github.openskyblock.service.SkillType;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,20 +24,26 @@ import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.DragonFireball;
 import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.EnderDragonPart;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 
 public final class DragonService {
     private final JavaPlugin plugin;
@@ -49,7 +56,14 @@ public final class DragonService {
     private final NamespacedKey liveDragonKey;
     private final NamespacedKey dragonOwnerKey;
     private final NamespacedKey dragonTypeKey;
+    private final NamespacedKey abilityProjectileKey;
+    private final NamespacedKey abilityIdKey;
+    private final NamespacedKey abilityEncounterKey;
+    private final NamespacedKey abilityDamageKey;
+    private final NamespacedKey abilityRadiusKey;
     private final Map<String, DragonDefinition> dragons = new HashMap<>();
+    private final Map<String, DragonPhaseDefinition> phases = new HashMap<>();
+    private final Map<String, DragonAbilityDefinition> abilities = new HashMap<>();
     private final Map<UUID, ActiveDragonEncounter> activeEncounters = new HashMap<>();
     private final Map<UUID, UUID> activeByOwner = new HashMap<>();
     private final Map<UUID, BossBar> bossBars = new HashMap<>();
@@ -78,6 +92,10 @@ public final class DragonService {
     private double spawnOffsetX;
     private double spawnOffsetY = 20.0D;
     private double spawnOffsetZ;
+    private boolean combatEnabled = true;
+    private boolean enforceConfiguredPhases = true;
+    private long combatTickIntervalTicks = 5L;
+    private List<String> defaultAbilityIds = List.of("RUSH", "FIREBALL", "LIGHTNING");
     private BossBar.Color bossBarColor = BossBar.Color.PURPLE;
     private BossBar.Overlay bossBarOverlay = BossBar.Overlay.PROGRESS;
 
@@ -92,6 +110,11 @@ public final class DragonService {
         this.liveDragonKey = new NamespacedKey(plugin, "live_dragon");
         this.dragonOwnerKey = new NamespacedKey(plugin, "dragon_owner");
         this.dragonTypeKey = new NamespacedKey(plugin, "dragon_type");
+        this.abilityProjectileKey = new NamespacedKey(plugin, "dragon_ability_projectile");
+        this.abilityIdKey = new NamespacedKey(plugin, "dragon_ability_id");
+        this.abilityEncounterKey = new NamespacedKey(plugin, "dragon_ability_encounter");
+        this.abilityDamageKey = new NamespacedKey(plugin, "dragon_ability_damage");
+        this.abilityRadiusKey = new NamespacedKey(plugin, "dragon_ability_radius");
     }
 
     public void reload() {
@@ -123,6 +146,7 @@ public final class DragonService {
         spawnOffsetZ = live == null ? 0.0D : live.getDouble("spawn-offset.z", 0.0D);
         bossBarColor = parseBossBarColor(live == null ? "PURPLE" : live.getString("boss-bar.color", "PURPLE"));
         bossBarOverlay = parseBossBarOverlay(live == null ? "PROGRESS" : live.getString("boss-bar.overlay", "PROGRESS"));
+        loadCombat(live == null ? null : live.getConfigurationSection("combat"));
         loadDragons();
         cleanupStaleEntities();
         if (!liveEnabled && !activeEncounters.isEmpty()) {
@@ -132,6 +156,10 @@ public final class DragonService {
 
     public boolean enabled() {
         return configService.main().getBoolean("features.dragons", true);
+    }
+
+    public long tickIntervalTicks() {
+        return combatTickIntervalTicks;
     }
 
     public List<String> dragonIds() {
@@ -167,6 +195,9 @@ public final class DragonService {
                 TextService.raw("skyblock_xp", text.formatNumber(skyBlockXp(profile))),
                 TextService.parsed("live_status", encounter == null ? text.rawMessage("dragons.live-inactive") : text.rawMessage("dragons.live-active")),
                 TextService.parsed("live_dragon", encounter == null ? text.rawMessage("dragons.none") : dragon(encounter.dragonId()).map(DragonDefinition::displayName).orElse(encounter.dragonId())),
+                TextService.parsed("live_phase", encounter == null
+                        ? text.rawMessage("dragons.phase-none")
+                        : currentPhase(encounter).map(DragonPhaseDefinition::displayName).orElse(text.rawMessage("dragons.phase-none"))),
                 TextService.raw("live_health", text.formatNumber(encounter == null ? 0.0D : encounter.currentHealth())),
                 TextService.raw("live_time", Long.toString(encounter == null ? 0L : remainingSeconds(encounter.expiresAtMillis())))
         ));
@@ -329,6 +360,7 @@ public final class DragonService {
         profile.placedDragonEyes(0);
         profiles.save(player);
         syncEntityHealth(entity, encounter);
+        updateCombatState(entity, encounter, definition, now);
         updateBossBar(entity, encounter);
         List<TextService.TextPlaceholder> placeholders = livePlaceholders(encounter, definition, player.getName());
         if (broadcastSpawn) {
@@ -351,30 +383,96 @@ public final class DragonService {
     }
 
     public boolean isLiveDragon(Entity entity) {
-        return entity != null && entity.getPersistentDataContainer().has(liveDragonKey, PersistentDataType.BYTE);
+        return liveDragonEntity(entity).isPresent();
     }
 
     public boolean damageLiveDragon(Entity entity, Player player, double damage) {
-        ActiveDragonEncounter encounter = entity == null ? null : activeEncounters.get(entity.getUniqueId());
+        EnderDragon dragonEntity = liveDragonEntity(entity).orElse(null);
+        ActiveDragonEncounter encounter = dragonEntity == null ? null : activeEncounters.get(dragonEntity.getUniqueId());
         if (encounter == null || encounter.completing() || player == null || damage <= 0.0D) {
             return false;
         }
-        if (!encounter.worldId().equals(player.getWorld().getUID())
-                || player.getLocation().distanceSquared(entity.getLocation()) > participantRadius * participantRadius) {
+        DragonDefinition definition = dragon(encounter.dragonId()).orElse(null);
+        if (definition == null) {
             return false;
         }
-        double applied = encounter.applyDamage(player.getUniqueId(), damage);
+        if (!encounter.worldId().equals(player.getWorld().getUID())
+                || player.getLocation().distanceSquared(dragonEntity.getLocation()) > participantRadius * participantRadius) {
+            return false;
+        }
+        double adjustedDamage = combatEnabled
+                ? damage * definition.combat().incomingDamageMultiplier()
+                : damage;
+        double applied = encounter.applyDamage(player.getUniqueId(), adjustedDamage);
         if (applied <= 0.0D) {
             return false;
         }
-        if (entity instanceof EnderDragon dragon) {
-            syncEntityHealth(dragon, encounter);
-            updateBossBar(dragon, encounter);
-        }
+        syncEntityHealth(dragonEntity, encounter);
+        updateBossBar(dragonEntity, encounter);
         if (encounter.currentHealth() <= 0.0D && encounter.beginCompletion()) {
             plugin.getServer().getScheduler().runTask(plugin, () -> completeLive(encounter.entityId()));
         }
         return true;
+    }
+
+    public double scaleLiveDragonDamage(Entity damager, double damage) {
+        EnderDragon dragonEntity = liveDragonEntity(damager).orElse(null);
+        if (dragonEntity == null || damage <= 0.0D || !combatEnabled) {
+            return damage;
+        }
+        ActiveDragonEncounter encounter = activeEncounters.get(dragonEntity.getUniqueId());
+        DragonDefinition definition = encounter == null ? null : dragon(encounter.dragonId()).orElse(null);
+        if (encounter == null || definition == null) {
+            return damage;
+        }
+        double phaseMultiplier = currentPhase(encounter)
+                .map(DragonPhaseDefinition::outgoingDamageMultiplier)
+                .orElse(1.0D);
+        return damage * definition.combat().outgoingDamageMultiplier() * phaseMultiplier;
+    }
+
+    public EnderDragon.Phase desiredPhase(Entity entity) {
+        EnderDragon dragonEntity = liveDragonEntity(entity).orElse(null);
+        if (dragonEntity == null || !combatEnabled || !enforceConfiguredPhases) {
+            return null;
+        }
+        ActiveDragonEncounter encounter = activeEncounters.get(dragonEntity.getUniqueId());
+        if (encounter == null) {
+            return null;
+        }
+        DragonAbilityDefinition activeAbility = abilities.get(encounter.activeAbilityId());
+        if (activeAbility != null && encounter.hasActiveAbility(System.currentTimeMillis())) {
+            return activeAbility.nativePhase();
+        }
+        return currentPhase(encounter)
+                .map(DragonPhaseDefinition::nativePhase)
+                .orElse(EnderDragon.Phase.CIRCLING);
+    }
+
+    public boolean isAbilityProjectile(Entity entity) {
+        return entity instanceof Projectile
+                && entity.getPersistentDataContainer().has(abilityProjectileKey, PersistentDataType.BYTE);
+    }
+
+    public void handleAbilityProjectileImpact(Projectile projectile, Location impactLocation) {
+        if (!isAbilityProjectile(projectile) || !projectile.isValid()) {
+            return;
+        }
+        String encounterValue = projectile.getPersistentDataContainer().get(abilityEncounterKey, PersistentDataType.STRING);
+        String abilityId = projectile.getPersistentDataContainer().get(abilityIdKey, PersistentDataType.STRING);
+        Double damage = projectile.getPersistentDataContainer().get(abilityDamageKey, PersistentDataType.DOUBLE);
+        Double radius = projectile.getPersistentDataContainer().get(abilityRadiusKey, PersistentDataType.DOUBLE);
+        projectile.remove();
+        UUID encounterId = parseUuid(encounterValue).orElse(null);
+        ActiveDragonEncounter encounter = encounterId == null ? null : activeEncounters.get(encounterId);
+        EnderDragon dragonEntity = encounter == null ? null : activeEntity(encounter).orElse(null);
+        DragonAbilityDefinition ability = abilityId == null ? null : abilities.get(abilityId);
+        if (encounter == null || dragonEntity == null || ability == null || impactLocation == null) {
+            return;
+        }
+        double impactRadius = Math.max(0.5D, radius == null ? ability.radius() : radius);
+        showAbilityEffect(impactLocation, ability, impactRadius);
+        damagePlayers(dragonEntity, impactLocation, impactRadius, damage == null ? ability.damage() : damage, 0);
     }
 
     public void handleExternalDeath(Entity entity) {
@@ -411,6 +509,17 @@ public final class DragonService {
                 }
                 continue;
             }
+            if (encounter.completing()) {
+                syncEntityHealth(entity, encounter);
+                updateBossBar(entity, encounter);
+                continue;
+            }
+            DragonDefinition definition = dragon(encounter.dragonId()).orElse(null);
+            if (definition == null) {
+                removeEncounter(encounter, true);
+                continue;
+            }
+            updateCombatState(entity, encounter, definition, now);
             syncEntityHealth(entity, encounter);
             updateBossBar(entity, encounter);
         }
@@ -487,6 +596,9 @@ public final class DragonService {
         DragonDefinition definition = dragon(encounter.dragonId()).orElse(null);
         EnderDragon entity = activeEntity(encounter).orElse(null);
         Location location = entity == null ? null : entity.getLocation();
+        if (definition != null && entity != null) {
+            triggerDeathAbility(entity, encounter, definition);
+        }
         removeEncounter(encounter, false);
         if (definition == null) {
             return;
@@ -522,6 +634,7 @@ public final class DragonService {
         activeEncounters.remove(encounter.entityId());
         activeByOwner.remove(encounter.ownerId(), encounter.entityId());
         hideBossBar(encounter.entityId());
+        removeAbilityProjectiles(encounter.entityId());
         Entity entity = Bukkit.getEntity(encounter.entityId());
         if (entity != null && entity.isValid()) {
             entity.remove();
@@ -564,6 +677,273 @@ public final class DragonService {
             return Optional.of(dragon);
         }
         return Optional.empty();
+    }
+
+    private Optional<EnderDragon> liveDragonEntity(Entity entity) {
+        EnderDragon dragon = null;
+        if (entity instanceof EnderDragon enderDragon) {
+            dragon = enderDragon;
+        } else if (entity instanceof EnderDragonPart part) {
+            dragon = part.getParent();
+        }
+        if (dragon == null || !dragon.getPersistentDataContainer().has(liveDragonKey, PersistentDataType.BYTE)) {
+            return Optional.empty();
+        }
+        return Optional.of(dragon);
+    }
+
+    private void updateCombatState(EnderDragon entity, ActiveDragonEncounter encounter, DragonDefinition definition, long now) {
+        if (!combatEnabled) {
+            return;
+        }
+        DragonPhaseDefinition phase = phaseFor(encounter).orElse(null);
+        if (phase != null && !phase.id().equals(encounter.currentPhaseId())) {
+            String previousPhase = encounter.currentPhaseId();
+            encounter.currentPhaseId(phase.id());
+            if (!encounter.hasActiveAbility(now)) {
+                entity.setPhase(phase.nativePhase());
+            }
+            if (!previousPhase.isBlank() && phase.announce()) {
+                sendNearby(entity, "commands.dragon-live-phase-change", phasePlaceholders(encounter, definition, phase));
+            }
+        }
+        updateActiveAbility(entity, encounter, definition, now);
+        if (encounter.hasActiveAbility(now)) {
+            return;
+        }
+        scheduleAbilities(entity, encounter, definition, phase, now);
+    }
+
+    private void updateActiveAbility(EnderDragon entity, ActiveDragonEncounter encounter, DragonDefinition definition, long now) {
+        if (encounter.activeAbilityId().isBlank()) {
+            return;
+        }
+        DragonAbilityDefinition ability = abilities.get(encounter.activeAbilityId());
+        if (ability == null || now >= encounter.activeAbilityEndsAtMillis()) {
+            finishActiveAbility(entity, encounter);
+            return;
+        }
+        if (ability.type() != DragonAbilityType.RUSH) {
+            return;
+        }
+        Player target = encounter.activeAbilityTargetId() == null
+                ? null
+                : plugin.getServer().getPlayer(encounter.activeAbilityTargetId());
+        if (!validTarget(entity, target, participantRadius)) {
+            finishActiveAbility(entity, encounter);
+            return;
+        }
+        Location destination = target.getLocation().clone().add(0.0D, 1.0D, 0.0D);
+        Vector movement = destination.toVector().subtract(entity.getLocation().toVector());
+        if (movement.lengthSquared() <= ability.radius() * ability.radius()) {
+            showAbilityEffect(target.getLocation(), ability, ability.radius());
+            target.damage(ability.damage(), entity);
+            finishActiveAbility(entity, encounter);
+            return;
+        }
+        if (movement.lengthSquared() > 0.0001D) {
+            double speed = Math.max(0.1D, Math.min(4.0D, ability.speed() * definition.combat().movementSpeedMultiplier()));
+            entity.setVelocity(movement.normalize().multiply(speed));
+            entity.setTarget(target);
+        }
+    }
+
+    private void finishActiveAbility(EnderDragon entity, ActiveDragonEncounter encounter) {
+        encounter.clearActiveAbility();
+        currentPhase(encounter).ifPresent(phase -> entity.setPhase(phase.nativePhase()));
+    }
+
+    private void scheduleAbilities(
+            EnderDragon entity,
+            ActiveDragonEncounter encounter,
+            DragonDefinition definition,
+            DragonPhaseDefinition phase,
+            long now
+    ) {
+        for (String abilityId : definition.combat().abilityIds()) {
+            DragonAbilityDefinition ability = abilities.get(abilityId);
+            if (ability == null || !ability.availableIn(encounter.currentPhaseId())) {
+                continue;
+            }
+            double cooldownMultiplier = definition.combat().cooldownMultiplier()
+                    * (phase == null ? 1.0D : phase.cooldownMultiplier());
+            long nextUse = encounter.nextAbilityAtMillis(ability.id());
+            if (nextUse <= 0L) {
+                encounter.scheduleAbility(ability.id(), now + scaledDuration(ability.initialDelayMillis(), cooldownMultiplier));
+                continue;
+            }
+            if (now < nextUse) {
+                continue;
+            }
+            encounter.scheduleAbility(ability.id(), now + scaledDuration(ability.cooldownMillis(), cooldownMultiplier));
+            if (triggerAbility(entity, encounter, definition, ability, now)) {
+                break;
+            }
+        }
+    }
+
+    private boolean triggerAbility(
+            EnderDragon entity,
+            ActiveDragonEncounter encounter,
+            DragonDefinition definition,
+            DragonAbilityDefinition ability,
+            long now
+    ) {
+        List<Player> targets = selectTargets(entity, ability.range(), Math.max(1, ability.targetCount()));
+        if (ability.type() != DragonAbilityType.AREA_BLAST && targets.isEmpty()) {
+            return false;
+        }
+        Player primaryTarget = targets.isEmpty() ? null : targets.getFirst();
+        encounter.beginAbility(
+                ability.id(),
+                primaryTarget == null ? null : primaryTarget.getUniqueId(),
+                now + Math.max(250L, ability.durationMillis())
+        );
+        entity.setPhase(ability.nativePhase());
+        switch (ability.type()) {
+            case RUSH -> {
+                entity.setTarget(primaryTarget);
+                Vector movement = primaryTarget.getLocation().clone().add(0.0D, 1.0D, 0.0D).toVector()
+                        .subtract(entity.getLocation().toVector());
+                if (movement.lengthSquared() > 0.0001D) {
+                    double speed = Math.max(0.1D, Math.min(4.0D, ability.speed() * definition.combat().movementSpeedMultiplier()));
+                    entity.setVelocity(movement.normalize().multiply(speed));
+                }
+            }
+            case FIREBALL -> spawnAbilityFireball(entity, encounter, ability, primaryTarget);
+            case LIGHTNING -> {
+                for (Player target : targets) {
+                    target.getWorld().strikeLightningEffect(target.getLocation());
+                    showAbilityEffect(target.getLocation(), ability, ability.radius());
+                    target.damage(ability.damage(), entity);
+                }
+            }
+            case AREA_BLAST -> {
+                showAbilityEffect(entity.getLocation(), ability, ability.radius());
+                damagePlayers(entity, entity.getLocation(), ability.radius(), ability.damage(), ability.targetCount());
+            }
+        }
+        if (ability.announce()) {
+            sendNearby(entity, "commands.dragon-live-ability", abilityPlaceholders(encounter, definition, ability));
+        }
+        return true;
+    }
+
+    private void spawnAbilityFireball(
+            EnderDragon entity,
+            ActiveDragonEncounter encounter,
+            DragonAbilityDefinition ability,
+            Player target
+    ) {
+        Location origin = entity.getEyeLocation();
+        Vector direction = target.getEyeLocation().toVector().subtract(origin.toVector());
+        if (direction.lengthSquared() <= 0.0001D) {
+            direction = entity.getLocation().getDirection();
+        }
+        Vector velocity = direction.normalize().multiply(Math.max(0.1D, Math.min(4.0D, ability.speed())));
+        entity.getWorld().spawn(origin, DragonFireball.class, fireball -> {
+            fireball.setShooter(entity);
+            fireball.setYield(0.0F);
+            fireball.setIsIncendiary(false);
+            fireball.setDirection(velocity.clone().normalize());
+            fireball.setVelocity(velocity);
+            fireball.getPersistentDataContainer().set(abilityProjectileKey, PersistentDataType.BYTE, (byte) 1);
+            fireball.getPersistentDataContainer().set(abilityIdKey, PersistentDataType.STRING, ability.id());
+            fireball.getPersistentDataContainer().set(abilityEncounterKey, PersistentDataType.STRING, encounter.entityId().toString());
+            fireball.getPersistentDataContainer().set(abilityDamageKey, PersistentDataType.DOUBLE, ability.damage());
+            fireball.getPersistentDataContainer().set(abilityRadiusKey, PersistentDataType.DOUBLE, ability.radius());
+        });
+    }
+
+    private void triggerDeathAbility(EnderDragon entity, ActiveDragonEncounter encounter, DragonDefinition definition) {
+        String deathAbilityId = definition.combat().deathAbilityId();
+        if (!combatEnabled || deathAbilityId.isBlank()) {
+            return;
+        }
+        DragonAbilityDefinition ability = abilities.get(deathAbilityId);
+        if (ability == null) {
+            return;
+        }
+        triggerAbility(entity, encounter, definition, ability, System.currentTimeMillis());
+    }
+
+    private List<Player> selectTargets(EnderDragon entity, double range, int maximumTargets) {
+        List<Player> targets = new ArrayList<>(entity.getWorld().getNearbyPlayers(
+                entity.getLocation(),
+                Math.max(1.0D, Math.min(participantRadius, range)),
+                player -> validTarget(entity, player, range)
+        ));
+        Collections.shuffle(targets);
+        return targets.stream().limit(Math.max(1, maximumTargets)).toList();
+    }
+
+    private boolean validTarget(EnderDragon entity, Player player, double range) {
+        return player != null
+                && player.isOnline()
+                && !player.isDead()
+                && player.getGameMode() != GameMode.CREATIVE
+                && player.getGameMode() != GameMode.SPECTATOR
+                && player.getWorld().equals(entity.getWorld())
+                && player.getLocation().distanceSquared(entity.getLocation()) <= range * range;
+    }
+
+    private void damagePlayers(EnderDragon entity, Location center, double radius, double damage, int maximumTargets) {
+        List<Player> targets = new ArrayList<>(center.getWorld().getNearbyPlayers(
+                center,
+                Math.max(0.5D, radius),
+                player -> validTarget(entity, player, participantRadius)
+        ));
+        Collections.shuffle(targets);
+        int limit = maximumTargets <= 0 ? targets.size() : Math.min(maximumTargets, targets.size());
+        for (int index = 0; index < limit; index++) {
+            targets.get(index).damage(damage, entity);
+        }
+    }
+
+    private void showAbilityEffect(Location location, DragonAbilityDefinition ability, double radius) {
+        int count = Math.max(4, Math.min(80, (int) Math.ceil(radius * 6.0D)));
+        double offset = Math.max(0.1D, radius * 0.35D);
+        location.getWorld().spawnParticle(ability.particle(), location, count, offset, offset, offset, 0.02D);
+        if (!ability.sound().isBlank()) {
+            location.getWorld().playSound(location, ability.sound(), 1.0F, 1.0F);
+        }
+    }
+
+    private Optional<DragonPhaseDefinition> phaseFor(ActiveDragonEncounter encounter) {
+        double healthPercent = encounter.maximumHealth() <= 0.0D
+                ? 0.0D
+                : encounter.currentHealth() * 100.0D / encounter.maximumHealth();
+        return phases.values().stream()
+                .sorted(Comparator.comparingDouble(DragonPhaseDefinition::minimumHealthPercent).reversed())
+                .filter(phase -> healthPercent >= phase.minimumHealthPercent())
+                .findFirst()
+                .or(() -> phases.values().stream().min(Comparator.comparingDouble(DragonPhaseDefinition::minimumHealthPercent)));
+    }
+
+    private Optional<DragonPhaseDefinition> currentPhase(ActiveDragonEncounter encounter) {
+        DragonPhaseDefinition current = phases.get(encounter.currentPhaseId());
+        return current == null ? phaseFor(encounter) : Optional.of(current);
+    }
+
+    private long scaledDuration(long durationMillis, double multiplier) {
+        return Math.max(250L, Math.round(durationMillis * Math.max(0.05D, multiplier)));
+    }
+
+    private void removeAbilityProjectiles(UUID encounterId) {
+        String expected = encounterId.toString();
+        for (World world : Bukkit.getWorlds()) {
+            for (DragonFireball fireball : world.getEntitiesByClass(DragonFireball.class)) {
+                String stored = fireball.getPersistentDataContainer().get(abilityEncounterKey, PersistentDataType.STRING);
+                if (expected.equals(stored)) {
+                    fireball.remove();
+                }
+            }
+        }
+    }
+
+    private void sendNearby(Entity entity, String path, List<TextService.TextPlaceholder> placeholders) {
+        entity.getWorld().getNearbyPlayers(entity.getLocation(), participantRadius)
+                .forEach(player -> text.send(player, path, placeholders));
     }
 
     private void syncEntityHealth(EnderDragon entity, ActiveDragonEncounter encounter) {
@@ -615,7 +995,7 @@ public final class DragonService {
     }
 
     private List<TextService.TextPlaceholder> livePlaceholders(ActiveDragonEncounter encounter, DragonDefinition definition, String ownerName) {
-        return List.of(
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(List.of(
                 TextService.parsed("dragon", definition.displayName()),
                 TextService.raw("dragon_id", definition.id()),
                 TextService.raw("owner", ownerName),
@@ -623,7 +1003,33 @@ public final class DragonService {
                 TextService.raw("max_health", text.formatNumber(encounter.maximumHealth())),
                 TextService.raw("eyes", Integer.toString(encounter.eyes())),
                 TextService.raw("time", Long.toString(remainingSeconds(encounter.expiresAtMillis())))
-        );
+        ));
+        placeholders.add(TextService.parsed(
+                "phase",
+                currentPhase(encounter).map(DragonPhaseDefinition::displayName).orElse(text.rawMessage("dragons.phase-none"))
+        ));
+        return placeholders;
+    }
+
+    private List<TextService.TextPlaceholder> phasePlaceholders(
+            ActiveDragonEncounter encounter,
+            DragonDefinition definition,
+            DragonPhaseDefinition phase
+    ) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(livePlaceholders(encounter, definition, ownerName(encounter.ownerId())));
+        placeholders.add(TextService.raw("phase_id", phase.id()));
+        return placeholders;
+    }
+
+    private List<TextService.TextPlaceholder> abilityPlaceholders(
+            ActiveDragonEncounter encounter,
+            DragonDefinition definition,
+            DragonAbilityDefinition ability
+    ) {
+        List<TextService.TextPlaceholder> placeholders = new ArrayList<>(livePlaceholders(encounter, definition, ownerName(encounter.ownerId())));
+        placeholders.add(TextService.raw("ability_id", ability.id()));
+        placeholders.add(TextService.parsed("ability", ability.displayName()));
+        return placeholders;
     }
 
     private void broadcast(String path, List<TextService.TextPlaceholder> placeholders) {
@@ -644,12 +1050,30 @@ public final class DragonService {
         return Math.max(0L, (expiresAtMillis - System.currentTimeMillis() + 999L) / 1000L);
     }
 
+    private Optional<UUID> parseUuid(String value) {
+        if (value == null || value.isBlank()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(UUID.fromString(value));
+        } catch (IllegalArgumentException ignored) {
+            return Optional.empty();
+        }
+    }
+
     private void cleanupStaleEntities() {
         Set<UUID> activeIds = new HashSet<>(activeEncounters.keySet());
         for (World world : Bukkit.getWorlds()) {
             for (EnderDragon dragon : world.getEntitiesByClass(EnderDragon.class)) {
                 if (isLiveDragon(dragon) && !activeIds.contains(dragon.getUniqueId())) {
                     dragon.remove();
+                }
+            }
+            for (DragonFireball fireball : world.getEntitiesByClass(DragonFireball.class)) {
+                String encounterValue = fireball.getPersistentDataContainer().get(abilityEncounterKey, PersistentDataType.STRING);
+                UUID encounterId = parseUuid(encounterValue).orElse(null);
+                if (isAbilityProjectile(fireball) && (encounterId == null || !activeIds.contains(encounterId))) {
+                    fireball.remove();
                 }
             }
         }
@@ -669,6 +1093,155 @@ public final class DragonService {
         } catch (IllegalArgumentException ignored) {
             return BossBar.Overlay.PROGRESS;
         }
+    }
+
+    private void loadCombat(ConfigurationSection section) {
+        phases.clear();
+        abilities.clear();
+        combatEnabled = section == null || section.getBoolean("enabled", true);
+        enforceConfiguredPhases = section == null || section.getBoolean("enforce-configured-phases", true);
+        combatTickIntervalTicks = Math.max(1L, section == null ? 5L : section.getLong("tick-interval-ticks", 5L));
+        List<String> configuredDefaults = section == null ? List.of() : normalizedList(section.getStringList("default-abilities"));
+        defaultAbilityIds = configuredDefaults.isEmpty()
+                ? List.of("RUSH", "FIREBALL", "LIGHTNING")
+                : configuredDefaults;
+
+        ConfigurationSection phaseSection = section == null ? null : section.getConfigurationSection("phases");
+        if (phaseSection != null) {
+            for (String id : phaseSection.getKeys(false)) {
+                ConfigurationSection configured = phaseSection.getConfigurationSection(id);
+                if (configured == null) {
+                    continue;
+                }
+                String normalized = id.toUpperCase(Locale.ROOT);
+                phases.put(normalized, new DragonPhaseDefinition(
+                        normalized,
+                        configured.getString("display-name", normalized),
+                        Math.max(0.0D, Math.min(100.0D, configured.getDouble("minimum-health-percent", 0.0D))),
+                        parseDragonPhase(configured.getString("native-phase", "CIRCLING"), EnderDragon.Phase.CIRCLING),
+                        Math.max(0.0D, configured.getDouble("outgoing-damage-multiplier", 1.0D)),
+                        Math.max(0.05D, configured.getDouble("cooldown-multiplier", 1.0D)),
+                        configured.getBoolean("announce", false)
+                ));
+            }
+        }
+        if (phases.isEmpty()) {
+            phases.put("NORMAL", new DragonPhaseDefinition(
+                    "NORMAL", "<light_purple>Sky Assault</light_purple>", 50.0D,
+                    EnderDragon.Phase.CIRCLING, 1.0D, 1.0D, false
+            ));
+            phases.put("ENRAGED", new DragonPhaseDefinition(
+                    "ENRAGED", "<red>Enraged</red>", 0.0D,
+                    EnderDragon.Phase.STRAFING, 1.5D, 0.67D, true
+            ));
+        }
+
+        ConfigurationSection abilitySection = section == null ? null : section.getConfigurationSection("abilities");
+        if (abilitySection != null) {
+            for (String id : abilitySection.getKeys(false)) {
+                ConfigurationSection configured = abilitySection.getConfigurationSection(id);
+                if (configured == null) {
+                    continue;
+                }
+                String normalized = id.toUpperCase(Locale.ROOT);
+                DragonAbilityType type = parseAbilityType(configured.getString("type", normalized));
+                if (type == null) {
+                    plugin.getLogger().warning("Ignoring dragon ability " + normalized + " with unknown type.");
+                    continue;
+                }
+                abilities.put(normalized, new DragonAbilityDefinition(
+                        normalized,
+                        configured.getString("display-name", normalized),
+                        type,
+                        secondsToMillis(configured.getDouble("initial-delay-seconds", 5.0D)),
+                        secondsToMillis(configured.getDouble("cooldown-seconds", 15.0D)),
+                        secondsToMillis(configured.getDouble("duration-seconds", 2.0D)),
+                        Math.max(0.0D, configured.getDouble("damage", 8.0D)),
+                        Math.max(0.5D, configured.getDouble("radius", 3.0D)),
+                        Math.max(1.0D, configured.getDouble("range", participantRadius)),
+                        Math.max(0.1D, configured.getDouble("speed", 1.0D)),
+                        Math.max(0, configured.getInt("target-count", 1)),
+                        Set.copyOf(normalizedList(configured.getStringList("phases"))),
+                        parseDragonPhase(configured.getString("native-phase", "CIRCLING"), EnderDragon.Phase.CIRCLING),
+                        parseParticle(configured.getString("particle", "DRAGON_BREATH")),
+                        configured.getString("sound", ""),
+                        configured.getBoolean("announce", false)
+                ));
+            }
+        }
+        if (abilities.isEmpty()) {
+            loadDefaultAbilities();
+        }
+    }
+
+    private void loadDefaultAbilities() {
+        abilities.putIfAbsent("RUSH", new DragonAbilityDefinition(
+                "RUSH", "<red>Rush</red>", DragonAbilityType.RUSH,
+                8_000L, 18_000L, 4_000L, 12.0D, 3.0D, 80.0D, 2.2D, 1,
+                Set.of(), EnderDragon.Phase.CHARGE_PLAYER, Particle.EXPLOSION,
+                "entity.ender_dragon.growl", true
+        ));
+        abilities.putIfAbsent("FIREBALL", new DragonAbilityDefinition(
+                "FIREBALL", "<gold>Fireball</gold>", DragonAbilityType.FIREBALL,
+                4_000L, 12_000L, 2_000L, 10.0D, 4.0D, 90.0D, 1.2D, 1,
+                Set.of(), EnderDragon.Phase.STRAFING, Particle.DRAGON_BREATH,
+                "entity.ender_dragon.shoot", false
+        ));
+        abilities.putIfAbsent("LIGHTNING", new DragonAbilityDefinition(
+                "LIGHTNING", "<yellow>Lightning</yellow>", DragonAbilityType.LIGHTNING,
+                12_000L, 22_000L, 1_500L, 8.0D, 2.0D, 70.0D, 1.0D, 3,
+                Set.of(), EnderDragon.Phase.CIRCLING, Particle.ELECTRIC_SPARK,
+                "entity.lightning_bolt.thunder", true
+        ));
+    }
+
+    private DragonCombatDefinition loadDragonCombat(ConfigurationSection dragonSection) {
+        ConfigurationSection combat = dragonSection.getConfigurationSection("combat");
+        List<String> configuredAbilities = combat == null ? List.of() : normalizedList(combat.getStringList("abilities"));
+        return new DragonCombatDefinition(
+                Math.max(0.0D, combat == null ? 1.0D : combat.getDouble("incoming-damage-multiplier", 1.0D)),
+                Math.max(0.0D, combat == null ? 1.0D : combat.getDouble("outgoing-damage-multiplier", 1.0D)),
+                Math.max(0.05D, combat == null ? 1.0D : combat.getDouble("cooldown-multiplier", 1.0D)),
+                Math.max(0.05D, combat == null ? 1.0D : combat.getDouble("movement-speed-multiplier", 1.0D)),
+                configuredAbilities.isEmpty() ? defaultAbilityIds : configuredAbilities,
+                combat == null ? "" : string(combat.getString("death-ability", ""), "").toUpperCase(Locale.ROOT)
+        );
+    }
+
+    private List<String> normalizedList(List<String> values) {
+        return values.stream()
+                .filter(value -> value != null && !value.isBlank())
+                .map(value -> value.toUpperCase(Locale.ROOT))
+                .distinct()
+                .toList();
+    }
+
+    private DragonAbilityType parseAbilityType(String value) {
+        try {
+            return DragonAbilityType.valueOf(value == null ? "" : value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
+    private EnderDragon.Phase parseDragonPhase(String value, EnderDragon.Phase fallback) {
+        try {
+            return EnderDragon.Phase.valueOf(value == null ? "" : value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return fallback;
+        }
+    }
+
+    private Particle parseParticle(String value) {
+        try {
+            return Particle.valueOf(value == null ? "DRAGON_BREATH" : value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return Particle.DRAGON_BREATH;
+        }
+    }
+
+    private long secondsToMillis(double seconds) {
+        return Math.max(250L, Math.round(Math.max(0.0D, seconds) * 1000.0D));
     }
 
     private void loadDragons() {
@@ -697,6 +1270,7 @@ public final class DragonService {
                     Math.max(0, dragonSection.getInt("base-fragments", 3)),
                     Math.max(0, dragonSection.getInt("fragments-per-eye", 2)),
                     Math.max(0, dragonSection.getInt("fragments-per-rank", 2)),
+                    loadDragonCombat(dragonSection),
                     List.copyOf(rewards)
             ));
         }

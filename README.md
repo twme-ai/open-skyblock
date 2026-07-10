@@ -27,7 +27,7 @@ The repository currently contains the foundation needed for later full parity wo
 - Persistent configurable Storage pages with command and SkyBlock menu access, search, sorting, and inventory-close saving.
 - Configurable installed Backpacks with admin-granted backpack items, right-click install flow, profile-backed contents, open/list/remove commands, and inventory-close saving.
 - Configurable SkyBlock mobs with level/health nameplates, admin spawn commands, stat-based damage/defense, custom loot rolls, rare drop announcements, and kill rewards.
-- Configurable live Ender Dragon encounters with Summoning Eye activation, real damage contribution tracking, virtual high-health combat, terrain protection, boss bars, timeouts, participant ranking, and weighted rewards; command-simulated fights remain available as a configurable fallback.
+- Configurable live Ender Dragon encounters with Summoning Eye activation, health-driven native phases, reusable Rush/Fireball/Lightning/area abilities, per-variant combat modifiers, real damage contribution tracking, virtual high-health combat, terrain protection, boss bars, timeouts, participant ranking, and weighted rewards; command-simulated fights remain available as a configurable fallback.
 - Configurable mob spawn zones with runtime caps, player activation checks, weighted mob selection, and force-spawn commands.
 - Configurable Bestiary families with persistent kill counts, milestone rewards, and stat aggregation.
 - Configurable Slayer quests with coin start costs, Combat XP progress, owner-tagged boss spawning, boss bars, timeouts, completion rewards, Slayer levels, milestone rewards, and persistent Slayer XP.

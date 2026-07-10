@@ -702,7 +702,7 @@ commands:
   dragon-disabled: "<prefix><red>Dragon fights are disabled on this server.</red>"
   dragon-usage: "<prefix><red>Use <yellow>/skyblock dragons</yellow>, <yellow>/skyblock dragons list</yellow>, <yellow>/skyblock dragons place <amount></yellow>, <yellow>/skyblock dragons spawn [type]</yellow>, <yellow>/skyblock dragons cancel</yellow>, or <yellow>/skyblock dragons fight <damage> [type]</yellow>.</red>"
   dragon-empty: "<prefix><gray>There are no configured dragon types.</gray>"
-  dragon-status: "<prefix><light_purple>Dragon Altar</light_purple> <dark_gray>|</dark_gray> <gray>Eyes:</gray> <yellow><eyes></yellow><gray>/</gray><yellow><eyes_required></yellow> <dark_gray>|</dark_gray> <gray>Kills:</gray> <yellow><kills></yellow> <dark_gray>|</dark_gray> <gray>Eyes Used:</gray> <yellow><eyes_used></yellow> <dark_gray>|</dark_gray> <gray>Best Damage:</gray> <red><best_damage></red> <dark_gray>|</dark_gray> <gray>Live:</gray> <live_status> <live_dragon> <dark_gray>(<red><live_health></red> HP, <yellow><live_time>s</yellow>)</dark_gray> <dark_gray>|</dark_gray> <gray>SkyBlock XP:</gray> <aqua><skyblock_xp></aqua>"
+  dragon-status: "<prefix><light_purple>Dragon Altar</light_purple> <dark_gray>|</dark_gray> <gray>Eyes:</gray> <yellow><eyes></yellow><gray>/</gray><yellow><eyes_required></yellow> <dark_gray>|</dark_gray> <gray>Kills:</gray> <yellow><kills></yellow> <dark_gray>|</dark_gray> <gray>Eyes Used:</gray> <yellow><eyes_used></yellow> <dark_gray>|</dark_gray> <gray>Best Damage:</gray> <red><best_damage></red> <dark_gray>|</dark_gray> <gray>Live:</gray> <live_status> <live_dragon> <dark_gray>(</dark_gray><live_phase><gray>,</gray> <red><live_health></red> <gray>HP,</gray> <yellow><live_time>s</yellow><dark_gray>)</dark_gray> <dark_gray>|</dark_gray> <gray>SkyBlock XP:</gray> <aqua><skyblock_xp></aqua>"
   dragon-status-line: "<gray><id>:</gray> <dragon> <dark_gray>|</dark_gray> <gray>Kills:</gray> <yellow><kills></yellow> <dark_gray>|</dark_gray> <gray>Health:</gray> <red><health></red> <dark_gray>|</dark_gray> <gray>Weight:</gray> <yellow><spawn_weight></yellow>"
   dragon-list-header: "<prefix><light_purple>Dragon Types</light_purple>"
   dragon-list-line: "<gray><id>:</gray> <dragon> <dark_gray>|</dark_gray> <gray>Health:</gray> <red><health></red> <dark_gray>|</dark_gray> <gray>Combat XP:</gray> <green><combat_xp></green> <dark_gray>|</dark_gray> <gray>Weight:</gray> <yellow><spawn_weight></yellow>"
@@ -725,6 +725,8 @@ commands:
   dragon-live-timeout-refunded: "<prefix><red>Your live Dragon encounter expired.</red> <gray>Refunded eyes:</gray> <yellow><eyes></yellow>"
   dragon-live-missing-refunded: "<prefix><red>Your live Dragon entity disappeared unexpectedly.</red> <gray>Refunded eyes:</gray> <yellow><eyes></yellow>"
   dragon-live-spawned: "<prefix><light_purple><dragon> has spawned for <yellow><owner></yellow>!</light_purple> <gray>Health:</gray> <red><max_health></red> <dark_gray>|</dark_gray> <gray>Time:</gray> <yellow><time>s</yellow>"
+  dragon-live-phase-change: "<prefix><dragon> <gray>entered</gray> <phase><gray>.</gray>"
+  dragon-live-ability: "<prefix><dragon> <gray>used</gray> <ability><gray>!</gray>"
   dragon-live-broadcast-defeated: "<prefix><light_purple><dragon> was defeated!</light_purple> <gray>Participants:</gray> <yellow><participants></yellow> <dark_gray>|</dark_gray> <gray>Top Damage:</gray> <red><top_damage></red>"
   rift-disabled: "<prefix><red>The Rift is disabled on this server.</red>"
   rift-usage: "<prefix><red>Use <yellow>/skyblock rift</yellow>, <yellow>/skyblock rift guide</yellow>, <yellow>/skyblock rift zones</yellow>, <yellow>/skyblock rift souls</yellow>, <yellow>/skyblock rift enter [seconds]</yellow>, <yellow>/skyblock rift orb <orb> [amount]</yellow>, <yellow>/skyblock rift soul <id></yellow>, <yellow>/skyblock rift exchange</yellow>, or <yellow>/skyblock rift timecharm <id></yellow>.</red>"
@@ -1438,10 +1440,11 @@ backpacks:
 
 dragons:
   none: "<dark_gray>None</dark_gray>"
+  phase-none: "<dark_gray>Unknown Phase</dark_gray>"
   live-inactive: "<gray>Inactive</gray>"
   live-active: "<red>Active</red>"
   live-entity-name: "<dragon>"
-  live-boss-bar-title: "<dragon> <dark_gray>|</dark_gray> <red><health></red><gray>/</gray><red><max_health> HP</red> <dark_gray>|</dark_gray> <yellow><time>s</yellow>"
+  live-boss-bar-title: "<dragon> <dark_gray>|</dark_gray> <phase> <dark_gray>|</dark_gray> <red><health></red><gray>/</gray><red><max_health> HP</red> <dark_gray>|</dark_gray> <yellow><time>s</yellow>"
 
 slayers:
   phase-progress: "<yellow>Gather Combat XP</yellow>"

@@ -478,7 +478,12 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.darkAuctionTask = getServer().getScheduler().runTaskTimer(this, darkAuctionService::tick, 20L, darkAuctionService.tickIntervalTicks());
         this.farmingContestTask = getServer().getScheduler().runTaskTimer(this, farmingContestService::tick, 20L, farmingContestService.tickIntervalTicks());
         this.cookieTask = getServer().getScheduler().runTaskTimer(this, cookieService::tickOnlinePlayers, 20L, cookieService.tickIntervalTicks());
-        this.dragonTask = getServer().getScheduler().runTaskTimer(this, dragonService::tickLiveEncounters, 20L, 20L);
+        this.dragonTask = getServer().getScheduler().runTaskTimer(
+                this,
+                dragonService::tickLiveEncounters,
+                dragonService.tickIntervalTicks(),
+                dragonService.tickIntervalTicks()
+        );
     }
 
     public ConfigService configService() {

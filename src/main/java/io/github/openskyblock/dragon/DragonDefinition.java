@@ -12,6 +12,7 @@ public record DragonDefinition(
         int baseFragments,
         int fragmentsPerEye,
         int fragmentsPerRank,
+        DragonCombatDefinition combat,
         List<DragonRewardDefinition> rewards
 ) {
 }

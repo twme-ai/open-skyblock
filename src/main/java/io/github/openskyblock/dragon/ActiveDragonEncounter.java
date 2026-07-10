@@ -14,7 +14,12 @@ public final class ActiveDragonEncounter {
     private final long startedAtMillis;
     private final long expiresAtMillis;
     private final Map<UUID, Double> damageByPlayer = new HashMap<>();
+    private final Map<String, Long> nextAbilityAtMillis = new HashMap<>();
     private double currentHealth;
+    private String currentPhaseId = "";
+    private String activeAbilityId = "";
+    private UUID activeAbilityTargetId;
+    private long activeAbilityEndsAtMillis;
     private boolean completing;
 
     public ActiveDragonEncounter(
@@ -90,6 +95,50 @@ public final class ActiveDragonEncounter {
         damageByPlayer.merge(playerId, applied, Double::sum);
         currentHealth = Math.max(0.0D, currentHealth - applied);
         return applied;
+    }
+
+    public String currentPhaseId() {
+        return currentPhaseId;
+    }
+
+    public void currentPhaseId(String currentPhaseId) {
+        this.currentPhaseId = currentPhaseId == null ? "" : currentPhaseId;
+    }
+
+    public long nextAbilityAtMillis(String abilityId) {
+        return nextAbilityAtMillis.getOrDefault(abilityId, 0L);
+    }
+
+    public void scheduleAbility(String abilityId, long atMillis) {
+        nextAbilityAtMillis.put(abilityId, atMillis);
+    }
+
+    public String activeAbilityId() {
+        return activeAbilityId;
+    }
+
+    public UUID activeAbilityTargetId() {
+        return activeAbilityTargetId;
+    }
+
+    public long activeAbilityEndsAtMillis() {
+        return activeAbilityEndsAtMillis;
+    }
+
+    public boolean hasActiveAbility(long nowMillis) {
+        return !activeAbilityId.isBlank() && nowMillis < activeAbilityEndsAtMillis;
+    }
+
+    public void beginAbility(String abilityId, UUID targetId, long endsAtMillis) {
+        this.activeAbilityId = abilityId == null ? "" : abilityId;
+        this.activeAbilityTargetId = targetId;
+        this.activeAbilityEndsAtMillis = endsAtMillis;
+    }
+
+    public void clearActiveAbility() {
+        this.activeAbilityId = "";
+        this.activeAbilityTargetId = null;
+        this.activeAbilityEndsAtMillis = 0L;
     }
 
     public boolean completing() {
