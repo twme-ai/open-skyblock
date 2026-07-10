@@ -109,6 +109,9 @@ public final class ProgressionListener implements Listener {
         if (killer == null) {
             return;
         }
+        if (plugin.dragons().isLiveDragon(event.getEntity())) {
+            return;
+        }
         plugin.pets().triggerAutoPet(killer, AutoPetTrigger.KILL);
         plugin.commissions().recordKill(killer, event.getEntityType(), 1L);
         if (plugin.mobs().enabled() && plugin.mobs().definition(event.getEntity()).isPresent()) {

@@ -36,6 +36,7 @@ import io.github.openskyblock.listener.AutoPetListener;
 import io.github.openskyblock.listener.IslandProtectionListener;
 import io.github.openskyblock.listener.CakeListener;
 import io.github.openskyblock.listener.CookieListener;
+import io.github.openskyblock.listener.DragonListener;
 import io.github.openskyblock.listener.FairySoulListener;
 import io.github.openskyblock.listener.ItemAbilityListener;
 import io.github.openskyblock.listener.MenuListener;
@@ -169,6 +170,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
     private BukkitTask darkAuctionTask;
     private BukkitTask farmingContestTask;
     private BukkitTask cookieTask;
+    private BukkitTask dragonTask;
 
     @Override
     public void onEnable() {
@@ -188,7 +190,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.experimentService = new ExperimentService(configService, textService, profileManager, economyService, skillService, customItemService);
         this.dungeonService = new DungeonService(configService, textService, profileManager, economyService, skillService, customItemService);
         this.gardenService = new GardenService(configService, textService, profileManager, economyService, skillService, collectionService, customItemService);
-        this.dragonService = new DragonService(configService, textService, profileManager, economyService, skillService, customItemService);
+        this.dragonService = new DragonService(this, configService, textService, profileManager, economyService, skillService, customItemService);
         this.riftService = new RiftService(configService, textService, profileManager, customItemService);
         this.forgeService = new ForgeService(configService, textService, profileManager, economyService, customItemService);
         this.museumService = new MuseumService(configService, textService, profileManager, customItemService);
@@ -324,11 +326,17 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         if (cookieTask != null) {
             cookieTask.cancel();
         }
+        if (dragonTask != null) {
+            dragonTask.cancel();
+        }
         if (petService != null) {
             petService.removeAllCosmeticPets();
         }
         if (slayerService != null) {
             slayerService.shutdown();
+        }
+        if (dragonService != null) {
+            dragonService.shutdown();
         }
         if (shopNpcService != null) {
             shopNpcService.removeLoadedNpcs();
@@ -447,6 +455,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CakeListener(this), this);
         getServer().getPluginManager().registerEvents(new CookieListener(this), this);
         getServer().getPluginManager().registerEvents(new MobListener(this), this);
+        getServer().getPluginManager().registerEvents(new DragonListener(this), this);
         getServer().getPluginManager().registerEvents(new IslandProtectionListener(this), this);
         getServer().getPluginManager().registerEvents(new TeleportPadListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
@@ -469,6 +478,7 @@ public final class OpenSkyBlockPlugin extends JavaPlugin {
         this.darkAuctionTask = getServer().getScheduler().runTaskTimer(this, darkAuctionService::tick, 20L, darkAuctionService.tickIntervalTicks());
         this.farmingContestTask = getServer().getScheduler().runTaskTimer(this, farmingContestService::tick, 20L, farmingContestService.tickIntervalTicks());
         this.cookieTask = getServer().getScheduler().runTaskTimer(this, cookieService::tickOnlinePlayers, 20L, cookieService.tickIntervalTicks());
+        this.dragonTask = getServer().getScheduler().runTaskTimer(this, dragonService::tickLiveEncounters, 20L, 20L);
     }
 
     public ConfigService configService() {

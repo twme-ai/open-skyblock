@@ -99,6 +99,8 @@ Verified reference links:
 - Paper EntityPickupItemEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityPickupItemEvent.html
 - Paper EntityDeathEvent API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/event/entity/EntityDeathEvent.html
 - Paper World entity spawning API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/World.html
+- Paper EnderDragon API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/entity/EnderDragon.html
+- Adventure BossBar API reference: https://jd.advntr.dev/api/latest/net/kyori/adventure/bossbar/BossBar.html
 - Paper WorldBorder API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/WorldBorder.html
 - Paper Server world unloading API reference: https://jd.papermc.io/paper/1.21.8/org/bukkit/Server.html
 - Java Files recursive deletion API reference: https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html
@@ -193,7 +195,7 @@ Planned additions when each subsystem needs them:
    - Hub and resource islands, Garden-like farming progression, Deep Caverns/Dwarven-style mining progression, combat islands, foraging islands, fishing content, seasonal events, and commissions.
 
 7. Advanced Activities
-   - Advanced Slayer boss mechanics beyond owner tracking/timeouts, dragons, dungeons, party finder, class XP, dungeon item stars, boss loot chests, Kuudra-style waves, Rift-like alternate rules, experiments, contests, races, and event scheduling.
+   - Advanced Slayer boss mechanics beyond owner tracking/timeouts, deeper Ender Dragon phases/abilities beyond live spawning and damage-ranked rewards, dungeon party finder, deeper class mechanics, dungeon item conversion/stars, boss loot chest presentation, Kuudra-style live waves, deeper Rift rules, interactive experiment GUIs, races, and deeper event scheduling.
 
 8. Production Readiness
    - Database migrations, cross-server synchronization, backups, rate limits, exploit prevention, permissions, diagnostics, metrics, integration tests, load tests, and release automation.
@@ -212,6 +214,8 @@ Planned additions when each subsystem needs them:
 - Hypixel SkyBlock Recipe Book reference: https://hypixelskyblock.minecraft.wiki/w/Recipe_Book
 - Paper event listener documentation: https://docs.papermc.io/paper/dev/event-listeners/
 - Hypixel SkyBlock Private Island reference: https://hypixelskyblock.minecraft.wiki/w/Private_Island
+- Hypixel Ender Dragon reference: https://wiki.hypixel.net/Ender_Dragon
+- Hypixel Summoning Eye reference: https://wiki.hypixel.net/Summoning_Eye
 - Hypixel SkyBlock Co-op reference: https://hypixelskyblock.minecraft.wiki/w/Co-op
 - Bukkit command tab completion reference: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/command/TabCompleter.html
 - Bukkit configuration section reference: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/configuration/ConfigurationSection.html

@@ -5,6 +5,27 @@ settings:
   base-coin-reward: 5000.0
   skyblock-xp-per-kill: 0.25
   skyblock-xp-per-unique-dragon: 2.0
+  live:
+    enabled: true
+    auto-spawn-on-ready: true
+    allow-simulated-fights: true
+    one-per-world: true
+    timeout-seconds: 600
+    participant-radius: 160.0
+    minimum-reward-damage: 1.0
+    physical-health: 200.0
+    refund-eyes-on-timeout: false
+    refund-eyes-on-shutdown: true
+    broadcast-spawn: true
+    broadcast-defeat: true
+    spawn-offset:
+      x: 0.0
+      y: 20.0
+      z: 0.0
+    boss-bar:
+      enabled: true
+      color: PURPLE
+      overlay: PROGRESS
   damage-ranks:
     first: 1000000.0
     second: 500000.0

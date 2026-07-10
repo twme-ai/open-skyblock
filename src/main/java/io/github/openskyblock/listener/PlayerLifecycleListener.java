@@ -22,6 +22,7 @@ public final class PlayerLifecycleListener implements Listener {
         giveStarterMenuItem(event.getPlayer());
         plugin.potions().playerJoined(event.getPlayer());
         plugin.slayers().playerJoined(event.getPlayer());
+        plugin.dragons().playerJoined(event.getPlayer());
         plugin.pets().triggerAutoPet(event.getPlayer(), AutoPetTrigger.LOGIN);
     }
 
@@ -30,6 +31,7 @@ public final class PlayerLifecycleListener implements Listener {
         plugin.potions().playerQuit(event.getPlayer());
         plugin.trades().playerQuit(event.getPlayer());
         plugin.slayers().playerQuit(event.getPlayer());
+        plugin.dragons().playerQuit(event.getPlayer());
         plugin.pets().playerQuit(event.getPlayer());
         plugin.profiles().save(event.getPlayer());
     }

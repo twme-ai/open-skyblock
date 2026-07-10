@@ -567,7 +567,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
             return startsWith(List.of("64", "160", "1000", "10000"), args[3]);
         }
         if (args.length == 2 && isDragonCommand(args[0])) {
-            return startsWith(List.of("status", "list", "place", "fight"), args[1]);
+            return startsWith(List.of("status", "list", "place", "spawn", "cancel", "fight"), args[1]);
         }
         if (args.length == 3 && isDragonCommand(args[0]) && args[1].equalsIgnoreCase("place")) {
             return startsWith(List.of("1", "2", "4", "8"), args[2]);
@@ -577,6 +577,9 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 4 && isDragonCommand(args[0]) && args[1].equalsIgnoreCase("fight")) {
             return startsWith(plugin.dragons().dragonIds(), args[3]);
+        }
+        if (args.length == 3 && isDragonCommand(args[0]) && args[1].equalsIgnoreCase("spawn")) {
+            return startsWith(plugin.dragons().dragonIds(), args[2]);
         }
         if (args.length == 2 && isRiftCommand(args[0])) {
             return startsWith(List.of("status", "guide", "zones", "souls", "enter", "orb", "soul", "exchange", "timecharm"), args[1]);
@@ -977,7 +980,7 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
         helpLine(sender, label + " experiments status|list|run", "commands.help.experiments");
         helpLine(sender, label + " dungeons status|floors|classes|run", "commands.help.dungeons");
         helpLine(sender, label + " garden status|crops|plots|visitors", "commands.help.garden");
-        helpLine(sender, label + " dragons status|list|place|fight", "commands.help.dragons");
+        helpLine(sender, label + " dragons status|list|place|spawn|cancel|fight", "commands.help.dragons");
         helpLine(sender, label + " rift status|guide|zones|souls", "commands.help.rift");
         helpLine(sender, label + " kuudra status|tiers|keys|run", "commands.help.kuudra");
         helpLine(sender, label + " faction status|choose|quests|ranks", "commands.help.faction");
@@ -2059,6 +2062,8 @@ public final class SkyBlockCommand implements CommandExecutor, TabCompleter {
                 }
                 parsePositiveAmount(player, args[2]).ifPresent(damage -> plugin.dragons().fight(player, damage, args.length >= 4 ? args[3] : ""));
             }
+            case "spawn" -> plugin.dragons().spawnLive(player, args.length >= 3 ? args[2] : "");
+            case "cancel" -> plugin.dragons().cancelLive(player);
             default -> plugin.text().send(player, "commands.dragon-usage");
         }
     }
